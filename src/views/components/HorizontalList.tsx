@@ -1,5 +1,6 @@
-import { FunctionComponent, useEffect, useState } from "react";
+import { FunctionComponent, useContext, useEffect, useState } from "react";
 import { FlatList, StyleSheet, Text, View } from "react-native";
+import { LanguageContext, Languages } from "../../configs/LanguageConfig";
 
 type HorizontalListProp = {
   title: string;
@@ -24,6 +25,7 @@ export default function HorizontalList({
   ItemView = ({ item }: ItemViewProp) => <></>,
 }: HorizontalListProp) {
   //refs, contexts
+  const languageContext = useContext(LanguageContext);
 
   //states
 
@@ -36,7 +38,7 @@ export default function HorizontalList({
         {/* title */}
         <Text style={styles.title}>{title}</Text>
         <Text style={styles.viewAll} onPress={onViewAll}>
-          View all
+          {languageContext.language.VIEW_ALL}
         </Text>
       </View>
 
