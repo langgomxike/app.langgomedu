@@ -20,6 +20,9 @@ import {
   Languages,
   LanguageType,
 } from "./src/configs/LanguageConfig";
+import MyText , {AppText} from "./src/views/components/MyText"; 
+import Avatar, {avatarTempt,Orientation }from "./src/views/components/Avatar";
+import MyIcon , {AppIcon} from "./src/views/components/MyIcon"; 
 
 export default function App() {
   const [text, setText] = useState<string>('');
