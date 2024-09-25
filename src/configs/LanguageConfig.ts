@@ -10,6 +10,7 @@ export enum Languages {
 export type LanguageType = {
     VIEW_ALL: string;
     SHOWING_PAGE: string;
+    SEARCH: string
 }
 
 type LanguageConfigType = {
