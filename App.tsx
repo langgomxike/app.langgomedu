@@ -58,6 +58,21 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#0D99FF",
     alignItems: "center",
+    justifyContent: 'flex-start',
+    marginTop: 50,
+  },
+
+  languageSelector: {
+    flexDirection: "row",
+    justifyContent: "space-around", // Spread buttons evenly
+    marginBottom: 20, // Add some space below the language selector
+  },
+
+  horizontalList: {
+    marginBottom: 20, 
+  },
+
+  badge: {
     justifyContent: "center",
     marginTop: 20,
   },
