@@ -10,6 +10,11 @@ import {
   Languages,
   LanguageType,
 } from "./src/configs/LanguageConfig";
+import KhanhTestScreen from "./src/views/screens/KhanhTest";
+import KhangTestScreen from "./src/views/screens/KhangTest";
+import DuTestScreen from "./src/views/screens/DuTest";
+import NhiTestScreen from "./src/views/screens/NhiTest";
+import HoangTestScreen from "./src/views/screens/HoangTest";
 
 export default function App() {
   const tabs: Array<TabItem> = [];
@@ -49,7 +54,7 @@ export default function App() {
     <LanguageContext.Provider
       value={{ language: language, setLanguage: setLanguageContext }}
     >
-      <View style={styles.container}>
+      {/* <View style={styles.container}>
         <View>
           <Text onPress={() => setLanguageContext(Languages.VN)}>VN</Text>
           <Text onPress={() => setLanguageContext(Languages.EN)}>EN</Text>
@@ -64,7 +69,13 @@ export default function App() {
             ItemView={(item) => <Text>{JSON.stringify(item)}</Text>}
           />
         </View>
-      </View>
+      </View> */}
+
+      <DuTestScreen />
+      <HoangTestScreen />
+      <KhangTestScreen />
+      <KhanhTestScreen />
+      <NhiTestScreen />
     </LanguageContext.Provider>
   );
 }
