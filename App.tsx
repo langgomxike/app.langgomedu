@@ -11,12 +11,16 @@ import {
   LanguageType,
 } from "./src/configs/LanguageConfig";
 
+//
+import Rating from "./src/views/components/Rating";
+import HLine, {HLineType} from "./src/views/components/HLine";
+
 export default function App() {
   const tabs: Array<TabItem> = [];
 
   for (let i = 0; i < 2; i++) {
     const element: TabItem = {
-      title: "Tab avcgfdgcydgcyd" + i,
+      title: "Tab heloo" + i,
       view: () => <Text>{i}</Text>,
     };
 
@@ -27,6 +31,7 @@ export default function App() {
 
   // states
   const [language, setLanguage] = useState<LanguageType>(languages.VN);
+  const [rating, setRating] = useState(0);
 
   //handlers
   const setLanguageContext = useCallback((language: Languages) => {
@@ -45,6 +50,11 @@ export default function App() {
     }
   }, []);
 
+  const handleRatingChange = (newRating : number) =>{
+    setRating(newRating)
+  }
+
+  //Return View
   return (
     <LanguageContext.Provider
       value={{ language: language, setLanguage: setLanguageContext }}
@@ -56,15 +66,19 @@ export default function App() {
           <Text onPress={() => setLanguageContext(Languages.JA)}>JA</Text>
         </View>
 
-        <View>
+        {/* <View>
           <HorizontalList
             title="Test list"
             onViewAll={() => alert("hello")}
             list={tabs}
             ItemView={(item) => <Text>{JSON.stringify(item)}</Text>}
           />
-        </View>
+          </View> */}
+          <Rating onRatingChange={handleRatingChange}/>
+          <Text> {rating}</Text>
+          <HLine type={HLineType.NORMAL} color="#FFB800"/>
       </View>
+      
     </LanguageContext.Provider>
   );
 }
@@ -72,7 +86,6 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#ccc",
     alignItems: "center",
     justifyContent: "center",
     marginTop: 50,
