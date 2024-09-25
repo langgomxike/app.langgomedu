@@ -1,9 +1,5 @@
-import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View } from "react-native";
-import Tab, { TabItem } from "./src/views/components/Tab";
-import Pagination from "./src/views/components/Pagination";
-import HorizontalList from "./src/views/components/HorizontalList";
-import { useCallback, useContext, useState } from "react";
+import { useCallback, useState } from "react";
+import { StyleSheet } from "react-native";
 import languages from "./languages.json";
 import {
   LanguageContext,
@@ -17,19 +13,6 @@ import NhiTestScreen from "./src/views/screens/NhiTest";
 import HoangTestScreen from "./src/views/screens/HoangTest";
 
 export default function App() {
-  const tabs: Array<TabItem> = [];
-
-  for (let i = 0; i < 2; i++) {
-    const element: TabItem = {
-      title: "Tab avcgfdgcydgcyd" + i,
-      view: () => <Text>{i}</Text>,
-    };
-
-    tabs.push(element);
-  }
-
-  //refs, contexts
-
   // states
   const [language, setLanguage] = useState<LanguageType>(languages.VN);
 
@@ -44,33 +27,18 @@ export default function App() {
         setLanguage(languages.EN);
         break;
 
+      //Return View
       case Languages.JA:
         setLanguage(languages.JA);
         break;
     }
   }, []);
 
+  // jxs
   return (
     <LanguageContext.Provider
       value={{ language: language, setLanguage: setLanguageContext }}
     >
-      {/* <View style={styles.container}>
-        <View>
-          <Text onPress={() => setLanguageContext(Languages.VN)}>VN</Text>
-          <Text onPress={() => setLanguageContext(Languages.EN)}>EN</Text>
-          <Text onPress={() => setLanguageContext(Languages.JA)}>JA</Text>
-        </View>
-
-        <View>
-          <HorizontalList
-            title="Test list"
-            onViewAll={() => alert("hello")}
-            list={tabs}
-            ItemView={(item) => <Text>{JSON.stringify(item)}</Text>}
-          />
-        </View>
-      </View> */}
-
       <DuTestScreen />
       <HoangTestScreen />
       <KhangTestScreen />
@@ -81,12 +49,46 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
+  image: {
+    width: 200,
+    height: 200,
+  },
+  course: {},
   container: {
     flex: 1,
-    backgroundColor: "#ccc",
+    backgroundColor: "#0D99FF",
     alignItems: "center",
     justifyContent: "center",
+    marginTop: 20,
+  },
+
+  header: {
+    backgroundColor: "orange",
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+  },
+
+  headerTest: {
+    fontSize: 20,
+    textAlign: "center",
+    fontWeight: "600",
+  },
+
+  body: {
+    paddingHorizontal: 10,
+    marginTop: 10,
+  },
+
+  btnAdd: {
+    backgroundColor: "#0D99FF",
+    padding: 15,
+    borderRadius: 7,
     marginTop: 50,
-    padding: 100,
+  },
+
+  btnAddText: {
+    color: "#fff",
+    fontWeight: "600",
+    textAlign: "center",
   },
 });
