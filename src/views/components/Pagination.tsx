@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
+import { LanguageContext } from "./../../configs/LanguageConfig";
 
 type PaginationProp = {
   totalPage: number;
@@ -18,6 +19,7 @@ export default function Pagination({
   onChange = (page: number) => {},
 }: PaginationProp) {
   //refs, contexts
+  const languageContext = useContext(LanguageContext);
 
   //states
   const [active, setActive] = useState<number>(
@@ -33,7 +35,7 @@ export default function Pagination({
     <View style={styles.container}>
       {/* title */}
       <Text style={styles.title}>
-        Showing page {active} of {totalPage}
+        {languageContext.language.SHOWING_PAGE} {active} / {totalPage}
       </Text>
 
       {/* main */}
