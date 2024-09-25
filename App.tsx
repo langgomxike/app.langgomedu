@@ -1,9 +1,19 @@
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View } from "react-native";
-import Tab, { TabItem } from "./src/views/components/Tab";
-import Pagination from "./src/views/components/Pagination";
-import HorizontalList from "./src/views/components/HorizontalList";
-import { useCallback, useContext, useState } from "react";
+import { useCallback, useState } from "react";
+import {
+  Button,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+  Image,
+} from "react-native";
+
+import Search from './src/views/components/Inputs/Seach';
+import OptionPopup from './src/views/components/OptionPopup';
+import CourseItem from './src/views/components/CourseItem';
+import ImagePicker from './src/views/components/ImagePicker';
 import languages from "./languages.json";
 import {
   LanguageContext,
@@ -12,70 +22,170 @@ import {
 } from "./src/configs/LanguageConfig";
 
 export default function App() {
-  const tabs: Array<TabItem> = [];
+  const [text, setText] = useState<string>('');
+  const options = ["Mathematics",
+  "Physics",
+  "Chemistry",
+  "Biology",
+  "Computer Science",
+  "History",
+  "Geography",
+  "English Literature"
+];
+  
+  const [selectedOption, setSelectedOption] = useState("");
+  const [visibleModal, setVisibleModal] = useState<string | null>(null);
+  const [image, setImage] = useState("");
 
-  for (let i = 0; i < 2; i++) {
-    const element: TabItem = {
-      title: "Tab avcgfdgcydgcyd" + i,
-      view: () => <Text>{i}</Text>,
-    };
-
-    tabs.push(element);
+  const handleSelectOption = (option:string) => {
+    setSelectedOption(option);
+    setVisibleModal(null);
   }
 
-  //refs, contexts
+  const handleImagePicker = (imageUri:string) => {
+    setImage(imageUri);
+  }
 
-  // states
-  const [language, setLanguage] = useState<LanguageType>(languages.VN);
+// states
+const [language, setLanguage] = useState<LanguageType>(languages.VN);
 
-  //handlers
-  const setLanguageContext = useCallback((language: Languages) => {
-    switch (language) {
-      case Languages.VN:
-        setLanguage(languages.VN);
-        break;
+//handlers
+const setLanguageContext = useCallback((language: Languages) => {
+  switch (language) {
+    case Languages.VN:
+      setLanguage(languages.VN);
+      break;
 
-      case Languages.EN:
-        setLanguage(languages.EN);
-        break;
+    case Languages.EN:
+      setLanguage(languages.EN);
+      break;
 
-      case Languages.JA:
-        setLanguage(languages.JA);
-        break;
-    }
-  }, []);
-
+    case Languages.JA:
+      setLanguage(languages.JA);
+      break;
+  }
+}, []);
+  // jxs
   return (
     <LanguageContext.Provider
       value={{ language: language, setLanguage: setLanguageContext }}
     >
-      <View style={styles.container}>
-        <View>
+    <View style={styles.container}>
+      {/* Header */}
+      <View style={styles.header}>
+        <Text style={styles.headerTest}>Todo list</Text>
+      </View>
+
+      {/* Body */}
+      <View style={styles.body}>
+      <View>
           <Text onPress={() => setLanguageContext(Languages.VN)}>VN</Text>
           <Text onPress={() => setLanguageContext(Languages.EN)}>EN</Text>
           <Text onPress={() => setLanguageContext(Languages.JA)}>JA</Text>
         </View>
 
+        {/* Input */}
+        <Search 
+        value={text} 
+        onChangeText={setText} 
+        />
+
+        {/* Buttom */}
+        <Pressable style={styles.btnAdd} onPress={() => setVisibleModal('modal_2')}>
+          <Text style={styles.btnAddText}>Add</Text>
+        </Pressable>
+
+        <Pressable style={styles.btnAdd} onPress={() => setVisibleModal('modal_1')}>
+          <Text style={styles.btnAddText}>Show Option</Text>
+        </Pressable>
+
+        {/* Content */}
         <View>
-          <HorizontalList
-            title="Test list"
-            onViewAll={() => alert("hello")}
-            list={tabs}
-            ItemView={(item) => <Text>{JSON.stringify(item)}</Text>}
+          <Text>{text}</Text>
+          <Text>{selectedOption}</Text>
+        </View>
+
+        <View>
+            <OptionPopup 
+            visible={visibleModal}
+            options={options}
+            onSelect={handleSelectOption}
+            onRequestClose={() => setVisibleModal(null)}
+            />
+        </View>
+
+        {/* CouseItem */}
+        <View style={styles.course}>
+          <CourseItem
+          name="Tìm gia sư dạy toán"
+          level="Lớp 12"
+          date="24/09/2024"
+          time={4}
+          type="Tại nhà"
+          address="Linh Chiểu, Thủ Đức"
+          cost={200000}
+
           />
         </View>
+
+        {/* Image Picker */}
+        <View>
+          <ImagePicker
+          visible={visibleModal}
+          onRequestClose={() => setVisibleModal(null)}
+          onImagePicker={handleImagePicker}
+          />
+        </View>
+        {image && <Image source={{ uri: image }} style={styles.image} />}
+      
       </View>
+    </View>
     </LanguageContext.Provider>
   );
 }
 
 const styles = StyleSheet.create({
+  image: {
+    width: 200,
+    height: 200,
+  },
+  course : {
+  },
   container: {
     flex: 1,
-    backgroundColor: "#ccc",
-    alignItems: "center",
-    justifyContent: "center",
+    // backgroundColor: "#0D99FF",
+    // alignItems: "center",
+    // justifyContent: "center",
+    marginTop: 20,
+  },
+
+  header: {
+    backgroundColor: "orange",
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+  },
+
+  headerTest: {
+    fontSize: 20,
+    textAlign: "center",
+    fontWeight: "600",
+  },
+
+  body: {
+    paddingHorizontal: 10,
+    marginTop: 10,
+  },
+
+  btnAdd: {
+    backgroundColor: "#0D99FF",
+    padding: 15,
+    borderRadius: 7,
     marginTop: 50,
-    padding: 100,
+  },
+
+  btnAddText: {
+    color: "#fff",
+    fontWeight: "600",
+    textAlign: "center",
   },
 });

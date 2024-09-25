@@ -1,14 +1,17 @@
 {
     "EN": {
         "VIEW_ALL": "View All",
-        "SHOWING_PAGE": "Showing page"
+        "SHOWING_PAGE": "Showing page",
+        "SEARCH" : "Search here..."
     },
     "VN": {
         "VIEW_ALL": "Xem tất cả",
-        "SHOWING_PAGE": "Hiển thị trang"
+        "SHOWING_PAGE": "Hiển thị trang",
+        "SEARCH" : "Tìm kiếm..."
     },
     "JA": {
         "VIEW_ALL": "すべて見る",
-        "SHOWING_PAGE": "ページを表示"
+        "SHOWING_PAGE": "ページを表示",
+        "SEARCH" : "ここで検索..."
     }
 }
