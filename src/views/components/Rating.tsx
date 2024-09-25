@@ -1,0 +1,51 @@
+import React, { useState } from "react";
+import { View, StyleSheet, Image, TouchableOpacity } from "react-native";
+
+type ratingProps = {
+    onRatingChange: (rating: number) => void;
+}
+
+const Rating = ({onRatingChange} : ratingProps) => {
+    //define
+    const star = require('../../../assets/ic_star_outline.png');
+    const star_active = require('../../../assets/ic_star.png');
+    const maxStar: number = 5;
+    const starArray: Array<any> = [];
+
+    const [activeStars, setActiveStars] = useState(0);
+
+    const handleStarClick = (index: number) => {
+        var stars :number = activeStars === (index + 1) ? 0 : (index + 1)
+        setActiveStars(stars)
+        onRatingChange(stars);
+    }
+
+
+    return (
+        <View style={styles.container} >
+            {/* {starArray} */}
+            {Array.from({ length: maxStar }).map((_, index) => (
+                <TouchableOpacity key={index} onPress={() => handleStarClick(index)}>
+                    <Image source={index < activeStars ? star_active : star} style={styles.star} />
+                </TouchableOpacity>
+            ))}
+        </View>
+    )
+}
+
+const styles = StyleSheet.create({
+    container: {
+        width: 200,
+        height: 50,
+        flexDirection: "row",
+        alignItems: "center"
+    },
+    star: {
+        marginLeft: 3,
+        marginRight: 3,
+        width: 30,
+        height: 30,
+    }
+})
+
+export default Rating;
