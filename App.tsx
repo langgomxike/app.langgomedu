@@ -1,17 +1,32 @@
 import { StatusBar } from "expo-status-bar";
-import { Alert, StyleSheet, Text, View, SafeAreaView } from "react-native";
-import Tab, { TabItem } from "./src/views/components/Tab";
-import Pagination from "./src/views/components/Pagination";
-import HorizontalList from "./src/views/components/HorizontalList";
-import { useCallback, useContext, useState } from "react";
+import {useCallback, useState } from "react";
+import {
+  Button,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  View, SafeAreaView,
+  Image,
+  Alert
+} from "react-native";
+
+import Search from './src/views/components/Inputs/Seach';
+import OptionPopup from './src/views/components/OptionPopup';
+import CourseItem from './src/views/components/CourseItem';
+import ImagePicker from './src/views/components/ImagePicker';
 import languages from "./languages.json";
 import {
   LanguageContext,
   Languages,
   LanguageType,
 } from "./src/configs/LanguageConfig";
+
+//
+import Rating from "./src/views/components/Rating";
+import HLine, { HLineType } from "./src/views/components/HLine";
 import Badge from "./src/views/components/Badge";
-import Button from "./src/views/components/Button";
+import Buttons from "./src/views/components/Button";
 import Box from "./src/views/components/Box";
 
 export enum BadgeBackgroundColor {
@@ -79,21 +94,12 @@ export default function App() {
     Alert.alert("Badge", "Hello world!!!");
   }
 
-  const tabs: Array<TabItem> = [];
-
-  for (let i = 0; i < 2; i++) {
-    const element: TabItem = {
-      title: "Tab avcgfdgcydgcyd" + i,
-      view: () => <Text>{i}</Text>,
-    }; 
-
-    // tabs.push(element);
-  }
 
   //refs, contexts
 
   // states
   const [language, setLanguage] = useState<LanguageType>(languages.VN);
+  const [rating, setRating] = useState(0);
 
   //handlers
   const setLanguageContext = useCallback((language: Languages) => {
@@ -106,38 +112,106 @@ export default function App() {
         setLanguage(languages.EN);
         break;
 
+      //Return View
       case Languages.JA:
         setLanguage(languages.JA);
         break;
     }
   }, []);
 
+  const handleRatingChange = (newRating: number) => {
+    setRating(newRating)
+  }
+
+  const handleSelectOption = (option: string) => {
+    // setSelectedOption(option);
+    // setVisibleModal(null);
+  }
+
+  const handleImagePicker = (imageUri: string) => {
+    // setImage(imageUri);
+  }
+
+  // jxs
   return (
     <LanguageContext.Provider
       value={{ language: language, setLanguage: setLanguageContext }}
     >
       <View style={styles.container}>
-        <View>
-          <Text onPress={() => setLanguageContext(Languages.VN)}>VN</Text>
-          <Text onPress={() => setLanguageContext(Languages.EN)}>EN</Text>
-          <Text onPress={() => setLanguageContext(Languages.JA)}>JA</Text>
+        {/* Header */}
+        <View style={styles.header}>
+          <Text style={styles.headerTest}>Todo list</Text>
         </View>
 
-        <View style={styles.horizontalList}>
-          <HorizontalList
-            title="Test list"
-            onViewAll={() => alert("hello")}
-            list={tabs}
-            ItemView={(item) => <Text>{JSON.stringify(item)}</Text>}
+        {/* Body */}
+        <View style={styles.body}>
+          <View>
+            <Text onPress={() => setLanguageContext(Languages.VN)}>VN</Text>
+            <Text onPress={() => setLanguageContext(Languages.EN)}>EN</Text>
+            <Text onPress={() => setLanguageContext(Languages.JA)}>JA</Text>
+          </View>
+
+        {/* Input */}
+        {/* <Search 
+        value={text} 
+        onChangeText={setText} 
+        /> */}
+
+        {/* Buttom */}
+        {/* <Pressable style={styles.btnAdd} onPress={() => setVisibleModal('modal_2')}>
+          <Text style={styles.btnAddText}>Add</Text>
+        </Pressable> */}
+
+        {/* <Pressable style={styles.btnAdd} onPress={() => setVisibleModal('modal_1')}>
+          <Text style={styles.btnAddText}>Show Option</Text>
+        </Pressable> */}
+
+        {/* Content */}
+        {/* <View>
+          <Text>{text}</Text>
+          <Text>{selectedOption}</Text>
+        </View> */}
+
+        <View>
+            <OptionPopup 
+            // visible={visibleModal}
+            // options={options}
+            // onSelect={handleSelectOption}
+            // onRequestClose={() => setVisibleModal(null)}
+            />
+        </View>
+
+        {/* CouseItem */}
+        <View style={styles.course}>
+          <CourseItem
+          name="Tìm gia sư dạy toán"
+          level="Lớp 12"
+          date="24/09/2024"
+          time={4}
+          type="Tại nhà"
+          address="Linh Chiểu, Thủ Đức"
+          cost={200000}
+
           />
         </View>
+
+        {/* Image Picker */}
+        <View>
+          <ImagePicker
+          // visible={visibleModal}
+          // onRequestClose={() => setVisibleModal(null)}
+          onImagePicker={handleImagePicker}
+          />
+        </View>
+        {/* {image && <Image source={{ uri: image }} style={styles.image} />} */}
+      
 
         <View style={styles.badge}>
           <Badge color= {BadgeBackgroundColor.LightBale} content="Badge" colorText= {BadgeTextColor.Primary} onPress={handleBadgePress}/>
         </View>
 
         <View>
-          <Button title="title button" textColor={ButtonTextColor.Dark} backgroundColor={ButtonBackgroundColor.Primary} onPress={handleButtonPress}/>
+          <Buttons title="title button" textColor={ButtonTextColor.Dark} backgroundColor={ButtonBackgroundColor.Primary} onPress={handleButtonPress}/>
         </View>
 
         <SafeAreaView>
@@ -146,13 +220,22 @@ export default function App() {
         </SafeAreaView>
 
       </View>
-    </LanguageContext.Provider>
+    </View>
+    </LanguageContext.Provider >
 
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  image: {
+    width: 200,
+    height: 200,
+  },
+  course: {
+  },
+  container: {  flex: 1,
+    backgroundColor: "#0D99FF",
+    alignItems: "center",
     justifyContent: 'flex-start',
     marginTop: 50,
   },
@@ -169,6 +252,36 @@ const styles = StyleSheet.create({
 
   badge: {
     justifyContent: "center",
-    alignItems: "center",
+    marginTop: 20,
+  },
+
+  header: {
+    backgroundColor: "orange",
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+  },
+
+  headerTest: {
+    fontSize: 20,
+    textAlign: "center",
+    fontWeight: "600",
+  },
+
+  body: {
+    paddingHorizontal: 10,
+    marginTop: 10,
+  },
+
+  btnAdd: {
+    backgroundColor: "#0D99FF",
+    padding: 15,
+    borderRadius: 7,
+    marginTop: 50,
+  },
+
+  btnAddText: {
+    color: "#fff",
+    fontWeight: "600",
+    textAlign: "center",
   },
 });
