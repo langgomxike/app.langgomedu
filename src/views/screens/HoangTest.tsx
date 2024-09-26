@@ -7,11 +7,13 @@ import {
   TextInput,
   View,
   Image,
+  ScrollView,
 } from "react-native";
 
 import Search from '../components/Inputs/Seach';
 import CustomInput from '../components/Inputs/CustomInput';
 import InputRegister from '../components/Inputs/InputRegister';
+import GenderInput from '../components/Inputs/GenderInput';
 import OptionPopup from '../components/OptionPopup';
 import CourseItem from '../components/CourseItem';
 import ImagePicker from '../components/ImagePicker';
@@ -24,6 +26,7 @@ export default function HoangTestScreen() {
   const [inputTextareaValue, setInputTextareaValue] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [text, setText] = useState<string>('');
+  const [gender, setGender] = useState<number>(0); // 0: Female, 1: male
 
   const options = ["Mathematics",
     "Physics",
@@ -45,7 +48,7 @@ export default function HoangTestScreen() {
   }
 
   return (
-    <>
+    <ScrollView>
       <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
@@ -84,6 +87,13 @@ export default function HoangTestScreen() {
 
       <Text>{inputTextareaValue}</Text>
 
+      <GenderInput
+      value={gender}
+      onChange={setGender}
+      styleInputWidth={{width: "30%"}}
+      style={{marginTop: 30, marginBottom: 30}}
+      />
+
       <InputRegister
         label="Nhập mật khẩu của bạn"
         required={true}
@@ -93,6 +103,8 @@ export default function HoangTestScreen() {
         type="password"
         iconName="password"
         />
+
+        
 
         {/* <InputDatePicker
         label="Chọn ngày"
@@ -153,7 +165,7 @@ export default function HoangTestScreen() {
       
       </View>
     </View>
-    </>
+    </ScrollView>
   );
 }
 
