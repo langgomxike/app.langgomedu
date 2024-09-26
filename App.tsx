@@ -11,6 +11,8 @@ import {
 } from "react-native";
 
 import Search from './src/views/components/Inputs/Seach';
+import CustomInput from './src/views/components/Inputs/CustomInput';
+import InputRegister from './src/views/components/Inputs/InputRegister';
 import OptionPopup from './src/views/components/OptionPopup';
 import CourseItem from './src/views/components/CourseItem';
 import ImagePicker from './src/views/components/ImagePicker';
@@ -36,6 +38,9 @@ export default function App() {
   const [selectedOption, setSelectedOption] = useState("");
   const [visibleModal, setVisibleModal] = useState<string | null>(null);
   const [image, setImage] = useState("");
+  const [inputvalue, setInputValue] = useState("");
+  const [inputTextareaValue, setInputTextareaValue] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
 
   const handleSelectOption = (option:string) => {
     setSelectedOption(option);
@@ -89,6 +94,48 @@ const setLanguageContext = useCallback((language: Languages) => {
         value={text} 
         onChangeText={setText} 
         />
+
+        <CustomInput
+        label="Nhập tên"
+        required={true}
+        value={inputvalue}
+        onChangeText={setInputValue}
+        placeholder="Input here"
+        type="password"
+        style={{marginBottom: 30}}
+        />
+
+      <Text>{inputvalue}</Text>
+
+        <CustomInput
+        label="Bạn cảm thấy như thế nào"
+        required={true}
+        value={inputTextareaValue}
+        onChangeText={setInputTextareaValue}
+        placeholder="Input here"
+        type="textarea"
+        />
+
+      <Text>{inputTextareaValue}</Text>
+
+      <InputRegister
+        label="Nhập mật khẩu của bạn"
+        required={true}
+        value={phoneNumber}
+        onChangeText={setPhoneNumber}
+        placeholder="Nhập mật khẩu"
+        type="password"
+        iconName="password"
+        />
+
+        {/* <InputDatePicker
+        label="Chọn ngày"
+        required={true}
+        onChangeText={setInputValue}
+        placeholder="Chon ngày"
+        /> */}
+
+       
 
         {/* Buttom */}
         <Pressable style={styles.btnAdd} onPress={() => setVisibleModal('modal_2')}>
