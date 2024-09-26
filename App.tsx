@@ -40,7 +40,7 @@ export default function App() {
       value={{ language: language, setLanguage: setLanguageContext }}
     >
       <DuTestScreen />
-      <HoangTestScreen />
+      {/* <HoangTestScreen /> */}
       <KhangTestScreen />
       <KhanhTestScreen />
       <NhiTestScreen />
