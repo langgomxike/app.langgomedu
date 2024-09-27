@@ -9,12 +9,17 @@
     "web": "expo start --web"
   },
   "dependencies": {
+    "@react-native-community/datetimepicker": "^8.2.0",
     "expo": "~51.0.28",
+    "expo-image-picker": "~15.0.7",
+    "expo-linear-gradient": "~13.0.2",
     "expo-status-bar": "~1.12.1",
     "react": "18.2.0",
-    "react-native": "0.74.5",
-    "expo-image-picker": "~15.0.7",
-     "expo-linear-gradient": "~13.0.2"
+    "react-native": "^0.75.3",
+    "react-native-elements": "^3.4.3",
+    "react-native-svg": "^15.7.1",
+    "react-native-svg-transformer": "^1.5.0",
+    "react-native-vector-icons": "^10.2.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
