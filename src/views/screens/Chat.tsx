@@ -3,7 +3,7 @@ import { Text, View } from "react-native";
 
 export default function ChatScreen() {
   return (
-    <View>
+    <View style={styles.container}>
       <Text>Chat Screen</Text>
     </View>
   );
