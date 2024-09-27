@@ -18,12 +18,7 @@ const hintColor = "#AAA";
 
 const BUTTON_SIZE = 35;
 
-export default function HorizontalList({
-  title = "",
-  onViewAll = () => {},
-  list = [],
-  ItemView = ({ item }: ItemViewProp) => <></>,
-}: HorizontalListProp) {
+export default function HorizontalList({title = "",onViewAll = () => {},list = [],ItemView = ({ item }: ItemViewProp) => <></>,}: HorizontalListProp) {
   //refs, contexts
   const languageContext = useContext(LanguageContext);
 

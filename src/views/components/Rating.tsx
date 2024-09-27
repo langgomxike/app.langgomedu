@@ -10,7 +10,6 @@ const Rating = ({onRatingChange} : ratingProps) => {
     const star = require('../../../assets/ic_star_outline.png');
     const star_active = require('../../../assets/ic_star.png');
     const maxStar: number = 5;
-    const starArray: Array<any> = [];
 
     const [activeStars, setActiveStars] = useState(0);
 
