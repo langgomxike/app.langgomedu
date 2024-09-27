@@ -1,12 +1,12 @@
 import React from "react";
-import { View, TouchableOpacity, Image, StyleSheet,Text } from "react-native";
+import { View, TouchableOpacity, Image, StyleSheet, Text } from "react-native";
 
 // Định nghĩa enum AppIcon ở đầu file
 export enum AppIcon {
   // Sử dụng require để chỉ định đường dẫn
   account_tab = require("../../../assets/avatar/avatarTempt.png"), //dang loi ma khong biet sao loi luon á
-  chat_tab = require("../../../assets/icons/acount_tab.png"),
- home_tab = require("../../../assets/icons/home-tab.png"),
+  chat_tab = require("../../../assets/icons/account_tab.png"),
+  home_tab = require("../../../assets/icons/home-tab.png"),
   ic_literature = require("../../../assets/icons/ic_literature.png"),
   ic_painting = require("../../../assets/icons/ic_painting.png"),
   ic_physics = require("../../../assets/icons/ic_physics.png"),
@@ -21,7 +21,7 @@ export enum AppIcon {
   ic_bin = require("../../../assets/icons/ic_bin.png"),
   ic_biology = require("../../../assets/icons/ic_biology.png"),
   ic_birthday = require("../../../assets/icons/ic_birthday.png"),
-  ic_book = require("../../../assets/icons/ic_book(1).png"),
+  ic_book = require("../../../assets/icons/ic_book.png"),
   ic_calendar_bold = require("../../../assets/icons/ic_calendar_bold.png"),
   ic_calendar_location = require("../../../assets/icons/ic_calendar_location.png"),
   ic_calendar_outline = require("../../../assets/icons/ic_calendar_outline.png"),
@@ -67,7 +67,7 @@ export enum AppIcon {
   ic_japanese = require("../../../assets/icons/ic_japanese.png"),
   ic_location = require("../../../assets/icons/ic_location.png"),
   ic_language = require("../../../assets/icons/ic_language.png"),
-  ic_locations = require("../../../assets/icons/ic_locations.png"),
+  ic_locations = require("../../../assets/icons/ic_location.png"),
   ic_lock_blue = require("../../../assets/icons/ic_lock_blue.png"),
   ic_lock = require("../../../assets/icons/ic_lock.png"),
   ic_logout = require("../../../assets/icons/ic_logout.png"),
@@ -75,7 +75,7 @@ export enum AppIcon {
   ic_math = require("../../../assets/icons/ic_math.png"),
   ic_music = require("../../../assets/icons/ic_music.png"),
   ic_phone = require("../../../assets/icons/ic_phone.png"),
-  ic_phones = require("../../../assets/icons/ic_phones.png"),
+  ic_phones = require("../../../assets/icons/ic_phone.png"),
   ic_photo = require("../../../assets/icons/ic_photo.png"),
   ic_photoshop = require("../../../assets/icons/ic_photoshop.png"),
   ic_plus = require("../../../assets/icons/ic_plus.png"),
@@ -107,11 +107,9 @@ export enum AppIcon {
   send = require("../../../assets/icons/send.png"),
 }
 
-
-
 type Icon = {
-  icon: AppIcon; 
-  iconName: string; 
+  icon: AppIcon;
+  iconName: string;
   onPress: () => void;
 };
 
@@ -119,7 +117,7 @@ const MyIcon: React.FC<Icon> = ({ icon, iconName, onPress }) => {
   return (
     <TouchableOpacity onPress={onPress}>
       <View style={styles.iconContainer}>
-      <Image source={icon} style={styles.icon} />
+        <Image source={icon} style={styles.icon} />
         {/* <Image source={{ uri: icon }} style={styles.icon} /> */}
         <Text style={styles.iconName}>{iconName}</Text>
       </View>
@@ -129,7 +127,7 @@ const MyIcon: React.FC<Icon> = ({ icon, iconName, onPress }) => {
 
 const styles = StyleSheet.create({
   iconContainer: {
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 10,
   },
   icon: {

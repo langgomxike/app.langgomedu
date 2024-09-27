@@ -5,6 +5,7 @@ import ChatScreen from "../screens/Chat";
 import CreateClassScreen from "../screens/CreateClass";
 import PersonalScheduleScreen from "../screens/PersonalSchedule";
 import AccountScreen from "../screens/Account";
+import MyIcon, { AppIcon } from "./MyIcon";
 
 const activeColor = "#0D99FF";
 const hintColor = "#AAA";
@@ -17,20 +18,64 @@ export default function ButtonNavBar() {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
-        // tabBarIcon: ({ focused, color, size }) => {
-        //   let iconName;
+        tabBarIcon: ({ focused, color, size }) => {
+          let iconName;
 
-        //   if (route.name === "Home") {
-        //     iconName = focused
-        //       ? "ios-information-circle"
-        //       : "ios-information-circle-outline";
-        //   } else if (route.name === "Settings") {
-        //     iconName = focused ? "ios-list" : "ios-list-outline";
-        //   }
+          switch (route.name) {
+            case ScreenName.HOME:
+              return (
+                <MyIcon
+                  iconName=""
+                  icon={AppIcon.home_tab}
+                  onPress={() => {}}
+                />
+              );
 
-        //   // You can return any component that you like here!
-        //   return <Ionicons name={iconName} size={size} color={color} />;
-        // },
+            case ScreenName.CHAT:
+              return (
+                <MyIcon
+                  iconName=""
+                  icon={AppIcon.home_tab}
+                  onPress={() => {}}
+                />
+              );
+
+            case ScreenName.CREATE_CLASS:
+              return (
+                <MyIcon
+                  iconName=""
+                  icon={AppIcon.home_tab}
+                  onPress={() => {}}
+                />
+              );
+
+            case ScreenName.PERSONAL_SCHEDULE:
+              return (
+                <MyIcon
+                  iconName=""
+                  icon={AppIcon.home_tab}
+                  onPress={() => {}}
+                />
+              );
+
+            case ScreenName.ACCOUNT:
+              return (
+                <MyIcon
+                  iconName=""
+                  icon={AppIcon.home_tab}
+                  onPress={() => {}}
+                />
+              );
+          }
+
+          if (route.name === "Home") {
+            iconName = focused
+              ? "ios-information-circle"
+              : "ios-information-circle-outline";
+          } else if (route.name === "Settings") {
+            iconName = focused ? "ios-list" : "ios-list-outline";
+          }
+        },
         tabBarActiveTintColor: activeColor,
         tabBarInactiveTintColor: hintColor,
         tabBarStyle: {
