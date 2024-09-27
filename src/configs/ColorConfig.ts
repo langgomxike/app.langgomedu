@@ -14,6 +14,7 @@ export enum BackgroundColor {
     gray_30 = '#D9D9D9',
     gray_50 = '#C3C3C3', //dark gray
     gray_c6 = '#CCCCCC',
+    gray_49 = '#494949',
     schedule_leaner = '#FFD028',
     schedule_tutor = '#CD84F1',
     
@@ -27,5 +28,14 @@ export enum TextColor {
     danger = '#DB0000',
     hint = '#CCCCCC',
     require = '#FF0000', //red star use this
+    sub_primary = '#0D99FF',
+
+}
+
+export enum BorderColor {
+    white = "#FFFFFF",
+    black = "#000000",
+    primary = "#85CBFF",
+    gray_30 =  "#D9D9D9",
 
 }
