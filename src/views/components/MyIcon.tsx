@@ -4,9 +4,15 @@ import { View, TouchableOpacity, Image, StyleSheet, Text } from "react-native";
 // Định nghĩa enum AppIcon ở đầu file
 export enum AppIcon {
   // Sử dụng require để chỉ định đường dẫn
+<<<<<<< HEAD
   account_tab = require("../../../assets/avatar/avatarTempt.png"), //dang loi ma khong biet sao loi luon á
   chat_tab = require("../../../assets/icons/account_tab.png"),
   home_tab = require("../../../assets/icons/home-tab.png"),
+=======
+  account_tab = require("../../../assets/icons/account_tab.png"), //dang loi ma khong biet sao loi luon á
+  chat_tab = require("../../../assets/icons/account_tab.png"),
+ home_tab = require("../../../assets/icons/home-tab.png"),
+>>>>>>> 4255cda (fix icon componnent)
   ic_literature = require("../../../assets/icons/ic_literature.png"),
   ic_painting = require("../../../assets/icons/ic_painting.png"),
   ic_physics = require("../../../assets/icons/ic_physics.png"),
@@ -21,7 +27,11 @@ export enum AppIcon {
   ic_bin = require("../../../assets/icons/ic_bin.png"),
   ic_biology = require("../../../assets/icons/ic_biology.png"),
   ic_birthday = require("../../../assets/icons/ic_birthday.png"),
+<<<<<<< HEAD
   ic_book = require("../../../assets/icons/ic_book.png"),
+=======
+  ic_book = require("../../../assets/icons/ic_books.png"),
+>>>>>>> 4255cda (fix icon componnent)
   ic_calendar_bold = require("../../../assets/icons/ic_calendar_bold.png"),
   ic_calendar_location = require("../../../assets/icons/ic_calendar_location.png"),
   ic_calendar_outline = require("../../../assets/icons/ic_calendar_outline.png"),
@@ -110,7 +120,11 @@ export enum AppIcon {
 type Icon = {
   icon: AppIcon; 
   iconName?: string; 
+<<<<<<< HEAD
   onPress: () => void;
+=======
+  onPress?: () => void;
+>>>>>>> 4255cda (fix icon componnent)
 };
 
 const MyIcon: React.FC<Icon> = ({ icon, iconName, onPress }) => {
