@@ -1,7 +1,7 @@
 import { StyleSheet } from "react-native";
 import { Text, View } from "react-native";
 import DuTestScreen from "./DuTest";
-import HoangTestScreen from "./HoangTest";
+// import HoangTestScreen from "./HoangTest";
 import KhangTestScreen from "./KhangTest";
 import KhanhTestScreen from "./KhanhTest";
 import NhiTestScreen from "./NhiTest";
@@ -11,11 +11,11 @@ export default function HomeScreen() {
     <View>
       <Text>Home Screen</Text>
 
-      <DuTestScreen />
+      {/* <DuTestScreen />
       <HoangTestScreen />
       <KhangTestScreen />
       <KhanhTestScreen />
-      <NhiTestScreen />
+      <NhiTestScreen /> */}
     </View>
   );
 }
