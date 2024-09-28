@@ -115,11 +115,11 @@ type Icon = {
 
 const MyIcon: React.FC<Icon> = ({ icon, iconName, onPress }) => {
   return (
-    <TouchableOpacity onPress={onPress}>
+    <TouchableOpacity style={{ alignContent: "center" }} onPress={onPress}>
       <View style={styles.iconContainer}>
         <Image source={icon} style={styles.icon} />
         {/* <Image source={{ uri: icon }} style={styles.icon} /> */}
-        <Text style={styles.iconName}>{iconName}</Text>
+        {/* <Text style={styles.iconName}>{iconName}</Text> */}
       </View>
     </TouchableOpacity>
   );
@@ -127,8 +127,10 @@ const MyIcon: React.FC<Icon> = ({ icon, iconName, onPress }) => {
 
 const styles = StyleSheet.create({
   iconContainer: {
+    alignSelf: "center",
     alignItems: "center",
-    marginBottom: 10,
+    marginTop: 10,
+    // marginBottom: 10,
   },
   icon: {
     width: 24, // Chiều rộng của biểu tượng

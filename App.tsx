@@ -9,6 +9,8 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import ScreenName from "./src/constants/ScreenName";
 import ButtonNavBar from "./src/views/components/ButtonNavBar";
+import MessageScreen from "./src/views/screens/Message";
+import ProfileScreen from "./src/views/screens/Profile";
 
 const Stack = createNativeStackNavigator();
 const SCREEN_PADDING_TOP = 50;
@@ -53,6 +55,8 @@ export default function App() {
           }}
         >
           <Stack.Screen name={ScreenName.NAV_BAR} component={ButtonNavBar} />
+          <Stack.Screen name={ScreenName.MESSAGE} component={MessageScreen} />
+          <Stack.Screen name={ScreenName.PROFILE} component={ProfileScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </LanguageContext.Provider>
