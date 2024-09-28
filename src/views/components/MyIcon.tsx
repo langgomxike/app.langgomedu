@@ -1,12 +1,12 @@
 import React from "react";
-import { View, TouchableOpacity, Image, StyleSheet,Text } from "react-native";
+import { View, TouchableOpacity, Image, StyleSheet, Text } from "react-native";
 
 // Định nghĩa enum AppIcon ở đầu file
 export enum AppIcon {
   // Sử dụng require để chỉ định đường dẫn
   account_tab = require("../../../assets/avatar/avatarTempt.png"), //dang loi ma khong biet sao loi luon á
   chat_tab = require("../../../assets/icons/account_tab.png"),
- home_tab = require("../../../assets/icons/home-tab.png"),
+  home_tab = require("../../../assets/icons/home-tab.png"),
   ic_literature = require("../../../assets/icons/ic_literature.png"),
   ic_painting = require("../../../assets/icons/ic_painting.png"),
   ic_physics = require("../../../assets/icons/ic_physics.png"),
@@ -21,7 +21,7 @@ export enum AppIcon {
   ic_bin = require("../../../assets/icons/ic_bin.png"),
   ic_biology = require("../../../assets/icons/ic_biology.png"),
   ic_birthday = require("../../../assets/icons/ic_birthday.png"),
-  ic_book = require("../../../assets/icons/ic_book(1).png"),
+  ic_book = require("../../../assets/icons/ic_book.png"),
   ic_calendar_bold = require("../../../assets/icons/ic_calendar_bold.png"),
   ic_calendar_location = require("../../../assets/icons/ic_calendar_location.png"),
   ic_calendar_outline = require("../../../assets/icons/ic_calendar_outline.png"),
@@ -106,8 +106,6 @@ export enum AppIcon {
   report = require("../../../assets/icons/report.png"),
   send = require("../../../assets/icons/send.png"),
 }
-
-
 
 type Icon = {
   icon: AppIcon; 

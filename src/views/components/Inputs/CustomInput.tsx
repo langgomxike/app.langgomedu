@@ -1,248 +1,248 @@
-import React, { useState } from "react";
-import {
-  Text,
-  TextInput,
-  View,
-  StyleSheet,
-  TouchableOpacity,
-  Image,
-} from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import DateTimePicker, {
-  DateTimePickerEvent,
-} from "@react-native-community/datetimepicker";
+// import React, { useState } from "react";
+// import {
+//   Text,
+//   TextInput,
+//   View,
+//   StyleSheet,
+//   TouchableOpacity,
+//   Image,
+// } from "react-native";
+// import { Ionicons } from "@expo/vector-icons";
+// import DateTimePicker, {
+//   DateTimePickerEvent,
+// } from "@react-native-community/datetimepicker";
 
-type CustomInputProps = {
-  label: string;
-  required: boolean;
-  value?: string;
-  onChangeText: (text: string) => void;
-  placeholder: string;
-  type:
-    | "text"
-    | "number"
-    | "password"
-    | "email"
-    | "phone"
-    | "date"
-    | "textarea"
-  editable?: boolean;
-  maxLength?: number;
-  style?: object;
-};
+// type CustomInputProps = {
+//   label: string;
+//   required: boolean;
+//   value?: string;
+//   onChangeText: (text: string) => void;
+//   placeholder: string;
+//   type:
+//     | "text"
+//     | "number"
+//     | "password"
+//     | "email"
+//     | "phone"
+//     | "date"
+//     | "textarea"
+//   editable?: boolean;
+//   maxLength?: number;
+//   style?: object;
+// };
 
-const GRAY_DISABLE = "#EEE";
+// const GRAY_DISABLE = "#EEE";
 
-export default function customInput({
-  label,
-  required,
-  value,
-  onChangeText,
-  placeholder,
-  type,
-  editable,
-  style,
-  maxLength,
-}: CustomInputProps) {
-  const [isPasswordVisible, setPasswordVisible] = useState(false);
-  const [date, setDate] = useState(new Date());
-  const [showDatePicker, setShowDatePicker] = useState(false);
-  const [text, setText] = useState("");
+// export default function customInput({
+//   label,
+//   required,
+//   value,
+//   onChangeText,
+//   placeholder,
+//   type,
+//   editable,
+//   style,
+//   maxLength,
+// }: CustomInputProps) {
+//   const [isPasswordVisible, setPasswordVisible] = useState(false);
+//   const [date, setDate] = useState(new Date());
+//   const [showDatePicker, setShowDatePicker] = useState(false);
+//   const [text, setText] = useState("");
 
-  const MAX_LENGTH = maxLength ?? 3000;
+//   const MAX_LENGTH = maxLength ?? 3000;
 
-  // Đặt keyboardType dựa trên loại input
-  function getKeyboardType() {
-    switch (type) {
-      case "number":
-        return "numeric";
-      case "email":
-        return "email-address";
-      case "phone":
-        return "phone-pad";
-      default:
-        return "default";
-    }
-  }
+//   // Đặt keyboardType dựa trên loại input
+//   function getKeyboardType() {
+//     switch (type) {
+//       case "number":
+//         return "numeric";
+//       case "email":
+//         return "email-address";
+//       case "phone":
+//         return "phone-pad";
+//       default:
+//         return "default";
+//     }
+//   }
 
-  const handleDateChange = (
-    event: DateTimePickerEvent,
-    selectedDate?: Date
-  ) => {
-    const currentData = selectedDate ?? date;
-    setShowDatePicker(false);
-    setDate(currentData);
-    onChangeText(formatDate(currentData)); // Gọi hàm onChangeText với định dạng ngày
-  };
+//   const handleDateChange = (
+//     event: DateTimePickerEvent,
+//     selectedDate?: Date
+//   ) => {
+//     const currentData = selectedDate ?? date;
+//     setShowDatePicker(false);
+//     setDate(currentData);
+//     onChangeText(formatDate(currentData)); // Gọi hàm onChangeText với định dạng ngày
+//   };
 
-  const formatDate = (date: Date): string => {
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const year = date.getFullYear();
-    return `${day}/${month}/${year}`;
-  };
+//   const formatDate = (date: Date): string => {
+//     const day = String(date.getDate()).padStart(2, "0");
+//     const month = String(date.getMonth() + 1).padStart(2, "0");
+//     const year = date.getFullYear();
+//     return `${day}/${month}/${year}`;
+//   };
 
-  const togglePasswordVisibility = () => {
-    setPasswordVisible(!isPasswordVisible);
-  };
+//   const togglePasswordVisibility = () => {
+//     setPasswordVisible(!isPasswordVisible);
+//   };
 
-  const handleTextChange = (input: string) => {
-    setText(input);
-    onChangeText(input);
-  };
+//   const handleTextChange = (input: string) => {
+//     setText(input);
+//     onChangeText(input);
+//   };
 
-  return (
-    <View>
-      {/* Các loại input như: "text", "number","password", "email","phone","date" */}
-      {type != "textarea" && (
-        <View style={style}>
-          <Text style={styles.label}>
-            {label}
-            {required && <Text style={styles.required}> *</Text>}
-          </Text>
+//   return (
+//     <View>
+//       {/* Các loại input như: "text", "number","password", "email","phone","date" */}
+//       {type != "textarea" && (
+//         <View style={style}>
+//           <Text style={styles.label}>
+//             {label}
+//             {required && <Text style={styles.required}> *</Text>}
+//           </Text>
 
-          <View style={[styles.inputBlock, styles.boxShadow]}>
-            <TextInput
-              style={[
-                styles.input,
-                { flex: 9 },
-                editable === false
-                  ? { backgroundColor: GRAY_DISABLE }
-                  : { backgroundColor: "white" },
-              ]}
-              onChangeText={onChangeText}
-              placeholder={placeholder}
-              placeholderTextColor="#888"
-              keyboardType={getKeyboardType()}
-              value={value}
-              secureTextEntry={type === "password" && !isPasswordVisible}
-              editable={type === "date" || editable == false ? false : true}
-            />
-            {/* Ẩn hiện password */}
-            {type === "password" && (
-              <TouchableOpacity
-                onPress={togglePasswordVisibility}
-                style={{ flex: 1 }}
-              >
-                <Ionicons
-                  name={isPasswordVisible ? "eye-off-outline" : "eye-outline"}
-                  size={24}
-                  color="gray"
-                />
-              </TouchableOpacity>
-            )}
-            {/* Ẩn hiện date picker */}
-            {type === "date" && (
-              <TouchableOpacity
-                onPress={() => setShowDatePicker(true)}
-                style={{ flex: 1 }}
-              >
-                <Ionicons name="calendar-outline" size={24} color="gray" />
-              </TouchableOpacity>
-            )}
-            {/* Hiển thị Close x với thẻ input text */}
-            {type !== "date" && type !== "password" && (
-              <TouchableOpacity
-                onPress={() => onChangeText("")}
-                style={{ flex: 1 }}
-              >
-                <Ionicons name="close-sharp" size={24} color="gray" />
-              </TouchableOpacity>
-            )}
+//           <View style={[styles.inputBlock, styles.boxShadow]}>
+//             <TextInput
+//               style={[
+//                 styles.input,
+//                 { flex: 9 },
+//                 editable === false
+//                   ? { backgroundColor: GRAY_DISABLE }
+//                   : { backgroundColor: "white" },
+//               ]}
+//               onChangeText={onChangeText}
+//               placeholder={placeholder}
+//               placeholderTextColor="#888"
+//               keyboardType={getKeyboardType()}
+//               value={value}
+//               secureTextEntry={type === "password" && !isPasswordVisible}
+//               editable={type === "date" || editable == false ? false : true}
+//             />
+//             {/* Ẩn hiện password */}
+//             {type === "password" && (
+//               <TouchableOpacity
+//                 onPress={togglePasswordVisibility}
+//                 style={{ flex: 1 }}
+//               >
+//                 <Ionicons
+//                   name={isPasswordVisible ? "eye-off-outline" : "eye-outline"}
+//                   size={24}
+//                   color="gray"
+//                 />
+//               </TouchableOpacity>
+//             )}
+//             {/* Ẩn hiện date picker */}
+//             {type === "date" && (
+//               <TouchableOpacity
+//                 onPress={() => setShowDatePicker(true)}
+//                 style={{ flex: 1 }}
+//               >
+//                 <Ionicons name="calendar-outline" size={24} color="gray" />
+//               </TouchableOpacity>
+//             )}
+//             {/* Hiển thị Close x với thẻ input text */}
+//             {type !== "date" && type !== "password" && (
+//               <TouchableOpacity
+//                 onPress={() => onChangeText("")}
+//                 style={{ flex: 1 }}
+//               >
+//                 <Ionicons name="close-sharp" size={24} color="gray" />
+//               </TouchableOpacity>
+//             )}
 
-            {/* Xử lý hiển thị date picker */}
-            {showDatePicker && (
-              <DateTimePicker
-                mode="date"
-                value={date}
-                display="default"
-                onChange={handleDateChange}
-              />
-            )}
-          </View>
-        </View>
-      )}
+//             {/* Xử lý hiển thị date picker */}
+//             {showDatePicker && (
+//               <DateTimePicker
+//                 mode="date"
+//                 value={date}
+//                 display="default"
+//                 onChange={handleDateChange}
+//               />
+//             )}
+//           </View>
+//         </View>
+//       )}
 
-      {/* Textarea */}
-      {type === "textarea" && (
-        <View>
-          <View style={{ flexDirection: "row" }}>
-            <Text style={[styles.label, { flex: 4 }]}>
-              {label}
-              {required && <Text style={styles.required}> *</Text>}
-            </Text>
+//       {/* Textarea */}
+//       {type === "textarea" && (
+//         <View>
+//           <View style={{ flexDirection: "row" }}>
+//             <Text style={[styles.label, { flex: 4 }]}>
+//               {label}
+//               {required && <Text style={styles.required}> *</Text>}
+//             </Text>
 
-            <Text style={{ flex: 1, textAlign: "right" }}>
-              {text.length}/{MAX_LENGTH}
-            </Text>
-          </View>
+//             <Text style={{ flex: 1, textAlign: "right" }}>
+//               {text.length}/{MAX_LENGTH}
+//             </Text>
+//           </View>
 
-          <View style={[styles.textAreaContainer, styles.boxShadow]}>
-            <TextInput
-              style={[
-                styles.inputTextarea,
-                editable === false
-                  ? { backgroundColor: GRAY_DISABLE }
-                  : { backgroundColor: "white" },
-              ]}
-              onChangeText={handleTextChange}
-              placeholder={placeholder}
-              placeholderTextColor="#888"
-              keyboardType={getKeyboardType()}
-              value={value}
-              editable={editable == false ? false : true}
-              multiline={true}
-              numberOfLines={6}
-              maxLength={MAX_LENGTH}
-            />
-          </View>
-        </View>
-      )}
+//           <View style={[styles.textAreaContainer, styles.boxShadow]}>
+//             <TextInput
+//               style={[
+//                 styles.inputTextarea,
+//                 editable === false
+//                   ? { backgroundColor: GRAY_DISABLE }
+//                   : { backgroundColor: "white" },
+//               ]}
+//               onChangeText={handleTextChange}
+//               placeholder={placeholder}
+//               placeholderTextColor="#888"
+//               keyboardType={getKeyboardType()}
+//               value={value}
+//               editable={editable == false ? false : true}
+//               multiline={true}
+//               numberOfLines={6}
+//               maxLength={MAX_LENGTH}
+//             />
+//           </View>
+//         </View>
+//       )}
 
-    </View>
-  );
-}
+//     </View>
+//   );
+// }
 
-const styles = StyleSheet.create({
-  textAreaContainer: {
-    backgroundColor: "white",
-    borderRadius: 10,
-    paddingHorizontal: 10,
-    paddingVertical: 10,
-  },
+// const styles = StyleSheet.create({
+//   textAreaContainer: {
+//     backgroundColor: "white",
+//     borderRadius: 10,
+//     paddingHorizontal: 10,
+//     paddingVertical: 10,
+//   },
 
-  inputTextarea: {
-    textAlignVertical: "top",
-  },
+//   inputTextarea: {
+//     textAlignVertical: "top",
+//   },
 
-  label: {
-    fontSize: 16,
-    marginBottom: 5,
-    fontWeight: "600",
-  },
+//   label: {
+//     fontSize: 16,
+//     marginBottom: 5,
+//     fontWeight: "600",
+//   },
 
-  required: {
-    color: "red",
-  },
+//   required: {
+//     color: "red",
+//   },
 
-  input: {},
+//   input: {},
 
-  inputBlock: {
-    flexDirection: "row",
-    backgroundColor: "white",
-    borderRadius: 10,
-    alignItems: "center",
-    paddingHorizontal: 10,
-    paddingVertical: 10,
-  },
+//   inputBlock: {
+//     flexDirection: "row",
+//     backgroundColor: "white",
+//     borderRadius: 10,
+//     alignItems: "center",
+//     paddingHorizontal: 10,
+//     paddingVertical: 10,
+//   },
 
-  boxShadow: {
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 5,
-    },
-    shadowOpacity: 0.5,
-    elevation: 5,
-  },
-});
+//   boxShadow: {
+//     shadowColor: "#000",
+//     shadowOffset: {
+//       width: 0,
+//       height: 5,
+//     },
+//     shadowOpacity: 0.5,
+//     elevation: 5,
+//   },
+// });
