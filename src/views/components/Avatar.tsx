@@ -1,16 +1,16 @@
 import React, { useState } from "react";
 import { View, TouchableOpacity, Image, StyleSheet, Text } from "react-native";
-import {
-  launchImageLibrary,
-  ImageLibraryOptions,
-  ImagePickerResponse,
-} from "react-native-image-picker";
+// import {
+//   launchImageLibrary,
+//   ImageLibraryOptions,
+//   ImagePickerResponse,
+// } from "react-native-image-picker";
 export enum Orientation {
   horizontally = "horizontally",
   vertically = "vertically",
 }
 type MyAvatar = {
-  avatar: string;
+  avatar?: string;
   canEdit: boolean;
   userName: string;
   orientation: Orientation;
@@ -88,8 +88,9 @@ const styles = StyleSheet.create({
   username: {
     textAlign: "center",
     marginTop: 20,
-    color: "#000",
+    color: "#fff",
     fontSize: 16,
+    fontWeight: "bold"
   },
   usernameh: {
     textAlign: "center",
