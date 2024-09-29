@@ -1,16 +1,18 @@
 import { useCallback, useState } from "react";
-import { StyleSheet } from "react-native";
 import languages from "./languages.json";
 import {
   LanguageContext,
   Languages,
   LanguageType,
 } from "./src/configs/LanguageConfig";
-import KhanhTestScreen from "./src/views/screens/KhanhTest";
-import KhangTestScreen from "./src/views/screens/KhangTest";
-import DuTestScreen from "./src/views/screens/DuTest";
-import NhiTestScreen from "./src/views/screens/NhiTest";
-import HoangTestScreen from "./src/views/screens/HoangTest";
+import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import ScreenName from "./src/constants/ScreenName";
+import ButtonNavBar from "./src/views/components/ButtonNavBar";
+
+const Stack = createNativeStackNavigator();
+const SCREEN_PADDING_TOP = 50;
+const SCREEN_PADDING_HORIZONTAL = 10;
 
 export default function App() {
   // states
@@ -39,71 +41,25 @@ export default function App() {
     <LanguageContext.Provider
       value={{ language: language, setLanguage: setLanguageContext }}
     >
-      {/* <DuTestScreen />
-      <HoangTestScreen /> */}
-      <KhangTestScreen />
-      {/* <KhanhTestScreen />
-      <NhiTestScreen /> */}
+      <NavigationContainer>
+        <Stack.Navigator
+          screenOptions={{
+            headerShown: false,
+            contentStyle: {
+              paddingTop: SCREEN_PADDING_TOP,
+              paddingHorizontal: SCREEN_PADDING_HORIZONTAL,
+              backgroundColor: "#fff",
+            },
+          }}
+        >
+          {/* <DuTestScreen />
+              <HoangTestScreen /> 
+              <KhangTestScreen />
+              <KhanhTestScreen />
+              <NhiTestScreen /> */}
+          <Stack.Screen name={ScreenName.NAV_BAR} component={ButtonNavBar} />
+        </Stack.Navigator>
+      </NavigationContainer>
     </LanguageContext.Provider>
   );
 }
-
-const styles = StyleSheet.create({
-  image: {
-    width: 200,
-    height: 200,
-  },
-  course: {},
-  container: {
-    flex: 1,
-    backgroundColor: "#0D99FF",
-    alignItems: "center",
-    justifyContent: 'flex-start',
-    marginTop: 50,
-  },
-
-  languageSelector: {
-    flexDirection: "row",
-    justifyContent: "space-around", // Spread buttons evenly
-    marginBottom: 20, // Add some space below the language selector
-  },
-
-  horizontalList: {
-    marginBottom: 20, 
-  },
-
-  badge: {
-    justifyContent: "center",
-    marginTop: 20,
-  },
-
-  header: {
-    backgroundColor: "orange",
-    paddingHorizontal: 10,
-    paddingVertical: 10,
-  },
-
-  headerTest: {
-    fontSize: 20,
-    textAlign: "center",
-    fontWeight: "600",
-  },
-
-  body: {
-    paddingHorizontal: 10,
-    marginTop: 10,
-  },
-
-  btnAdd: {
-    backgroundColor: "#0D99FF",
-    padding: 15,
-    borderRadius: 7,
-    marginTop: 50,
-  },
-
-  btnAddText: {
-    color: "#fff",
-    fontWeight: "600",
-    textAlign: "center",
-  },
-});
