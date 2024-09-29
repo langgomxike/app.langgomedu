@@ -1,25 +1,30 @@
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import MyIcon, { AppIcon } from "../components/MyIcon";
 import Avatar, { Orientation } from "../components/Avatar";
-import React from "react";
+import React, { useCallback, useContext } from "react";
+import { NavigationContext } from "@react-navigation/native";
 
 type propsBackDetail = {
   icName: string;
   subIcon?: React.ReactNode;
   children: React.ReactNode;
-}
+};
 
-const BackWithDetailLayout = ({icName, subIcon, children} : propsBackDetail) => {
+const BackWithDetailLayout = ({
+  icName,
+  subIcon,
+  children,
+}: propsBackDetail) => {
+  //contexts
+  const navigation = useContext(NavigationContext);
 
   const handleAvatar = () => {
     alert("Avatar");
   };
 
-  const handleBack = () => {
-    alert("Back");
-  };
-
-
+  const handleBack = useCallback(() => {
+    navigation?.goBack();
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -28,29 +33,32 @@ const BackWithDetailLayout = ({icName, subIcon, children} : propsBackDetail) => 
         {/* Back Icon and Text */}
         <View style={styles.leftSection}>
           <TouchableOpacity style={styles.iconButton}>
-            <MyIcon icon={AppIcon.ic_back_circle} onPress={handleBack}/>
+            <MyIcon icon={AppIcon.ic_back_circle} onPress={handleBack} />
             <Text style={styles.textIcon}>{icName}</Text>
             {/* {children} */}
           </TouchableOpacity>
         </View>
 
-        <View style={styles.avatar} >
-          <Avatar canEdit={true} userName="NGUYEN VAN A" orientation={Orientation.vertically} onPress={handleAvatar} />
+        <View style={styles.avatar}>
+          <Avatar
+            canEdit={true}
+            userName="NGUYEN VAN A"
+            orientation={Orientation.vertically}
+            onPress={handleAvatar}
+          />
         </View>
 
         {/* Info Icon */}
         <View style={styles.leftSection}>
           <TouchableOpacity style={styles.iconButton}>
-           {/* <MyIcon icon={AppIcon.ic_info} onPress={handleInfor}/> */}
+            {/* <MyIcon icon={AppIcon.ic_info} onPress={handleInfor}/> */}
             {subIcon}
           </TouchableOpacity>
         </View>
       </View>
 
       {/* Main content */}
-      <View style={styles.mainContent}>
-        {children}
-      </View>
+      <View style={styles.mainContent}>{children}</View>
     </View>
   );
 };
@@ -86,7 +94,6 @@ const styles = StyleSheet.create({
     transform: [{translateY: -60}]
   },
 
-
   textIcon: {
     transform: [{translateY: -15}],
     marginLeft: 5,
@@ -101,7 +108,7 @@ const styles = StyleSheet.create({
 
   profileContainer: {
     alignItems: "center",
-    marginTop: 75
+    marginTop: 75,
   },
 
   avatar: {

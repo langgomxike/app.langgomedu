@@ -119,7 +119,7 @@ const MyIcon: React.FC<Icon> = ({ icon, iconName, onPress }) => {
       <View>
       <Image source={icon} style={styles.icon} />
         {/* <Image source={{ uri: icon }} style={styles.icon} /> */}
-        <Text style={styles.iconName}>{iconName}</Text>
+        {/* <Text style={styles.iconName}>{iconName}</Text> */}
       </View>
     </TouchableOpacity>
   );
