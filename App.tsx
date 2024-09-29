@@ -39,11 +39,11 @@ export default function App() {
     <LanguageContext.Provider
       value={{ language: language, setLanguage: setLanguageContext }}
     >
-      <DuTestScreen />
-      <HoangTestScreen />
+      {/* <DuTestScreen />
+      <HoangTestScreen /> */}
       <KhangTestScreen />
-      <KhanhTestScreen />
-      <NhiTestScreen />
+      {/* <KhanhTestScreen />
+      <NhiTestScreen /> */}
     </LanguageContext.Provider>
   );
 }
