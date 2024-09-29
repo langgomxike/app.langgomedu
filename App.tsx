@@ -11,6 +11,7 @@ import KhangTestScreen from "./src/views/screens/KhangTest";
 import DuTestScreen from "./src/views/screens/DuTest";
 import NhiTestScreen from "./src/views/screens/NhiTest";
 import HoangTestScreen from "./src/views/screens/HoangTest";
+import HomeScreen from "./src/views/screens/Home";
 
 export default function App() {
   // states
@@ -39,11 +40,11 @@ export default function App() {
     <LanguageContext.Provider
       value={{ language: language, setLanguage: setLanguageContext }}
     >
-      <DuTestScreen />
+      {/* <DuTestScreen /> */}
       <HoangTestScreen />
-      <KhangTestScreen />
+      {/* <KhangTestScreen />
       <KhanhTestScreen />
-      <NhiTestScreen />
+      <NhiTestScreen /> */}
     </LanguageContext.Provider>
   );
 }

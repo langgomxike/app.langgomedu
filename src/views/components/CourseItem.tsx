@@ -1,6 +1,8 @@
 import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
 import { Image, StyleSheet, Text, View } from "react-native";
+import { BackgroundColor } from "../../configs/ColorConfig";
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 
 type CourseItemProps = {
@@ -45,19 +47,13 @@ export default function courseItem({
       {/* Content */}
       <View style={styles.content}>
         <View style={styles.contentHorizontal}>
-          <View style={[styles.contentItem, styles.twoSection]}>
-            <Image
-              source={require("../../../assets/images/ic_graduate_outline.png")}
-              style={styles.contentIcon}
-            />
+          <View style={[styles.contentItem, styles.twoSection, {paddingVertical: 5}]}>
+          <Ionicons name="book-outline" size={24} color="black" />
             <Text style={styles.contentText}>{level}</Text>
           </View>
 
           <View style={[styles.contentItem, styles.twoSection]}>
-            <Image
-              source={require("../../../assets/images/ic_calendar_outline.png")}
-              style={styles.contentIcon}
-            />
+            <Ionicons name="calendar-outline" size={24} color="black" />
             <Text style={styles.contentText}>{date}</Text>
           </View>
         </View>
@@ -65,26 +61,21 @@ export default function courseItem({
         <View style={styles.line} />
 
         <View style={[styles.contentItem, styles.marginButtom, {paddingTop: 10}]}>
-          <Image
-            source={require("../../../assets/images/ic_clock.png")}
-            style={styles.contentIcon}
-          />
+          <Ionicons name="time-outline" size={24} color="black" />
           <Text style={styles.contentText}>{time} giờ/Buổi</Text>
         </View>
     
         <View style={[styles.contentItem, styles.marginButtom]}>
-          <Image
-            source={require("../../../assets/images/home-tab.png")}
-            style={styles.contentIcon}
-          />
+          <Ionicons name="home-outline" size={24} color="black" />
           <Text style={styles.contentText}>{type}</Text>
         </View>
 
         <View style={[styles.contentItem, styles.marginButtom]}>
-          <Image
+          {/* <Image
             source={require("../../../assets/images/ic_location.png")}
             style={styles.contentIcon}
-          />
+          /> */}
+          <Ionicons name="location-outline" size={24} color="black" />
           <Text style={styles.contentText}>{address}</Text>
         </View>
         <View style={styles.line} />
@@ -101,18 +92,18 @@ const styles = StyleSheet.create({
     footerText: {
         color: '#0D99FF',
         fontWeight: '600',
-        fontSize: 20
+        fontSize: 18
     },
     marginButtom: {
-        marginBottom: 10
+        marginBottom: 18
     },
   line: {
-    borderBottomWidth: 1,
-    borderBottomColor: "#CCC",
+    height: 1,
+    backgroundColor: BackgroundColor.gray_c6,
     marginVertical: 10,
   },
   contentText: {
-    fontSize: 16,
+    fontSize: 14,
   },
   contentIcon: {
     width: 23,
@@ -137,9 +128,9 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   courseImage: {
-    width: 50,
-    height: 50,
-    marginBottom: 20,
+    width: 40,
+    height: 40,
+    marginBottom: 15,
   },
   header: {
     paddingVertical: 20,
@@ -166,7 +157,7 @@ const styles = StyleSheet.create({
   },
 
   title: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: "600",
     color: "white",
   },
