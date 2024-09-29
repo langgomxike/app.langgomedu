@@ -15,7 +15,7 @@ export default class Message {
     public file: File;
     public messageType: string;
     public createdAt: number;
-    public replyToMessage: Message | null;
+    public replyToMessage: Message | undefined;
     public fromUserStatus: boolean;
     public toUserStatus: boolean;
     public fromUserAsRead: boolean;
@@ -31,7 +31,7 @@ export default class Message {
         this.file = new File();
         this.fromUser = new User();
         this.toUser = new User();
-        this.replyToMessage = null;
+        this.replyToMessage = undefined;
         this.fromUserAsRead = false;
         this.toUserAsRead = false;
     }

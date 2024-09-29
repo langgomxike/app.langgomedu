@@ -2,7 +2,7 @@ import {
   Image,
   StyleSheet,
   Text,
-  useWindowDimensions,
+  TouchableOpacity,
   View,
 } from "react-native";
 import Message, { MessageType } from "../../models/Message";
@@ -12,11 +12,13 @@ import { BackgroundColor, TextColor } from "../../configs/ColorConfig";
 type MessageItemProps = {
   message: Message;
   ofMine: boolean;
+  onReplyPress?: () => void;
 };
 
 export default function MessageItem({
   message,
   ofMine = false,
+  onReplyPress = () => {},
 }: MessageItemProps) {
   let content;
   let replyContent;
@@ -67,7 +69,9 @@ export default function MessageItem({
 
   switch (message.replyToMessage?.messageType) {
     case MessageType.TEXT:
-      replyContent = <Text>{message.replyToMessage.content}</Text>;
+      replyContent = (
+        <Text style={{ color: "#AAA" }}>{message.replyToMessage.content}</Text>
+      );
       break;
 
     case MessageType.IMAGE:
@@ -90,9 +94,12 @@ export default function MessageItem({
     <>
       {/* reply message */}
       {message.replyToMessage && (
-        <View style={[styles.replyToContainer, ofMine && styles.ofMine]}>
+        <TouchableOpacity
+          onPress={onReplyPress}
+          style={[styles.replyToContainer, ofMine && styles.ofMine]}
+        >
           {replyContent}
-        </View>
+        </TouchableOpacity>
       )}
 
       {/* main message */}

@@ -14,8 +14,8 @@ export default class DateTimeConfig {
             result += "/" + year;
         }
 
-        if (month !== new Date().getMonth() || day !== new Date().getDate()) {
-            result += day + "/" + month + result;
+        if (!!result || month !== new Date().getMonth() || day !== new Date().getDate()) {
+            result = day + "/" + month + result;
         }
 
         if (isShownTime) {

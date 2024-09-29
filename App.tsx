@@ -14,7 +14,7 @@ import ProfileScreen from "./src/views/screens/Profile";
 
 const Stack = createNativeStackNavigator();
 const SCREEN_PADDING_TOP = 50;
-const SCREEN_PADDING_HORIZONTAL = 10;
+const SCREEN_PADDING_HORIZONTAL = 0;
 
 export default function App() {
   // states

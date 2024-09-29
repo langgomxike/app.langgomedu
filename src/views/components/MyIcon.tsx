@@ -65,7 +65,7 @@ export enum AppIcon {
   ic_home = require("../../../assets/icons/ic_home.png"),
   ic_info = require("../../../assets/icons/ic_info.png"),
   ic_japanese = require("../../../assets/icons/ic_japanese.png"),
-  ic_location = require("../../../assets/icons/ic_location.png"),
+  ic_location = require("../../../assets/icons/ic_location(1).png"),
   ic_language = require("../../../assets/icons/ic_language.png"),
   ic_locations = require("../../../assets/icons/ic_location.png"),
   ic_lock_blue = require("../../../assets/icons/ic_lock_blue.png"),
@@ -74,7 +74,7 @@ export enum AppIcon {
   ic_manage_tutor = require("../../../assets/icons/ic_manage_tutor.png"),
   ic_math = require("../../../assets/icons/ic_math.png"),
   ic_music = require("../../../assets/icons/ic_music.png"),
-  ic_phone = require("../../../assets/icons/ic_phone.png"),
+  ic_phone = require("../../../assets/icons/ic_phone(1).png"),
   ic_phones = require("../../../assets/icons/ic_phone.png"),
   ic_photo = require("../../../assets/icons/ic_photo.png"),
   ic_photoshop = require("../../../assets/icons/ic_photoshop.png"),
@@ -108,16 +108,16 @@ export enum AppIcon {
 }
 
 type Icon = {
-  icon: AppIcon;
-  iconName: string;
+  icon: AppIcon; 
+  iconName?: string; 
   onPress: () => void;
 };
 
 const MyIcon: React.FC<Icon> = ({ icon, iconName, onPress }) => {
   return (
-    <TouchableOpacity style={{ alignContent: "center" }} onPress={onPress}>
-      <View style={styles.iconContainer}>
-        <Image source={icon} style={styles.icon} />
+    <TouchableOpacity onPress={onPress}>
+      <View>
+      <Image source={icon} style={styles.icon} />
         {/* <Image source={{ uri: icon }} style={styles.icon} /> */}
         {/* <Text style={styles.iconName}>{iconName}</Text> */}
       </View>
@@ -126,12 +126,6 @@ const MyIcon: React.FC<Icon> = ({ icon, iconName, onPress }) => {
 };
 
 const styles = StyleSheet.create({
-  iconContainer: {
-    alignSelf: "center",
-    alignItems: "center",
-    marginTop: 10,
-    // marginBottom: 10,
-  },
   icon: {
     width: 24, // Chiều rộng của biểu tượng
     height: 24, // Chiều cao của biểu tượng

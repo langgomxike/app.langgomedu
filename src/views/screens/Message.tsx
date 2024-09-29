@@ -1,26 +1,66 @@
 import {
   FlatList,
+  InteractionManager,
   Modal,
+  Pressable,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
-import { BackgroundColor } from "../../configs/ColorConfig";
-import { useCallback, useEffect, useState } from "react";
+import { BackgroundColor, TextColor } from "../../configs/ColorConfig";
+import { ElementRef, useCallback, useEffect, useRef, useState } from "react";
 import Message, { MessageType } from "../../models/Message";
 import AMessage from "../../apis/AMessage";
 import MessageItem from "../components/MessageItem";
 import MyIcon, { AppIcon } from "../components/MyIcon";
-import Box from "../components/Box";
-import BoxWhite from "../components/BoxWhite";
+import RBSheet from "react-native-raw-bottom-sheet";
+import BackWithDetailLayout from "../layouts/BackWithDetail";
 
 export default function MessageScreen() {
+  //refs
+  const inputRef = useRef<ElementRef<typeof TextInput>>(null);
+  const listRef = useRef<ElementRef<typeof FlatList<Message>>>(null);
+  const refRBSheet = useRef<ElementRef<typeof RBSheet>>(null);
+
   //states
   const [messages, setMessages] = useState<Array<Message>>([]);
   const [newMessage, setNewMessage] = useState("");
-  const [isShownAction, setShownAction] = useState(false);
+  const [replyMessage, setReplyMessage] = useState<Message | undefined>(
+    undefined
+  );
+  const [activeMessage, setActiveMessage] = useState<Message | undefined>(
+    undefined
+  );
+  const [isAtBottom, setAtBottom] = useState(true);
+
+  let replyContent;
+
+  if (replyMessage) {
+    switch (replyMessage.messageType) {
+      case MessageType.TEXT:
+        replyContent = (
+          <Text style={{ color: "#AAA" }}>{replyMessage.content}</Text>
+        );
+        break;
+
+      case MessageType.IMAGE:
+        replyContent = (
+          <Text style={{ color: "#AAA", textDecorationLine: "underline" }}>
+            {"Image"}
+          </Text>
+        );
+        break;
+      case MessageType.FILE:
+        replyContent = (
+          <Text style={{ color: "#AAA", textDecorationLine: "underline" }}>
+            {replyMessage.file.name}
+          </Text>
+        );
+        break;
+    }
+  }
 
   //handlers
   const handlePickImage = useCallback(() => {
@@ -47,15 +87,26 @@ export default function MessageScreen() {
       new Date().getTime()
     );
 
+    message.replyToMessage = replyMessage;
+
     setMessages((messages) => [message, ...messages]);
     setNewMessage("");
+    setReplyMessage(undefined);
 
     //scroll to end
-  }, [messages, newMessage]);
+  }, [messages, newMessage, replyMessage]);
 
-  const handleItemAction = useCallback((message: Message) => {
-    setShownAction(true);
+  const handleShowAction = useCallback((message: Message) => {
+    setActiveMessage(message);
+    refRBSheet.current?.open();
   }, []);
+
+  const handleReplyMessage = useCallback(() => {
+    setReplyMessage(activeMessage);
+    refRBSheet.current?.close();
+  }, [activeMessage]);
+
+  const handleDeleteMessage = useCallback(() => {}, []);
 
   //effects
   useEffect(() => {
@@ -63,76 +114,118 @@ export default function MessageScreen() {
       setMessages(messages);
     });
   }, []);
-
+ 
   return (
-    <View style={[styles.container, { marginBottom: 10 }]}>
-      <FlatList
-        inverted={true}
-        showsHorizontalScrollIndicator={false}
-        showsVerticalScrollIndicator={false}
-        data={messages}
-        renderItem={({ item: message }) => (
-          <TouchableOpacity onLongPress={() => handleItemAction(message)}>
-            <MessageItem
-              key={message.id}
-              message={message}
-              ofMine={Math.random() > 0.5}
-            />
+    <BackWithDetailLayout   
+      icName="Back"
+      subIcon={<MyIcon icon={AppIcon.ic_info} onPress={() => {}} />}
+    >
+      <View style={[styles.container, { marginBottom: 10 }]}>
+        <FlatList
+          ref={listRef}
+          inverted={true}
+          showsHorizontalScrollIndicator={false}
+          showsVerticalScrollIndicator={false}
+          data={messages}
+          onScroll={(event) =>
+            setAtBottom(event.nativeEvent.contentOffset.y === 0)
+          }
+          renderItem={({ item: message }) => (
+            <Pressable onLongPress={() => handleShowAction(message)}>
+              <MessageItem
+                key={message.id}
+                message={message}
+                ofMine={Math.random() > 0.5}
+                onReplyPress={() =>
+                  listRef.current?.scrollToItem({
+                    item: message.replyToMessage ?? message,
+                    animated: true,
+                  })
+                }
+              />
+            </Pressable>
+          )}
+        />
+
+        {/* reply message */}
+        {replyMessage && (
+          <View style={{ flexDirection: "row" }}>
+            <Text>Reply to message: </Text>
+            {replyContent}
+          </View>
+        )}
+
+        {/* chat bar */}
+        <View style={styles.chatContainer}>
+          {/* actions */}
+          {!newMessage && (
+            <>
+              <MyIcon
+                icon={AppIcon.ic_photo}
+                onPress={handlePickImage}
+                iconName=""
+              />
+              <MyIcon
+                icon={AppIcon.ic_folder}
+                onPress={handlePickFolder}
+                iconName=""
+              />
+              <MyIcon
+                icon={AppIcon.ic_collab}
+                onPress={handleMakingContact}
+                iconName=""
+              />
+            </>
+          )}
+
+          <TextInput
+            ref={inputRef}
+            value={newMessage}
+            onChangeText={(value) => setNewMessage(value)}
+            placeholder="Chat here"
+            style={styles.input}
+          />
+
+          <MyIcon
+            icon={AppIcon.send}
+            onPress={handleSendNewMessage}
+            iconName=""
+          />
+
+          {/* back to bottom button */}
+          {!isAtBottom && (
+            <TouchableOpacity style={action.scrollToBottomButtonContainer}>
+              <Text
+                onPress={() =>
+                  listRef.current?.scrollToIndex({ index: 0, animated: true })
+                }
+                style={action.scrollToBottomButton}
+              >
+                Scroll to bottom
+              </Text>
+            </TouchableOpacity>
+          )}
+        </View>
+
+        {/* action */}
+        <RBSheet ref={refRBSheet} useNativeDriver={false} height={200}>
+          <TouchableOpacity style={action.action} onPress={handleReplyMessage}>
+            <MyIcon icon={AppIcon.ic_close_desk} onPress={() => {}} />
+            <Text style={action.item}>Tra loi</Text>
           </TouchableOpacity>
-        )}
-      />
 
-      {/* chat bar */}
-      <View style={styles.chatContainer}>
-        {/* actions */}
-        {!newMessage && (
-          <>
-            <MyIcon
-              icon={AppIcon.ic_photo}
-              onPress={handlePickImage}
-              iconName=""
-            />
-            <MyIcon
-              icon={AppIcon.ic_folder}
-              onPress={handlePickFolder}
-              iconName=""
-            />
-            <MyIcon
-              icon={AppIcon.ic_collab}
-              onPress={handleMakingContact}
-              iconName=""
-            />
-          </>
-        )}
+          <TouchableOpacity style={action.action}>
+            <MyIcon icon={AppIcon.ic_bin} onPress={() => {}} />
+            <Text style={action.item}>Go phia ban</Text>
+          </TouchableOpacity>
 
-        <TextInput
-          value={newMessage}
-          onChangeText={(value) => setNewMessage(value)}
-          placeholder="Chat here"
-          style={styles.input}
-        />
-
-        <MyIcon
-          icon={AppIcon.send}
-          onPress={handleSendNewMessage}
-          iconName=""
-        />
+          <TouchableOpacity style={action.action}>
+            <MyIcon icon={AppIcon.ic_bin} onPress={() => {}} />
+            <Text style={action.item}>Go ca 2 phia</Text>
+          </TouchableOpacity>
+        </RBSheet>
       </View>
-
-      {/* modal actions */}
-      <Modal
-        transparent
-        visible={isShownAction}
-        animationType="fade"
-        style={modal.container}
-      >
-        <Text>Delete from you</Text>
-        <Text>Delete all 2</Text>
-        <Text>Reply this message</Text>
-
-        <Text onPress={() => setShownAction(false)}>Cancel</Text>
-      </Modal>
-    </View>
+    </BackWithDetailLayout>
   );
 }
 
@@ -143,7 +236,6 @@ const styles = StyleSheet.create({
   },
 
   chatContainer: {
-    paddingVertical: 5,
     flexDirection: "row",
     gap: 10,
     alignItems: "center",
@@ -158,13 +250,31 @@ const styles = StyleSheet.create({
   },
 });
 
-const modal = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: BackgroundColor.white,
+const action = StyleSheet.create({
+  action: {
+    flexDirection: "row",
+    margin: 10,
+    gap: 10,
+  },
+  item: {
+    fontSize: 13,
+    fontWeight: "bold",
+    alignSelf: "center",
   },
 
-  box: {},
+  scrollToBottomButtonContainer: {
+    position: "absolute",
+    top: -40,
+    left: 0,
+    right: 0,
+  },
+
+  scrollToBottomButton: {
+    backgroundColor: BackgroundColor.sub_primary,
+    borderRadius: 30,
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    color: TextColor.white,
+    alignSelf: "center",
+  },
 });
