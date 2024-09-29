@@ -6,6 +6,14 @@ import CreateClassScreen from "../screens/CreateClass";
 import PersonalScheduleScreen from "../screens/PersonalSchedule";
 import AccountScreen from "../screens/Account";
 import MyIcon, { AppIcon } from "./MyIcon";
+import {
+  Image,
+  ImageSourcePropType,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { useCallback } from "react";
 
 const activeColor = "#0D99FF";
 const hintColor = "#AAA";
@@ -19,62 +27,31 @@ export default function ButtonNavBar() {
     <Tab.Navigator
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, color, size }) => {
-          let iconName;
+          let icon: ImageSourcePropType | undefined;
 
           switch (route.name) {
             case ScreenName.HOME:
-              return (
-                <MyIcon
-                  iconName=""
-                  icon={AppIcon.home_tab}
-                  onPress={() => {}}
-                />
-              );
-
+              icon = require("../../../assets/icons/home-tab.png");
+              break;
             case ScreenName.CHAT:
-              return (
-                <MyIcon
-                  iconName=""
-                  icon={AppIcon.home_tab}
-                  onPress={() => {}}
-                />
-              );
-
+              icon = require("../../../assets/icons/chat-tab.png");
+              break;
             case ScreenName.CREATE_CLASS:
-              return (
-                <MyIcon
-                  iconName=""
-                  icon={AppIcon.home_tab}
-                  onPress={() => {}}
-                />
-              );
-
+              icon = require("../../../assets/icons/ic_plus.png");
+              break;
             case ScreenName.PERSONAL_SCHEDULE:
-              return (
-                <MyIcon
-                  iconName=""
-                  icon={AppIcon.home_tab}
-                  onPress={() => {}}
-                />
-              );
-
+              icon = require("../../../assets/icons/ic_file.png");
+              break;
             case ScreenName.ACCOUNT:
-              return (
-                <MyIcon
-                  iconName=""
-                  icon={AppIcon.home_tab}
-                  onPress={() => {}}
-                />
-              );
+              icon = require("../../../assets/icons/account_tab.png");
+              break;
           }
 
-          if (route.name === "Home") {
-            iconName = focused
-              ? "ios-information-circle"
-              : "ios-information-circle-outline";
-          } else if (route.name === "Settings") {
-            iconName = focused ? "ios-list" : "ios-list-outline";
-          }
+          return (
+            <View style={styles.iconContainer}>
+              <Image source={icon} style={styles.icon} />
+            </View>
+          );
         },
         tabBarActiveTintColor: activeColor,
         tabBarInactiveTintColor: hintColor,
@@ -104,3 +81,22 @@ export default function ButtonNavBar() {
     </Tab.Navigator>
   );
 }
+
+const styles = StyleSheet.create({
+  iconContainer: {
+    alignSelf: "center",
+    alignItems: "center",
+    marginTop: 10,
+    // marginBottom: 10,
+  },
+  icon: {
+    width: 24, // Chiều rộng của biểu tượng
+    height: 24, // Chiều cao của biểu tượng
+    borderRadius: 5,
+  },
+  iconName: {
+    marginTop: 5,
+    fontSize: 16,
+    color: "#000", // Màu sắc của tên biểu tượng
+  },
+});

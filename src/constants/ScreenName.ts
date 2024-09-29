@@ -5,6 +5,8 @@ enum ScreenName {
     CREATE_CLASS = "Create Class",
     PERSONAL_SCHEDULE = "Personal Schedule",
     ACCOUNT = "Account",
+    MESSAGE = "Message",
+    PROFILE = "Profile",
 }
 
 export default ScreenName;
