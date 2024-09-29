@@ -6,7 +6,7 @@ type InputProps = {
     onChangeText: (text:string) => void;
     style?: object
 }
-export default function inputField({
+export default function Search({
     value,
     onChangeText,
     style

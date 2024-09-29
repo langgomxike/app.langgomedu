@@ -39,7 +39,7 @@ const BackWithDetailLayout = ({icName, subIcon, children} : propsBackDetail) => 
         </View>
 
         {/* Info Icon */}
-        <View style={styles.rightSection}>
+        <View style={styles.leftSection}>
           <TouchableOpacity style={styles.iconButton}>
            {/* <MyIcon icon={AppIcon.ic_info} onPress={handleInfor}/> */}
             {subIcon}
@@ -66,8 +66,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'baseline',
     backgroundColor: '#008CFF',
-    height: 280,
-    paddingHorizontal: 20,
+    height: 215,
+    paddingHorizontal:20,
   },
 
   leftSection: {
@@ -83,13 +83,13 @@ const styles = StyleSheet.create({
   iconButton: {
     flexDirection: "row",
     alignItems: "center",
-    transform: [{translateY: -30}]
+    transform: [{translateY: -60}]
   },
 
 
   textIcon: {
-    paddingBottom: 25,
-    marginLeft: 10,
+    transform: [{translateY: -15}],
+    marginLeft: 5,
     color: "#fff",
     fontWeight: "bold",
   },
@@ -107,13 +107,13 @@ const styles = StyleSheet.create({
   avatar: {
     flexDirection: "row",
     alignItems: "center",
-    transform: [{translateY: 80}, {translateX: -10}]
+    transform: [{translateY: 35}, {translateX: -14}]
   },
 
   mainContent: {
     flex: 1,
     backgroundColor: "#fff",
-    marginTop: -40,
+    marginTop: -30,
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     padding: 16,

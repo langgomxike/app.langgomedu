@@ -1,37 +1,29 @@
 import { Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import React, { useState } from "react";
+import React, { ReactElement, useState } from "react";
 import Button from "../components/Button";
 import { BackgroundColor, TextColor } from "../../configs/ColorConfig";
 import MyIcon, { AppIcon } from "../components/MyIcon";
 
 type propsModal = {
   children: React.ReactNode;
+  subAction: React.ReactNode;
+  onClose: () => void;
+  visible: boolean;
 };
 
-const ModalLayout = ({ children }: propsModal) => {
-  const [modalVisible, setModalVisible] = useState(false);
+const ModalLayout = ({ children, subAction, onClose, visible }: propsModal) => {
 
-  const handleOk = () => {
-    alert("OK!");
-    setModalVisible(false);
-  }
 
   return (
     <View style={styles.container}>
       {/* Trigger Button to Show Modal */}
-      <Button
-        title="Show Modal"
-        onPress={() => setModalVisible(true)}
-        backgroundColor={BackgroundColor.primary}
-        textColor={TextColor.white}
-      />
-
+      
       {/* Modal Definition */}
       <Modal
         animationType="slide"
         transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
+        visible={visible}
+        onRequestClose={onClose}
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalView}>
@@ -39,7 +31,7 @@ const ModalLayout = ({ children }: propsModal) => {
             <TouchableOpacity style={styles.closeButton}>
               <MyIcon
                 icon={AppIcon.ic_exit}
-                onPress={() => setModalVisible(false)}
+                onPress={onClose}
               />
             </TouchableOpacity>
 
@@ -47,12 +39,14 @@ const ModalLayout = ({ children }: propsModal) => {
 
             {/* Close Modal Button */}
             <TouchableOpacity style={styles.button}>
-              <Button
-                title="CLose"
-                backgroundColor={BackgroundColor.primary}
-                textColor={TextColor.white}
-                onPress={handleOk}
-              />
+              {/* Kiểm tra nếu subAction là một ReactElement */}
+              {
+                React.isValidElement(subAction)
+                  ? React.cloneElement(subAction as ReactElement, {
+                      onPress: onClose,
+                    })
+                  : subAction /* Nếu không, render nó trực tiếp */
+              }
             </TouchableOpacity>
           </View>
         </View>
