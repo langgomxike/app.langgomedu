@@ -1,13 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, StyleSheet, Text, TouchableOpacity } from "react-native";
 import { BackgroundColor, TextColor } from "../../configs/ColorConfig";
 import DayBox from "./DayBox";
+import { Day, DaysOfWeek } from "../screens/Schedule";
 
-type weekly = {
-    today: number,
-    dayOfWeek: number,
-
-}
 
 export enum EdayOfWeek {
     'mon' = 0,
@@ -18,6 +14,7 @@ export enum EdayOfWeek {
     'sat' = 5,
     'sun' = 6,
 }
+
 const getDayofWeek = (dayOfWeek: number): string => {
     if (dayOfWeek in EdayOfWeek) {
         return EdayOfWeek[dayOfWeek]
@@ -25,16 +22,16 @@ const getDayofWeek = (dayOfWeek: number): string => {
     return 'invalid day'
 }
 
-const WeekCalendar = ({ today, dayOfWeek }: weekly) => {
+const WeekCalendar = ({ days }: DaysOfWeek) => {
 
-    const Days: Array<any> = [];
+    const daysOfWeek: Array<any> = [];
 
-    let enumDay: number = 0;
-    for (let index = 0 - dayOfWeek; index < 7 - dayOfWeek; index++) {
-        Days.push(
-            <DayBox day={today + index} dayOfWeek={EdayOfWeek[enumDay]} />
+    for (let index = 0; index < days.length; index++) {
+        daysOfWeek.push(
+            <TouchableOpacity>
+                <DayBox day={days[index].dayOfMonth} dayOfWeek={EdayOfWeek[days[index].dayOfWeek]} />
+            </TouchableOpacity>
         )
-        enumDay++;
 
     }
 
@@ -49,7 +46,7 @@ const WeekCalendar = ({ today, dayOfWeek }: weekly) => {
                 </TouchableOpacity>
             </View>
             <View style={styles.weekCalendar}>
-                {Days}
+                {daysOfWeek}
             </View>
         </View>
     )
@@ -60,7 +57,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         flexDirection: 'column',
-        width: 380,
+        width: '100%',
         height: 180,
         backgroundColor: BackgroundColor.primary,
         borderTopLeftRadius: 10,
@@ -68,7 +65,7 @@ const styles = StyleSheet.create({
         borderBottomLeftRadius: 10,
         borderBottomRightRadius: 30,
         paddingHorizontal: 10,
-        elevation: 5,
+        elevation: 10,
     },
     weekCalendar: {
         height: 120,

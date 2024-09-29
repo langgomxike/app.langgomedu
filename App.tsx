@@ -52,11 +52,6 @@ export default function App() {
             },
           }}
         >
-          {/* <DuTestScreen />
-              <HoangTestScreen /> 
-              <KhangTestScreen />
-              <KhanhTestScreen />
-              <NhiTestScreen /> */}
           <Stack.Screen name={ScreenName.NAV_BAR} component={ButtonNavBar} />
         </Stack.Navigator>
       </NavigationContainer>
