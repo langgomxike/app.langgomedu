@@ -9,10 +9,15 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import ScreenName from "./src/constants/ScreenName";
 import ButtonNavBar from "./src/views/components/ButtonNavBar";
+import { createDrawerNavigator } from '@react-navigation/drawer';
+import Filter from "./src/views/components/Filter";
+
 
 const Stack = createNativeStackNavigator();
 const SCREEN_PADDING_TOP = 50;
 const SCREEN_PADDING_HORIZONTAL = 10;
+
+
 
 export default function App() {
   // states
