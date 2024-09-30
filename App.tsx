@@ -59,6 +59,21 @@ export default function App() {
           <Stack.Screen name={ScreenName.PROFILE} component={ProfileScreen} />
         </Stack.Navigator>
       </NavigationContainer>
+      {/* <DuTestScreen /> */}
+      {/* <OtpScreen/> */}
+      {/* oke roi */}
+      <LoginSreen/>
+      {/* oke roi */}
+      {/* <RegisterScreen1/> */}
+      {/* <RegisterScreen2/> */}
+      {/* oke roi */}
+      {/* <ChangePasswordScreen/> */}
+
+      {/* <HoangTestScreen />
+      <KhangTestScreen />
+      <KhanhTestScreen />
+
+      <NhiTestScreen /> */}
     </LanguageContext.Provider>
   );
 }
