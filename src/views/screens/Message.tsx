@@ -17,6 +17,7 @@ import MessageItem from "../components/MessageItem";
 import MyIcon, { AppIcon } from "../components/MyIcon";
 import RBSheet from "react-native-raw-bottom-sheet";
 import BackWithDetailLayout from "../layouts/BackWithDetail";
+import { Image } from "react-native";
 
 export default function MessageScreen() {
   //refs
@@ -41,24 +42,44 @@ export default function MessageScreen() {
     switch (replyMessage.messageType) {
       case MessageType.TEXT:
         replyContent = (
-          <Text style={{ color: "#AAA" }}>{replyMessage.content}</Text>
+          <Text style={{ color: "#AAA", flex: 1 }}>{replyMessage.content}</Text>
         );
         break;
 
       case MessageType.IMAGE:
         replyContent = (
-          <Text style={{ color: "#AAA", textDecorationLine: "underline" }}>
+          <Text
+            style={{ color: "#AAA", flex: 1, textDecorationLine: "underline" }}
+          >
             {"Image"}
           </Text>
         );
         break;
       case MessageType.FILE:
         replyContent = (
-          <Text style={{ color: "#AAA", textDecorationLine: "underline" }}>
+          <Text
+            style={{ color: "#AAA", flex: 1, textDecorationLine: "underline" }}
+          >
             {replyMessage.file.name}
           </Text>
         );
         break;
+    }
+  }
+
+  if (replyMessage) {
+    if (!replyMessage.fromUserStatus || !replyMessage.toUser) {
+      replyContent = (
+        <Text
+          style={{
+            color: "#AAA",
+            flex: 1,
+            textDecorationLine: "underline line-through",
+          }}
+        >
+          Tin nhan da go
+        </Text>
+      );
     }
   }
 
@@ -106,7 +127,32 @@ export default function MessageScreen() {
     refRBSheet.current?.close();
   }, [activeMessage]);
 
-  const handleDeleteMessage = useCallback(() => {}, []);
+  const handleDeleteOneSideMessage = useCallback(() => {
+    if (activeMessage) {
+      const message = messages.find(
+        (message) => message.id === activeMessage.id
+      );
+      if (message) {
+        message.fromUserStatus = false;
+      }
+    }
+    setMessages(messages);
+    refRBSheet.current?.close();
+  }, [activeMessage, messages]);
+
+  const handleDeleteTwoSideMessage = useCallback(() => {
+    if (activeMessage) {
+      const message = messages.find(
+        (message) => message.id === activeMessage.id
+      );
+      if (message) {
+        message.fromUserStatus = false;
+        message.toUserStatus = false;
+      }
+    }
+    setMessages(messages);
+    refRBSheet.current?.close();
+  }, [activeMessage, messages]);
 
   //effects
   useEffect(() => {
@@ -114,9 +160,9 @@ export default function MessageScreen() {
       setMessages(messages);
     });
   }, []);
- 
+
   return (
-    <BackWithDetailLayout   
+    <BackWithDetailLayout
       icName="Back"
       subIcon={<MyIcon icon={AppIcon.ic_info} onPress={() => {}} />}
     >
@@ -135,7 +181,7 @@ export default function MessageScreen() {
               <MessageItem
                 key={message.id}
                 message={message}
-                ofMine={Math.random() > 0.5}
+                ofMine={message.id % 2 == 0}
                 onReplyPress={() =>
                   listRef.current?.scrollToItem({
                     item: message.replyToMessage ?? message,
@@ -152,6 +198,15 @@ export default function MessageScreen() {
           <View style={{ flexDirection: "row" }}>
             <Text>Reply to message: </Text>
             {replyContent}
+            <Pressable
+              style={{ alignSelf: "center" }}
+              onPress={() => setReplyMessage(undefined)}
+            >
+              <Image
+                source={AppIcon.ic_exit}
+                style={{ width: 20, height: 20, alignSelf: "center" }}
+              />
+            </Pressable>
           </View>
         )}
 
@@ -214,12 +269,18 @@ export default function MessageScreen() {
             <Text style={action.item}>Tra loi</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={action.action}>
+          <TouchableOpacity
+            style={action.action}
+            onPress={handleDeleteOneSideMessage}
+          >
             <MyIcon icon={AppIcon.ic_bin} onPress={() => {}} />
             <Text style={action.item}>Go phia ban</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={action.action}>
+          <TouchableOpacity
+            style={action.action}
+            onPress={handleDeleteTwoSideMessage}
+          >
             <MyIcon icon={AppIcon.ic_bin} onPress={() => {}} />
             <Text style={action.item}>Go ca 2 phia</Text>
           </TouchableOpacity>
