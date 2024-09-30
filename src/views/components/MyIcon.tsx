@@ -127,7 +127,7 @@ type Icon = {
 >>>>>>> 4255cda (fix icon componnent)
 };
 
-const MyIcon: React.FC<Icon> = ({ icon, iconName, onPress }) => {
+const MyIcon: React.FC<Icon> = ({ icon, iconName, onPress,size }) => {
   return (
     <TouchableOpacity onPress={onPress}>
       <View>
@@ -141,8 +141,7 @@ const MyIcon: React.FC<Icon> = ({ icon, iconName, onPress }) => {
 
 const styles = StyleSheet.create({
   icon: {
-    width: 24, // Chiều rộng của biểu tượng
-    height: 24, // Chiều cao của biểu tượng
+
     borderRadius: 5,
   },
   iconName: {

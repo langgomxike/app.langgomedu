@@ -2,14 +2,10 @@ import React from "react";
 import { Text, View, TouchableOpacity, StyleSheet} from "react-native";
 
 // Định nghĩa enum AppText ở đầu file
-export enum AppText {
-  hello = "QuanAP",
-  hi = "Mono",
-  konichiha = "KhoaiLangThang",
-}
+
 
 type HintTextProps = {
-  hint: AppText; // Sử dụng AppText cho prop hint
+  hint: string; // Sử dụng AppText cho prop hint
   onPress: () => void;
 };
 

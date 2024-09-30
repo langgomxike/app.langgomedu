@@ -111,58 +111,58 @@
 //           {required && <Text style={styles.required}> *</Text>}
 //         </Text>
 
-//         <View style={[styles.inputBlock, styles.boxShadow]}>
-//           <View style={{ flex: 1 }}>
-//             <Image source={source} style={styles.inputIcon} />
-//           </View>
-//           <View style={[styles.inputBlock,{flex: 9}]}>
-//             <TextInput
-//               style={[
-//                 styles.input,
-//                 { flex: 9 },
-//                 editable === false
-//                   ? { backgroundColor: GRAY_DISABLE }
-//                   : { backgroundColor: "white" },
-//               ]}
-//               onChangeText={onChangeText}
-//               placeholder={placeholder}
-//               placeholderTextColor="#888"
-//               keyboardType={getKeyboardType()}
-//               value={value}
-//               secureTextEntry={type === "password" && !isPasswordVisible}
-//               editable={type === "date" || editable == false ? false : true}
-//             />
-//             {/* Ẩn hiện password */}
-//             {type === "password" && (
-//               <TouchableOpacity
-//                 onPress={togglePasswordVisibility}
-//                 style={{ flex: 1 }}
-//               >
-//                 <Ionicons
-//                   name={isPasswordVisible ? "eye-off-outline" : "eye-outline"}
-//                   size={24}
-//                   color="gray"
-//                 />
-//               </TouchableOpacity>
-//             )}
-//             {/* Ẩn hiện date picker */}
-//             {type === "date" && (
-//               <TouchableOpacity
-//                 onPress={() => setShowDatePicker(true)}
-//                 style={{ flex: 1 }}
-//               >
-//                 <Ionicons name="calendar-outline" size={24} color="gray" />
-//               </TouchableOpacity>
-//             )}
-//             {/* Hiển thị Close x với thẻ input text */}
-//             {type !== "date" && type !== "password" && (
-//               <TouchableOpacity
-//                 onPress={() => onChangeText("")}
-//                 style={{ flex: 1 }}
-//               >
-//                 <Ionicons name="close-sharp" size={24} color="gray" />
-//               </TouchableOpacity>
-//             )}
+        <View style={[styles.inputBlock, styles.boxShadow]}>
+          <View style={{ flex: 1 }}>
+            <Image source={source} style={styles.inputIcon} />
+          </View>
+          <View style={[styles.inputBlock, { flex: 9 }]}>
+            <TextInput
+              style={[
+                styles.input,
+                { flex: 9 },
+                editable === false
+                  ? { backgroundColor: GRAY_DISABLE }
+                  : { backgroundColor: "white" },
+              ]}
+              onChangeText={onChangeText}
+              placeholder={placeholder}
+              placeholderTextColor="#888"
+              keyboardType={getKeyboardType()}
+              value={value}
+              secureTextEntry={type === "password" && !isPasswordVisible}
+              editable={type === "date" || editable == false ? false : true}
+            />
+            {/* Ẩn hiện password */}
+            {type === "password" && (
+              <TouchableOpacity
+                onPress={togglePasswordVisibility}
+                style={{ flex: 1 }}
+              >
+                <Ionicons
+                  name={isPasswordVisible ? "eye-off-outline" : "eye-outline"}
+                  size={24}
+                  color="gray"
+                />
+              </TouchableOpacity>
+            )}
+            {/* Ẩn hiện date picker */}
+            {type === "date" && (
+              <TouchableOpacity
+                onPress={() => setShowDatePicker(true)}
+                style={{ flex: 1 }}
+              >
+                <Ionicons name="calendar-outline" size={24} color="gray" />
+              </TouchableOpacity>
+            )}
+            {/* Hiển thị Close x với thẻ input text */}
+            {type !== "date" && type !== "password" && (
+              <TouchableOpacity
+                onPress={() => onChangeText("")}
+                style={{ flex: 1 }}
+              >
+                <Ionicons name="close-sharp" size={24} color="gray" />
+              </TouchableOpacity>
+            )}
 
 //             {/* Xử lý hiển thị date picker */}
 //             {showDatePicker && (
@@ -212,14 +212,14 @@
 
 //   input: {},
 
-//   inputBlock: {
-//     flexDirection: "row",
-//     backgroundColor: "white",
-//     borderRadius: 10,
-//     alignItems: "center",
-//     paddingHorizontal: 10,
-//     paddingVertical: 10,
-//   },
+  inputBlock: {
+    flexDirection: "row",
+    backgroundColor: "white",
+    borderRadius: 10,
+    alignItems: "center",
+    paddingHorizontal: 5,
+    paddingVertical: 5,
+  },
 
 //   boxShadow: {
 //     shadowColor: "#000",
