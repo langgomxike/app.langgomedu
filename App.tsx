@@ -11,6 +11,12 @@ import KhangTestScreen from "./src/views/screens/KhangTest";
 import DuTestScreen from "./src/views/screens/DuTest";
 import NhiTestScreen from "./src/views/screens/NhiTest";
 import HoangTestScreen from "./src/views/screens/HoangTest";
+import OtpScreen from "./src/views/screens/OTP";
+import LoginSreen from "./src/views/screens/Login";
+import RegisterScreen1 from "./src/views/screens/Register1";
+import RegisterScreen2 from "./src/views/screens/Register2";
+import ChangePasswordScreen from "./src/views/screens/ChangePassword";
+
 
 export default function App() {
   // states
@@ -39,11 +45,21 @@ export default function App() {
     <LanguageContext.Provider
       value={{ language: language, setLanguage: setLanguageContext }}
     >
-      <DuTestScreen />
-      <HoangTestScreen />
+      {/* <DuTestScreen /> */}
+      <OtpScreen/>
+      {/* oke roi */}
+      {/* <LoginSreen/> */}
+      {/* oke roi */}
+      {/* <RegisterScreen1/> */}
+      {/* <RegisterScreen2/> */}
+      {/* oke roi */}
+      {/* <ChangePasswordScreen/> */}
+
+      {/* <HoangTestScreen />
       <KhangTestScreen />
       <KhanhTestScreen />
-      <NhiTestScreen />
+
+      <NhiTestScreen /> */}
     </LanguageContext.Provider>
   );
 }

@@ -107,19 +107,21 @@ export enum AppIcon {
   send = require("../../../assets/icons/send.png"),
 }
 
-
-
 type Icon = {
   icon: AppIcon; 
   iconName?: string; 
   onPress?: () => void;
+  size?:string;
 };
 
-const MyIcon: React.FC<Icon> = ({ icon, iconName, onPress }) => {
+const MyIcon: React.FC<Icon> = ({ icon, iconName, onPress,size }) => {
   return (
     <TouchableOpacity onPress={onPress}>
       <View style={styles.iconContainer}>
-      <Image source={icon} style={styles.icon} />
+      <Image 
+          source={icon} 
+          style={[styles.icon, { width: size ? Number(size) : 30, height: size ? Number(size) : 30 }]} 
+        />
         {/* <Image source={{ uri: icon }} style={styles.icon} /> */}
         <Text style={styles.iconName}>{iconName}</Text>
       </View>
@@ -129,12 +131,11 @@ const MyIcon: React.FC<Icon> = ({ icon, iconName, onPress }) => {
 
 const styles = StyleSheet.create({
   iconContainer: {
-    alignItems: 'center',
-    marginBottom: 10,
+ 
+   
   },
   icon: {
-    width: 24, // Chiều rộng của biểu tượng
-    height: 24, // Chiều cao của biểu tượng
+
     borderRadius: 5,
   },
   iconName: {

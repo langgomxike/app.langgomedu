@@ -115,7 +115,7 @@ export default function customInput({
           <View style={{ flex: 1 }}>
             <Image source={source} style={styles.inputIcon} />
           </View>
-          <View style={[styles.inputBlock,{flex: 9}]}>
+          <View style={[styles.inputBlock, { flex: 9 }]}>
             <TextInput
               style={[
                 styles.input,
@@ -217,8 +217,8 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     borderRadius: 10,
     alignItems: "center",
-    paddingHorizontal: 10,
-    paddingVertical: 10,
+    paddingHorizontal: 5,
+    paddingVertical: 5,
   },
 
   boxShadow: {
