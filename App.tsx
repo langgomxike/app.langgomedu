@@ -46,9 +46,9 @@ export default function App() {
       value={{ language: language, setLanguage: setLanguageContext }}
     >
       {/* <DuTestScreen /> */}
-      <OtpScreen/>
+      {/* <OtpScreen/> */}
       {/* oke roi */}
-      {/* <LoginSreen/> */}
+      <LoginSreen/>
       {/* oke roi */}
       {/* <RegisterScreen1/> */}
       {/* <RegisterScreen2/> */}
