@@ -1,4 +1,3 @@
-import { Context } from "react";
 
 export enum BackgroundColor {
     primary = '#0D99FF',
