@@ -62,12 +62,13 @@ export default function App() {
       {/* <DuTestScreen /> */}
       {/* <OtpScreen/> */}
       {/* oke roi */}
-      <LoginSreen/>
+      {/* <LoginSreen/> */}
       {/* oke roi */}
       {/* <RegisterScreen1/> */}
+            {/* oke roi */}
       {/* <RegisterScreen2/> */}
       {/* oke roi */}
-      {/* <ChangePasswordScreen/> */}
+      <ChangePasswordScreen/>
 
       {/* <HoangTestScreen />
       <KhangTestScreen />
