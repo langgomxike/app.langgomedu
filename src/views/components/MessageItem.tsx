@@ -1,10 +1,4 @@
-import {
-  Image,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Message, { MessageType } from "../../models/Message";
 import DateTimeConfig from "../../configs/DateTimeConfig";
 import { BackgroundColor, TextColor } from "../../configs/ColorConfig";
@@ -23,6 +17,7 @@ export default function MessageItem({
   let content;
   let replyContent;
 
+  // main content
   switch (message.messageType) {
     case MessageType.TEXT:
       content = (
@@ -67,6 +62,7 @@ export default function MessageItem({
       break;
   }
 
+  // reply content
   switch (message.replyToMessage?.messageType) {
     case MessageType.TEXT:
       replyContent = (
@@ -88,6 +84,41 @@ export default function MessageItem({
         </Text>
       );
       break;
+  }
+
+  //check main content active or not
+  //mine  1, from user 0
+  //mine 0, to user 0
+  if ((ofMine && !message.fromUserStatus) || (!ofMine && !message.toUser)) {
+    content = (
+      <Text
+        style={[
+          styles.content,
+          ofMine && styles.ofMine,
+          { textDecorationLine: "underline line-through" },
+        ]}
+      >
+        Tin nhan da go
+      </Text>
+    );
+  }
+
+  //check reply content active or not
+  if (
+    (ofMine && !message.replyToMessage?.fromUserStatus) ||
+    (!ofMine && !message.replyToMessage?.toUser)
+  ) {
+    replyContent = (
+      <Text
+        style={[
+          styles.content,
+          ofMine && styles.ofMine,
+          { textDecorationLine: "underline line-through" },
+        ]}
+      >
+        Tin nhan da go
+      </Text>
+    );
   }
 
   return (
@@ -129,6 +160,10 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     gap: 5,
     alignSelf: "flex-start",
+  },
+
+  deleted: {
+    backgroundColor: BackgroundColor.sub_primary,
   },
 
   hasReply: {

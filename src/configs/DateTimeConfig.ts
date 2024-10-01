@@ -15,7 +15,7 @@ export default class DateTimeConfig {
         }
 
         if (!!result || month !== new Date().getMonth() || day !== new Date().getDate()) {
-            result = day + "/" + month + result;
+            result = this.formatTime(day) + "/" + this.formatTime(month) + result;
         }
 
         if (isShownTime) {
