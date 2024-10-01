@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -6,10 +6,63 @@ import {
   StyleSheet,
   Image,
   TouchableOpacity,
+  FlatList,
 } from "react-native";
 import { BackgroundColor } from "../../configs/ColorConfig";
 import CourseItem from "../components/CourseItem";
 import Ionicons from "@expo/vector-icons/Ionicons";
+const courses = [
+  {
+    id: 1,
+    name: "Tìm gia sư dạy toán",
+    level: "Lớp 12",
+    date: "24/09/2024",
+    time: 4,
+    type: "Tại nhà",
+    address: "Linh Chiểu, Thủ Đức",
+    cost: 200000,
+  },
+  {
+    id: 2,
+    name: "Khóa học lập trình JavaScript",
+    level: "Người mới bắt đầu",
+    date: "01/10/2024",
+    time: 6,
+    type: "Online",
+    address: "Phạm Văn Đồng, Thủ Đức",
+    cost: 300000,
+  },
+  {
+    id: 3,
+    name: "Gia sư tiếng Anh giao tiếp",
+    level: "Trình độ trung cấp",
+    date: "15/09/2024",
+    time: 2,
+    type: "Tại nhà",
+    address: "Phạm Văn Đồng, Gò Vấp",
+    cost: 150000,
+  },
+  {
+    id: 4,
+    name: "Khóa học thiết kế đồ họa Photoshop",
+    level: "Trình độ cơ bản",
+    date: "05/10/2024",
+    time: 8,
+    type: "Online",
+    address: "Quận 1",
+    cost: 400000,
+  },
+  {
+    id: 5,
+    name: "Lớp học Toán cao cấp",
+    level: "Đại học",
+    date: "20/10/2024",
+    time: 5,
+    type: "Tại nhà",
+    address: "Nguyễn Văn Linh, Quận 7",
+    cost: 250000,
+  },
+];
 export default function classDetail() {
   return (
     <View style={styles.container}>
@@ -44,7 +97,7 @@ export default function classDetail() {
                   </View>
 
                   <View
-                    style={[styles.itemInfoTwo, { justifyContent: "flex-end"}]}
+                    style={[styles.itemInfoTwo, { justifyContent: "flex-end" }]}
                   >
                     <Ionicons name="calendar-outline" size={24} color="black" />
                     <Text>29/09/2024</Text>
@@ -118,15 +171,28 @@ export default function classDetail() {
 
               {/* Các lớp học liên quan */}
               <View style={styles.relatedClassContainer}>
-              <Text style={styles.containerTitle}>Các lớp liên quan</Text>
-              <CourseItem
-                  name="Tìm gia sư dạy toán"
-                  level="Lớp 12"
-                  date="24/09/2024"
-                  time={4}
-                  type="Tại nhà"
-                  address="Linh Chiểu, Thủ Đức"
-                  cost={200000}
+                <Text style={[styles.containerTitle, { padding: 20 }]}>
+                  Các lớp liên quan
+                </Text>
+                <FlatList
+                  data={courses}
+                  renderItem={({ item }) => (
+                    <View style={styles.classItem}>
+                      <CourseItem
+                        name={item.name}
+                        level={item.level}
+                        date={item.date}
+                        time={item.time}
+                        type={item.type}
+                        address={item.address}
+                        cost={item.cost}
+                      />
+                    </View>
+                  )}
+                  keyExtractor={(item) => item.id.toString()}
+                  horizontal={true}
+                  showsHorizontalScrollIndicator={true}
+                  contentContainerStyle={styles.classList} 
                 />
               </View>
             </View>
@@ -148,6 +214,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: BackgroundColor.gray_e6,
   },
+  
   headerContainer: {
     backgroundColor: BackgroundColor.primary,
     paddingTop: 80,
@@ -298,7 +365,18 @@ const styles = StyleSheet.create({
 
   relatedClassContainer: {
     backgroundColor: BackgroundColor.white,
-    padding: 20,
-    marginBottom: 20
+    marginBottom: 20,
+    paddingBottom: 20
+  },
+
+  classItem: {
+    padding: 10,
+    width: 350,
+  },
+
+  classList: {
+    paddingBottom: 10,
+    paddingHorizontal: 10,
   }
+
 });

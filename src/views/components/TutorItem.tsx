@@ -1,18 +1,25 @@
 import React from "react";
-import { FlatList, Image, StyleSheet, Text, View } from "react-native";
+import { FlatList, Image, ScrollView, StyleSheet, Text, View } from "react-native";
 import { BackgroundColor } from "../../configs/ColorConfig";
 type TutorItemProps = {
-  avatar: string, 
-  userName: string,
-  phoneNumber: string,
-  email: string,
-  dayOfBirth: string,
-  address: string,
-  skills: string[],
+  avatar: string;
+  userName: string;
+  phoneNumber: string;
+  email: string;
+  dayOfBirth: string;
+  address: string;
+  skills: string[];
 };
 
 export default function tutorItem({
-  avatar, userName, phoneNumber, email, dayOfBirth, address, skills
+  avatar,
+  userName,
+  phoneNumber,
+  email,
+  dayOfBirth,
+  address,
+  skills,
+  
 }: TutorItemProps) {
   return (
     <View style={[styles.container, styles.boxShadow]}>
@@ -35,12 +42,12 @@ export default function tutorItem({
               <Text style={styles.contentText}>{phoneNumber}</Text>
             </View>
             <View style={[styles.infoContent, { flex: 1 }]}>
-            <Image
-              source={require("../../../assets/images/register_icon/ic_calendar.png")}
-              style={styles.contentImage}
-            />
-            <Text style={styles.contentText}>{dayOfBirth}</Text>
-          </View>
+              <Image
+                source={require("../../../assets/images/register_icon/ic_calendar.png")}
+                style={styles.contentImage}
+              />
+              <Text style={styles.contentText}>{dayOfBirth}</Text>
+            </View>
           </View>
           {/* Email */}
           <View style={styles.infoContent}>
@@ -61,15 +68,21 @@ export default function tutorItem({
         </View>
         <View style={styles.line}></View>
         <View style={styles.awardsContainer}>
-          <FlatList
-            data={skills}
-            renderItem={({ item }) => (
-              <Text style={[styles.awardItem, styles.boxShadow]}>{item}</Text>
-            )}
+          <ScrollView
             horizontal={true}
             showsHorizontalScrollIndicator={false}
-            style={{ paddingVertical: 10 }}
-          />
+            contentContainerStyle={styles.scrollContainer}
+            nestedScrollEnabled={true}
+          >
+            {skills.map((item, index) => (
+              <Text
+                key={index.toString()}
+                style={[styles.awardItem, styles.boxShadow]}
+              >
+                {item}
+              </Text>
+            ))}
+          </ScrollView>
         </View>
       </View>
     </View>
@@ -80,6 +93,10 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: BackgroundColor.white,
     borderRadius: 20,
+  },
+
+  scrollContainer: {
+    padding: 10, // Khoảng cách bên trong
   },
 
   boxShadow: {

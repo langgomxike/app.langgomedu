@@ -20,6 +20,8 @@ import ImagePicker from '../components/ImagePicker';
 
 import Home from './Home'
 import ClassDetail from './ClassDetail'
+import ClassList from './ClassList'
+import CVList from './CVList'
 
 export default function HoangTestScreen() {
   const [selectedOption, setSelectedOption] = useState("");
@@ -171,10 +173,12 @@ export default function HoangTestScreen() {
     // </View>
     // </ScrollView>
     //#endregion
-    <>
-      {/* <Home></Home> */}
-      <ClassDetail></ClassDetail>
-    </>
+    <View style={styles.container}>
+      <Home></Home>
+      {/* <ClassList></ClassList> */}
+      {/* <ClassDetail></ClassDetail> */}
+      {/* <CVList></CVList> */}
+    </View>
   );
 }
 
@@ -190,7 +194,7 @@ const styles = StyleSheet.create({
     // backgroundColor: "#0D99FF",
     // alignItems: "center",
     // justifyContent: "center",
-    marginTop: 20,
+    // marginTop: 20,
   },
 
   header: {

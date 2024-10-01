@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   Image,
   ScrollView,
+  FlatList,
 } from "react-native";
 import { BackgroundColor } from "../../configs/ColorConfig";
 import Search from "../components/Inputs/Seach";
@@ -21,6 +22,93 @@ const skills: Array<string> = [
   "Lap trinh ung dung",
   "Lap trinh web",
 ];
+
+const courses = [
+  {
+    id: 1,
+    name: "Tìm gia sư dạy toán",
+    level: "Lớp 12",
+    date: "24/09/2024",
+    time: 4,
+    type: "Tại nhà",
+    address: "Linh Chiểu, Thủ Đức",
+    cost: 200000,
+  },
+  {
+    id: 2,
+    name: "Khóa học lập trình JavaScript",
+    level: "Người mới bắt đầu",
+    date: "01/10/2024",
+    time: 6,
+    type: "Online",
+    address: "Phạm Văn Đồng, Thủ Đức",
+    cost: 300000,
+  },
+  {
+    id: 3,
+    name: "Gia sư tiếng Anh giao tiếp",
+    level: "Trình độ trung cấp",
+    date: "15/09/2024",
+    time: 2,
+    type: "Tại nhà",
+    address: "Phạm Văn Đồng, Gò Vấp",
+    cost: 150000,
+  },
+  {
+    id: 4,
+    name: "Khóa học thiết kế đồ họa Photoshop",
+    level: "Trình độ cơ bản",
+    date: "05/10/2024",
+    time: 8,
+    type: "Online",
+    address: "Quận 1",
+    cost: 400000,
+  },
+  {
+    id: 5,
+    name: "Lớp học Toán cao cấp",
+    level: "Đại học",
+    date: "20/10/2024",
+    time: 5,
+    type: "Tại nhà",
+    address: "Nguyễn Văn Linh, Quận 7",
+    cost: 250000,
+  },
+];
+
+const tutors = [
+  {
+    id: 1,
+    avatar: "hinh1.png",
+    userName: "Nguyen Văn A",
+    phoneNumber: "0987654321",
+    email: "nguyenvana@gmail.com",
+    dayOfBirth: "29/9/2004",
+    address: "228, đường số 6, Linh Chiểu, Thủ Đức",
+    skills: ["Math", "Physics", "Chemistry", "Math", "Physics", "Chemistry"],
+  },
+  {
+    id: 2,
+    avatar: "hinh2.png",
+    userName: "Le Thi B",
+    phoneNumber: "0123456789",
+    email: "lethib@gmail.com",
+    dayOfBirth: "15/8/2003",
+    address: "12, đường số 10, Bình Thạnh",
+    skills: ["English", "Biology"],
+  },
+  {
+    id: 3,
+    avatar: "hinh3.png",
+    userName: "Tran Van C",
+    phoneNumber: "0912345678",
+    email: "tranvanc@gmail.com",
+    dayOfBirth: "1/1/2002",
+    address: "45, đường số 8, Quận 1",
+    skills: ["History", "Geography"],
+  },
+];
+
 
 export default function HomeScreen() {
   const [searchKey, setSearchKey] = useState<string>("");
@@ -74,7 +162,7 @@ export default function HomeScreen() {
 
           <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
             <View style={styles.listMajorContainer}>
-              <View style={[styles.majorItem,styles.boxShadow]}>
+              <View style={[styles.majorItem, styles.boxShadow]}>
                 <Image
                   source={require("../../../assets/images/ic_math.png")}
                   style={styles.majorIcon}
@@ -125,7 +213,7 @@ export default function HomeScreen() {
           {/* Class */}
           <View>
             <View style={styles.classContainer}>
-              <View style={styles.titleContainer}>
+              <View style={[styles.titleContainer, { paddingHorizontal: 20 }]}>
                 <View style={{ flexDirection: "row", gap: 10 }}>
                   <Ionicons
                     name="chevron-down-outline"
@@ -139,21 +227,32 @@ export default function HomeScreen() {
                 </TouchableOpacity>
               </View>
 
-              <View>
-                <CourseItem
-                  name="Tìm gia sư dạy toán"
-                  level="Lớp 12"
-                  date="24/09/2024"
-                  time={4}
-                  type="Tại nhà"
-                  address="Linh Chiểu, Thủ Đức"
-                  cost={200000}
+              <View style={styles.relatedClassContainer}>
+                <FlatList
+                  data={courses}
+                  renderItem={({ item }) => (
+                    <View style={styles.classItem}>
+                      <CourseItem
+                        name={item.name}
+                        level={item.level}
+                        date={item.date}
+                        time={item.time}
+                        type={item.type}
+                        address={item.address}
+                        cost={item.cost}
+                      />
+                    </View>
+                  )}
+                  keyExtractor={(item) => item.id.toString()}
+                  horizontal={true}
+                  showsHorizontalScrollIndicator={true}
+                  contentContainerStyle={styles.classList}
                 />
               </View>
             </View>
 
             <View style={styles.classContainer}>
-              <View style={styles.titleContainer}>
+              <View style={[styles.titleContainer, { paddingHorizontal: 20 }]}>
                 <View style={{ flexDirection: "row", gap: 10 }}>
                   <Ionicons
                     name="chevron-down-outline"
@@ -167,17 +266,26 @@ export default function HomeScreen() {
                 </TouchableOpacity>
               </View>
 
-              <View>
-                <TutorItem
-                avatar="hinh1.png"
-                userName="Nguyen Văn A"
-                phoneNumber="0987654321"
-                email="nguyenvana@gmail.com"
-                dayOfBirth="29/9/2004"
-                address="228, đường soos6, Linh chiểu, Thủ Đức"
-                skills={skills}
-                />
-              </View>
+              <FlatList
+                data={tutors}
+                renderItem={({ item }) => (
+                  <View style={styles.classItem}>
+                    <TutorItem
+                      avatar={item.avatar}
+                      userName={item.userName}
+                      phoneNumber={item.phoneNumber}
+                      email={item.email}
+                      dayOfBirth={item.dayOfBirth}
+                      address={item.address}
+                      skills={item.skills}
+                    />
+                  </View>
+                )}
+                keyExtractor={(item) => item.id.toString()}
+                horizontal={true}
+                showsHorizontalScrollIndicator={true}
+                contentContainerStyle={styles.classList}
+              />
             </View>
           </View>
         </View>
@@ -292,6 +400,8 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     backgroundColor: BackgroundColor.white,
     borderRadius: 10,
+    borderWidth: 1,
+    borderColor: BackgroundColor.gray_e6,
     width: 80,
   },
   majorIcon: {
@@ -305,7 +415,23 @@ const styles = StyleSheet.create({
   },
 
   classContainer: {
-    paddingHorizontal: 20,
-    marginBottom: 20
+    // paddingHorizontal: 20,
+    marginBottom: 20,
+  },
+
+  relatedClassContainer: {
+    backgroundColor: BackgroundColor.white,
+    marginBottom: 20,
+    paddingBottom: 20,
+  },
+
+  classItem: {
+    padding: 10,
+    width: 350,
+  },
+
+  classList: {
+    paddingBottom: 10,
+    paddingHorizontal: 10,
   },
 });

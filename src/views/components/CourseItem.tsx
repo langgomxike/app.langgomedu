@@ -41,7 +41,10 @@ export default function courseItem({
             source={require("../../../assets/images/ic_math.png")}
             style={styles.courseImage}
           />
-          <Text style={styles.title}>{name}</Text>
+          <Text style={styles.title}
+          numberOfLines={2}      // Giới hạn 2 dòng
+          ellipsizeMode="tail" 
+          >{name}</Text>
         </LinearGradient>
       </View>
       {/* Content */}
@@ -160,5 +163,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "600",
     color: "white",
+    height: 45
   },
 });
