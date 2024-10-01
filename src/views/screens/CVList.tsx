@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   FlatList,
 } from "react-native";
-import Search from "../components/Inputs/Seach";
+import Search from "../components/Inputs/SearchBar";
 import Feather from '@expo/vector-icons/Feather';
 import { BackgroundColor } from "../../configs/ColorConfig";
 import TutorItem from "../components/TutorItem";
@@ -44,7 +44,7 @@ const tutors = [
     skills: ["History", "Geography"],
   },
 ];
-export default function classList() {
+export default function CVList() {
   const [searchKey, setSearchKey] = useState("");
   const [currentPage, setCurentPage] = useState(1);
   return (

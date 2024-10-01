@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   Text,
   View,
@@ -7,21 +7,29 @@ import {
   Image,
   ScrollView,
   FlatList,
+  Pressable,
+  Animated,
 } from "react-native";
+import { useNavigation, NavigationProp } from "@react-navigation/native";
+
 import { BackgroundColor } from "../../configs/ColorConfig";
 import Search from "../components/Inputs/SearchBar";
 import CourseItem from "../components/CourseItem";
 import TutorItem from "../components/TutorItem";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import ScreenName from "../../constants/ScreenName";
+import { RootStackParamList } from "../../configs/NavigationRouteTypeConfig";
 
-const skills: Array<string> = [
-  "Nghe",
-  "Noi",
-  "Doc",
-  "Viet",
-  "Lap trinh ung dung",
-  "Lap trinh web",
-];
+type Course = {
+  id: number;
+  name: string;
+  level: string;
+  date: string;
+  time: number;
+  type: string;
+  address: string;
+  cost: number;
+};
 
 const courses = [
   {
@@ -109,9 +117,43 @@ const tutors = [
   },
 ];
 
-
 export default function HomeScreen() {
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [searchKey, setSearchKey] = useState<string>("");
+  const handleNavigateToDetail = (course: Course) => {
+    navigation.navigate(ScreenName.DETAIL_CLASS, { course });
+  };
+
+  const [isExpanded, setIsExpanded] = useState(true);
+  const animation = useRef(new Animated.Value(1)).current;
+
+  const toggleExpand = () => {
+    const finalValue = isExpanded ? 0 : 1;
+    Animated.timing(animation, {
+      toValue: finalValue,
+      duration: 500,
+      useNativeDriver: false,
+    }).start();
+
+    setIsExpanded(!isExpanded);
+  };
+
+  // Tạo height và opacity transition dựa trên giá trị của animation
+  const heightInterpolation = animation.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, 450], // Độ cao khi thu hẹp là 0, khi mở rộng là 150 (có thể chỉnh sửa)
+  });
+
+  const opacityInterpolation = animation.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0.5, 1], // Độ mờ: ẩn là 0, hiện là 1
+  });
+
+  const rotation = animation.interpolate({
+    inputRange: [0, 1],
+    outputRange: ["0deg", "90deg"], // Xoay từ 0 đến -90 độ
+  });
+
   return (
     <ScrollView>
       <View style={styles.container}>
@@ -214,33 +256,58 @@ export default function HomeScreen() {
           <View>
             <View style={styles.classContainer}>
               <View style={[styles.titleContainer, { paddingHorizontal: 20 }]}>
-                <View style={{ flexDirection: "row", gap: 10 }}>
-                  <Ionicons
-                    name="chevron-down-outline"
-                    size={20}
-                    color="black"
-                  />
+                <TouchableOpacity
+                  onPress={toggleExpand}
+                  style={{ flexDirection: "row", gap: 10 }}
+                >
+                  <Animated.View style={{ transform: [{ rotate: rotation }] }}>
+                    <Ionicons name="chevron-forward" size={20} color="black" />
+                  </Animated.View>
                   <Text style={styles.title}>Các lớp học</Text>
-                </View>
-                <TouchableOpacity>
-                  <Text style={styles.showAllText}>Xem tất cả</Text>
                 </TouchableOpacity>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    gap: 10,
+                    alignItems: "center",
+                  }}
+                >
+                  <TouchableOpacity>
+                    <Text style={styles.showAllText}>Xem tất cả</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity>
+                    <Image
+                      source={require("../../../assets/images/ic_filter.png")}
+                      style={{ width: 20, height: 20 }}
+                    />
+                  </TouchableOpacity>
+                </View>
               </View>
 
-              <View style={styles.relatedClassContainer}>
+              <Animated.View
+                style={[
+                  styles.relatedClassContainer,
+                  {
+                    height: heightInterpolation,
+                    opacity: opacityInterpolation,
+                  },
+                ]}
+              >
                 <FlatList
                   data={courses}
                   renderItem={({ item }) => (
                     <View style={styles.classItem}>
-                      <CourseItem
-                        name={item.name}
-                        level={item.level}
-                        date={item.date}
-                        time={item.time}
-                        type={item.type}
-                        address={item.address}
-                        cost={item.cost}
-                      />
+                      <Pressable onPress={() => handleNavigateToDetail(item)}>
+                        <CourseItem
+                          name={item.name}
+                          level={item.level}
+                          date={item.date}
+                          time={item.time}
+                          type={item.type}
+                          address={item.address}
+                          cost={item.cost}
+                        />
+                      </Pressable>
                     </View>
                   )}
                   keyExtractor={(item) => item.id.toString()}
@@ -248,8 +315,10 @@ export default function HomeScreen() {
                   showsHorizontalScrollIndicator={true}
                   contentContainerStyle={styles.classList}
                 />
-              </View>
+              </Animated.View>
             </View>
+
+            {/* <View style={styles.line}></View> */}
 
             <View style={styles.classContainer}>
               <View style={[styles.titleContainer, { paddingHorizontal: 20 }]}>
@@ -259,33 +328,50 @@ export default function HomeScreen() {
                     size={20}
                     color="black"
                   />
+                  {/* <Ionicons name="chevron-forward" size={24} color="black" /> */}
                   <Text style={styles.title}>Các lớp học</Text>
                 </View>
-                <TouchableOpacity>
-                  <Text style={styles.showAllText}>Xem tất cả</Text>
-                </TouchableOpacity>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    gap: 10,
+                    alignItems: "center",
+                  }}
+                >
+                  <TouchableOpacity>
+                    <Text style={styles.showAllText}>Xem tất cả</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity>
+                    <Image
+                      source={require("../../../assets/images/ic_filter.png")}
+                      style={{ width: 20, height: 20 }}
+                    />
+                  </TouchableOpacity>
+                </View>
               </View>
 
-              <FlatList
-                data={tutors}
-                renderItem={({ item }) => (
-                  <View style={styles.classItem}>
-                    <TutorItem
-                      avatar={item.avatar}
-                      userName={item.userName}
-                      phoneNumber={item.phoneNumber}
-                      email={item.email}
-                      dayOfBirth={item.dayOfBirth}
-                      address={item.address}
-                      skills={item.skills}
-                    />
-                  </View>
-                )}
-                keyExtractor={(item) => item.id.toString()}
-                horizontal={true}
-                showsHorizontalScrollIndicator={true}
-                contentContainerStyle={styles.classList}
-              />
+              <View>
+                <FlatList
+                  data={tutors}
+                  renderItem={({ item }) => (
+                    <View style={styles.classItem}>
+                      <TutorItem
+                        avatar={item.avatar}
+                        userName={item.userName}
+                        phoneNumber={item.phoneNumber}
+                        email={item.email}
+                        dayOfBirth={item.dayOfBirth}
+                        address={item.address}
+                        skills={item.skills}
+                      />
+                    </View>
+                  )}
+                  keyExtractor={(item) => item.id.toString()}
+                  horizontal={true}
+                  showsHorizontalScrollIndicator={true}
+                  contentContainerStyle={styles.classList}
+                />
+              </View>
             </View>
           </View>
         </View>
@@ -301,7 +387,7 @@ const styles = StyleSheet.create({
   },
   headerContainer: {
     backgroundColor: BackgroundColor.primary,
-    paddingTop: 60,
+    paddingTop: 30,
     paddingBottom: 100,
     paddingHorizontal: 20,
   },
@@ -340,7 +426,7 @@ const styles = StyleSheet.create({
   },
 
   btnSwitchRoleText: {
-    fontWeight: "condensedBold",
+    fontWeight: "bold",
   },
 
   boxShadow: {
@@ -357,7 +443,7 @@ const styles = StyleSheet.create({
 
   headerSearch: {
     flexDirection: "row",
-    gap: 20,
+    gap: 10,
     alignItems: "center",
   },
 
@@ -365,6 +451,11 @@ const styles = StyleSheet.create({
     backgroundColor: BackgroundColor.white,
     padding: 10,
     borderRadius: 999,
+  },
+
+  line: {
+    height: 1,
+    backgroundColor: BackgroundColor.gray_c6
   },
 
   majorContainer: {
@@ -421,8 +512,6 @@ const styles = StyleSheet.create({
 
   relatedClassContainer: {
     backgroundColor: BackgroundColor.white,
-    marginBottom: 20,
-    paddingBottom: 20,
   },
 
   classItem: {

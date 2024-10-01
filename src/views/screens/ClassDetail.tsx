@@ -7,10 +7,17 @@ import {
   Image,
   TouchableOpacity,
   FlatList,
+  Pressable,
 } from "react-native";
-import { BackgroundColor } from "../../configs/ColorConfig";
+import { BackgroundColor, BorderColor } from "../../configs/ColorConfig";
 import CourseItem from "../components/CourseItem";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { useNavigation,  NavigationProp } from '@react-navigation/native';
+import { useRoute,  RouteProp } from '@react-navigation/native';
+import ScreenName from "../../constants/ScreenName";
+import { RootStackParamList } from "../../configs/NavigationRouteTypeConfig";
+
+
 const courses = [
   {
     id: 1,
@@ -63,7 +70,16 @@ const courses = [
     cost: 250000,
   },
 ];
-export default function classDetail() {
+export default function ClassDetail() {
+  const navigation: NavigationProp<RootStackParamList> = useNavigation();
+  const route: RouteProp<RootStackParamList> = useRoute();
+  const course = route.params.course
+  // Hàm để điều hướng đến màn hình DetailClass mới
+  // const handleNavigateToDetail = (classId: string) => {
+  //   navigation.navigate(ScreenName.DETAIL_CLASS, { classId }); // Truyền classId qua route params
+  // };
+
+
   return (
     <View style={styles.container}>
       <View style={{ flex: 9 }}>
@@ -87,20 +103,20 @@ export default function classDetail() {
               <View style={styles.classInfoContainer}>
                 {/* Tiêu đề môn học */}
                 <Text style={styles.classInfoTitle}>
-                  Tìm gia sư dạy lập trình
+                  {course.name}
                 </Text>
 
                 <View style={styles.row}>
                   <View style={styles.itemInfoTwo}>
                     <Ionicons name="book-outline" size={24} color="black" />
-                    <Text>Lập trình ứng dụng</Text>
+                    <Text>{course.level}</Text>
                   </View>
 
                   <View
                     style={[styles.itemInfoTwo, { justifyContent: "flex-end" }]}
                   >
                     <Ionicons name="calendar-outline" size={24} color="black" />
-                    <Text>29/09/2024</Text>
+                    <Text>{course.date}</Text>
                   </View>
                 </View>
 
@@ -111,7 +127,7 @@ export default function classDetail() {
                     <Ionicons name="cube-outline" size={24} color="black" />
                     <Text>Lớp</Text>
                   </View>
-                  <Text style={styles.itemContent}>Cao đẳng</Text>
+                  <Text style={styles.itemContent}>{course.level}</Text>
                 </View>
 
                 <View style={styles.itemInfo}>
@@ -123,7 +139,7 @@ export default function classDetail() {
                     />
                     <Text>Hình thức</Text>
                   </View>
-                  <Text style={styles.itemContent}>Tại nhà</Text>
+                  <Text style={styles.itemContent}>{course.type}</Text>
                 </View>
 
                 <View style={styles.itemInfo}>
@@ -131,7 +147,7 @@ export default function classDetail() {
                     <Ionicons name="timer-outline" size={24} color="black" />
                     <Text>Thời gian</Text>
                   </View>
-                  <Text style={[styles.itemContent]}>120 phút/Buổi</Text>
+                  <Text style={[styles.itemContent]}>{course.time} giờ/Buổi</Text>
                 </View>
 
                 <View style={styles.itemInfo}>
@@ -139,7 +155,7 @@ export default function classDetail() {
                     <Ionicons name="cash-outline" size={24} color="black" />
                     <Text>Học phí</Text>
                   </View>
-                  <Text style={[styles.itemContent]}>200.000 VNĐ/Buổi</Text>
+                  <Text style={[styles.itemContent]}>{course.cost} VNĐ/Buổi</Text>
                 </View>
 
                 <View style={[styles.line, { marginTop: 10 }]}></View>
@@ -178,6 +194,7 @@ export default function classDetail() {
                   data={courses}
                   renderItem={({ item }) => (
                     <View style={styles.classItem}>
+                      <Pressable>
                       <CourseItem
                         name={item.name}
                         level={item.level}
@@ -187,6 +204,7 @@ export default function classDetail() {
                         address={item.address}
                         cost={item.cost}
                       />
+                      </Pressable>
                     </View>
                   )}
                   keyExtractor={(item) => item.id.toString()}
@@ -217,7 +235,7 @@ const styles = StyleSheet.create({
   
   headerContainer: {
     backgroundColor: BackgroundColor.primary,
-    paddingTop: 80,
+    paddingTop: 30,
     paddingBottom: 100,
     paddingHorizontal: 20,
     alignItems: "center",
@@ -361,6 +379,8 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: BackgroundColor.white,
     justifyContent: "center",
+    borderTopColor: BorderColor.gray_30,
+    borderTopWidth: 1,
   },
 
   relatedClassContainer: {

@@ -66,7 +66,7 @@ const courses = [
   },
 ];
 
-export default function classList() {
+export default function ClassList() {
   const [searchKey, setSearchKey] = useState("");
   const [currentPage, setCurentPage] = useState(1);
   return (
