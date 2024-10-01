@@ -117,7 +117,7 @@ export default function MessageScreen() {
  
   return (
     <BackWithDetailLayout   
-      icName="Back"
+      icName=""
       subIcon={<MyIcon icon={AppIcon.ic_info} onPress={() => {}} />}
     >
       <View style={[styles.container, { marginBottom: 10 }]}>
@@ -225,6 +225,7 @@ export default function MessageScreen() {
           </TouchableOpacity>
         </RBSheet>
       </View>
+
     </BackWithDetailLayout>
   );
 }
