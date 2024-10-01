@@ -9,7 +9,7 @@ import {
   FlatList,
 } from "react-native";
 import { BackgroundColor } from "../../configs/ColorConfig";
-import Search from "../components/Inputs/Seach";
+import Search from "../components/Inputs/SearchBar";
 import CourseItem from "../components/CourseItem";
 import TutorItem from "../components/TutorItem";
 import Ionicons from "@expo/vector-icons/Ionicons";

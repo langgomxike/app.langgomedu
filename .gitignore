@@ -13,7 +13,7 @@ web-build/
 *.jks
 *.p8
 *.p12
-*.key
+*.keys
 *.mobileprovision
 
 # Metro
@@ -39,3 +39,6 @@ yarn-error.*
 
 # firebase
 *firebase_account_service*
+
+# package-lock
+package-lock.json

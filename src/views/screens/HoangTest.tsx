@@ -10,13 +10,13 @@ import {
   ScrollView,
 } from "react-native";
 
-import Search from '../components/Inputs/Seach';
-import CustomInput from '../components/Inputs/CustomInput';
-import InputRegister from '../components/Inputs/InputRegister';
-import GenderInput from '../components/Inputs/GenderInput';
-import OptionPopup from '../components/OptionPopup';
-import CourseItem from '../components/CourseItem';
-import ImagePicker from '../components/ImagePicker';
+// import Search from '../components/Inputs/Seach';
+// import CustomInput from '../components/Inputs/CustomInput';
+// import InputRegister from '../components/Inputs/InputRegister';
+// import GenderInput from '../components/Inputs/GenderInput';
+// import OptionPopup from '../components/OptionPopup';
+// import CourseItem from '../components/CourseItem';
+// import ImagePicker from '../components/ImagePicker';
 
 import Home from './Home'
 import ClassDetail from './ClassDetail'
@@ -33,24 +33,24 @@ export default function HoangTestScreen() {
   const [text, setText] = useState<string>('');
   const [gender, setGender] = useState<number>(0); // 0: Female, 1: male
 
-  const options = ["Mathematics",
-    "Physics",
-    "Chemistry",
-    "Biology",
-    "Computer Science",
-    "History",
-    "Geography",
-    "English Literature"
-  ];
+//   const options = ["Mathematics",
+//     "Physics",
+//     "Chemistry",
+//     "Biology",
+//     "Computer Science",
+//     "History",
+//     "Geography",
+//     "English Literature"
+//   ];
 
-  const handleSelectOption = (option:string) => {
-    setSelectedOption(option);
-    setVisibleModal(null);
-  }
+//   const handleSelectOption = (option:string) => {
+//     setSelectedOption(option);
+//     setVisibleModal(null);
+//   }
 
-  const handleImagePicker = (imageUri:string) => {
-    setImage(imageUri);
-  }
+//   const handleImagePicker = (imageUri:string) => {
+//     setImage(imageUri);
+//   }
 
   return (
     //#region example component

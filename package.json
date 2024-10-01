@@ -9,7 +9,9 @@
     "web": "expo start --web"
   },
   "dependencies": {
-    "@react-native-community/datetimepicker": "^8.2.0",
+    "@react-navigation/bottom-tabs": "^6.6.1",
+    "@react-navigation/native": "^6.1.18",
+    "@react-navigation/native-stack": "^6.11.0",
     "expo": "~51.0.28",
     "expo-image-picker": "~15.0.7",
     "expo-linear-gradient": "~13.0.2",
@@ -17,6 +19,7 @@
     "react": "18.2.0",
     "react-native": "^0.75.3",
     "react-native-elements": "^3.4.3",
+    "react-native-raw-bottom-sheet": "^3.0.0",
     "react-native-svg": "^15.7.1",
     "react-native-svg-transformer": "^1.5.0",
     "react-native-vector-icons": "^10.2.0"
