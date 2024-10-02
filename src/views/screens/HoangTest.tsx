@@ -1,14 +1,14 @@
-// import { useCallback, useState } from "react";
-// import {
-//   Button,
-//   Pressable,
-//   StyleSheet,
-//   Text,
-//   TextInput,
-//   View,
-//   Image,
-//   ScrollView,
-// } from "react-native";
+import { useCallback, useState } from "react";
+import {
+  Button,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+  Image,
+  ScrollView,
+} from "react-native";
 
 // import Search from '../components/Inputs/Seach';
 // import CustomInput from '../components/Inputs/CustomInput';
@@ -18,15 +18,20 @@
 // import CourseItem from '../components/CourseItem';
 // import ImagePicker from '../components/ImagePicker';
 
-// export default function HoangTestScreen() {
-//   const [selectedOption, setSelectedOption] = useState("");
-//   const [visibleModal, setVisibleModal] = useState<string | null>(null);
-//   const [image, setImage] = useState("");
-//   const [inputvalue, setInputValue] = useState("");
-//   const [inputTextareaValue, setInputTextareaValue] = useState("");
-//   const [phoneNumber, setPhoneNumber] = useState("");
-//   const [text, setText] = useState<string>('');
-//   const [gender, setGender] = useState<number>(0); // 0: Female, 1: male
+import Home from './Home'
+import ClassDetail from './ClassDetail'
+import ClassList from './ClassList'
+import CVList from './CVList'
+
+export default function HoangTestScreen() {
+  const [selectedOption, setSelectedOption] = useState("");
+  const [visibleModal, setVisibleModal] = useState<string | null>(null);
+  const [image, setImage] = useState("");
+  const [inputvalue, setInputValue] = useState("");
+  const [inputTextareaValue, setInputTextareaValue] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [text, setText] = useState<string>('');
+  const [gender, setGender] = useState<number>(0); // 0: Female, 1: male
 
 //   const options = ["Mathematics",
 //     "Physics",
@@ -47,170 +52,178 @@
 //     setImage(imageUri);
 //   }
 
-//   return (
-//     <ScrollView>
-//       <View style={styles.container}>
-//       {/* Header */}
-//       <View style={styles.header}>
-//         <Text style={styles.headerTest}>Todo list</Text>
-//       </View>
+  return (
+    //#region example component
+    // <ScrollView>
+    //   <View style={styles.container}>
+    //   {/* Header */}
+    //   <View style={styles.header}>
+    //     <Text style={styles.headerTest}>Todo list</Text>
+    //   </View>
 
-//       {/* Body */}
-//       <View style={styles.body}>
+    //   {/* Body */}
+    //   <View style={styles.body}>
 
-//         {/* Input */}
-//         <Search 
-//         value={text} 
-//         onChangeText={setText} 
-//         />
+    //     {/* Input */}
+    //     <Search 
+    //     value={text} 
+    //     onChangeText={setText} 
+    //     />
 
-//         <CustomInput
-//         label="Nhập tên"
-//         required={true}
-//         value={inputvalue}
-//         onChangeText={setInputValue}
-//         placeholder="Input here"
-//         type="password"
-//         style={{marginBottom: 30}}
-//         />
+    //     <CustomInput
+    //     label="Nhập tên"
+    //     required={true}
+    //     value={inputvalue}
+    //     onChangeText={setInputValue}
+    //     placeholder="Input here"
+    //     type="password"
+    //     style={{marginBottom: 30}}
+    //     />
 
-//       <Text>{inputvalue}</Text>
+    //   <Text>{inputvalue}</Text>
 
-//         <CustomInput
-//         label="Bạn cảm thấy như thế nào"
-//         required={true}
-//         value={inputTextareaValue}
-//         onChangeText={setInputTextareaValue}
-//         placeholder="Input here"
-//         type="textarea"
-//         />
+    //     <CustomInput
+    //     label="Bạn cảm thấy như thế nào"
+    //     required={true}
+    //     value={inputTextareaValue}
+    //     onChangeText={setInputTextareaValue}
+    //     placeholder="Input here"
+    //     type="textarea"
+    //     />
 
-//       <Text>{inputTextareaValue}</Text>
+    //   <Text>{inputTextareaValue}</Text>
 
-//       <GenderInput
-//       value={gender}
-//       onChange={setGender}
-//       styleInputWidth={{width: "30%"}}
-//       style={{marginTop: 30, marginBottom: 30}}
-//       />
+    //   <GenderInput
+    //   value={gender}
+    //   onChange={setGender}
+    //   styleInputWidth={{width: "30%"}}
+    //   style={{marginTop: 30, marginBottom: 30}}
+    //   />
 
-//       <InputRegister
-//         label="Nhập mật khẩu của bạn"
-//         required={true}
-//         value={phoneNumber}
-//         onChangeText={setPhoneNumber}
-//         placeholder="Nhập mật khẩu"
-//         type="password"
-//         iconName="password"
-//         />
+    //   <InputRegister
+    //     label="Nhập mật khẩu của bạn"
+    //     required={true}
+    //     value={phoneNumber}
+    //     onChangeText={setPhoneNumber}
+    //     placeholder="Nhập mật khẩu"
+    //     type="password"
+    //     iconName="password"
+    //     />
 
         
 
-//         {/* <InputDatePicker
-//         label="Chọn ngày"
-//         required={true}
-//         onChangeText={setInputValue}
-//         placeholder="Chon ngày"
-//         /> */}
+    //     {/* <InputDatePicker
+    //     label="Chọn ngày"
+    //     required={true}
+    //     onChangeText={setInputValue}
+    //     placeholder="Chon ngày"
+    //     /> */}
 
        
 
-//         {/* Buttom */}
-//         <Pressable style={styles.btnAdd} onPress={() => setVisibleModal('modal_2')}>
-//           <Text style={styles.btnAddText}>Add</Text>
-//         </Pressable>
+    //     {/* Buttom */}
+    //     <Pressable style={styles.btnAdd} onPress={() => setVisibleModal('modal_2')}>
+    //       <Text style={styles.btnAddText}>Add</Text>
+    //     </Pressable>
 
-//         <Pressable style={styles.btnAdd} onPress={() => setVisibleModal('modal_1')}>
-//           <Text style={styles.btnAddText}>Show Option</Text>
-//         </Pressable>
+    //     <Pressable style={styles.btnAdd} onPress={() => setVisibleModal('modal_1')}>
+    //       <Text style={styles.btnAddText}>Show Option</Text>
+    //     </Pressable>
 
-//         {/* Content */}
-//         <View>
-//           <Text>{text}</Text>
-//           <Text>{selectedOption}</Text>
-//         </View>
+    //     {/* Content */}
+    //     <View>
+    //       <Text>{text}</Text>
+    //       <Text>{selectedOption}</Text>
+    //     </View>
 
-//         <View>
-//             <OptionPopup 
-//             visible={visibleModal}
-//             options={options}
-//             onSelect={handleSelectOption}
-//             onRequestClose={() => setVisibleModal(null)}
-//             />
-//         </View>
+    //     <View>
+    //         <OptionPopup 
+    //         visible={visibleModal}
+    //         options={options}
+    //         onSelect={handleSelectOption}
+    //         onRequestClose={() => setVisibleModal(null)}
+    //         />
+    //     </View>
 
-//         {/* CouseItem */}
-//         <View style={styles.course}>
-//           <CourseItem
-//           name="Tìm gia sư dạy toán"
-//           level="Lớp 12"
-//           date="24/09/2024"
-//           time={4}
-//           type="Tại nhà"
-//           address="Linh Chiểu, Thủ Đức"
-//           cost={200000}
+    //     {/* CouseItem */}
+    //     <View style={styles.course}>
+    //       <CourseItem
+    //       name="Tìm gia sư dạy toán"
+    //       level="Lớp 12"
+    //       date="24/09/2024"
+    //       time={4}
+    //       type="Tại nhà"
+    //       address="Linh Chiểu, Thủ Đức"
+    //       cost={200000}
 
-//           />
-//         </View>
+    //       />
+    //     </View>
 
-//         {/* Image Picker */}
-//         <View>
-//           <ImagePicker
-//           visible={visibleModal}
-//           onRequestClose={() => setVisibleModal(null)}
-//           onImagePicker={handleImagePicker}
-//           />
-//         </View>
-//         {image && <Image source={{ uri: image }} style={styles.image} />}
+    //     {/* Image Picker */}
+    //     <View>
+    //       <ImagePicker
+    //       visible={visibleModal}
+    //       onRequestClose={() => setVisibleModal(null)}
+    //       onImagePicker={handleImagePicker}
+    //       />
+    //     </View>
+    //     {image && <Image source={{ uri: image }} style={styles.image} />}
       
-//       </View>
-//     </View>
-//     </ScrollView>
-//   );
-// }
+    //   </View>
+    // </View>
+    // </ScrollView>
+    //#endregion
+    <View style={styles.container}>
+      <Home></Home>
+      {/* <ClassList></ClassList> */}
+      {/* <ClassDetail></ClassDetail> */}
+      {/* <CVList></CVList> */}
+    </View>
+  );
+}
 
-// const styles = StyleSheet.create({
-//   image: {
-//     width: 200,
-//     height: 200,
-//   },
-//   course : {
-//   },
-//   container: {
-//     flex: 1,
-//     // backgroundColor: "#0D99FF",
-//     // alignItems: "center",
-//     // justifyContent: "center",
-//     marginTop: 20,
-//   },
+const styles = StyleSheet.create({
+  image: {
+    width: 200,
+    height: 200,
+  },
+  course : {
+  },
+  container: {
+    flex: 1,
+    // backgroundColor: "#0D99FF",
+    // alignItems: "center",
+    // justifyContent: "center",
+    // marginTop: 20,
+  },
 
-//   header: {
-//     backgroundColor: "orange",
-//     paddingHorizontal: 10,
-//     paddingVertical: 10,
-//   },
+  header: {
+    backgroundColor: "orange",
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+  },
 
-//   headerTest: {
-//     fontSize: 20,
-//     textAlign: "center",
-//     fontWeight: "600",
-//   },
+  headerTest: {
+    fontSize: 20,
+    textAlign: "center",
+    fontWeight: "600",
+  },
 
-//   body: {
-//     paddingHorizontal: 10,
-//     marginTop: 10,
-//   },
+  body: {
+    paddingHorizontal: 10,
+    marginTop: 10,
+  },
 
-//   btnAdd: {
-//     backgroundColor: "#0D99FF",
-//     padding: 15,
-//     borderRadius: 7,
-//     marginTop: 50,
-//   },
+  btnAdd: {
+    backgroundColor: "#0D99FF",
+    padding: 15,
+    borderRadius: 7,
+    marginTop: 50,
+  },
 
-//   btnAddText: {
-//     color: "#fff",
-//     fontWeight: "600",
-//     textAlign: "center",
-//   },
-// });
+  btnAddText: {
+    color: "#fff",
+    fontWeight: "600",
+    textAlign: "center",
+  },
+});

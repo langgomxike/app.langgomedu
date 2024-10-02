@@ -122,8 +122,18 @@ const styles = StyleSheet.create({
     marginTop: -30,
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
-    padding: 16,
+    // padding: 16,
+    paddingTop: 16,
+    
     zIndex: 1,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: -6,
+    },
+    shadowOpacity: 0.39,
+    shadowRadius: 8.3,
+    elevation: 13,
   },
 });
 

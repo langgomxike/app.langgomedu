@@ -11,6 +11,8 @@ import ScreenName from "./src/constants/ScreenName";
 import ButtonNavBar from "./src/views/components/ButtonNavBar";
 import MessageScreen from "./src/views/screens/Message";
 import ProfileScreen from "./src/views/screens/Profile";
+import ClassDetail from "./src/views/screens/ClassDetail";
+import { BackgroundColor } from "./src/configs/ColorConfig";
 
 const Stack = createNativeStackNavigator();
 const SCREEN_PADDING_TOP = 50;
@@ -56,7 +58,26 @@ export default function App() {
         >
           <Stack.Screen name={ScreenName.NAV_BAR} component={ButtonNavBar} />
           <Stack.Screen name={ScreenName.MESSAGE} component={MessageScreen} />
-          <Stack.Screen name={ScreenName.PROFILE} component={ProfileScreen} />
+          <Stack.Screen
+            name={ScreenName.PROFILE}
+            component={ProfileScreen}
+            options={{ title: "Overview", headerShown: true }}
+          />
+          <Stack.Screen
+            name={ScreenName.DETAIL_CLASS}
+            component={ClassDetail}
+            options={{
+              title: "Chi tiết lớp học",
+              headerShown: true,
+              contentStyle: {
+                padding: 0
+              },
+              headerStyle: {
+                backgroundColor: BackgroundColor.primary
+              },
+              headerTintColor: '#fff',
+            }}
+          />
         </Stack.Navigator>
       </NavigationContainer>
     </LanguageContext.Provider>
