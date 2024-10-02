@@ -118,6 +118,7 @@ const tutors = [
 ];
 
 export default function HomeScreen() {
+<<<<<<< HEAD
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [searchKey, setSearchKey] = useState<string>("");
   const handleNavigateToDetail = (course: Course) => {
@@ -377,6 +378,18 @@ export default function HomeScreen() {
         </View>
       </View>
     </ScrollView>
+=======
+  return (
+    <View>
+      {/* <Text>Home Screen</Text> */}
+
+      {/* <DuTestScreen />
+      <HoangTestScreen />
+      <KhanhTestScreen />
+      <NhiTestScreen /> */}
+      <KhangTestScreen />
+    </View>
+>>>>>>> ea6d4d10d6a6d76550818590c6af82b7688461f6
   );
 }
 

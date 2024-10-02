@@ -123,7 +123,9 @@ const styles = StyleSheet.create({
     marginTop: -40,
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
-    padding: 16,
+    // padding: 16,
+    paddingTop: 16,
+    
     zIndex: 1,
     shadowColor: "#000",
     shadowOffset: {
