@@ -1,28 +1,28 @@
 import React, { useState } from "react";
-import { View, StyleSheet, Image, TouchableOpacity } from "react-native";
+import { View, StyleSheet, Image, TouchableOpacity, ViewStyle } from "react-native";
 
 type ratingProps = {
-    onRatingChange: (rating: number) => void;
+    style?: ViewStyle,
+    onRatingChange: (rating: number) => void,
 }
 
-const Rating = ({onRatingChange} : ratingProps) => {
+const Rating = ({style,onRatingChange} : ratingProps) => {
     //define
-    const star = require('../../../assets/ic_star_outline.png');
-    const star_active = require('../../../assets/ic_star.png');
-    const maxStar: number = 5;
+    const star = require('../../../assets/ic_star_outline.png')
+    const star_active = require('../../../assets/ic_star.png')
+    const maxStar: number = 5
 
-    const [activeStars, setActiveStars] = useState(0);
+    const [activeStars, setActiveStars] = useState(0)
 
     const handleStarClick = (index: number) => {
         var stars :number = activeStars === (index + 1) ? 0 : (index + 1)
         setActiveStars(stars)
-        onRatingChange(stars);
+        onRatingChange(stars)
     }
 
 
     return (
-        <View style={styles.container} >
-            {/* {starArray} */}
+        <View style={[styles.container, style]}>
             {Array.from({ length: maxStar }).map((_, index) => (
                 <TouchableOpacity key={index} onPress={() => handleStarClick(index)}>
                     <Image source={index < activeStars ? star_active : star} style={styles.star} />
@@ -37,7 +37,8 @@ const styles = StyleSheet.create({
         width: 200,
         height: 50,
         flexDirection: "row",
-        alignItems: "center"
+        alignItems: "center",
+        justifyContent: 'center'
     },
     star: {
         marginLeft: 3,
