@@ -70,12 +70,12 @@ const styles = StyleSheet.create({
   },
 
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'baseline',
-    backgroundColor: '#008CFF',
-    height: 215,
-    paddingHorizontal:20,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "baseline",
+    backgroundColor: "#008CFF",
+    height: 220,
+    paddingHorizontal: 20,
   },
 
   leftSection: {
@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
   iconButton: {
     flexDirection: "row",
     alignItems: "center",
-    transform: [{translateY: -60}]
+    transform: [{ translateY: -60 }],
   },
 
   textIcon: {
@@ -113,7 +113,7 @@ const styles = StyleSheet.create({
   avatar: {
     flexDirection: "row",
     alignItems: "center",
-    transform: [{translateY: 35}, {translateX: -14}]
+    transform: [{ translateY: 35 }, { translateX: -14 }],
   },
 
   mainContent: {
@@ -122,9 +122,7 @@ const styles = StyleSheet.create({
     marginTop: -30,
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
-    // padding: 16,
-    paddingTop: 16,
-    
+    padding: 16,
     zIndex: 1,
     shadowColor: "#000",
     shadowOffset: {
