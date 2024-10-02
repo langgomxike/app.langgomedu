@@ -6,17 +6,25 @@ type Option = {
   value: string;
 };
 
-type RadioButtonProps = {
+type CheckBoxProps = {
   options: Option[];
-  onSelect: (value: string) => void;
+  onSelect: (selectedValues: string[]) => void;
 };
 
-const RadioButton = ({options, onSelect }: RadioButtonProps) => {
-  const [selectedOption, setSelectedOption] = useState<string | null>(null);
+const CheckBox = ({ options, onSelect }: CheckBoxProps) => {
+  const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
 
-  const handlePress = (option: string) => {
-    setSelectedOption(option);
-    onSelect(option);
+  const handlePress = (optionValue: string) => {
+    let updatedOptions = [...selectedOptions];
+
+    if (updatedOptions.includes(optionValue)) {
+      updatedOptions = updatedOptions.filter((value) => value !== optionValue);
+    } else {
+      updatedOptions.push(optionValue);
+    }
+
+    setSelectedOptions(updatedOptions);
+    onSelect(updatedOptions);
   };
 
   return (
@@ -24,15 +32,15 @@ const RadioButton = ({options, onSelect }: RadioButtonProps) => {
       {options.map((option) => (
         <TouchableOpacity
           key={option.value}
-          style={styles.radioContainer}
+          style={styles.checkBoxContainer}
           onPress={() => handlePress(option.value)}
         >
-          <View style={styles.radioCircle}>
-            {selectedOption === option.value && (
-              <View style={styles.selectedRb} />
+          <View style={styles.checkBox}>
+            {selectedOptions.includes(option.value) && (
+              <View style={styles.selectedCheckBox} />
             )}
           </View>
-          <Text style={styles.radioText}>{option.label}</Text>
+          <Text style={styles.checkBoxText}>{option.label}</Text>
         </TouchableOpacity>
       ))}
     </View>
@@ -42,34 +50,34 @@ const RadioButton = ({options, onSelect }: RadioButtonProps) => {
 const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
+    flexWrap: "wrap",
     alignItems: "center",
     marginBottom: 10,
   },
 
-  radioContainer: {
+  checkBoxContainer: {
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 10,
-    marginRight: 100
+    marginRight: 50,
   },
 
-  radioCircle: {
+  checkBox: {
     height: 20,
     width: 20,
-    borderRadius: 10,
+    borderRadius: 4,
     borderWidth: 2,
     alignItems: "center",
     justifyContent: "center",
   },
-  selectedRb: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
+  selectedCheckBox: {
+    width: 12,
+    height: 12,
     backgroundColor: "#0D99FF",
   },
-  radioText: {
+  checkBoxText: {
     marginLeft: 10,
   },
 });
 
-export default RadioButton;
+export default CheckBox;

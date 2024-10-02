@@ -95,7 +95,6 @@ const styles = StyleSheet.create({
   },
 
   textIcon: {
-    transform: [{translateY: -15}],
     marginLeft: 5,
     color: "#fff",
     fontWeight: "bold",

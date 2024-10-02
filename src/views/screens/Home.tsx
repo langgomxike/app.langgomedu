@@ -9,13 +9,13 @@ import NhiTestScreen from "./NhiTest";
 export default function HomeScreen() {
   return (
     <View>
-      <Text>Home Screen</Text>
+      {/* <Text>Home Screen</Text> */}
 
       {/* <DuTestScreen />
       <HoangTestScreen />
       <KhangTestScreen />
-      <KhanhTestScreen />
-      <NhiTestScreen /> */}
+      <KhanhTestScreen /> */}
+      <NhiTestScreen />
     </View>
   );
 }
