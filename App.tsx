@@ -11,6 +11,7 @@ import ScreenName from "./src/constants/ScreenName";
 import ButtonNavBar from "./src/views/components/ButtonNavBar";
 import MessageScreen from "./src/views/screens/Message";
 import ProfileScreen from "./src/views/screens/Profile";
+import PersonalScheduleScreen from "./src/views/screens/PersonalSchedule";
 
 const Stack = createNativeStackNavigator();
 const SCREEN_PADDING_TOP = 50;
@@ -54,6 +55,7 @@ export default function App() {
             },
           }}
         >
+          {/* <Stack.Screen name={ScreenName.PERSONAL_SCHEDULE} component={PersonalScheduleScreen} /> */}
           <Stack.Screen name={ScreenName.NAV_BAR} component={ButtonNavBar} />
           <Stack.Screen name={ScreenName.MESSAGE} component={MessageScreen} />
           <Stack.Screen name={ScreenName.PROFILE} component={ProfileScreen} />

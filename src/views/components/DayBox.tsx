@@ -57,8 +57,8 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         borderWidth: 1,
         borderColor: BorderColor.white,
-        height: 70,
-        padding: 10,
+        height: 60,
+        padding: 9,
     },
     dayBox_active:{
         flex: 1,
@@ -71,7 +71,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         backgroundColor: BackgroundColor.white,
         height: 70,
-        padding: 10,
+        padding: 9,
     },
     day: {
         marginBottom: 8,
@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
     dayOfWeek: {
         textAlign: 'center',
         marginTop: 2,
-        fontWeight: 'semibold',
+        fontWeight: 'bold',
         fontSize: 8.5,
         color: TextColor.white,
         width: 20
