@@ -8,7 +8,7 @@ export enum BackgroundColor {
     sub_danger = '#FFA4A4',
     white = '#FFFFFF',
     black = '#2F2F2F',
-    gray_e6 = 'EEEEEE',
+    gray_e6 = '#EEEEEE',
     gray_10 = '#E4E4E4', //light gray
     gray_30 = '#D9D9D9',
     gray_50 = '#C3C3C3', //dark gray
