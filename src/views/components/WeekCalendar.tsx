@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { View, StyleSheet, Text, TouchableOpacity } from "react-native";
 import { BackgroundColor, TextColor } from "../../configs/ColorConfig";
 import DayBox from "./DayBox";
-import { Day, DaysOfWeek } from "../screens/Schedule";
+import { Day, DaysOfWeek } from "../screens/PersonalSchedule";
 
 
 export enum EdayOfWeek {
@@ -28,7 +28,7 @@ const WeekCalendar = ({ days }: DaysOfWeek) => {
 
     for (let index = 0; index < days.length; index++) {
         daysOfWeek.push(
-            <TouchableOpacity>
+            <TouchableOpacity key={index} >
                 <DayBox day={days[index].dayOfMonth} dayOfWeek={EdayOfWeek[days[index].dayOfWeek]} />
             </TouchableOpacity>
         )

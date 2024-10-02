@@ -13,7 +13,8 @@ const TimeLine = () => {
     return (
         <View style={styles.container}>
             <Text style={styles.title}>InComing Class</Text>
-            <ScrollView style={styles.scrollView}>
+            <ScrollView style={styles.scrollView}
+            nestedScrollEnabled={true}>
                 <View>
                     {times.map((time, index) => (
                         <View key={index} style={styles.timeBox}>
@@ -38,12 +39,22 @@ const styles = StyleSheet.create({
         borderBottomRightRadius: 30,
         backgroundColor: BackgroundColor.white,
         height: 440,
-        paddingHorizontal: 10,
+        paddingHorizontal: 20,
         marginTop: 20,
         marginHorizontal: 10,
+        borderColor: BorderColor.gray_30,
+        borderWidth: 1,
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 4,
+        },
+        shadowOpacity: 0.32,
+        shadowRadius: 5.46,
+        elevation: 3,
     },
     title: {
-        fontSize: 22,
+        fontSize: 20,
         fontWeight: 'semibold',
         margin: 10,
         marginBottom: 15,
@@ -57,10 +68,10 @@ const styles = StyleSheet.create({
         height: 80,
     },
     timeText: {
-        fontSize: 18,
+        fontSize: 14,
         fontWeight: 'regular',
         color: TextColor.black,
-        opacity: .5,
+        opacity: .3,
     },
     mainHour: {
         flexDirection: 'row',
@@ -68,17 +79,17 @@ const styles = StyleSheet.create({
     mainLine: {
         borderBottomWidth: 1,
         borderBottomColor: BorderColor.black,
-        opacity: .3,
+        opacity: .2,
         width: '100%',
-        transform: [{ translateY: -12 }],
+        transform: [{ translateY: -10 }],
         marginLeft: 5,
     },
     halfLine: {
         borderBottomWidth: 1,
         borderBottomColor: BorderColor.black,
-        opacity: .3,
+        opacity: .2,
         width: '100%',
-        transform: [{ translateY: 25 }]
+        transform: [{ translateY: 28 }]
     },
     scrollView: {
         backgroundColor: BackgroundColor.white,
