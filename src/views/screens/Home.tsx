@@ -144,7 +144,7 @@ export default function HomeScreen() {
     outputRange: [0, 450], // Độ cao khi thu hẹp là 0, khi mở rộng là 150 (có thể chỉnh sửa)
   });
 
-  // Tạo height transition dựa trên giá trị của animation
+  // Tạo opacity transition dựa trên giá trị của animation
   const opacityInterpolation = animation.interpolate({
     inputRange: [0, 1],
     outputRange: [0.5, 1], // Độ mờ: ẩn là 0, hiện là 1
