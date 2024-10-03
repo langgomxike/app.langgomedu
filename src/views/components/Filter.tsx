@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useContext, useState } from "react";
 import {
   Alert,
   FlatList,
@@ -18,6 +18,7 @@ import { BackgroundColor, TextColor } from "../../configs/ColorConfig";
 import Search from "./Inputs/Search";
 import RadioButton from "./Inputs/CustomRadioButton";
 import ButtonNavBar from "./ButtonNavBar";
+import { NavigationContext } from "@react-navigation/native";
 
 const Filter = () => {
   // CHECK BOX
@@ -116,10 +117,10 @@ const Filter = () => {
     setDebounceTimeout(newTimeout);
   };
 
-  const handleBack = () => {
-    alert("Are you sure you want to delete");
-    // thuc hien hanh dong xoa sau khi OK
-  };
+  const navigation = useContext(NavigationContext);
+  const handleBack = useCallback(() => {
+    navigation?.goBack();
+  }, []);
 
   const handleASC = () => {
     Alert.alert("ASC", "asc");
