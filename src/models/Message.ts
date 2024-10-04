@@ -1,6 +1,6 @@
 import MessageDTO from "../dtos/MessageDTO";
 import File from "./File";
-import MessageType from "./MeesageType";
+import MessageType from "./MessageType";
 import User from "./User";
 
 export default class Message {
