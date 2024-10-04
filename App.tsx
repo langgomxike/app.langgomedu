@@ -13,10 +13,13 @@ import MessageScreen from "./src/views/screens/Message";
 import ProfileScreen from "./src/views/screens/Profile";
 import ClassDetail from "./src/views/screens/ClassDetail";
 import { BackgroundColor } from "./src/configs/ColorConfig";
-
+import { createDrawerNavigator } from "@react-navigation/drawer";
+import Filter from "./src/views/components/Filter";
 const Stack = createNativeStackNavigator();
 const SCREEN_PADDING_TOP = 50;
 const SCREEN_PADDING_HORIZONTAL = 0;
+
+const Drawer = createDrawerNavigator();
 
 export default function App() {
   // states
@@ -46,39 +49,39 @@ export default function App() {
       value={{ language: language, setLanguage: setLanguageContext }}
     >
       <NavigationContainer>
-        <Stack.Navigator
-          screenOptions={{
-            headerShown: false,
-            contentStyle: {
-              paddingTop: SCREEN_PADDING_TOP,
-              paddingHorizontal: SCREEN_PADDING_HORIZONTAL,
-              backgroundColor: "#fff",
-            },
-          }}
-        >
-          <Stack.Screen name={ScreenName.NAV_BAR} component={ButtonNavBar} />
-          <Stack.Screen name={ScreenName.MESSAGE} component={MessageScreen} />
-          <Stack.Screen
-            name={ScreenName.PROFILE}
-            component={ProfileScreen}
-            options={{ title: "Overview", headerShown: true }}
-          />
-          <Stack.Screen
-            name={ScreenName.DETAIL_CLASS}
-            component={ClassDetail}
-            options={{
-              title: "Chi tiết lớp học",
-              headerShown: true,
+          <Stack.Navigator
+            screenOptions={{
+              headerShown: false,
               contentStyle: {
-                padding: 0
+                paddingTop: SCREEN_PADDING_TOP,
+                paddingHorizontal: SCREEN_PADDING_HORIZONTAL,
+                backgroundColor: "#eee",
               },
-              headerStyle: {
-                backgroundColor: BackgroundColor.primary
-              },
-              headerTintColor: '#fff',
             }}
-          />
-        </Stack.Navigator>
+          >
+            <Stack.Screen name={ScreenName.NAV_BAR} component={ButtonNavBar} />
+            <Stack.Screen name={ScreenName.MESSAGE} component={MessageScreen} />
+            <Stack.Screen
+              name={ScreenName.PROFILE}
+              component={ProfileScreen}
+              options={{ title: "Overview", headerShown: true }}
+            />
+            <Stack.Screen
+              name={ScreenName.DETAIL_CLASS}
+              component={ClassDetail}
+              options={{
+                title: "Chi tiết lớp học",
+                headerShown: true,
+                contentStyle: {
+                  padding: 0,
+                },
+                headerStyle: {
+                  backgroundColor: BackgroundColor.primary,
+                },
+                headerTintColor: "#fff",
+              }}
+            />
+          </Stack.Navigator> 
       </NavigationContainer>
     </LanguageContext.Provider>
   );
