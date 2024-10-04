@@ -33,7 +33,7 @@ const BackWithDetailLayout = ({
         {/* Back Icon and Text */}
         <View style={styles.leftSection}>
           <TouchableOpacity style={styles.iconButton}>
-            <MyIcon icon={AppIcon.ic_back_circle} onPress={handleBack} />
+            <MyIcon icon={AppIcon.ic_back_circle} onPress={handleBack} size="25"/>
             <Text style={styles.textIcon}>{icName}</Text>
             {/* {children} */}
           </TouchableOpacity>
@@ -98,6 +98,7 @@ const styles = StyleSheet.create({
     marginLeft: 5,
     color: "#fff",
     fontWeight: "bold",
+    transform: [{ translateY: -15}]
   },
 
   backText: {

@@ -16,6 +16,7 @@ import { BackgroundColor } from "../../configs/ColorConfig";
 import Search from "../components/Inputs/SearchBar";
 import CourseItem from "../components/CourseItem";
 import TutorItem from "../components/TutorItem";
+import Filter from "../components/Filter";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import ScreenName from "../../constants/ScreenName";
 import { RootStackParamList, RootStackParamListFilter } from "../../configs/NavigationRouteTypeConfig";
@@ -118,8 +119,10 @@ const tutors = [
 ];
 
 export default function HomeScreen() {
+
+  const [visibleModal, setVisibleModal] = useState<string | null>("");
+
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const navigationFilter = useNavigation<NavigationProp<RootStackParamListFilter>>();
   const [searchKey, setSearchKey] = useState<string>("");
   const handleNavigateToDetail = (course: Course) => {
     navigation.navigate(ScreenName.DETAIL_CLASS, { course });
@@ -281,7 +284,7 @@ export default function HomeScreen() {
                   <TouchableOpacity>
                     <Text style={styles.showAllText}>Xem tất cả</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity onPress={handleOpenDrawer}>
+                  <TouchableOpacity onPress={() => setVisibleModal("modal_fiter")}>
                     <Image
                       source={require("../../../assets/images/ic_filter.png")}
                       style={{ width: 20, height: 20 }}
@@ -347,7 +350,7 @@ export default function HomeScreen() {
                   <TouchableOpacity>
                     <Text style={styles.showAllText}>Xem tất cả</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity>
+                  <TouchableOpacity onPress={() => setVisibleModal("modal_fiter")}>
                     <Image
                       source={require("../../../assets/images/ic_filter.png")}
                       style={{ width: 20, height: 20 }}
@@ -381,6 +384,7 @@ export default function HomeScreen() {
             </View>
           </View>
         </View>
+        <Filter isVisible={visibleModal} onRequestClose={() => setVisibleModal (null)}/>
       </View>
     </ScrollView>
   );

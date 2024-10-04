@@ -9,6 +9,7 @@ enum ScreenName {
     ACCOUNT = "Account",
     MESSAGE = "Message",
     PROFILE = "Profile",
+    FILTER = "Filter",
 }
 
 export default ScreenName;

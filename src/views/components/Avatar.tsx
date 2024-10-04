@@ -51,21 +51,12 @@ const Avatar: React.FC<MyAvatar> = ({
       );
     }
   } else {
-    if (orientation == "horizontally") {
       return (
-        <View style={styles.horizontally}>
+        <View style={orientation == "horizontally" ? styles.horizontally : styles.vertically}>
           <Image source={avatarTempt} style={styles.avatar} />
-          <Text style={styles.usernameh}>{userName}</Text>
+          <Text style={orientation == "horizontally" ? styles.usernameh : styles.username}>{userName}</Text>
         </View>
       );
-    } else {
-      return (
-        <View style={styles.vertically}>
-          <Image source={avatarTempt} style={styles.avatar} />
-          <Text style={styles.username}>{userName}</Text>
-        </View>
-      );
-    }
   }
 };
 

@@ -13,10 +13,13 @@ import MessageScreen from "./src/views/screens/Message";
 import ProfileScreen from "./src/views/screens/Profile";
 import ClassDetail from "./src/views/screens/ClassDetail";
 import { BackgroundColor } from "./src/configs/ColorConfig";
+import { createDrawerNavigator } from "@react-navigation/drawer";
+import Filter from "./src/views/components/Filter";
 const Stack = createNativeStackNavigator();
 const SCREEN_PADDING_TOP = 50;
 const SCREEN_PADDING_HORIZONTAL = 0;
 
+const Drawer = createDrawerNavigator();
 
 export default function App() {
   // states
@@ -52,7 +55,7 @@ export default function App() {
               contentStyle: {
                 paddingTop: SCREEN_PADDING_TOP,
                 paddingHorizontal: SCREEN_PADDING_HORIZONTAL,
-                backgroundColor: "#fff",
+                backgroundColor: "#eee",
               },
             }}
           >

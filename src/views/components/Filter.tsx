@@ -2,11 +2,9 @@ import { useCallback, useContext, useState } from "react";
 import {
   Alert,
   FlatList,
-  Keyboard,
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -15,12 +13,17 @@ import CustomInput from "./Inputs/CustomInput";
 import MyIcon, { AppIcon } from "./MyIcon";
 import Button from "./Button";
 import { BackgroundColor, TextColor } from "../../configs/ColorConfig";
-import Search from "./Inputs/Search";
 import RadioButton from "./Inputs/CustomRadioButton";
-import ButtonNavBar from "./ButtonNavBar";
 import { NavigationContext } from "@react-navigation/native";
+import ReactNativeModal from "react-native-modal";
+import { Feather, Ionicons, Octicons } from "@expo/vector-icons";
 
-const Filter = () => {
+type FilterProps = {
+  isVisible: string | null;
+  onRequestClose: () => void;
+};
+
+const Filter = ({ isVisible, onRequestClose }: FilterProps) => {
   // CHECK BOX
   const [selectedValues, setSelectedValues] = useState<string[]>([]);
 
@@ -62,7 +65,7 @@ const Filter = () => {
   const removeItemLocation = (index: number) => {
     setItemLocations((prevLocations) => {
       return prevLocations.filter((_, i) => i !== index);
-    })
+    });
   };
 
   // SUBJECT
@@ -81,7 +84,7 @@ const Filter = () => {
   const removeItemSubject = (index: number) => {
     setItemSubjects((prevSubjects) => {
       return prevSubjects.filter((_, i) => i !== index);
-    })
+    });
   };
 
   // MIN MAX PRICE
@@ -118,184 +121,225 @@ const Filter = () => {
   };
 
   const navigation = useContext(NavigationContext);
+
   const handleBack = useCallback(() => {
     navigation?.goBack();
   }, []);
 
-  const handleASC = () => {
+  const handleAsc = () => {
     Alert.alert("ASC", "asc");
-  }
+  };
 
-  const handleDESC = () => {
+  const handleDesc = () => {
     Alert.alert("DESC", "desc");
-  }
+  };
 
   const handleApply = () => {
     Alert.alert("APPLY", "apply");
-  }
+  };
 
   return (
-    <ScrollView nestedScrollEnabled={true}>
-      <View style={styles.container}>
-        {/* DIA DIEM */}
-        <View style={styles.paddingCustom}>
-          <CustomInput
-            label="Địa điểm:"
-            placeholder="Nhập địa điểm"
-            required={false}
-            onChangeText={setLocation}
-            type={"text"}
-            value={location}
-            onSubmitEditing={handleInputLocation}
-          />
-          
-
-          <FlatList
-            data={itemLocations}
-            keyExtractor={(index) => index.toString()}
-            renderItem={({ item, index }) => (
-              <View style={styles.listItem}>
-                <Text>{item}</Text>
-                  <MyIcon icon={AppIcon.ic_exit} onPress={() => removeItemLocation(index)}/>
-              </View>
-            )}
-            style={styles.list}
-            contentContainerStyle={styles.listContent}
+    <ReactNativeModal
+      animationIn="slideInRight"
+      animationOut="slideOutRight"
+      useNativeDriver={true}
+      isVisible={isVisible === "modal_fiter" ? true : false}
+      style={styles.modalContainer}
+    >
+      <View style={styles.overlay}>
+        <View style={styles.container}>
+          <ScrollView
+            nestedScrollEnabled={true}
             showsVerticalScrollIndicator={false}
-          />
-        </View>
+          >
+            {/* DIA DIEM */}
+            <View style={styles.paddingCustom}>
+              <CustomInput
+                label="Địa điểm:"
+                placeholder="Nhập địa điểm"
+                required={false}
+                onChangeText={setLocation}
+                type={"text"}
+                value={location}
+                onSubmitEditing={handleInputLocation}
+                style={{ paddingHorizontal: 5 }}
+              />
 
-        {/* MON HOC */}
-        <View style={styles.paddingCustom}>
-          <CustomInput
-            label="Môn học:"
-            placeholder="Nhập môn học"
-            required={false}
-            onChangeText={setSubject}
-            type={"text"}
-            onSubmitEditing={handleInputSubject}
-            value={subject}
-          />
-          <FlatList
-            data={itemSubjects}
-            keyExtractor={(index) => index.toString()}
-            renderItem={({ item, index }) => (
-              <View style={styles.listItem}>
-                <Text>{item}</Text>
-                  <MyIcon icon={AppIcon.ic_exit} onPress={() => removeItemSubject(index)}/>
+              <ScrollView
+                style={styles.list}
+                contentContainerStyle={styles.listContent}
+                showsVerticalScrollIndicator={false}
+                nestedScrollEnabled={true}
+              >
+                {itemLocations.map((item, index) => (
+                  <View key={index.toString()} style={styles.listItem}>
+                    <Text>{item}</Text>
+                    <TouchableOpacity onPress={() => removeItemLocation(index)}>
+                      <Ionicons name="close-outline" size={24} color="black" />
+                    </TouchableOpacity>
+                  </View>
+                ))}
+              </ScrollView>
+            </View>
+
+            {/* MON HOC */}
+            <View style={styles.paddingCustom}>
+              <CustomInput
+                label="Môn học:"
+                placeholder="Nhập môn học"
+                required={false}
+                onChangeText={setSubject}
+                type={"text"}
+                onSubmitEditing={handleInputSubject}
+                value={subject}
+                style={{ paddingHorizontal: 5 }}
+              />
+              <ScrollView
+                style={styles.list}
+                contentContainerStyle={styles.listContent}
+                showsVerticalScrollIndicator={false}
+                nestedScrollEnabled={true}
+              >
+                {itemSubjects.map((item, index) => (
+                  <View key={index.toString()} style={styles.listItem}>
+                    <Text>{item}</Text>
+                    <TouchableOpacity onPress={() => removeItemSubject(index)}>
+                      <Ionicons name="close-outline" size={24} color="black" />
+                    </TouchableOpacity>
+                  </View>
+                ))}
+              </ScrollView>
+            </View>
+            {/* HINH THUC */}
+            <Text style={styles.textSection}>Hình thức:</Text>
+            <View style={{ paddingLeft: 20 }}>
+              <RadioButton onSelect={handleSelect} options={options} />
+            </View>
+
+            {/* SAP XEP THEO GIA */}
+            <View style={[styles.section, styles.paddingCustom]}>
+              <Text style={styles.textSection}>Sắp xếp theo giá:</Text>
+              <TouchableOpacity style={styles.iconDESC} onPress={handleDesc}>
+                  <Octicons name="sort-desc" size={24} color="black" />
+                </TouchableOpacity>
+
+                <TouchableOpacity style={styles.iconASC} onPress={handleAsc}>
+                  <Octicons name="sort-asc" size={24} color="black" />
+                </TouchableOpacity>
+            </View>
+
+            {/* SAP XEP DANH GIA */}
+            <View style={[styles.section, styles.paddingCustom]}>
+              <Text style={styles.textSection}>Sắp xếp theo đánh giá:</Text>
+              <TouchableOpacity style={styles.iconDESC} onPress={handleDesc}>
+                  <Octicons name="sort-desc" size={24} color="black" />
+                </TouchableOpacity>
+
+                <TouchableOpacity style={styles.iconASC} onPress={handleAsc}>
+                  <Octicons name="sort-asc" size={24} color="black" />
+                </TouchableOpacity>
+            </View>
+
+            {/* GIA NHO NHAT */}
+            <View style={styles.paddingCustom}>
+              <CustomInput
+                label="Giá nhỏ nhất:"
+                placeholder="Nhập giá nhỏ nhất"
+                required={false}
+                onChangeText={handleMinPriceChange}
+                type={"number"}
+                value={minPrice}
+                key="numeric"
+                style={{ paddingHorizontal: 5 }}
+              />
+            </View>
+
+            {/* GIA LON NHAT */}
+            <View style={styles.paddingCustom}>
+              <CustomInput
+                label="Giá lớn nhất:"
+                placeholder="Nhập giá lớn nhất"
+                required={false}
+                value={maxPrice}
+                onChangeText={handleMaxPriceChange}
+                key="numeric"
+                editable={minPrice !== ""}
+                type={"number"}
+                style={{ paddingHorizontal: 5 }}
+              />
+
+              <View style={styles.iconASC_DESC}>
+                <TouchableOpacity style={styles.iconDESC} onPress={handleDesc}>
+                  <Octicons name="sort-desc" size={24} color="black" />
+                </TouchableOpacity>
+
+                <TouchableOpacity style={styles.iconASC} onPress={handleAsc}>
+                  <Octicons name="sort-asc" size={24} color="black" />
+                </TouchableOpacity>
               </View>
-            )}
-            style={styles.list}
-            contentContainerStyle={styles.listContent}
-            showsVerticalScrollIndicator={false}
-          />
-        </View>
-        {/* HINH THUC */}
-        <Text style={styles.textSection}>Hình thức:</Text>
-        <View style={{ paddingLeft: 20 }}>
-          <RadioButton onSelect={handleSelect} options={options} />
-        </View>
+            </View>
 
-        {/* SAP XEP THEO GIA */}
-        <View style={[styles.section, styles.paddingCustom]}>
-          <Text style={styles.textSection}>Sắp xếp theo giá:</Text>
-          <TouchableOpacity style={styles.iconDESC}>
-            <MyIcon icon={AppIcon.ic_descending} onPress={handleDESC} />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.iconASC}>
-            <MyIcon icon={AppIcon.ic_ascending} onPress={handleASC} />
-          </TouchableOpacity>
-        </View>
+            {/* SO LUONG */}
+            <View style={styles.paddingCustom}>
+              <CustomInput
+                label="Số lượng:"
+                placeholder="Nhập số lượng"
+                required={false}
+                onChangeText={setLocation}
+                type={"number"}
+                style={{ paddingHorizontal: 5 }}
+              />
+            </View>
 
-        {/* SAP XEP DANH GIA */}
-        <View style={[styles.section, styles.paddingCustom]}>
-          <Text style={styles.textSection}>Sắp xếp theo đánh giá:</Text>
-          <TouchableOpacity style={styles.iconDESC}>
-            <MyIcon icon={AppIcon.ic_descending} onPress={handleDESC} />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.iconASC}>
-            <MyIcon icon={AppIcon.ic_ascending} onPress={handleASC} />
-          </TouchableOpacity>
-        </View>
+            {/* BUTTON AP DUNG */}
+            <View style={[styles.paddingCustom, styles.btnContainer]}>
+              <TouchableOpacity style={styles.btnApply}>
+                <Text style={styles.textApply}>Áp dụng</Text>
+              </TouchableOpacity>
+            </View>
 
-        {/* GIA NHO NHAT */}
-        <View style={styles.paddingCustom}>
-          <CustomInput
-            label="Giá nhỏ nhất:"
-            placeholder="Nhập giá nhỏ nhất"
-            required={false}
-            onChangeText={handleMinPriceChange}
-            type={"number"}
-            value={minPrice}
-            key="numeric"
-          />
-        </View>
-
-        {/* GIA LON NHAT */}
-        <View style={styles.paddingCustom}>
-          <CustomInput
-            label="Giá lớn nhất:"
-            placeholder="Nhập giá lớn nhất"
-            required={false}
-            value={maxPrice}
-            onChangeText={handleMaxPriceChange}
-            key="numeric"
-            editable={minPrice !== ""}
-            type={"number"}
-          />
-
-          <View style={styles.iconASC_DESC}>
-            <TouchableOpacity style={styles.iconASC}>
-              <MyIcon icon={AppIcon.ic_ascending} onPress={handleDESC} />
+            {/* BUTTON QUAY LAI */}
+            <TouchableOpacity onPress={onRequestClose}>
+              <Feather name="chevrons-right" size={30} color="black" />
             </TouchableOpacity>
-
-            <TouchableOpacity style={styles.iconDESC}>
-              <MyIcon icon={AppIcon.ic_descending} onPress={handleASC} />
-            </TouchableOpacity>
-          </View>
+          </ScrollView>
         </View>
-
-        {/* SO LUONG */}
-        <View style={styles.paddingCustom}>
-          <CustomInput
-            label="Số lượng:"
-            placeholder="Nhập số lượng"
-            required={false}
-            onChangeText={setLocation}
-            type={"number"}
-          />
-        </View>
-
-        {/* BUTTON AP DUNG */}
-        <View>
-          <Button
-            backgroundColor={BackgroundColor.primary}
-            onPress={handleApply}
-            textColor={TextColor.white}
-            title="Áp dụng"
-          />
-        </View>
-
-        {/* BUTTON QUAY LAI */}
-        <MyIcon icon={AppIcon.ic_exit} onPress={handleBack} />
       </View>
-    </ScrollView>
+    </ReactNativeModal>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 10,
+    paddingHorizontal: 20,
+    paddingVertical: 30,
+    // marginVertical: 5,
+    backgroundColor: "#fff",
+    borderTopLeftRadius: 30,
+    borderBottomLeftRadius: 30,
+    shadowColor: BackgroundColor.primary,
+    shadowOffset: {
+      width: 0,
+      height: 7,
+    },
+    shadowOpacity: 0.43,
+    shadowRadius: 9.51,
+    elevation: 15,
   },
 
-  search: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+  modalContainer: {
+    padding: 0,
+    margin: 0,
+    marginLeft: "8%",
+  },
+
+  overlay: {
+    height: "100%",
   },
 
   paddingCustom: {
-    paddingBottom: 10,
+    paddingBottom: 30,
   },
 
   section: {
@@ -304,37 +348,28 @@ const styles = StyleSheet.create({
     transform: [{ translateY: 5 }],
   },
 
-  iconButton: {
-    position: "absolute",
-    right: 23,
-    transform: [{ translateY: -2 }],
-  },
-
   iconASC: {
     position: "absolute",
-    right: 50,
-    transform: [{ translateY: -5 }],
+    right: 60,
+    transform: [{ translateY: -10 }],
   },
 
   iconDESC: {
     position: "absolute",
     right: 20,
-    transform: [{ translateY: -5 }],
+    transform: [{ translateY: -10 }],
   },
 
   textSection: {
     fontWeight: "bold",
     fontSize: 16,
+    paddingLeft: 5
   },
 
   iconASC_DESC: {
     transform: [{ translateY: -69 }],
   },
 
-  childrenSection: {
-    paddingLeft: 20,
-    paddingBottom: 5,
-  },
   list: {
     maxHeight: 200, // Limit list height (adjust as needed)
   },
@@ -348,9 +383,23 @@ const styles = StyleSheet.create({
     paddingLeft: 15,
     paddingRight: 23,
   },
-  removeButton: {
-    color: "red",
+  btnContainer: {
+    justifyContent: "center",
+    alignItems: "center",
   },
+  btnApply: {
+    borderRadius: 10,
+    backgroundColor: BackgroundColor.primary,
+    paddingVertical: 13,
+    width: "50%"
+  },
+  textApply:{
+    fontWeight: "bold",
+    color: "#fff",
+    fontSize: 15,
+    textAlign: "center",
+  }
+
 });
 
 export default Filter;
