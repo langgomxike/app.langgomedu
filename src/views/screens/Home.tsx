@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useCallback, useContext, useRef, useState } from "react";
 import {
   Text,
   View,
@@ -10,7 +10,11 @@ import {
   Pressable,
   Animated,
 } from "react-native";
-import { useNavigation, NavigationProp } from "@react-navigation/native";
+import {
+  useNavigation,
+  NavigationProp,
+  NavigationContext,
+} from "@react-navigation/native";
 
 import { BackgroundColor } from "../../configs/ColorConfig";
 import Search from "../components/Inputs/SearchBar";
@@ -118,10 +122,13 @@ const tutors = [
 ];
 
 export default function HomeScreen() {
-  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  // const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+
+  const navigation = useContext(NavigationContext);
+
   const [searchKey, setSearchKey] = useState<string>("");
   const handleNavigateToDetail = (course: Course) => {
-    navigation.navigate(ScreenName.DETAIL_CLASS, { course });
+    navigation?.navigate(ScreenName.DETAIL_CLASS, { course });
   };
 
   const [isExpanded, setIsExpanded] = useState(true);
@@ -154,6 +161,12 @@ export default function HomeScreen() {
     inputRange: [0, 1],
     outputRange: ["0deg", "90deg"], // Xoay từ 0 đến -90 độ
   });
+
+  const handleNavigateToCVList = useCallback(() => {
+    navigation?.navigate(ScreenName.CV_LIST);
+  }, []);
+
+  navigation?.navigate(ScreenName.OTP);
 
   return (
     <ScrollView>
@@ -339,7 +352,7 @@ export default function HomeScreen() {
                     alignItems: "center",
                   }}
                 >
-                  <TouchableOpacity>
+                  <TouchableOpacity onPress={handleNavigateToCVList}>
                     <Text style={styles.showAllText}>Xem tất cả</Text>
                   </TouchableOpacity>
                   <TouchableOpacity>
@@ -456,7 +469,7 @@ const styles = StyleSheet.create({
 
   line: {
     height: 1,
-    backgroundColor: BackgroundColor.gray_c6
+    backgroundColor: BackgroundColor.gray_c6,
   },
 
   majorContainer: {

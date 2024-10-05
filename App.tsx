@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import languages from "./languages.json";
 import {
   LanguageContext,
@@ -18,6 +18,11 @@ import Register1Screen from "./src/views/screens/Register1";
 import Register2Screen from "./src/views/screens/Register2";
 import OTPScreen from "./src/views/screens/OTP";
 import ChangePasswordScreen from "./src/views/screens/ChangePassword";
+import CVList from "./src/views/screens/CVList";
+import OtpScreen from "./src/views/screens/OTP";
+import SLog, { LogType } from "./src/services/SLog";
+import SAsyncStorage, { AsyncStorageKeys } from "./src/services/SAsyncStorage";
+import AppContext from "./src/configs/AppContext";
 
 const Stack = createNativeStackNavigator();
 const SCREEN_PADDING_TOP = 50;
@@ -45,49 +50,81 @@ export default function App() {
     }
   }, []);
 
+  //effects
+  useEffect(() => {
+    const getKey = () => {
+      SAsyncStorage.getData(
+        AsyncStorageKeys.TOKEN,
+        (value) => {
+          SLog.log(LogType.Info, "AD", "get token", value);
+        },
+        (error) => {
+          SLog.log(LogType.Info, "AD", "save token", error);
+        },
+        () => {
+          SLog.log(LogType.Info, "AD", "get token");
+        }
+      );
+    };
+
+    getKey();
+
+    SAsyncStorage.removeData(
+      AsyncStorageKeys.TOKEN,
+      () => {
+        SLog.log(LogType.Info, "AD", "remove token", true);
+      },
+      (error) => {
+        SLog.log(LogType.Info, "AD", "remove token", error);
+      },
+      () => {
+        SLog.log(LogType.Info, "AD", "remove token");
+        getKey();
+      }
+    );
+  }, []);
+
   // jxs
   return (
-    // <LanguageContext.Provider
-    //   value={{ language: language, setLanguage: setLanguageContext }}
-    // >
-    //   <NavigationContainer>
-    //     <Stack.Navigator
-    //       screenOptions={{
-    //         headerShown: false,
-    //         contentStyle: {
-    //           paddingTop: SCREEN_PADDING_TOP,
-    //           paddingHorizontal: SCREEN_PADDING_HORIZONTAL,
-    //           backgroundColor: "#fff",
-    //         },
-    //       }}
-    //     >
-    //       <Stack.Screen name={ScreenName.NAV_BAR} component={ButtonNavBar} />
-    //       <Stack.Screen name={ScreenName.MESSAGE} component={MessageScreen} />
-    //       <Stack.Screen
-    //         name={ScreenName.PROFILE}
-    //         component={ProfileScreen}
-    //         options={{ title: "Overview", headerShown: true }}
-    //       />
-    //       <Stack.Screen
-    //         name={ScreenName.DETAIL_CLASS}
-    //         component={ClassDetail}
-    //         options={{
-    //           title: "Chi tiết lớp học",
-    //           headerShown: true,
-    //           contentStyle: {
-    //             padding: 0
-    //           },
-    //           headerStyle: {
-    //             backgroundColor: BackgroundColor.primary
-    //           },
-    //           headerTintColor: '#fff',
-    //         }}
-    //       />
-    //     </Stack.Navigator>
-    //   </NavigationContainer>
-    // </LanguageContext.Provider>
-    // <LoginScreen></LoginScreen>
-    <Register2Screen></Register2Screen>
-    
+    <AppContext>
+      <NavigationContainer>
+        <Stack.Navigator
+          screenOptions={{
+            headerShown: false,
+            contentStyle: {
+              paddingTop: SCREEN_PADDING_TOP,
+              paddingHorizontal: SCREEN_PADDING_HORIZONTAL,
+              backgroundColor: "#fff",
+            },
+          }}
+        >
+          <Stack.Screen name={ScreenName.NAV_BAR} component={ButtonNavBar} />
+          <Stack.Screen name={ScreenName.MESSAGE} component={MessageScreen} />
+          <Stack.Screen
+            name={ScreenName.PROFILE}
+            component={ProfileScreen}
+            options={{ title: "Overview", headerShown: true }}
+          />
+          <Stack.Screen
+            name={ScreenName.DETAIL_CLASS}
+            component={ClassDetail}
+            options={{
+              title: "Chi tiết lớp học",
+              headerShown: true,
+              contentStyle: {
+                padding: 0,
+              },
+              headerStyle: {
+                backgroundColor: BackgroundColor.primary,
+              },
+              headerTintColor: "#fff",
+            }}
+          />
+
+          <Stack.Screen name={ScreenName.CV_LIST} component={CVList} />
+          <Stack.Screen name={ScreenName.OTP} component={OtpScreen} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </AppContext>
   );
 }
