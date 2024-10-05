@@ -20,9 +20,10 @@ import { BackgroundColor } from "../../configs/ColorConfig";
 import Search from "../components/Inputs/SearchBar";
 import CourseItem from "../components/CourseItem";
 import TutorItem from "../components/TutorItem";
+import Filter from "../components/Filter";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import ScreenName from "../../constants/ScreenName";
-import { RootStackParamList } from "../../configs/NavigationRouteTypeConfig";
+import { RootStackParamList, RootStackParamListFilter } from "../../configs/NavigationRouteTypeConfig";
 
 type Course = {
   id: number;
@@ -122,6 +123,9 @@ const tutors = [
 ];
 
 export default function HomeScreen() {
+
+  const [visibleModal, setVisibleModal] = useState<string | null>("");
+
   // const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   const navigation = useContext(NavigationContext);
@@ -130,6 +134,10 @@ export default function HomeScreen() {
   const handleNavigateToDetail = (course: Course) => {
     navigation?.navigate(ScreenName.DETAIL_CLASS, { course });
   };
+
+  const handleOpenDrawer = () => {
+    // navigation
+  }
 
   const [isExpanded, setIsExpanded] = useState(true);
   const animation = useRef(new Animated.Value(1)).current;
@@ -289,7 +297,7 @@ export default function HomeScreen() {
                   <TouchableOpacity>
                     <Text style={styles.showAllText}>Xem tất cả</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity>
+                  <TouchableOpacity onPress={() => setVisibleModal("modal_fiter")}>
                     <Image
                       source={require("../../../assets/images/ic_filter.png")}
                       style={{ width: 20, height: 20 }}
@@ -355,7 +363,7 @@ export default function HomeScreen() {
                   <TouchableOpacity onPress={handleNavigateToCVList}>
                     <Text style={styles.showAllText}>Xem tất cả</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity>
+                  <TouchableOpacity onPress={() => setVisibleModal("modal_fiter")}>
                     <Image
                       source={require("../../../assets/images/ic_filter.png")}
                       style={{ width: 20, height: 20 }}
@@ -389,6 +397,7 @@ export default function HomeScreen() {
             </View>
           </View>
         </View>
+        <Filter isVisible={visibleModal} onRequestClose={() => setVisibleModal (null)}/>
       </View>
     </ScrollView>
   );

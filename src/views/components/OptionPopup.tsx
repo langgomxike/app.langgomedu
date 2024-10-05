@@ -10,7 +10,7 @@ import {
   View,
 } from "react-native";
 
-import Search from "./Inputs/SearchBar";
+import Search from "./Inputs/Search";
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 //Interface

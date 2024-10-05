@@ -13,6 +13,8 @@ import MessageScreen from "./src/views/screens/Message";
 import ProfileScreen from "./src/views/screens/Profile";
 import ClassDetail from "./src/views/screens/ClassDetail";
 import { BackgroundColor } from "./src/configs/ColorConfig";
+import { createDrawerNavigator } from "@react-navigation/drawer";
+import Filter from "./src/views/components/Filter";
 import LoginScreen from "./src/views/screens/Login";
 import Register1Screen from "./src/views/screens/Register1";
 import Register2Screen from "./src/views/screens/Register2";
@@ -27,6 +29,8 @@ import AppContext from "./src/configs/AppContext";
 const Stack = createNativeStackNavigator();
 const SCREEN_PADDING_TOP = 50;
 const SCREEN_PADDING_HORIZONTAL = 0;
+
+const Drawer = createDrawerNavigator();
 
 export default function App() {
   // states

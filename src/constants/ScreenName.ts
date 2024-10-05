@@ -9,6 +9,7 @@ enum ScreenName {
     ACCOUNT = "Account",
     MESSAGE = "Message",
     PROFILE = "Profile",
+    FILTER = "Filter",
 
     CV_LIST = "CV List",
     OTP = "OTP",
