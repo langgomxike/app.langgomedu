@@ -13,6 +13,10 @@ import MessageScreen from "./src/views/screens/Message";
 import ProfileScreen from "./src/views/screens/Profile";
 import ClassDetail from "./src/views/screens/ClassDetail";
 import { BackgroundColor } from "./src/configs/ColorConfig";
+import TutorAttendance from "./src/views/screens/TutorAttendance";
+import LeanerAttendance from "./src/views/screens/LeanerAttendance";
+import History from "./src/views/screens/History";
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 const Stack = createNativeStackNavigator();
 const SCREEN_PADDING_TOP = 50;
@@ -45,7 +49,8 @@ export default function App() {
     <LanguageContext.Provider
       value={{ language: language, setLanguage: setLanguageContext }}
     >
-      <NavigationContainer>
+       <GestureHandlerRootView>
+      {/* <NavigationContainer>
         <Stack.Navigator
           screenOptions={{
             headerShown: false,
@@ -79,7 +84,12 @@ export default function App() {
             }}
           />
         </Stack.Navigator>
-      </NavigationContainer>
+      </NavigationContainer> */}
+      {/* <LeanerAttendance></LeanerAttendance> */}
+      {/* <TutorAttendance></TutorAttendance> */}
+      {/* <LeanerAttendance></LeanerAttendance> */}
+      <History/>
+      </GestureHandlerRootView>
     </LanguageContext.Provider>
   );
 }
