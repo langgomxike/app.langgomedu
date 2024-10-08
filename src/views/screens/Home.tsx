@@ -174,7 +174,7 @@ export default function HomeScreen() {
     navigation?.navigate(ScreenName.CV_LIST);
   }, []);
 
-  navigation?.navigate(ScreenName.OTP);
+  // navigation?.navigate(ScreenName.OTP);
 
   return (
     <ScrollView>
