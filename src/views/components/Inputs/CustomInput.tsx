@@ -17,6 +17,7 @@ type CustomInputProps = {
   required: boolean;
   value?: string;
   onChangeText: (text: string) => void;
+  onSubmitEditing?: () => void;
   placeholder: string;
   type:
     | "text"
@@ -25,7 +26,7 @@ type CustomInputProps = {
     | "email"
     | "phone"
     | "date"
-    | "textarea"
+    | "textarea";
   editable?: boolean;
   maxLength?: number;
   style?: object;
@@ -43,6 +44,7 @@ export default function customInput({
   editable,
   style,
   maxLength,
+  onSubmitEditing,
 }: CustomInputProps) {
   const [isPasswordVisible, setPasswordVisible] = useState(false);
   const [date, setDate] = useState(new Date());
@@ -116,6 +118,7 @@ export default function customInput({
               value={value}
               secureTextEntry={type === "password" && !isPasswordVisible}
               editable={type === "date" || editable == false ? false : true}
+              onEndEditing={onSubmitEditing}
             />
             {/* Ẩn hiện password */}
             {type === "password" && (

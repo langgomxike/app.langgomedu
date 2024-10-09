@@ -16,3 +16,8 @@ type Course = {
 export type RootStackParamList = {
     "DetailClass": { course:Course };
   };
+
+export type RootStackParamListFilter = {
+    Home: undefined;
+    Filter: undefined;
+  };
