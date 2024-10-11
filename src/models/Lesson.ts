@@ -7,16 +7,16 @@ export default class Lesson {
     public day: number; //[note: "thứ, monday: 0, ..."]
     public startedAt: Date;
     public duration: Date;
-    public type: boolean;  //[note: "hình thức học, online: 1, offline: 0"]
+    public isOnline: boolean;  //[note: "hình thức học, online: 1, offline: 0"]
     public note: string;
 
-    constructor(id = -1, _class: Class | undefined = undefined, day = 0, startedAt = new Date(), duration = new Date(), type = false, note = "") {
+    constructor(id = -1, _class: Class | undefined = undefined, day = 0, startedAt = new Date(), duration = new Date(), isOnline = false, note = "") {
         this.id = id;
         this.class = _class;
         this.day = day;
         this.startedAt = startedAt;
         this.duration = duration;
-        this.type = type;
+        this.isOnline = isOnline;
         this.note = note;
     }
 
@@ -26,7 +26,7 @@ export default class Lesson {
         this.day = lessonDTO.day;
         this.startedAt = new Date(lessonDTO.started_at);
         this.duration = new Date(lessonDTO.duration);
-        this.type = lessonDTO.type;
+        this.isOnline = lessonDTO.isOnline;
         this.note = lessonDTO.note;
     }
 }

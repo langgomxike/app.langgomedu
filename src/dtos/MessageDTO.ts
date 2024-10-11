@@ -9,7 +9,7 @@ export default class MessageDTO {
     public to_user: UserDTO | undefined;
     public content: string;
     public file: FileDTO | undefined;
-    public type: MessageTypeDTO | undefined;
+    public isImage: boolean;
     public created_at: number;
     public reply_to_message: MessageDTO | undefined;
     public from_user_status: boolean;
@@ -20,7 +20,7 @@ export default class MessageDTO {
     constructor(message: Message) {
         this.id = message.id;
         this.content = message.content;
-        this.type = message.type;
+        this.isImage = message.isImage;
         this.created_at = message.createdAt.getTime();
         this.from_user_status = message.fromUserStatus;
         this.to_user_status = message.toUserStatus;

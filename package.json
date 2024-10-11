@@ -11,6 +11,7 @@
   "dependencies": {
     "@gorhom/bottom-sheet": "^4.6.4",
     "@react-native-community/datetimepicker": "8.0.1",
+    "@react-native-community/checkbox": "^0.5.17",
     "@react-native-community/masked-view": "^0.1.11",
     "@react-navigation/bottom-tabs": "^6.6.1",
     "@react-navigation/drawer": "^6.7.2",
@@ -28,6 +29,7 @@
     "react-native": "^0.75.3",
     "react-native-elements": "^3.4.3",
     "react-native-gesture-handler": "~2.16.1",
+    "react-native-keyboard-aware-scroll-view": "^0.9.5",
     "react-native-raw-bottom-sheet": "^3.0.0",
     "react-native-reanimated": "~3.10.1",
     "react-native-modal": "^13.0.1",
