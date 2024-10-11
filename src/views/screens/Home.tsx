@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useContext, useRef, useState } from "react";
 import {
   Text,
   View,
@@ -10,7 +10,7 @@ import {
   Pressable,
   Animated,
 } from "react-native";
-import { useNavigation, NavigationProp } from "@react-navigation/native";
+import { useNavigation, NavigationProp, NavigationContext } from "@react-navigation/native";
 
 import { BackgroundColor } from "../../configs/ColorConfig";
 import Search from "../components/Inputs/SearchBar";
@@ -122,12 +122,17 @@ export default function HomeScreen() {
 
   const [visibleModal, setVisibleModal] = useState<string | null>("");
 
-  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  // const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  // const [searchKey, setSearchKey] = useState<string>("");
+  // const handleNavigateToDetail = (course: Course) => {
+  //   navigation.navigate(ScreenName.DETAIL_CLASS, { course });
+  // };
+  const navigation = useContext(NavigationContext);
   const [searchKey, setSearchKey] = useState<string>("");
   const handleNavigateToDetail = (course: Course) => {
-    navigation.navigate(ScreenName.DETAIL_CLASS, { course });
+    navigation?.navigate(ScreenName.DETAIL_CLASS, { course });
   };
-
+  navigation?.navigate(ScreenName.LOGIN);
   const handleOpenDrawer = () => {
     // navigation
   }

@@ -1,16 +1,38 @@
-import { ScrollView, Text, View, StyleSheet, Image } from "react-native";
+import { ScrollView, Text, View, StyleSheet, Image, Alert } from "react-native";
 import MyIcon, { AppIcon } from "../components/MyIcon";
 import InputRegister from '../components/Inputs/InputRegister';
 import MyText from "../components/MyText";
 import Button from "../components/Button";
+import { useCallback, useContext } from "react";
+import { NavigationContext } from "@react-navigation/native";
+import ScreenName from "../../constants/ScreenName";
+
 export default function DuTestScreen() {
-  function myEmptyFunction(): void {
-    // Hàm này không làm gì cả
+
+  const navigation = useContext(NavigationContext);
+ 
+  function goToRegisterScreen(): void {
+    navigation?.navigate(ScreenName.REGISTER1);
   }
+  function handleInputChange(value: string): void {
+    console.log(value);
+  }
+  function emty() {
+    alert('ban da nhay');
+  }
+  function goBack()
+  {
+    navigation?.goBack();
+  }
+
+
   return (
-    <View style={styles.container}>
+    <ScrollView >
+      <View style={styles.container}>
+       
+
       <View style={styles.icon}>
-        <MyIcon icon={AppIcon.ic_back_circle} />
+        <MyIcon icon={AppIcon.ic_back_circle} onPress={goBack}/>
       </View>
 
       <Image
@@ -28,7 +50,7 @@ export default function DuTestScreen() {
         <InputRegister
           label="Email hoặc số điện thoại"
           required={true}
-          onChangeText={myEmptyFunction}
+          onChangeText={handleInputChange}
           placeholder="Emal hoặc số điện thoại"
           type="phone"
           iconName="phone"
@@ -38,7 +60,7 @@ export default function DuTestScreen() {
         <InputRegister
           label="Mật khẩu của bạn"
           required={true}
-          onChangeText={myEmptyFunction}
+          onChangeText={handleInputChange}
           placeholder="Mật khẩu của bạn"
           type="password"
           iconName="password"
@@ -47,17 +69,19 @@ export default function DuTestScreen() {
       <View style={styles.row1}>
         <Text></Text>
         <View style={styles.testQuenMatKhau}>
-        <Text>Bạn quên mật khẩu?</Text>
+        <MyText text='Bạn quên mật khẩu?' onPress={emty}></MyText>
         </View>
       </View>
-      <Button title="Đăng nhập" textColor="white" backgroundColor="blue" onPress={myEmptyFunction}></Button>
-      <Text>Bạn chưa có tài khoản? Hãy đăng ký</Text>
-    </View>
+      <Button title="Đăng nhập" textColor="white" backgroundColor="blue" onPress={emty}></Button>
+      <Text>Bạn chưa có tài khoản? <MyText text='Hãy đăng ký' onPress={goToRegisterScreen}></MyText></Text>
+      </View>
+    </ScrollView>
   );
 }
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  
     alignItems: "center",
     // justifyContent: "center",
   },
