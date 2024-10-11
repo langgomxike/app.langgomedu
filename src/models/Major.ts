@@ -15,8 +15,8 @@ export default class Major {
 
     fromDTO(majorDTO: MajorDTO): void {
         this.id = majorDTO.id;
-        this.vnName = majorDTO.vn_name;
-        this.jaName = majorDTO.ja_name;
-        this.enName = majorDTO.en_name;
+        this.vnName = majorDTO.vnName;
+        this.jaName = majorDTO.jaName;
+        this.enName = majorDTO.enName;
     }
 }
