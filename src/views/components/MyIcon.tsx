@@ -4,13 +4,13 @@ import { View, TouchableOpacity, Image, StyleSheet, Text } from "react-native";
 // Định nghĩa enum AppIcon ở đầu file
 export enum AppIcon {
   // Sử dụng require để chỉ định đường dẫn
-  account_tab = require("../../../assets/icons/account_tab.png"), //dang loi ma khong biet sao loi luon á
-  chat_tab = require("../../../assets/icons/account_tab.png"),
- home_tab = require("../../../assets/icons/home-tab.png"),
+
+  chat_tab = require("../../../assets/icons/ic_chat_tag.png"),
+ home_tab = require("../../../assets/icons/ic_home_tab.png"),
   ic_literature = require("../../../assets/icons/ic_literature.png"),
   ic_painting = require("../../../assets/icons/ic_painting.png"),
   ic_physics = require("../../../assets/icons/ic_physics.png"),
-  ic_ = require("../../../assets/icons/ic_.png"),
+  ic_diemuytin = require("../../../assets/icons/ic_diemuytin.png"),
   ic_account_manage = require("../../../assets/icons/ic_account_manage.png"),
   ic_add = require("../../../assets/icons/ic_add.png"),
   ic_admin_rule = require("../../../assets/icons/ic_admin_rule.png"),
@@ -75,7 +75,7 @@ export enum AppIcon {
   ic_math = require("../../../assets/icons/ic_math.png"),
   ic_music = require("../../../assets/icons/ic_music.png"),
   ic_phone = require("../../../assets/icons/ic_phone.png"),
-  ic_phones = require("../../../assets/icons/ic_phone.png"),
+  ico_phone_have_color = require("../../../assets/icons/ic_phone_have_color.png"),
   ic_photo = require("../../../assets/icons/ic_photo.png"),
   ic_photoshop = require("../../../assets/icons/ic_photoshop.png"),
   ic_plus = require("../../../assets/icons/ic_plus.png"),
@@ -89,22 +89,21 @@ export enum AppIcon {
   ic_subject = require("../../../assets/icons/ic_subject.png"),
   ic_trophy = require("../../../assets/icons/ic_trophy.png"),
   ic_user_blue = require("../../../assets/icons/ic_user_blue.png"),
-  ic_chatbox = require("../../../assets/icons/ic-chatbox.png"),
+  ic_chatbox = require("../../../assets/icons/ic_chatbox.png"),
   ic_user = require("../../../assets/icons/ic_user.png"),
   icon_image = require("../../../assets/icons/icon_image.png"),
   icon_mail = require("../../../assets/icons/icon_mail.png"),
   icon_star_light = require("../../../assets/icons/icon_star_light.png"),
-  image108 = require("../../../assets/icons/image108.png"),
-  image122 = require("../../../assets/icons/image122.png"),
-  image180 = require("../../../assets/icons/image180.png"),
+  ic_file_pdf = require("../../../assets/icons/ic_file_pdf.png"),
+  ic_major_history = require("../../../assets/icons/ic_major_history.png"),
   img_avatar_cat = require("../../../assets/icons/img_avatar_cat.png"),
   img_avatar_rabbit = require("../../../assets/icons/img_avatar_rabbit.png"),
   img_avatar_user = require("../../../assets/icons/img_avatar_user.png"),
   img_factory = require("../../../assets/icons/img_factory.png"),
   img_login = require("../../../assets/icons/img_login.png"),
   img_security = require("../../../assets/icons/img_security.png"),
-  report = require("../../../assets/icons/report.png"),
-  send = require("../../../assets/icons/send.png"),
+  report = require("../../../assets/icons/ic_report.png"),
+  send = require("../../../assets/icons/ic_send.png"),
 }
 
 type Icon = {
