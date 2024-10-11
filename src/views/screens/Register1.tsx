@@ -3,14 +3,27 @@ import MyIcon, { AppIcon } from "../components/MyIcon";
 import InputRegister from "../components/Inputs/InputRegister";
 import MyText from "../components/MyText";
 import Button from "../components/Button";
+import { useContext } from "react";
+import { NavigationContext } from "@react-navigation/native";
+import ScreenName from "../../constants/ScreenName";
 export default function DuTestScreen() {
   function myEmptyFunction(): void {
     // Hàm này không làm gì cả
   }
+  const navigation =useContext(NavigationContext);
+  function goBack(): void {
+    navigation?.goBack();
+  }
+  function goRegister2(): void {
+    navigation?.navigate(ScreenName.REGISTER2);
+  }
+  function goToLogin(): void {
+    navigation?.navigate(ScreenName.LOGIN);
+  }
   return (
     <ScrollView style={styles.container}>
       <View style={styles.icon}>
-        <MyIcon icon={AppIcon.ic_back_circle} />
+        <MyIcon icon={AppIcon.ic_back_circle} onPress={goBack}/>
       </View>
 
       <Image
@@ -75,9 +88,9 @@ export default function DuTestScreen() {
           title="Tiếp tục"
           textColor="white"
           backgroundColor="blue"
-          onPress={myEmptyFunction}
+          onPress={goRegister2}
         ></Button>
-        <Text>Bạn đã có tài khoản? Đăng nhập</Text>
+        <Text>Bạn đã có tài khoản? <MyText text="đăng nhập" onPress={goToLogin}></MyText></Text>
       </View>
     </ScrollView>
   );

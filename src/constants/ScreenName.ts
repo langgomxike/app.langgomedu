@@ -10,6 +10,11 @@ enum ScreenName {
     MESSAGE = "Message",
     PROFILE = "Profile",
     FILTER = "Filter",
+    REGISTER1 = "register1",
+    REGISTER2 = "register2",
+    OTP = "otp",
+    LOGIN = "login",
+    CHANGEPASSWORD = "changepassword",
 }
 
 export default ScreenName;

@@ -18,6 +18,11 @@ import LeanerAttendance from "./src/views/screens/LeanerAttendance";
 import History from "./src/views/screens/History";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import HoangTestScreen from "./src/views/screens/HoangTest";
+import LoginScreen from "./src/views/screens/Login";
+import Register1Screen from "./src/views/screens/Register1";
+import Register2Screen from "./src/views/screens/Register2";
+import OTPScreen from "./src/views/screens/OTP";
+import ChangePasswordScreen from "./src/views/screens/ChangePassword";
 
 const Stack = createNativeStackNavigator();
 const SCREEN_PADDING_TOP = 50;
@@ -51,7 +56,7 @@ export default function App() {
       value={{ language: language, setLanguage: setLanguageContext }}
     >
        <GestureHandlerRootView>
-      {/* <NavigationContainer>
+      <NavigationContainer>
         <Stack.Navigator
           screenOptions={{
             headerShown: false,
@@ -84,12 +89,20 @@ export default function App() {
               headerTintColor: '#fff',
             }}
           />
+            <Stack.Screen name={ScreenName.REGISTER1} component={Register1Screen}/>
+          <Stack.Screen name={ScreenName.REGISTER2} component={Register2Screen}/>
+          <Stack.Screen name={ScreenName.OTP} component={OTPScreen}/>
+          <Stack.Screen  name={ScreenName.CHANGEPASSWORD} component={ChangePasswordScreen}/>
+          <Stack.Screen options={{
+            headerShown: false,
+          }} 
+          name={ScreenName.LOGIN} component={LoginScreen}/>
         </Stack.Navigator>
-      </NavigationContainer> */}
+      </NavigationContainer>
       {/* <LeanerAttendance></LeanerAttendance> */}
       {/* <TutorAttendance></TutorAttendance> */}
       {/* <LeanerAttendance></LeanerAttendance> */}
-      <History/>
+      {/* <History/> */}
       {/* <HoangTestScreen/> */}
       </GestureHandlerRootView>
     </LanguageContext.Provider>
