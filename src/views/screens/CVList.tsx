@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   StyleSheet,
@@ -9,44 +9,30 @@ import {
 import Search from "../components/Inputs/SearchBar";
 import Feather from '@expo/vector-icons/Feather';
 import { BackgroundColor } from "../../configs/ColorConfig";
-import TutorItem from "../components/TutorItem";
+import CvItem from "../components/CvItem";
 import Pagination from "../components/Pagination";
+import ACV from "../../apis/ACV";
+import CV from "../../models/CV";
 
-const tutors = [
-  {
-    id: 1,
-    avatar: "hinh1.png",
-    userName: "Nguyen Văn A",
-    phoneNumber: "0987654321",
-    email: "nguyenvana@gmail.com",
-    dayOfBirth: "29/9/2004",
-    address: "228, đường số 6, Linh Chiểu, Thủ Đức",
-    skills: ["Math", "Physics", "Chemistry", "Math", "Physics", "Chemistry"],
-  },
-  {
-    id: 2,
-    avatar: "hinh2.png",
-    userName: "Le Thi B",
-    phoneNumber: "0123456789",
-    email: "lethib@gmail.com",
-    dayOfBirth: "15/8/2003",
-    address: "12, đường số 10, Bình Thạnh",
-    skills: ["English", "Biology"],
-  },
-  {
-    id: 3,
-    avatar: "hinh3.png",
-    userName: "Tran Van C",
-    phoneNumber: "0912345678",
-    email: "tranvanc@gmail.com",
-    dayOfBirth: "1/1/2002",
-    address: "45, đường số 8, Quận 1",
-    skills: ["History", "Geography"],
-  },
-];
+const PER_PAGE = 3;
+
 export default function CVList() {
+  // state
   const [searchKey, setSearchKey] = useState("");
-  const [currentPage, setCurentPage] = useState(1);
+  const [curentPage, setCurentPage] = useState(1);
+  const [tutorList, setTutorList] = useState<object[]>([]);
+
+  // effect
+  useEffect(() => {
+    const fetchGetAllTutors = async () => {
+      const api  = new ACV();
+      const data = await api.getAllCVList();
+      setTutorList(data);
+    }
+
+    fetchGetAllTutors();
+  }, []);
+
   return (
     <View style={styles.container}>
       <View style={styles.searchContainer}>
@@ -54,7 +40,7 @@ export default function CVList() {
           <Search value={searchKey} onChangeText={setSearchKey} />
         </View>
         <View>
-          <TouchableOpacity style={[styles.btnFilter, styles.boxShadow]}>
+          <TouchableOpacity onPress={() => {alert("Filter")}} style={[styles.btnFilter, styles.boxShadow]}>
           <Feather name="filter" size={24} color="black" />
           </TouchableOpacity>
         </View>
@@ -63,17 +49,17 @@ export default function CVList() {
       <View style={styles.bodyContainer}>
           <View style={styles.relatedClassContainer}>
             <FlatList
-              data={tutors}
-              renderItem={({ item }) => (
+              data={tutorList}
+              renderItem={({ item: cv }) => (
                 <View style={styles.classItem}>
-                  <TutorItem
-                    avatar={item.avatar}
-                    userName={item.userName}
-                    phoneNumber={item.phoneNumber}
-                    email={item.email}
-                    dayOfBirth={item.dayOfBirth}
-                    address={item.address}
-                    skills={item.skills}
+                  <CvItem
+                    avatar={cv.avatar}
+                    userName={cv.userName}
+                    phoneNumber={cv.phoneNumber}
+                    email={cv.email}
+                    dayOfBirth={cv.dayOfBirth}
+                    address={cv.address}
+                    skills={cv.skills}
                   />
                 </View>
               )}
@@ -85,8 +71,8 @@ export default function CVList() {
               ListFooterComponent={
                 <View style={{ padding: 30 }}>
                   <Pagination
-                    totalPage={5}
-                    currentPage={currentPage}
+                    totalPage={tutorList.length / PER_PAGE}
+                    currentPage={curentPage}
                     onChange={setCurentPage}
                   />
                 </View>
@@ -108,7 +94,7 @@ const styles = StyleSheet.create({
   searchContainer: {
     flexDirection: "row",
     gap: 20,
-    marginTop: 70,
+    marginTop: 30,
     paddingHorizontal: 20,
     paddingVertical: 20
   },

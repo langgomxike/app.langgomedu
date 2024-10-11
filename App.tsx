@@ -17,6 +17,7 @@ import TutorAttendance from "./src/views/screens/TutorAttendance";
 import LeanerAttendance from "./src/views/screens/LeanerAttendance";
 import History from "./src/views/screens/History";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import HoangTestScreen from "./src/views/screens/HoangTest";
 
 const Stack = createNativeStackNavigator();
 const SCREEN_PADDING_TOP = 50;
@@ -89,6 +90,7 @@ export default function App() {
       {/* <TutorAttendance></TutorAttendance> */}
       {/* <LeanerAttendance></LeanerAttendance> */}
       <History/>
+      {/* <HoangTestScreen/> */}
       </GestureHandlerRootView>
     </LanguageContext.Provider>
   );

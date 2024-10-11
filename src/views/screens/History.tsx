@@ -31,29 +31,26 @@ const historyList = [
       { title: "Anh", price: "200.000", status: "learner" },
     ],
   },
-  {
-    date: "06/10/2024",
-    data: [
-      { title: "Toan", price: "200.000", status: "tutor" },
-      { title: "Sinh", price: "200.000", status: "tutor" },
-      { title: "Anh", price: "200.000", status: "learner" },
-    ],
-  },
+  // {
+  //   date: "06/10/2024",
+  //   data: [
+  //     { title: "Toan", price: "200.000", status: "tutor" },
+  //     { title: "Sinh", price: "200.000", status: "tutor" },
+  //     { title: "Anh", price: "200.000", status: "learner" },
+  //   ],
+  // },
 ];
 
-// Tạo mảng dữ liệu mới chứa cả ngày và giao dịch
-const mergedData = historyList.flatMap((section) => [
-  { type: "header", date: section.date },
-  ...section.data.map((item) => ({ ...item, type: "item" })),
-]);
-
 export default function () {
+  // state
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [isVisible, setIsVisible] = useState(false);
+
+  // render
   return (
-    <ScrollView nestedScrollEnabled={true}>
-      <View style={styles.container}>
+    <View style={styles.container}>
+        <ScrollView nestedScrollEnabled={true} showsVerticalScrollIndicator={false}>
         <Text>History</Text>
         <View style={styles.queryContaienr}>
           <View style={[styles.queryDateBlock, styles.marginBottom]}>
@@ -167,12 +164,12 @@ export default function () {
             )}
           />
         </View>
-        <DetailHistoryBottonSheet
-        isVisible={isVisible}
-        onCloseButtonSheet={() => setIsVisible(false)}
-        />
+      </ScrollView>
+      <DetailHistoryBottonSheet
+      isVisible={isVisible}
+      onCloseButtonSheet={() => setIsVisible(false)}
+      />
       </View>
-    </ScrollView>
   );
 }
 
@@ -237,8 +234,8 @@ const styles = StyleSheet.create({
   },
 
   color: {
-    width: 12,
-    padding: 12,
+    width: 10,
+    padding: 10,
     borderRadius: 999
   },
 

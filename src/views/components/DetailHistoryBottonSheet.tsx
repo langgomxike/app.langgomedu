@@ -22,7 +22,7 @@ export default function ({
   const bottomSheetRef = useRef<BottomSheet>(null);
 
   // Định nghĩa chiều cao BottomSheet
-  const snapPoints = useMemo(() => ["25%", "50%", "90%"], []);
+  const snapPoints = useMemo(() => ["50%", "90%"], []);
 
   // callbacks
   const handleSheetChanges = useCallback(
@@ -65,9 +65,12 @@ export default function ({
     >
       <View style={styles.contentContainer}>
         <View style={styles.classInfoContainer}>
+
         <ClassInfo/>
+
+          <View style={styles.line}></View>
+
         </View>
-        
          {/* Other user */}
          <View style={styles.otherUserContainer}>
                 <Text style={styles.titleContainer}>Phụ huyh/học sinh</Text>
@@ -124,9 +127,15 @@ const styles = StyleSheet.create({
   classInfoContainer: {
   },
 
+  line: {
+    height: 1,
+    backgroundColor: BackgroundColor.gray_e6,
+    marginVertical: 20,
+  },
+
   otherUserContainer: {
     backgroundColor: BackgroundColor.white,
-    paddingVertical: 20,
+    
   },
 
   titleContainer: {
