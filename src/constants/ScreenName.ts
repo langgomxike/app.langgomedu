@@ -4,7 +4,7 @@ enum ScreenName {
     CHAT = "Chat",
     CREATE_CLASS = "Create Class",
     DETAIL_CLASS = "DetailClass",
-    OTHER_CLASS = "OtherClass",
+    ATTENDANCE = "Attendance",
     PERSONAL_SCHEDULE = "Personal Schedule",
     ACCOUNT = "Account",
     MESSAGE = "Message",

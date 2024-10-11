@@ -174,10 +174,10 @@ export default function HoangTestScreen() {
     // </ScrollView>
     //#endregion
     <View style={styles.container}>
-      <Home></Home>
+      {/* <Home></Home> */}
       {/* <ClassList></ClassList> */}
       {/* <ClassDetail></ClassDetail> */}
-      {/* <CVList></CVList> */}
+      <CVList></CVList>
     </View>
   );
 }

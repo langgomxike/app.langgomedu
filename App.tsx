@@ -13,13 +13,15 @@ import MessageScreen from "./src/views/screens/Message";
 import ProfileScreen from "./src/views/screens/Profile";
 import ClassDetail from "./src/views/screens/ClassDetail";
 import { BackgroundColor } from "./src/configs/ColorConfig";
-import { createDrawerNavigator } from "@react-navigation/drawer";
-import Filter from "./src/views/components/Filter";
+import TutorAttendance from "./src/views/screens/TutorAttendance";
+import LeanerAttendance from "./src/views/screens/LeanerAttendance";
+import History from "./src/views/screens/History";
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import HoangTestScreen from "./src/views/screens/HoangTest";
+
 const Stack = createNativeStackNavigator();
 const SCREEN_PADDING_TOP = 50;
 const SCREEN_PADDING_HORIZONTAL = 0;
-
-const Drawer = createDrawerNavigator();
 
 export default function App() {
   // states
@@ -48,41 +50,48 @@ export default function App() {
     <LanguageContext.Provider
       value={{ language: language, setLanguage: setLanguageContext }}
     >
-      <NavigationContainer>
-          <Stack.Navigator
-            screenOptions={{
-              headerShown: false,
+       <GestureHandlerRootView>
+      {/* <NavigationContainer>
+        <Stack.Navigator
+          screenOptions={{
+            headerShown: false,
+            contentStyle: {
+              paddingTop: SCREEN_PADDING_TOP,
+              paddingHorizontal: SCREEN_PADDING_HORIZONTAL,
+              backgroundColor: "#fff",
+            },
+          }}
+        >
+          <Stack.Screen name={ScreenName.NAV_BAR} component={ButtonNavBar} />
+          <Stack.Screen name={ScreenName.MESSAGE} component={MessageScreen} />
+          <Stack.Screen
+            name={ScreenName.PROFILE}
+            component={ProfileScreen}
+            options={{ title: "Overview", headerShown: true }}
+          />
+          <Stack.Screen
+            name={ScreenName.DETAIL_CLASS}
+            component={ClassDetail}
+            options={{
+              title: "Chi tiết lớp học",
+              headerShown: true,
               contentStyle: {
-                paddingTop: SCREEN_PADDING_TOP,
-                paddingHorizontal: SCREEN_PADDING_HORIZONTAL,
-                backgroundColor: "#eee",
+                padding: 0
               },
+              headerStyle: {
+                backgroundColor: BackgroundColor.primary
+              },
+              headerTintColor: '#fff',
             }}
-          >
-            <Stack.Screen name={ScreenName.NAV_BAR} component={ButtonNavBar} />
-            <Stack.Screen name={ScreenName.MESSAGE} component={MessageScreen} />
-            <Stack.Screen
-              name={ScreenName.PROFILE}
-              component={ProfileScreen}
-              options={{ title: "Overview", headerShown: true }}
-            />
-            <Stack.Screen
-              name={ScreenName.DETAIL_CLASS}
-              component={ClassDetail}
-              options={{
-                title: "Chi tiết lớp học",
-                headerShown: true,
-                contentStyle: {
-                  padding: 0,
-                },
-                headerStyle: {
-                  backgroundColor: BackgroundColor.primary,
-                },
-                headerTintColor: "#fff",
-              }}
-            />
-          </Stack.Navigator> 
-      </NavigationContainer>
+          />
+        </Stack.Navigator>
+      </NavigationContainer> */}
+      {/* <LeanerAttendance></LeanerAttendance> */}
+      {/* <TutorAttendance></TutorAttendance> */}
+      {/* <LeanerAttendance></LeanerAttendance> */}
+      <History/>
+      {/* <HoangTestScreen/> */}
+      </GestureHandlerRootView>
     </LanguageContext.Provider>
   );
 }

@@ -15,7 +15,7 @@ import { useNavigation, NavigationProp } from "@react-navigation/native";
 import { BackgroundColor } from "../../configs/ColorConfig";
 import Search from "../components/Inputs/SearchBar";
 import CourseItem from "../components/CourseItem";
-import TutorItem from "../components/TutorItem";
+import TutorItem from "../components/CvItem";
 import Filter from "../components/Filter";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import ScreenName from "../../constants/ScreenName";
