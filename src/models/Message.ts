@@ -1,6 +1,5 @@
 import MessageDTO from "../dtos/MessageDTO";
 import File from "./File";
-import MessageType from "./MeesageType";
 import User from "./User";
 
 export default class Message {
@@ -9,7 +8,7 @@ export default class Message {
     public toUser: User | undefined;
     public content: string;
     public file: File | undefined;
-    public type: MessageType | undefined;
+    public isImage: boolean;
     public createdAt: Date;
     public replyToMessage: Message | undefined;
     public fromUserStatus: boolean;
@@ -17,10 +16,10 @@ export default class Message {
     public asRead: boolean;
 
 
-    constructor(id = -1, fromUser: User | undefined = undefined, toUser: User | undefined = undefined, content = "", file: File | undefined, type: MessageType | undefined, createdAt = new Date(), replyToMessage: Message | undefined, fromUserStatus = true, toUserStatus = true, asRead = false) {
+    constructor(id = -1, fromUser: User | undefined = undefined, toUser: User | undefined = undefined, content = "", file: File | undefined, isImage = false, createdAt = new Date(), replyToMessage: Message | undefined, fromUserStatus = true, toUserStatus = true, asRead = false) {
         this.id = id;
         this.content = content;
-        this.type = type;
+        this.isImage = isImage;
         this.createdAt = createdAt;
         this.file = file;
         this.fromUser = fromUser;
@@ -34,7 +33,7 @@ export default class Message {
     fromDTO(messageDTO: MessageDTO): void {
         this.id = messageDTO.id;
         this.content = messageDTO.content;
-        this.type = messageDTO.type && new MessageType().fromDTO(messageDTO.type) || undefined;
+        this.isImage = messageDTO.isImage;
         this.createdAt = new Date(messageDTO.created_at);
         this.file = messageDTO.file && new File().fromDTO(messageDTO.file) || undefined;
         this.fromUser = messageDTO.from_user && new User().fromDTO(messageDTO.from_user) || undefined;

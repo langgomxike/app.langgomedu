@@ -2,6 +2,8 @@ import { View, StyleSheet, Text, ScrollView } from "react-native";
 import WeekCalendar from "../components/WeekCalendar";
 import TimeLine from "../components/TimeLine";
 import { BackgroundColor } from "../../configs/ColorConfig";
+import { useState } from "react";
+import RatingScreen from "./Rating";
 
 export type Day = {
   dayOfMonth: number,
@@ -41,6 +43,8 @@ export default function PersonalScheduleScreen() { //{ days }: DaysOfWeek props
             <WeekCalendar days={daysOfWeek} />
             <TimeLine />
           </ScrollView>
+          {/* <RatingScreen/> */}
+
         </View>
       </View>
   );
