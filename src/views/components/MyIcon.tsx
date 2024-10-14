@@ -104,6 +104,8 @@ export enum AppIcon {
   img_security = require("../../../assets/icons/img_security.png"),
   report = require("../../../assets/icons/ic_report.png"),
   send = require("../../../assets/icons/ic_send.png"),
+  next= require("../../../assets/icons/ic_next.png"),
+  back_button = require("../../../assets/icons/ic_back.png")
 }
 
 type Icon = {
