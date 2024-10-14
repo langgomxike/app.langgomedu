@@ -31,10 +31,10 @@ export default function ButtonNavBar() {
 
           switch (route.name) {
             case ScreenName.HOME:
-              icon = require("../../../assets/icons/home-tab.png");
+              icon = require("../../../assets/icons/ic_home_tab.png");
               break;
             case ScreenName.CHAT:
-              icon = require("../../../assets/icons/chat-tab.png");
+              icon = require("../../../assets/icons/ic_chat_tag.png");
               break;
             case ScreenName.CREATE_CLASS:
               icon = require("../../../assets/icons/ic_plus.png");
@@ -43,7 +43,7 @@ export default function ButtonNavBar() {
               icon = require("../../../assets/icons/ic_file.png");
               break;
             case ScreenName.ACCOUNT:
-              icon = require("../../../assets/icons/account_tab.png");
+              icon = require("../../../assets/icons/ic_account.png");
               break;
           }
 

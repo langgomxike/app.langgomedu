@@ -19,7 +19,7 @@ import AMessage from "../../apis/AMessage";
 import { IdNavigationType } from "../../configs/NavigationRouteTypeConfig";
 
 const APP_NAME = "Langgom";
-const HEADER_IMAGE = require("../../../assets/icons/ic-chatbox.png");
+const HEADER_IMAGE = require("../../../assets/icons/ic_chatbox.png");
 const HEADER_TEXT_SIXE = 25;
 const SCREEN_BORDER_HORIZONTAL = 20;
 const SCREEN_ITEM_GAP = 0;

@@ -6,7 +6,7 @@ import Button from "../components/Button";
 import { useContext } from "react";
 import { NavigationContext } from "@react-navigation/native";
 import ScreenName from "../../constants/ScreenName";
-export default function DuTestScreen() {
+export default function Register2Screen() {
   function myEmptyFunction(): void {
     // Hàm này không làm gì cả
   }
@@ -99,7 +99,7 @@ export default function DuTestScreen() {
         <Button
           title="Đăng ký"
           textColor="white"
-          backgroundColor="blue"
+          backgroundColor="#0D99FF"
           onPress={myEmptyFunction}
         ></Button>
       </View>
