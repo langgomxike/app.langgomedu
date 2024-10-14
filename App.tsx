@@ -57,9 +57,9 @@ export default function App() {
       value={{ language: language, setLanguage: setLanguageContext }}
     >
        <GestureHandlerRootView>
-        <GeneralManagement></GeneralManagement>
+        {/* <GeneralManagement></GeneralManagement> */}
         {/* <AdminHome></AdminHome> */}
-      {/* <NavigationContainer>
+      <NavigationContainer>
         <Stack.Navigator
           screenOptions={{
             headerShown: false,
@@ -101,7 +101,7 @@ export default function App() {
           }} 
           name={ScreenName.LOGIN} component={LoginScreen}/>
         </Stack.Navigator>
-      </NavigationContainer> */}
+      </NavigationContainer>
       {/* <LeanerAttendance></LeanerAttendance> */}
       {/* <TutorAttendance></TutorAttendance> */}
       {/* <LeanerAttendance></LeanerAttendance> */}

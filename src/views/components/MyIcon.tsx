@@ -123,7 +123,7 @@ const MyIcon: React.FC<Icon> = ({ icon, iconName, onPress,size }) => {
           source={icon} 
           style={[styles.icon, { width: size ? Number(size) : 30, height: size ? Number(size) : 30 }]} 
         />
-        {/* <Image source={{ uri: icon }} style={styles.icon} /> */}
+     
         <Text style={styles.iconName}>{iconName}</Text>
       </View>
     </TouchableOpacity>
