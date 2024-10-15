@@ -23,7 +23,8 @@ import Register1Screen from "./src/views/screens/Register1";
 import Register2Screen from "./src/views/screens/Register2";
 import OTPScreen from "./src/views/screens/OTP";
 import ChangePasswordScreen from "./src/views/screens/ChangePassword";
-
+import AdminHome from "./src/views/screens/Admin/AdminHome";
+import GeneralManagement from "./src/views/screens/Admin/GeneralManagement";
 const Stack = createNativeStackNavigator();
 const SCREEN_PADDING_TOP = 50;
 const SCREEN_PADDING_HORIZONTAL = 0;
@@ -56,6 +57,8 @@ export default function App() {
       value={{ language: language, setLanguage: setLanguageContext }}
     >
        <GestureHandlerRootView>
+        {/* <GeneralManagement></GeneralManagement> */}
+        {/* <AdminHome></AdminHome> */}
       <NavigationContainer>
         <Stack.Navigator
           screenOptions={{

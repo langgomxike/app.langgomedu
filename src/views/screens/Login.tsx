@@ -7,12 +7,15 @@ import { useCallback, useContext } from "react";
 import { NavigationContext } from "@react-navigation/native";
 import ScreenName from "../../constants/ScreenName";
 
-export default function DuTestScreen() {
+export default function LoginScreen() {
 
   const navigation = useContext(NavigationContext);
  
   function goToRegisterScreen(): void {
     navigation?.navigate(ScreenName.REGISTER1);
+  }
+  function goToOTPScreen():void {
+    navigation?.navigate(ScreenName.OTP);
   }
   function handleInputChange(value: string): void {
     console.log(value);
@@ -31,9 +34,7 @@ export default function DuTestScreen() {
       <View style={styles.container}>
        
 
-      <View style={styles.icon}>
-        <MyIcon icon={AppIcon.ic_back_circle} onPress={goBack}/>
-      </View>
+     
 
       <Image
         style={styles.img}
@@ -69,11 +70,16 @@ export default function DuTestScreen() {
       <View style={styles.row1}>
         <Text></Text>
         <View style={styles.testQuenMatKhau}>
-        <MyText text='Bạn quên mật khẩu?' onPress={emty}></MyText>
+        <MyText text='Bạn quên mật khẩu?' onPress={goToOTPScreen}></MyText>
         </View>
       </View>
       <Button title="Đăng nhập" textColor="white" backgroundColor="blue" onPress={emty}></Button>
-      <Text>Bạn chưa có tài khoản? <MyText text='Hãy đăng ký' onPress={goToRegisterScreen}></MyText></Text>
+      <View style={styles.lastText}>
+  
+      <Text>Bạn chưa có tài khoản? </Text>
+      <MyText text='Hãy đăng ký' onPress={goToRegisterScreen}></MyText>
+      </View>
+     
       </View>
     </ScrollView>
   );
@@ -81,7 +87,6 @@ export default function DuTestScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  
     alignItems: "center",
     // justifyContent: "center",
   },
@@ -140,4 +145,7 @@ const styles = StyleSheet.create({
     marginLeft:'-40%', // Cân đối khoảng cách giữa các biểu tượng
     marginBottom:' -12%', // Thêm khoảng cách dưới hàng icon
   },
+  lastText:{
+    flexDirection: 'row',
+  }
 });

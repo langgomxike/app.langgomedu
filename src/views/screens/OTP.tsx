@@ -1,110 +1,145 @@
-import React, { useState, useRef } from 'react';
-import { View, Text, StyleSheet, TextInput, Button, Alert, Image } from 'react-native';
+import React, { useContext, useRef, useState } from 'react';
+import { TextInput, View, StyleSheet ,Image,Text} from 'react-native';
+import Button from '../components/Button';
+import { NavigationContext } from '@react-navigation/native';
+import ScreenName from '../../constants/ScreenName';
+import MyText from '../components/MyText';
 import MyIcon, { AppIcon } from '../components/MyIcon';
 
-const OtpScreen: React.FC = () => {
-  const [otp, setOtp] = useState<string[]>(['', '', '', '', '', '']);
-  
-  // Tạo ref cho từng ô nhập OTP
-  const otpInputs = useRef<TextInput[]>([]);
+const OTPInput: React.FC = () => {
+  const [otp, setOtp] = useState(['', '', '', '', '', '']);
+  const inputRefs = useRef<Array<TextInput | null>>([]);
 
-  const handleChangeText = (text: string, index: number) => {
+  const navigation =useContext(NavigationContext);
+  function goBack(): void {
+    navigation?.goBack();
+  }
+  function goChangePassword(): void {
+    navigation?.navigate(ScreenName.CHANGEPASSWORD);
+  }
+// Xử lý khi nhập vào ô
+const handleInputChange = (value: string, index: number) => {
+  // Kiểm tra chỉ cho phép nhập số
+  if (/^[0-9]$/.test(value)) {
     const newOtp = [...otp];
 
-    // Kiểm tra nếu ô đầu tiên rỗng và người dùng bắt đầu nhập ở ô khác
-    if (!otp[0] && index > 0) {
-      otpInputs.current[0].focus(); // Chuyển focus về ô đầu tiên
+    // Nếu ô đầu tiên chưa được nhập thì focus vào ô đầu tiên
+  if (otp[0] === '' && index !== 0) {
+    inputRefs.current[0]?.focus();
+    return;
+  }
+
+  // Không cho phép nhập vào ô sau khi các ô trước đó chưa điền
+  for (let i = 1; i <= index; i++) {
+    if (newOtp[i - 1] === '') {
+      inputRefs.current[i - 1]?.focus();
       return;
     }
-
-    newOtp[index] = text;
-
-    // Tự động chuyển đến ô tiếp theo khi người dùng nhập
-    if (text && index < 5) {
-      otpInputs.current[index + 1].focus(); // Chuyển sang ô tiếp theo
-    }
-
+  }
+    newOtp[index] = value;
     setOtp(newOtp);
-  };
 
-  const handleVerifyOtp = () => {
-    const validOtp = '123456'; // Thay thế bằng OTP thực tế của bạn
-    if (otp.join('') === validOtp) {
-      Alert.alert('Xác Nhận Thành Công', 'OTP hợp lệ!');
-      // Chuyển hướng đến màn hình tiếp theo (Home, Dashboard, v.v.)
-    } else {
-      Alert.alert('Lỗi', 'OTP không hợp lệ. Vui lòng thử lại.');
+    // Tự động chuyển sang ô tiếp theo nếu có số được nhập
+    if (index < 5 && value) {
+      inputRefs.current[index + 1]?.focus();
+    }
+  }
+};
+
+  // Xử lý khi nhấn nút xóa
+  const handleKeyPress = (e: any, index: number) => {
+    const newOtp = [...otp];
+
+    // Nếu ô hiện tại trống và người dùng nhấn Backspace
+    if (e.nativeEvent.key === 'Backspace') {
+      if (newOtp[index] === '' && index > 0) {
+        // Xóa giá trị của ô trước đó
+        newOtp[index - 1] = '';
+        setOtp(newOtp);
+
+        // Focus về ô trước
+        inputRefs.current[index - 1]?.focus();
+      } else {
+        // Xóa giá trị của ô hiện tại
+        newOtp[index] = '';
+        setOtp(newOtp);
+      }
     }
   };
 
   return (
     <View style={styles.container}>
-      <View style={styles.ic}>
-        <MyIcon icon={AppIcon.ic_back_circle} />
-      </View>
+<View style={styles.icon}>
+      <MyIcon icon={AppIcon.back_button} size='30' onPress={goBack}></MyIcon>
+      <Text style={styles.screenName}> Nhập Mã Xác Thực</Text>
 
-      <Text style={styles.title}>Xác Nhận OTP</Text>
-      <Image style={styles.img} source={require('../../../assets/images/ illustration/Mobile login-rafiki.png')} />
-      <Text style={styles.instructions}>Nhập mã OTP đã gửi đến điện thoại của bạn</Text>
-      <View style={styles.otpContainer}>
-        {otp.map((value, index) => (
-          <TextInput
-            key={index}
-            ref={(input) => otpInputs.current[index] = input!} // Lưu ref vào mảng
-            style={styles.input}
-            placeholder="0"
-            keyboardType="numeric"
-            value={value}
-            onChangeText={(text) => handleChangeText(text, index)}
-            maxLength={1} // Chỉ cho phép 1 ký tự
-          />
-        ))}
       </View>
-      <Button title="Xác Nhận" onPress={handleVerifyOtp} />
+      <Image style={styles.img} source={require('../../../assets/images/ illustration/Mobile login-rafiki.png')}></Image>
+      <Text style={styles.text}>Vui lòng nhập mã xác thực mà chúng tôi đã gửi qua số điện thoại của bạn</Text>
+    <View style={styles.otpContainer}>
+
+      {otp.map((value, index) => (
+        <TextInput
+          key={index}
+          ref={(el) => (inputRefs.current[index] = el)}
+          value={value}
+          onChangeText={(text) => handleInputChange(text, index)}
+          onKeyPress={(e) => handleKeyPress(e, index)}
+          style={styles.otpInput}
+          keyboardType="number-pad"
+          maxLength={1}
+        />
+      ))}
+    </View>
+    <Button title='Tiếp tục' textColor='white' backgroundColor='#0D99FF' onPress={goChangePassword}></Button>
+    <MyText text='Bạn chưa nhận được OTP?' ></MyText>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 20,
-  },
-  img: {
-    width: 200,
-    height: 200,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
-  },
-  instructions: {
-    fontSize: 16,
-    marginBottom: 10,
-    textAlign: 'center',
+  container:
+  {
+alignItems: 'center',
   },
   otpContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    width: '100%',
-    marginBottom: 20,
+    
+    marginVertical: 20,
   },
-  input: {
-    width: 50,
-    height: 50,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 5,
+   otpInput: {
+    borderWidth: 2,        // Độ dày của đường viền
+    borderColor: '#000',    // Màu sắc của đường viền (ở đây là màu đen)
+    borderRadius: 5,        // Bo tròn các góc của khung
+    padding: 10,            // Khoảng cách bên trong khung
+    textAlign: 'center',    // Căn giữa văn bản
+    fontSize: 20, 
+    marginLeft:5,
+    marginRight:5,          // Kích thước chữ
+    marginBottom:20,
+    width: 45,   
+    height:60,           // Độ rộng của khung
+  },
+  img:{
+    width: 250,
+    height: 250,
+    resizeMode: 'contain',
+    
+  },
+  text:{
+    width:'60%',
     textAlign: 'center',
-    fontSize: 20,
+    marginBottom: 40,
+
   },
-  ic: {
-    marginTop: '-90%',
-    marginLeft: '-90%',
+  icon:{
+    flexDirection: 'row',
+    left:'-18%',
+  },
+  screenName:{
+  fontSize: 20,
   }
 });
 
-export default OtpScreen;
+export default OTPInput;
