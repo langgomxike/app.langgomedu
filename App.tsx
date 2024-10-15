@@ -61,7 +61,6 @@ export default function App() {
           screenOptions={{
             headerShown: false,
             contentStyle: {
-              paddingTop: SCREEN_PADDING_TOP,
               paddingHorizontal: SCREEN_PADDING_HORIZONTAL,
               backgroundColor: "#fff",
             },

@@ -1,4 +1,4 @@
-import { useContext, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import {
   Text,
   View,
@@ -10,7 +10,11 @@ import {
   Pressable,
   Animated,
 } from "react-native";
-import { useNavigation, NavigationProp, NavigationContext } from "@react-navigation/native";
+import {
+  useNavigation,
+  NavigationProp,
+  NavigationContext,
+} from "@react-navigation/native";
 
 import { BackgroundColor } from "../../configs/ColorConfig";
 import Search from "../components/Inputs/SearchBar";
@@ -19,7 +23,12 @@ import TutorItem from "../components/CvItem";
 import Filter from "../components/Filter";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import ScreenName from "../../constants/ScreenName";
-import { RootStackParamList, RootStackParamListFilter } from "../../configs/NavigationRouteTypeConfig";
+import {
+  RootStackParamList,
+  RootStackParamListFilter,
+} from "../../configs/NavigationRouteTypeConfig";
+import AMajor from "../../apis/AMajor";
+import Major from "../../models/Major";
 
 type Course = {
   id: number;
@@ -118,24 +127,38 @@ const tutors = [
   },
 ];
 
+const PUBLIC_URL = "http://192.168.43.156:3002/public/";
+
 export default function HomeScreen() {
-
+  // state
   const [visibleModal, setVisibleModal] = useState<string | null>("");
+  const [majors, setMajors] = useState<Major[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  // const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  // const [searchKey, setSearchKey] = useState<string>("");
-  // const handleNavigateToDetail = (course: Course) => {
-  //   navigation.navigate(ScreenName.DETAIL_CLASS, { course });
-  // };
-  const navigation = useContext(NavigationContext);
+  // effect
+  useEffect(() => {
+    const fetchAllMajors = AMajor.getAllMajors((data) => {
+      setMajors(data);
+      data.forEach((element) => {});
+    }, setLoading);
+
+    fetchAllMajors;
+  }, []);
+
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [searchKey, setSearchKey] = useState<string>("");
   const handleNavigateToDetail = (course: Course) => {
-    navigation?.navigate(ScreenName.DETAIL_CLASS, { course });
+    navigation.navigate(ScreenName.DETAIL_CLASS, { course });
   };
-  navigation?.navigate(ScreenName.LOGIN);
+  // const navigation = useContext(NavigationContext);
+  // const [searchKey, setSearchKey] = useState<string>("");
+  // const handleNavigateToDetail = (course: Course) => {
+  //   navigation?.navigate(ScreenName.DETAIL_CLASS, { course });
+  // };
+  // navigation?.navigate(ScreenName.LOGIN);
   const handleOpenDrawer = () => {
     // navigation
-  }
+  };
 
   const [isExpanded, setIsExpanded] = useState(true);
   const animation = useRef(new Animated.Value(1)).current;
@@ -169,7 +192,7 @@ export default function HomeScreen() {
   });
 
   return (
-    <ScrollView>
+    <ScrollView showsVerticalScrollIndicator={false}>
       <View style={styles.container}>
         {/* Header */}
         <View style={styles.headerContainer}>
@@ -216,55 +239,23 @@ export default function HomeScreen() {
             </View>
           </View>
 
-          <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
-            <View style={styles.listMajorContainer}>
-              <View style={[styles.majorItem, styles.boxShadow]}>
-                <Image
-                  source={require("../../../assets/images/ic_math.png")}
-                  style={styles.majorIcon}
-                />
-                <Text style={styles.majorText}>Toán</Text>
+          {/* Majors list */}  
+          <FlatList
+            horizontal={true}
+            showsHorizontalScrollIndicator={false}
+            data={majors}
+            renderItem={({ item: major }) => (
+              <View style={styles.listMajorContainer}>
+                <View style={[styles.majorItem, styles.boxShadow]}>
+                  <Image
+                    source={{ uri: PUBLIC_URL + major.icon?.path }}
+                    style={styles.majorIcon}
+                  />
+                  <Text style={styles.majorText}>{major.vn_name}</Text>
+                </View>
               </View>
-
-              <View style={[styles.majorItem, styles.boxShadow]}>
-                <Image
-                  source={require("../../../assets/images/ic_math.png")}
-                  style={styles.majorIcon}
-                />
-                <Text style={styles.majorText}>Toán</Text>
-              </View>
-
-              <View style={[styles.majorItem, styles.boxShadow]}>
-                <Image
-                  source={require("../../../assets/images/ic_math.png")}
-                  style={styles.majorIcon}
-                />
-                <Text style={styles.majorText}>Toán</Text>
-              </View>
-
-              <View style={[styles.majorItem, styles.boxShadow]}>
-                <Image
-                  source={require("../../../assets/images/ic_math.png")}
-                  style={styles.majorIcon}
-                />
-                <Text style={styles.majorText}>Web</Text>
-              </View>
-
-              <View style={[styles.majorItem, styles.boxShadow]}>
-                <Image
-                  source={require("../../../assets/images/ic_math.png")}
-                  style={styles.majorIcon}
-                />
-                <Text
-                  style={styles.majorText}
-                  numberOfLines={1}
-                  ellipsizeMode="tail"
-                >
-                  Lập trình web
-                </Text>
-              </View>
-            </View>
-          </ScrollView>
+            )}
+          />
 
           {/* Class */}
           <View>
@@ -289,7 +280,9 @@ export default function HomeScreen() {
                   <TouchableOpacity>
                     <Text style={styles.showAllText}>Xem tất cả</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity onPress={() => setVisibleModal("modal_fiter")}>
+                  <TouchableOpacity
+                    onPress={() => setVisibleModal("modal_fiter")}
+                  >
                     <Image
                       source={require("../../../assets/images/ic_filter.png")}
                       style={{ width: 20, height: 20 }}
@@ -355,7 +348,9 @@ export default function HomeScreen() {
                   <TouchableOpacity>
                     <Text style={styles.showAllText}>Xem tất cả</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity onPress={() => setVisibleModal("modal_fiter")}>
+                  <TouchableOpacity
+                    onPress={() => setVisibleModal("modal_fiter")}
+                  >
                     <Image
                       source={require("../../../assets/images/ic_filter.png")}
                       style={{ width: 20, height: 20 }}
@@ -389,7 +384,10 @@ export default function HomeScreen() {
             </View>
           </View>
         </View>
-        <Filter isVisible={visibleModal} onRequestClose={() => setVisibleModal (null)}/>
+        <Filter
+          isVisible={visibleModal}
+          onRequestClose={() => setVisibleModal(null)}
+        />
       </View>
     </ScrollView>
   );
@@ -402,7 +400,7 @@ const styles = StyleSheet.create({
   },
   headerContainer: {
     backgroundColor: BackgroundColor.primary,
-    paddingTop: 30,
+    paddingTop: 50,
     paddingBottom: 100,
     paddingHorizontal: 20,
   },
@@ -470,7 +468,7 @@ const styles = StyleSheet.create({
 
   line: {
     height: 1,
-    backgroundColor: BackgroundColor.gray_c6
+    backgroundColor: BackgroundColor.gray_c6,
   },
 
   majorContainer: {
