@@ -109,17 +109,17 @@ alignItems: 'center',
     marginVertical: 20,
   },
    otpInput: {
-    borderWidth: 2,        // Độ dày của đường viền
-    borderColor: '#000',    // Màu sắc của đường viền (ở đây là màu đen)
-    borderRadius: 5,        // Bo tròn các góc của khung
-    padding: 10,            // Khoảng cách bên trong khung
-    textAlign: 'center',    // Căn giữa văn bản
+    borderWidth: 2,        
+    borderColor: '#000',    
+    borderRadius: 5,       
+    padding: 10,          
+    textAlign: 'center',  
     fontSize: 20, 
     marginLeft:5,
-    marginRight:5,          // Kích thước chữ
+    marginRight:5,          
     marginBottom:20,
     width: 45,   
-    height:60,           // Độ rộng của khung
+    height:60,         
   },
   img:{
     width: 250,
