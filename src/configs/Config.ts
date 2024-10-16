@@ -1,3 +1,3 @@
 export default class Config {
-    static API_BASE_URL = "http://127.0.0.1:3002/api";
+    static API_BASE_URL = "https://5b82-202-12-95-109.ngrok-free.app/api";
 }

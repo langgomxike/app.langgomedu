@@ -51,17 +51,17 @@ const messageTab: TabItem = {
       [searchContext]
     );
 
-    const handleGoToMessage = useCallback((userId: number) => {
+    const handleGoToMessage = useCallback((userId: string) => {
       const data: IdNavigationType = { id: userId };
       navigation?.navigate(ScreenName.MESSAGE, data);
     }, []);
 
     //effects
-    useEffect(() => {
-      AMessage.getChatsOfUser(-1, (chats: Chat[]) => {
-        setChatMessages(chats);
-      });
-    }, []);
+    // useEffect(() => {
+    //   AMessage.getChatsOfUser(-1, (chats: Chat[]) => {
+    //     setChatMessages(chats);
+    //   });
+    // }, []);
 
     return (
       <ScrollView

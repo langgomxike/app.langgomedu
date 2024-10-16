@@ -1,4 +1,4 @@
-import { useCallback, useContext, useRef, useState } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import {
   Text,
   View,
@@ -23,7 +23,12 @@ import TutorItem from "../components/TutorItem";
 import Filter from "../components/Filter";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import ScreenName from "../../constants/ScreenName";
-import { RootStackParamList, RootStackParamListFilter } from "../../configs/NavigationRouteTypeConfig";
+import {
+  RootStackParamList,
+  RootStackParamListFilter,
+} from "../../configs/NavigationRouteTypeConfig";
+import AUser from "../../apis/AUser";
+import { AccountContext } from "../../configs/AccountConfig";
 
 type Course = {
   id: number;
@@ -123,12 +128,12 @@ const tutors = [
 ];
 
 export default function HomeScreen() {
-
-  const [visibleModal, setVisibleModal] = useState<string | null>("");
-
-  // const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-
+  //contexts, refs
   const navigation = useContext(NavigationContext);
+  const accountContext = useContext(AccountContext);
+
+  //states
+  const [visibleModal, setVisibleModal] = useState<string | null>("");
 
   const [searchKey, setSearchKey] = useState<string>("");
   const handleNavigateToDetail = (course: Course) => {
@@ -137,7 +142,7 @@ export default function HomeScreen() {
 
   const handleOpenDrawer = () => {
     // navigation
-  }
+  };
 
   const [isExpanded, setIsExpanded] = useState(true);
   const animation = useRef(new Animated.Value(1)).current;
@@ -174,7 +179,17 @@ export default function HomeScreen() {
     navigation?.navigate(ScreenName.CV_LIST);
   }, []);
 
-  // navigation?.navigate(ScreenName.OTP);
+  useEffect(() => {
+    AUser.implicitLogin((user) => {
+      if (!user) {
+        navigation?.navigate(ScreenName.LOGIN);
+      } else {
+        if (accountContext.setAccount) {
+          accountContext.setAccount(user);
+        }
+      }
+    });
+  }, []);
 
   return (
     <ScrollView>
@@ -297,7 +312,9 @@ export default function HomeScreen() {
                   <TouchableOpacity>
                     <Text style={styles.showAllText}>Xem tất cả</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity onPress={() => setVisibleModal("modal_fiter")}>
+                  <TouchableOpacity
+                    onPress={() => setVisibleModal("modal_fiter")}
+                  >
                     <Image
                       source={require("../../../assets/images/ic_filter.png")}
                       style={{ width: 20, height: 20 }}
@@ -363,7 +380,9 @@ export default function HomeScreen() {
                   <TouchableOpacity onPress={handleNavigateToCVList}>
                     <Text style={styles.showAllText}>Xem tất cả</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity onPress={() => setVisibleModal("modal_fiter")}>
+                  <TouchableOpacity
+                    onPress={() => setVisibleModal("modal_fiter")}
+                  >
                     <Image
                       source={require("../../../assets/images/ic_filter.png")}
                       style={{ width: 20, height: 20 }}
@@ -397,7 +416,10 @@ export default function HomeScreen() {
             </View>
           </View>
         </View>
-        <Filter isVisible={visibleModal} onRequestClose={() => setVisibleModal (null)}/>
+        <Filter
+          isVisible={visibleModal}
+          onRequestClose={() => setVisibleModal(null)}
+        />
       </View>
     </ScrollView>
   );
