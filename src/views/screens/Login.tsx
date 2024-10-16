@@ -1,17 +1,33 @@
 import { ScrollView, Text, View, StyleSheet, Image, Alert } from "react-native";
 import MyIcon, { AppIcon } from "../components/MyIcon";
-import InputRegister from "../components/Inputs/InputRegister";
+import axios from 'axios';
+import InputRegister from '../components/Inputs/InputRegister';
 import MyText from "../components/MyText";
 import Button from "../components/Button";
-import { useCallback, useContext } from "react";
+import { useCallback, useState,useContext } from "react";
 import { NavigationContext } from "@react-navigation/native";
 import ScreenName from "../../constants/ScreenName";
 export default function DuTestScreen() {
   //contexts
   const navigation = useContext(NavigationContext);
-
-  //handlers
-  const handleForgettingPassword = useCallback(() => {
+ 
+  function goToRegisterScreen(): void {
+    navigation?.navigate(ScreenName.REGISTER1);
+  }
+  function goToOTPScreen():void {
+    navigation?.navigate(ScreenName.OTP);
+  }
+  function goHomeScreen():void {
+    navigation?.navigate(ScreenName.HOME);
+  }
+  function handleInputChange(value: string): void {
+    console.log(value);
+  }
+  function emty() {
+    alert('ban da nhay');
+  }
+  function goBack()
+  {
     navigation?.goBack();
     navigation?.navigate(ScreenName.OTP);
   }, []);
