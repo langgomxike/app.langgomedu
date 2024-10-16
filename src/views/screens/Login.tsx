@@ -29,80 +29,60 @@ export default function DuTestScreen() {
   function goBack()
   {
     navigation?.goBack();
-    navigation?.navigate(ScreenName.OTP);
-  }, []);
-
-  const goBack = useCallback(() => {
-    navigation?.goBack();
-  }, []);
-
-  const goToRegister = useCallback(() => {
-    navigation?.goBack();
-    navigation?.navigate(ScreenName.REGISTER_1);
-  }, []);
-
-  const handleLogin = useCallback(() => {
-    navigation?.goBack();
-    navigation?.navigate(ScreenName.HOME);
-  }, []);
-
-  function myEmptyFunction(): void {
-    // Hàm này không làm gì cả
   }
+
+
   return (
     <ScrollView>
       <View style={styles.container}>
-        <View style={styles.icon}>
-          <MyIcon onPress={goBack} icon={AppIcon.ic_back_circle} />
-        </View>
-        <Image
-          style={styles.img}
-          source={require("../../../assets/images/ illustration/Mobile login-rafiki.png")}
-        ></Image>
-        <View style={styles.row}>
-          <View>
-            <Text style={styles.title}> Đăng nhập</Text>
-            <Text style={styles.content}>Hãy nhập thông tin để đăng nhập</Text>
-          </View>
-          <View></View>
-        </View>
+       
 
-        <View style={styles.input}>
-          <InputRegister
-            label="Email hoặc số điện thoại"
-            required={true}
-            onChangeText={myEmptyFunction}
-            placeholder="Emal hoặc số điện thoại"
-            type="phone"
-            iconName="phone"
-          ></InputRegister>
-        </View>
+     
 
-        <View style={styles.input}>
-          <InputRegister
-            label="Mật khẩu của bạn"
-            required={true}
-            onChangeText={myEmptyFunction}
-            placeholder="Mật khẩu của bạn"
-            type="password"
-            iconName="password"
-          ></InputRegister>
+      <Image
+        style={styles.img}
+        source={require("../../../assets/images/ illustration/Mobile login-rafiki.png")}
+      ></Image>
+      <View style={styles.row}>
+        <View>
+      <Text style={styles.title}> Đăng nhập</Text>
+      <Text style={styles.content}>Hãy nhập thông tin để đăng nhập</Text>
+      </View>
+      <View></View>
+      </View>
+      <View style={styles.input}>
+        <InputRegister
+          label="Email hoặc số điện thoại"
+          required={true}
+          onChangeText={handleInputChange}
+          placeholder="Emal hoặc số điện thoại"
+          type="phone"
+          iconName="phone"
+        ></InputRegister>
+      </View>
+      <View style={styles.input}>
+        <InputRegister
+          label="Mật khẩu của bạn"
+          required={true}
+          onChangeText={handleInputChange}
+          placeholder="Mật khẩu của bạn"
+          type="password"
+          iconName="password"
+        ></InputRegister>
+      </View>
+      <View style={styles.row1}>
+        <Text></Text>
+        <View style={styles.testQuenMatKhau}>
+        <MyText text='Bạn quên mật khẩu?' onPress={goToOTPScreen}></MyText>
         </View>
-
-        <View style={styles.row1}>
-          <Text></Text>
-          <View style={styles.testQuenMatKhau}>
-            <Text onPress={handleForgettingPassword}>Bạn quên mật khẩu?</Text>
-          </View>
-        </View>
-
-        <Button
-          title="Đăng nhập"
-          textColor="white"
-          backgroundColor="blue"
-          onPress={handleLogin}
-        ></Button>
-        <Text onPress={goToRegister}>Bạn chưa có tài khoản? Hãy đăng ký</Text>
+      </View>
+      <Button title="Đăng nhập" textColor="white" backgroundColor="blue" onPress={emty}></Button>
+      <View style={styles.lastText}>
+  
+      <Text>Bạn chưa có tài khoản? </Text>
+      <MyText text='Hãy đăng ký' onPress={goToRegisterScreen}></MyText>
+      </View>
+     
       </View>
     </ScrollView>
   ); 
