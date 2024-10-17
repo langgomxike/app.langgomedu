@@ -1,4 +1,11 @@
-import { useEffect } from "react";
+import { useCallback, useState } from "react";
+import languages from "./languages.json";
+import {
+  LanguageContext,
+  Languages,
+  LanguageType,
+} from "./src/configs/LanguageConfig";
+import { UserContext, UserDataType, UserType } from "./src/configs/UserContext";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import ScreenName from "./src/constants/ScreenName";
@@ -34,13 +41,21 @@ import Register1Screen from "./src/views/screens/Register1";
 import Register2Screen from "./src/views/screens/Register2";
 import OTPScreen from "./src/views/screens/OTP";
 import ChangePasswordScreen from "./src/views/screens/ChangePassword";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 const Stack = createNativeStackNavigator();
 const SCREEN_PADDING_TOP = 50;
 const SCREEN_PADDING_HORIZONTAL = 0;
 
 export default function App() {
+  // states
+  const [language, setLanguage] = useState<LanguageType>(languages.VN);
+  const [user, setUser] = useState<UserDataType>({ ID: "089204010903", TYPE: UserType.TUTOR });
+
+  // jxs
   return (
     <AppContext>
+      <UserContext.Provider value={{user, setUser}}>
+       <GestureHandlerRootView>
       <NavigationContainer>
         <Stack.Navigator
           screenOptions={{
@@ -48,7 +63,7 @@ export default function App() {
             title: "",
             contentStyle: {
               paddingHorizontal: SCREEN_PADDING_HORIZONTAL,
-              paddingTop: SCREEN_PADDING_TOP,
+              // paddingTop: SCREEN_PADDING_TOP,
               backgroundColor: BackgroundColor.white,
             },
           }}
@@ -85,7 +100,7 @@ export default function App() {
           <Stack.Screen name={ScreenName.CV} component={CVScreen} />
           <Stack.Screen name={ScreenName.INPUT_CV} component={InputCVScreen} />
 
-          <Stack.Screen name={ScreenName.OTP} component={OTPScreen} />
+          {/* <Stack.Screen name={ScreenName.OTP} component={OTPScreen} /> */}
           <Stack.Screen name={ScreenName.LOGIN} component={LoginScreen} />
           <Stack.Screen
             name={ScreenName.REGISTER_1}
@@ -144,6 +159,15 @@ export default function App() {
           />
         </Stack.Navigator>
       </NavigationContainer>
+
+      {/* <LeanerAttendance></LeanerAttendance> */}
+      {/* <TutorAttendance></TutorAttendance> */}
+      {/* <LeanerAttendance></LeanerAttendance> */}
+      {/* <History/> */}
+      {/* <HoangTestScreen/> */}
+
+      </GestureHandlerRootView>
+      </UserContext.Provider>
     </AppContext>
   );
 }

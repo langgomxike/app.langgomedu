@@ -11,12 +11,16 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 
 const activeColor = "#0D99FF";
 const hintColor = "#AAA";
-const TAB_BAR_BORDER_RADIUS = 15;
+const TAB_BAR_BORDER_RADIUS = 20;
 const TAB_BAR_MARGIN = 8;
 
 const TAB_ICON_SIZE = 24;
 
 const Tab = createBottomTabNavigator();
+
+
+type AntDesignIconName = React.ComponentProps<typeof AntDesign>['name'];
+type FeatherIconName = React.ComponentProps<typeof Feather>['name'];
 
 export default function ButtonNavBar() {
   return (
@@ -78,13 +82,23 @@ export default function ButtonNavBar() {
               break;
           }
 
+          // Gán component vào biến `iconComponent` dựa trên điều kiện
+          const iconComponent = icon ? (
+            <Image source={icon} style={styles.icon} />
+          ) : iconType === 'ant' ? (
+            <AntDesign name={iconName as AntDesignIconName}  size={size} color={color} />
+          ) : (
+            <Feather name={iconName as FeatherIconName} size={size} color={color} />
+          );
+
           return <View style={styles.iconContainer}>{icon}</View>;
         },
         tabBarActiveTintColor: BackgroundColor.primary,
-        tabBarInactiveTintColor: BackgroundColor.gray_10,
+        tabBarInactiveTintColor: "#737373",
         tabBarStyle: {
           borderRadius: TAB_BAR_BORDER_RADIUS,
           margin: TAB_BAR_MARGIN,
+          position: "absolute",
         },
         title: "",
         headerShown: false,

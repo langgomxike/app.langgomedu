@@ -1,4 +1,4 @@
-import { LinearGradient } from "expo-linear-gradient";
+import { LinearGradient } from 'expo-linear-gradient';
 import React from "react";
 import { Image, StyleSheet, Text, View } from "react-native";
 import { BackgroundColor } from "../../configs/ColorConfig";
@@ -6,6 +6,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 
 
 type CourseItemProps = {
+  majorIconUrl: string;
   name: string;
   level: string;
   date: string;
@@ -21,6 +22,7 @@ function formatNumberWithDot(value:number) {
 }
 
 export default function courseItem({
+  majorIconUrl,
   name,
   level,
   date,
@@ -38,7 +40,7 @@ export default function courseItem({
           style={styles.header}
         >
           <Image
-            source={require("../../../assets/images/ic_math.png")}
+            source={{uri: majorIconUrl}}
             style={styles.courseImage}
           />
           <Text style={styles.title}
@@ -51,12 +53,12 @@ export default function courseItem({
       <View style={styles.content}>
         <View style={styles.contentHorizontal}>
           <View style={[styles.contentItem, styles.twoSection, {paddingVertical: 5}]}>
-          <Ionicons name="book-outline" size={24} color="black" />
+          <Ionicons name="book-outline" size={20} color="black" />
             <Text style={styles.contentText}>{level}</Text>
           </View>
 
           <View style={[styles.contentItem, styles.twoSection]}>
-            <Ionicons name="calendar-outline" size={24} color="black" />
+            <Ionicons name="calendar-outline" size={20} color="black" />
             <Text style={styles.contentText}>{date}</Text>
           </View>
         </View>
@@ -64,12 +66,12 @@ export default function courseItem({
         <View style={styles.line} />
 
         <View style={[styles.contentItem, styles.marginButtom, {paddingTop: 10}]}>
-          <Ionicons name="time-outline" size={24} color="black" />
+          <Ionicons name="time-outline" size={20} color="black" />
           <Text style={styles.contentText}>{time} giờ/Buổi</Text>
         </View>
     
         <View style={[styles.contentItem, styles.marginButtom]}>
-          <Ionicons name="home-outline" size={24} color="black" />
+          <Ionicons name="home-outline" size={20} color="black" />
           <Text style={styles.contentText}>{type}</Text>
         </View>
 
@@ -78,7 +80,7 @@ export default function courseItem({
             source={require("../../../assets/images/ic_location.png")}
             style={styles.contentIcon}
           /> */}
-          <Ionicons name="location-outline" size={24} color="black" />
+          <Ionicons name="location-outline" size={20} color="black" />
           <Text style={styles.contentText}>{address}</Text>
         </View>
         <View style={styles.line} />
@@ -98,7 +100,7 @@ const styles = StyleSheet.create({
         fontSize: 18
     },
     marginButtom: {
-        marginBottom: 18
+        marginBottom: 10
     },
   line: {
     height: 1,
