@@ -8,16 +8,16 @@ import {
   View,
 } from "react-native";
 import { BackgroundColor } from "../../configs/ColorConfig";
-
+import Skill from "../../models/Skill";
 
 type TutorItemProps = {
-  avatar: string;
-  userName: string;
-  phoneNumber: string;
-  email: string;
-  dayOfBirth: string;
-  address: string;
-  skills: string[];
+  avatar?: string;
+  userName?: string;
+  phoneNumber?: string;
+  email?: string;
+  dayOfBirth?: Date;
+  address?: string;
+  skills?: Skill[];
 };
 
 export default function tutorItem({
@@ -29,7 +29,6 @@ export default function tutorItem({
   address,
   skills,
 }: TutorItemProps) {
-
   // Render
   return (
     <View style={[styles.container, styles.boxShadow]}>
@@ -60,9 +59,14 @@ export default function tutorItem({
                 source={require("../../../assets/images/register_icon/ic_calendar.png")}
                 style={styles.contentImage}
               />
-              <Text style={styles.contentText}>{dayOfBirth}</Text>
+              <Text style={styles.contentText}>
+                {dayOfBirth?.getDate() +
+                  "/" +
+                  dayOfBirth?.getMonth +
+                  "/" +
+                  dayOfBirth?.getFullYear}
+              </Text>
             </View>
-
           </View>
 
           {/* Email */}
@@ -83,7 +87,6 @@ export default function tutorItem({
 
             <Text>{address}</Text>
           </View>
-
         </View>
 
         <View style={styles.line}></View>
@@ -95,20 +98,17 @@ export default function tutorItem({
             contentContainerStyle={styles.scrollContainer}
             nestedScrollEnabled={true}
           >
-            {skills.map((item, index) => (
+            {skills?.map((item, index) => (
               <Text
                 key={index.toString()}
                 style={[styles.awardItem, styles.boxshadow2]}
               >
-                {item}
+                {item.vnName}
               </Text>
             ))}
           </ScrollView>
-
         </View>
-
       </View>
-
     </View>
   );
 }

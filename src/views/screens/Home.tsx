@@ -618,9 +618,9 @@ export default function HomeScreen() {
                         userName={item.userName}
                         phoneNumber={item.phoneNumber}
                         email={item.email}
-                        dayOfBirth={item.dayOfBirth}
+                        // dayOfBirth={item.dayOfBirth}
                         address={item.address}
-                        skills={item.skills}
+                        // skills={item.skills}
                       />
                     </Pressable>
                   )}

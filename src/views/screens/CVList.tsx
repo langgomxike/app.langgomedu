@@ -7,11 +7,14 @@ import {
   FlatList,
 } from "react-native";
 import Search from "../components/Inputs/SearchBar";
-import Feather from '@expo/vector-icons/Feather';
+import Feather from "@expo/vector-icons/Feather";
 import { BackgroundColor } from "../../configs/ColorConfig";
 import CvItem from "../components/CvItem";
 import Pagination from "../components/Pagination";
+import ACV from "../../apis/ACV";
+import CV from "../../models/CV";
 
+const PER_PAGE = 3;
 const tutors = [
   {
     id: 1,
@@ -47,15 +50,18 @@ const tutors = [
 export default function CVListScreen() {
   const [searchKey, setSearchKey] = useState("");
   const [curentPage, setCurentPage] = useState(1);
-  const [tutorList, setTutorList] = useState<object[]>([]);
+  const [tutorList, setTutorList] = useState<CV[]>([]);
+  
 
   // effect
   useEffect(() => {
     const fetchGetAllTutors = async () => {
-      const api  = new ACV();
-      const data = await api.getAllCVList();
-      setTutorList(data);
-    }
+      ACV.getAllCVList((cvs) => {
+        () => {
+          setTutorList(cvs);
+        };
+      });
+    };
 
     fetchGetAllTutors();
   }, []);
@@ -67,45 +73,50 @@ export default function CVListScreen() {
           <Search value={searchKey} onChangeText={setSearchKey} />
         </View>
         <View>
-          <TouchableOpacity onPress={() => {alert("Filter")}} style={[styles.btnFilter, styles.boxShadow]}>
-          <Feather name="filter" size={24} color="black" />
+          <TouchableOpacity
+            onPress={() => {
+              alert("Filter");
+            }}
+            style={[styles.btnFilter, styles.boxShadow]}
+          >
+            <Feather name="filter" size={24} color="black" />
           </TouchableOpacity>
         </View>
       </View>
 
       <View style={styles.bodyContainer}>
-          <View style={styles.relatedClassContainer}>
-            <FlatList
-              data={tutorList}
-              renderItem={({ item: cv }) => (
-                <View style={styles.classItem}>
-                  <CvItem
-                    avatar={cv.avatar}
-                    userName={cv.userName}
-                    phoneNumber={cv.phoneNumber}
-                    email={cv.email}
-                    dayOfBirth={cv.dayOfBirth}
-                    address={cv.address}
-                    skills={cv.skills}
-                  />
-                </View>
-              )}
-              keyExtractor={(item) => item.id.toString()}
-              horizontal={false}
-              showsHorizontalScrollIndicator={true}
-              contentContainerStyle={styles.classList}
-              style={{ height: 500 }} 
-              ListFooterComponent={
-                <View style={{ padding: 30 }}>
-                  <Pagination
-                    totalPage={tutorList.length / PER_PAGE}
-                    currentPage={curentPage}
-                    onChange={setCurentPage}
-                  />
-                </View>
-              }
-            />
-          </View>
+        <View style={styles.relatedClassContainer}>
+          <FlatList
+            data={tutorList}
+            renderItem={({ item: cv }) => (
+              <View style={styles.classItem}>
+                <CvItem
+                  avatar={cv.user?.avatar?.path}
+                  userName={cv.user?.full_name}
+                  phoneNumber={cv.user?.phone_number}
+                  email={cv.user?.email}
+                  dayOfBirth={cv.information?.birthday}
+                  address={cv.information?.address1}
+                  skills={cv.skills}
+                />
+              </View>
+            )}
+            keyExtractor={(item) => item.user?.id.toString() ?? ''}
+            horizontal={false}
+            showsHorizontalScrollIndicator={true}
+            contentContainerStyle={styles.classList}
+            style={{ height: 500 }}
+            ListFooterComponent={
+              <View style={{ padding: 30 }}>
+                <Pagination
+                  totalPage={tutorList.length / PER_PAGE}
+                  currentPage={curentPage}
+                  onChange={setCurentPage}
+                />
+              </View>
+            }
+          />
+        </View>
       </View>
     </View>
   );
@@ -123,7 +134,7 @@ const styles = StyleSheet.create({
     gap: 20,
     marginTop: 30,
     paddingHorizontal: 20,
-    paddingVertical: 20
+    paddingVertical: 20,
   },
 
   btnFilter: {
@@ -146,7 +157,7 @@ const styles = StyleSheet.create({
   bodyContainer: {
     backgroundColor: BackgroundColor.white,
     marginTop: 10,
-    flex: 1
+    flex: 1,
   },
 
   relatedClassContainer: {
