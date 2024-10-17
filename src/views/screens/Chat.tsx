@@ -19,7 +19,7 @@ import AMessage from "../../apis/AMessage";
 import { IdNavigationType } from "../../configs/NavigationRouteTypeConfig";
 
 const APP_NAME = "Langgom";
-const HEADER_IMAGE = require("../../../assets/icons/ic-chatbox.png");
+const HEADER_IMAGE = require("../../../assets/icons/ic_chatbox.png");
 const HEADER_TEXT_SIZE = 25;
 const SCREEN_BORDER_HORIZONTAL = 20;
 const SCREEN_ITEM_GAP = 0;
@@ -41,12 +41,12 @@ const messageTab: TabItem = {
     //handlers
     const handleFilter = useCallback(
       (chat: Chat) => {
-        return !!(
-          chat.user.fullName
-            .toLowerCase()
-            .includes(searchContext.toLowerCase()) ||
-          searchContext.toLowerCase().includes(chat.user.fullName.toLowerCase())
-        );
+        // return !!(
+        //   chat.user.fullName
+        //     .toLowerCase()
+        //     .includes(searchContext.toLowerCase()) ||
+        //   searchContext.toLowerCase().includes(chat.user.fullName.toLowerCase())
+        // );
       },
       [searchContext]
     );
@@ -70,9 +70,10 @@ const messageTab: TabItem = {
       >
         {chatMessages.filter(handleFilter).map((chat) => (
           <ChatMessageItem
-            key={chat.user.id}
+            // key={chat.user.id}
             chat={chat}
-            onPress={() => handleGoToMessage(chat.user.id)}
+            onPress={() => {}}
+            // onPress={() => handleGoToMessage(chat.user.id)}
           />
         ))}
       </ScrollView>

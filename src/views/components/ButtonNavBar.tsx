@@ -7,6 +7,7 @@ import PersonalScheduleScreen from "../screens/PersonalSchedule";
 import AccountScreen from "../screens/Account";
 import { Image, ImageSourcePropType, StyleSheet, View } from "react-native";
 import { BackgroundColor, TextColor } from "../../configs/ColorConfig";
+import Ionicons from "@expo/vector-icons/Ionicons";
 
 const activeColor = "#0D99FF";
 const hintColor = "#AAA";
@@ -22,46 +23,62 @@ export default function ButtonNavBar() {
     <Tab.Navigator
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, color, size }) => {
-          let icon: ImageSourcePropType | undefined;
+          let icon;
 
           switch (route.name) {
             case ScreenName.HOME:
-              icon = require(`../../../assets/icons/home-tab.png`);
-              if (focused) {
-                icon = require(`../../../assets/icons/home-tab-active.png`);
-              }
+              icon = (
+                <Ionicons
+                  name="home-sharp"
+                  size={size}
+                  style={styles.icon}
+                  color={focused ? TextColor.sub_primary : TextColor.hint}
+                />
+              );
               break;
             case ScreenName.CHAT:
-              icon = require(`../../../assets/icons/chat-tab.png`);
-              if (focused) {
-                icon = require(`../../../assets/icons/chat-tab-active.png`);
-              }
+              icon = (
+                <Ionicons
+                  name="chatbubble-ellipses"
+                  size={size}
+                  style={styles.icon}
+                  color={focused ? TextColor.sub_primary : TextColor.hint}
+                />
+              );
               break;
             case ScreenName.CREATE_CLASS:
-              icon = require(`../../../assets/icons/ic_plus-active.png`);
-              if (focused) {
-                icon = require(`../../../assets/icons/ic_plus.png`);
-              }
+              icon = (
+                <Ionicons
+                  name="add-circle"
+                  size={size}
+                  style={styles.icon}
+                  color={focused ? TextColor.sub_primary : TextColor.hint}
+                />
+              );
               break;
             case ScreenName.PERSONAL_SCHEDULE:
-              icon = require(`../../../assets/icons/ic_calendar_outline.png`);
-              if (focused) {
-                icon = require(`../../../assets/icons/ic_calendar_outline-active.png`);
-              }
+              icon = (
+                <Ionicons
+                  name="calendar"
+                  size={size}
+                  style={styles.icon}
+                  color={focused ? TextColor.sub_primary : TextColor.hint}
+                />
+              );
               break;
             case ScreenName.ACCOUNT:
-              icon = require(`../../../assets/icons/account_tab.png`);
-              if (focused) {
-                icon = require(`../../../assets/icons/account_tab-active.png`);
-              }
+              icon = (
+                <Ionicons
+                  name="person"
+                  size={size}
+                  style={styles.icon}
+                  color={focused ? TextColor.sub_primary : TextColor.hint}
+                />
+              );
               break;
           }
 
-          return (
-            <View style={styles.iconContainer}>
-              <Image source={icon} style={styles.icon} />
-            </View>
-          );
+          return <View style={styles.iconContainer}>{icon}</View>;
         },
         tabBarActiveTintColor: BackgroundColor.primary,
         tabBarInactiveTintColor: BackgroundColor.gray_10,

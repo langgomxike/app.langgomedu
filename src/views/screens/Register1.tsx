@@ -1,7 +1,6 @@
 import { ScrollView, Text, View, StyleSheet, Image } from "react-native";
 import MyIcon, { AppIcon } from "../components/MyIcon";
 import InputRegister from "../components/Inputs/InputRegister";
-import MyText from "../components/MyText";
 import Button from "../components/Button";
 import { useCallback, useContext } from "react";
 import { NavigationContext } from "@react-navigation/native";
@@ -27,16 +26,7 @@ export default function DuTestScreen() {
   function myEmptyFunction(): void {
     // Hàm này không làm gì cả
   }
-  const navigation = useContext(NavigationContext);
-  function goBack(): void {
-    navigation?.goBack();
-  }
-  function goRegister2(): void {
-    navigation?.navigate(ScreenName.REGISTER2);
-  }
-  function goToLogin(): void {
-    navigation?.navigate(ScreenName.LOGIN);
-  }
+
   return (
     <ScrollView style={styles.container}>
       <View style={styles.icon}>
@@ -47,6 +37,7 @@ export default function DuTestScreen() {
         style={styles.img}
         source={require("../../../assets/images/ illustration/Mobile login-rafiki.png")}
       ></Image>
+
       <View style={styles.row}>
         <View>
           <Text style={styles.title}>Tạo tài khoản</Text>
@@ -54,10 +45,8 @@ export default function DuTestScreen() {
             Hãy cho chúng tôi biết thêm thông tin về bạn
           </Text>
         </View>
+      </View>
       <View style={styles.container}>
-      
-
-      
         <View style={styles.input}>
           <InputRegister
             label="Số điện thoại"
@@ -118,7 +107,7 @@ export default function DuTestScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-     alignItems: "center",
+    alignItems: "center",
     // justifyContent: "center",
   },
   icon: {

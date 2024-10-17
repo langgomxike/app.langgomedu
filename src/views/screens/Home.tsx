@@ -15,11 +15,6 @@ import {
   NavigationProp,
   NavigationContext,
 } from "@react-navigation/native";
-import {
-  useNavigation,
-  NavigationProp,
-  NavigationContext,
-} from "@react-navigation/native";
 
 import { BackgroundColor } from "../../configs/ColorConfig";
 import Search from "../components/Inputs/SearchBar";
@@ -168,7 +163,6 @@ export default function HomeScreen() {
   const handleOpenDrawer = () => {
     // navigation
   };
-  };
 
   const [isExpanded, setIsExpanded] = useState(true);
   const animation = useRef(new Animated.Value(1)).current;
@@ -270,19 +264,19 @@ export default function HomeScreen() {
             </View>
           </View>
 
-          {/* Majors list */}  
+          {/* Majors list */}
           <FlatList
             horizontal={true}
             showsHorizontalScrollIndicator={false}
-            data={majors}
+            data={[]}
             renderItem={({ item: major }) => (
               <View style={styles.listMajorContainer}>
                 <View style={[styles.majorItem, styles.boxShadow]}>
                   <Image
-                    source={{ uri: PUBLIC_URL + major.icon?.path }}
+                    // source={{ uri: PUBLIC_URL + major.icon?.path }}
                     style={styles.majorIcon}
                   />
-                  <Text style={styles.majorText}>{major.vn_name}</Text>
+                  <Text style={styles.majorText}>{}</Text>
                 </View>
               </View>
             )}
@@ -313,9 +307,6 @@ export default function HomeScreen() {
                       Xem tất cả
                     </Text>
                   </TouchableOpacity>
-                  <TouchableOpacity
-                    onPress={() => setVisibleModal("modal_fiter")}
-                  >
                   <TouchableOpacity
                     onPress={() => setVisibleModal("modal_fiter")}
                   >
@@ -389,9 +380,6 @@ export default function HomeScreen() {
                   <TouchableOpacity
                     onPress={() => setVisibleModal("modal_fiter")}
                   >
-                  <TouchableOpacity
-                    onPress={() => setVisibleModal("modal_fiter")}
-                  >
                     <Image
                       source={require("../../../assets/images/ic_filter.png")}
                       style={{ width: 20, height: 20 }}
@@ -425,6 +413,7 @@ export default function HomeScreen() {
             </View>
           </View>
         </View>
+
         <Filter
           isVisible={visibleModal}
           onRequestClose={() => setVisibleModal(null)}
@@ -513,7 +502,6 @@ const styles = StyleSheet.create({
 
   line: {
     height: 1,
-    backgroundColor: BackgroundColor.gray_c6,
     backgroundColor: BackgroundColor.gray_c6,
   },
 
