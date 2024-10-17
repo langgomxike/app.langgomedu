@@ -2,10 +2,11 @@ import React from "react";
 import { View, StyleSheet, Text, TouchableOpacity } from "react-native";
 
 import Ionicons from '@expo/vector-icons/Ionicons';
-// import { useNavigation } from '@react-navigation/native';
+// import { useNavigation, NavigationProp } from '@react-navigation/native'; 
 import { BackgroundColor } from "../../configs/ColorConfig";
 import HLine, { HLineType } from "./HLine";
 import MyIcon, { AppIcon } from "./MyIcon";
+import ScreenName from "../../constants/ScreenName";
 
 export type AccountItemProps = {
     title: string,
@@ -15,17 +16,17 @@ export type AccountItemProps = {
 
 // const navigation = useNavigation();
 
-// const handlePress = (screenName: string) => {
-//     navigation.navigate(screenName); // Chuyển đến màn hình tương ứng
-// }
+const handlePress = (screenName: ScreenName) => {
+     // Chuyển đến màn hình tương ứng
+}
 
 const AccountItem = ({ iconName, title, screenName }: AccountItemProps) => {
 
 
 
     return (
-            <TouchableOpacity style={styles.container}>
-                <MyIcon icon={iconName} onPress={() => { }} />
+            <TouchableOpacity onPress={()=> handlePress} style={styles.container}>
+                <MyIcon icon={iconName} />
                 <View style={styles.textBox}>
                     <View style={styles.textLine}>
                         <Text> {title} </Text>

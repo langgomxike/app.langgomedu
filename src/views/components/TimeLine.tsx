@@ -1,14 +1,55 @@
 import React from "react";
 import { View, StyleSheet, Text, ScrollView } from "react-native";
 import { BackgroundColor, BorderColor, TextColor } from "../../configs/ColorConfig";
+import Lesson from "../../models/Lesson";
 
+export type LessonProps = {
+    lessons: Array<Lesson>
+}
 
-const TimeLine = () => {
+const TimeLine = ({lessons}: LessonProps ) => {
+
+    //handlers
+
+    //generating timeline
     const times = [];
     for (let i = 0; i < 24; i++) {
         const time = `${i < 10 ? '0' + i : i}:00`; // Định dạng giờ: phút
         times.push(time);
     }
+    //generate 
+
+    // const todayLessons: Array<any> = [];
+    // lessons.forEach(lesson => {
+    //     // value
+    //     const startedAt = new Date();
+        
+    //     //style for class
+    //     const lessonStyle = StyleSheet.create({
+    //         container:{
+    //             position: 'absolute',
+    //             width: '60%',
+    //             height: 80,
+    //             padding: 7,
+    //             backgroundColor: BackgroundColor.schedule_tutor,
+    //             left: 45,
+    //             borderRadius: 8,
+    //         },
+    //         textStyle:{
+    //             color: TextColor.white,
+                
+    //         }
+    //     })
+    //     //push class into array
+    //     todayLessons.push(
+    //         <View key={lesson.id} style={lessonStyle.container}>
+    //             <Text style={lessonStyle.textStyle} id="title"> {lesson.day}</Text>
+    //             <Text style={lessonStyle.textStyle}> {lesson.duration.getHours()} </Text>
+    //             <Text> {} </Text>
+    //         </View>
+    //     )
+
+    // });
 
     return (
         <View style={styles.container}>
@@ -16,6 +57,7 @@ const TimeLine = () => {
             <ScrollView style={styles.scrollView}
             nestedScrollEnabled={true}>
                 <View>
+                    {/* timeline */}
                     {times.map((time, index) => (
                         <View key={index} style={styles.timeBox}>
                             <View style={styles.mainHour}>
@@ -25,6 +67,8 @@ const TimeLine = () => {
                             <View style={styles.halfLine}></View>
                         </View>
                     ))}
+                    {/* today lessons */}
+                    {/* {todayLessons} */}
                 </View>
             </ScrollView>
         </View>

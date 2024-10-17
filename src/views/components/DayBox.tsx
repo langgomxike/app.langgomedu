@@ -27,14 +27,14 @@ const DayBox = ({ day, dayOfWeek, isClassLeaner = false, isClassTutor = false, i
 
     return (
         <View style={styles.container}>
-                <View style={styles.daybox}>
-                    <Text style={styles.day} >{day}</Text>
-                    <Text style={styles.dayOfWeek}> {dayOfWeek} </Text>
+                <View style={isActive? styles.dayBox_active : styles.daybox}>
+                    <Text style={isActive ? styles.day_active : styles.day} >{day}</Text>
+                    <Text style={isActive ? styles.dayOfWeek_active : styles.dayOfWeek}> {dayOfWeek} </Text>
                 </View>
 
             <View style={styles.classBox}>
-                <View style={styles.classLeaner}></View>
-                <View style={styles.classTutor}></View>
+                <View style={isClassLeaner ? styles.classLeaner : ''}></View>
+                <View style={isClassTutor ? styles.classTutor: ''}></View>
             </View>
         </View>
     )
@@ -68,9 +68,10 @@ const styles = StyleSheet.create({
         marginBottom: 10,
         marginHorizontal: 3,
         borderRadius: 10,
-        borderWidth: 1,
         backgroundColor: BackgroundColor.white,
-        height: 70,
+        borderWidth: 1,
+        borderColor: BorderColor.white,
+        height: 60,
         padding: 9,
     },
     day: {
@@ -99,6 +100,7 @@ const styles = StyleSheet.create({
         fontWeight: 'semibold',
         fontSize: 8.5,
         color: TextColor.primary,
+        width: 20
     },
     classBox: {
         justifyContent: 'center',

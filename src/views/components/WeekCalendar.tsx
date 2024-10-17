@@ -2,37 +2,49 @@ import React, { useState } from "react";
 import { View, StyleSheet, Text, TouchableOpacity } from "react-native";
 import { BackgroundColor, TextColor } from "../../configs/ColorConfig";
 import DayBox from "./DayBox";
-import { Day, DaysOfWeek } from "../screens/PersonalSchedule";
+import { Day } from "../screens/PersonalSchedule";
+import AClass from "../../apis/AClass";
 
 
 export enum EdayOfWeek {
-    'mon' = 0,
-    'tue' = 1,
-    'wes' = 2,
-    'thi' = 3,
-    'fri' = 4,
-    'sat' = 5,
-    'sun' = 6,
+    'sun' = 0,
+    'mon' = 1,
+    'tue' = 2,
+    'wes' = 3,
+    'thi' = 4,
+    'fri' = 5,
+    'sat' = 6,
+}
+//order function
+const getSunday = (currentDate: Date) => {
+    const sunday = currentDate;
+    sunday.setDate(sunday.getDate() - sunday.getDay() );
+    return sunday
 }
 
-const getDayofWeek = (dayOfWeek: number): string => {
-    if (dayOfWeek in EdayOfWeek) {
-        return EdayOfWeek[dayOfWeek]
+const WeekCalendar = ({ today, currentDate, onNext }: Day) => {
+
+    //handler
+    const handleOnClickDay = (onNext: (currentDate: Date) => void, clickedDate: Date) => {
+        // console.log(clickedDate);
+        AClass.getAllClasses(()=>{});
+        onNext(clickedDate)
     }
-    return 'invalid day'
-}
 
-const WeekCalendar = ({ days }: DaysOfWeek) => {
+    //effect
 
+    const sunday = getSunday(today);
     const daysOfWeek: Array<any> = [];
 
-    for (let index = 0; index < days.length; index++) {
+    for (let index = 0; index < 7; index++) {
+        const currentDay = new Date(sunday);  // Tạo bản sao của monday để tránh thay đổi trực tiếp
+        currentDay.setDate(sunday.getDate() + index);
+
         daysOfWeek.push(
-            <TouchableOpacity key={index} >
-                <DayBox day={days[index].dayOfMonth} dayOfWeek={EdayOfWeek[days[index].dayOfWeek]} />
+            <TouchableOpacity onPress={() => handleOnClickDay(onNext, currentDay)}  key={index} >
+                <DayBox isActive={index == currentDate} day={currentDay.getDate()} dayOfWeek={EdayOfWeek[currentDay.getDay()]} />
             </TouchableOpacity>
         )
-
     }
 
     return (
