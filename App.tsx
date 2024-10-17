@@ -5,6 +5,7 @@ import {
   Languages,
   LanguageType,
 } from "./src/configs/LanguageConfig";
+import { UserContext, UserDataType, UserType } from "./src/configs/UserContext";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import ScreenName from "./src/constants/ScreenName";
@@ -30,6 +31,7 @@ const SCREEN_PADDING_HORIZONTAL = 0;
 export default function App() {
   // states
   const [language, setLanguage] = useState<LanguageType>(languages.VN);
+  const [user, setUser] = useState<UserDataType>({ ID: "089204010903", TYPE: UserType.TUTOR });
 
   //handlers
   const setLanguageContext = useCallback((language: Languages) => {
@@ -54,6 +56,7 @@ export default function App() {
     <LanguageContext.Provider
       value={{ language: language, setLanguage: setLanguageContext }}
     >
+      <UserContext.Provider value={{user, setUser}}>
        <GestureHandlerRootView>
         {/* <GeneralManagement></GeneralManagement> */}
         {/* <AdminHome></AdminHome> */}
@@ -63,7 +66,7 @@ export default function App() {
             headerShown: false,
             contentStyle: {
               paddingHorizontal: SCREEN_PADDING_HORIZONTAL,
-              backgroundColor: "#fff",
+              backgroundColor: '#fff',
             },
           }}
         >
@@ -107,6 +110,7 @@ export default function App() {
       {/* <HoangTestScreen/> */}
 
       </GestureHandlerRootView>
+      </UserContext.Provider>
     </LanguageContext.Provider>
   );
 }

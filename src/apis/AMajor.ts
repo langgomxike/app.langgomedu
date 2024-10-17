@@ -9,15 +9,10 @@ export default class AMajor {
     onNext: (majors: Major[]) => void,
     onLoading: (loading: boolean) => void
   ) {
-
-    console.log("API_BASR_URL", ReactAppUrl.API_BASE_URL);
     
-
     onLoading(true);
     axios
-      .get(`${ReactAppUrl.API_BASE_URL}/majors`, {
-        headers: { "Content-Type": "application/json" },
-      })
+      .get(`${ReactAppUrl.API_BASE_URL}/majors`)
       .then((response) => {
 
         onNext(response.data);
