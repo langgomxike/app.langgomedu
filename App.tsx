@@ -100,7 +100,7 @@ export default function App() {
           <Stack.Screen name={ScreenName.CV} component={CVScreen} />
           <Stack.Screen name={ScreenName.INPUT_CV} component={InputCVScreen} />
 
-          <Stack.Screen name={ScreenName.OTP} component={OTPScreen} />
+          {/* <Stack.Screen name={ScreenName.OTP} component={OTPScreen} /> */}
           <Stack.Screen name={ScreenName.LOGIN} component={LoginScreen} />
           <Stack.Screen
             name={ScreenName.REGISTER_1}

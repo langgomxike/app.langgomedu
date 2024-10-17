@@ -242,6 +242,7 @@ export default function HomeScreen() {
     });
   }, []);
 
+  // render
   return (
     <ScrollView showsVerticalScrollIndicator={false}>
       <View style={styles.container}>
@@ -355,9 +356,6 @@ export default function HomeScreen() {
                       Xem tất cả
                     </Text>
                   </TouchableOpacity>
-                  <TouchableOpacity
-                    onPress={() => setVisibleModal("modal_fiter")}
-                  >
                   <TouchableOpacity
                     onPress={() => setVisibleModal("modal_fiter")}
                   >
@@ -602,9 +600,6 @@ export default function HomeScreen() {
                   <TouchableOpacity
                     onPress={() => setVisibleModal("modal_fiter")}
                   >
-                  <TouchableOpacity
-                    onPress={() => setVisibleModal("modal_fiter")}
-                  >
                     <Image
                       source={require("../../../assets/images/ic_filter.png")}
                       style={{ width: 20, height: 20 }}
@@ -649,6 +644,7 @@ export default function HomeScreen() {
       </View>
     </ScrollView>
   );
+ 
 }
 
 const styles = StyleSheet.create({
@@ -726,7 +722,6 @@ const styles = StyleSheet.create({
 
   line: {
     height: 1,
-    backgroundColor: BackgroundColor.gray_c6,
     backgroundColor: BackgroundColor.gray_c6,
   },
 
