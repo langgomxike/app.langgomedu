@@ -20,6 +20,8 @@ import Filter from "../components/Filter";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import ScreenName from "../../constants/ScreenName";
 import { RootStackParamList, RootStackParamListFilter } from "../../configs/NavigationRouteTypeConfig";
+import ACV from "../../apis/ACV";
+import CV from "../../models/CV";
 
 type Course = {
   id: number;
@@ -136,7 +138,8 @@ export default function HomeScreen() {
   const handleOpenDrawer = () => {
     // navigation
   }
-
+  //cvs
+  const [cvs, setCvs] = useState<CV[]>([]);
   const [isExpanded, setIsExpanded] = useState(true);
   const animation = useRef(new Animated.Value(1)).current;
 
@@ -374,9 +377,9 @@ export default function HomeScreen() {
                         userName={item.userName}
                         phoneNumber={item.phoneNumber}
                         email={item.email}
-                        dayOfBirth={item.dayOfBirth}
+                        // dayOfBirth={item.dayOfBirth}
                         address={item.address}
-                        skills={item.skills}
+                        // skills={item.skills}
                       />
                     </View>
                   )}
