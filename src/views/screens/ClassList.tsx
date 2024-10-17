@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import Search from "../components/Inputs/SearchBar";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import Feather from '@expo/vector-icons/Feather';
+import Feather from "@expo/vector-icons/Feather";
 import { BackgroundColor } from "../../configs/ColorConfig";
 import CourseItem from "../components/CourseItem";
 import Pagination from "../components/Pagination";
@@ -66,7 +66,7 @@ const courses = [
   },
 ];
 
-export default function ClassList() {
+export default function ClassListScreen() {
   const [searchKey, setSearchKey] = useState("");
   const [currentPage, setCurentPage] = useState(1);
   return (
@@ -77,44 +77,44 @@ export default function ClassList() {
         </View>
         <View>
           <TouchableOpacity style={[styles.btnFilter, styles.boxShadow]}>
-          <Feather name="filter" size={24} color="black" />
+            <Feather name="filter" size={24} color="black" />
           </TouchableOpacity>
         </View>
       </View>
 
       <View style={styles.bodyContainer}>
-          <View style={styles.relatedClassContainer}>
-            <FlatList
-              data={courses}
-              renderItem={({ item }) => (
-                <View style={styles.classItem}>
-                  <CourseItem
-                    name={item.name}
-                    level={item.level}
-                    date={item.date}
-                    time={item.time}
-                    type={item.type}
-                    address={item.address}
-                    cost={item.cost}
-                  />
-                </View>
-              )}
-              keyExtractor={(item) => item.id.toString()}
-              horizontal={false}
-              showsHorizontalScrollIndicator={true}
-              contentContainerStyle={styles.classList}
-              style={{ height: 500 }} 
-              ListFooterComponent={
-                <View style={{ padding: 30 }}>
-                  <Pagination
-                    totalPage={5}
-                    currentPage={currentPage}
-                    onChange={setCurentPage}
-                  />
-                </View>
-              }
-            />
-          </View>
+        <View style={styles.relatedClassContainer}>
+          <FlatList
+            data={courses}
+            renderItem={({ item }) => (
+              <View style={styles.classItem}>
+                <CourseItem
+                  name={item.name}
+                  level={item.level}
+                  date={item.date}
+                  time={item.time}
+                  type={item.type}
+                  address={item.address}
+                  cost={item.cost}
+                />
+              </View>
+            )}
+            keyExtractor={(item) => item.id.toString()}
+            horizontal={false}
+            showsHorizontalScrollIndicator={true}
+            contentContainerStyle={styles.classList}
+            style={{ height: 500 }}
+            ListFooterComponent={
+              <View style={{ padding: 30 }}>
+                <Pagination
+                  totalPage={5}
+                  currentPage={currentPage}
+                  onChange={setCurentPage}
+                />
+              </View>
+            }
+          />
+        </View>
       </View>
     </View>
   );
@@ -132,7 +132,7 @@ const styles = StyleSheet.create({
     gap: 20,
     marginTop: 70,
     paddingHorizontal: 20,
-    paddingVertical: 20
+    paddingVertical: 20,
   },
 
   btnFilter: {
@@ -155,7 +155,7 @@ const styles = StyleSheet.create({
   bodyContainer: {
     backgroundColor: BackgroundColor.white,
     marginTop: 10,
-    flex: 1
+    flex: 1,
   },
 
   relatedClassContainer: {

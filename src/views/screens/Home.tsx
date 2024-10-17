@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef, useState } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import {
   Text,
   View,
@@ -10,6 +10,11 @@ import {
   Pressable,
   Animated,
 } from "react-native";
+import {
+  useNavigation,
+  NavigationProp,
+  NavigationContext,
+} from "@react-navigation/native";
 import {
   useNavigation,
   NavigationProp,
@@ -27,8 +32,8 @@ import {
   RootStackParamList,
   RootStackParamListFilter,
 } from "../../configs/NavigationRouteTypeConfig";
-import AMajor from "../../apis/AMajor";
-import Major from "../../models/Major";
+import AUser from "../../apis/AUser";
+import { AccountContext } from "../../configs/AccountConfig";
 
 type Course = {
   id: number;
@@ -130,34 +135,39 @@ const tutors = [
 const PUBLIC_URL = "http://192.168.43.156:3002/public/";
 
 export default function HomeScreen() {
-  // state
+  //contexts, refs
+  const navigation = useContext(NavigationContext);
+  const accountContext = useContext(AccountContext);
+
+  //states
   const [visibleModal, setVisibleModal] = useState<string | null>("");
-  const [majors, setMajors] = useState<Major[]>([]);
-  const [loading, setLoading] = useState(false);
 
-  // effect
-  useEffect(() => {
-    const fetchAllMajors = AMajor.getAllMajors((data) => {
-      setMajors(data);
-      data.forEach((element) => {});
-    }, setLoading);
+  const [searchKey, setSearchKey] = useState<string>("");
 
-    fetchAllMajors;
+  //handlers
+  const goToScan = useCallback(() => {
+    navigation?.navigate(ScreenName.SCANNER);
   }, []);
 
-  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const [searchKey, setSearchKey] = useState<string>("");
   const handleNavigateToDetail = (course: Course) => {
-    navigation.navigate(ScreenName.DETAIL_CLASS, { course });
+    navigation?.navigate(ScreenName.DETAIL_CLASS, { course });
   };
-  // const navigation = useContext(NavigationContext);
-  // const [searchKey, setSearchKey] = useState<string>("");
-  // const handleNavigateToDetail = (course: Course) => {
-  //   navigation?.navigate(ScreenName.DETAIL_CLASS, { course });
-  // };
-  // navigation?.navigate(ScreenName.LOGIN);
+
+  const goToClassList = useCallback(() => {
+    navigation?.navigate(ScreenName.CLASS_LIST);
+  }, []);
+
+  const goToCVList = useCallback(() => {
+    navigation?.navigate(ScreenName.CV_LIST);
+  }, []);
+
+  const goToDetailCV = useCallback(() => {
+    navigation?.navigate(ScreenName.CV);
+  }, []);
+
   const handleOpenDrawer = () => {
     // navigation
+  };
   };
 
   const [isExpanded, setIsExpanded] = useState(true);
@@ -191,6 +201,22 @@ export default function HomeScreen() {
     outputRange: ["0deg", "90deg"], // Xoay từ 0 đến -90 độ
   });
 
+  const handleNavigateToCVList = useCallback(() => {
+    navigation?.navigate(ScreenName.CV_LIST);
+  }, []);
+
+  useEffect(() => {
+    AUser.implicitLogin((user) => {
+      if (!user) {
+        navigation?.navigate(ScreenName.LOGIN);
+      } else {
+        if (accountContext.setAccount) {
+          accountContext.setAccount(user);
+        }
+      }
+    });
+  }, []);
+
   return (
     <ScrollView showsVerticalScrollIndicator={false}>
       <View style={styles.container}>
@@ -222,7 +248,12 @@ export default function HomeScreen() {
 
             <View>
               <TouchableOpacity style={[styles.btnQrScan, styles.boxShadow]}>
-                <Ionicons name="qr-code-outline" size={24} color="black" />
+                <Ionicons
+                  onPress={goToScan}
+                  name="qr-code-outline"
+                  size={24}
+                  color="black"
+                />
               </TouchableOpacity>
             </View>
           </View>
@@ -278,8 +309,13 @@ export default function HomeScreen() {
                   }}
                 >
                   <TouchableOpacity>
-                    <Text style={styles.showAllText}>Xem tất cả</Text>
+                    <Text onPress={goToClassList} style={styles.showAllText}>
+                      Xem tất cả
+                    </Text>
                   </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => setVisibleModal("modal_fiter")}
+                  >
                   <TouchableOpacity
                     onPress={() => setVisibleModal("modal_fiter")}
                   >
@@ -336,7 +372,7 @@ export default function HomeScreen() {
                     color="black"
                   />
                   {/* <Ionicons name="chevron-forward" size={24} color="black" /> */}
-                  <Text style={styles.title}>Các lớp học</Text>
+                  <Text style={styles.title}>Các CV</Text>
                 </View>
                 <View
                   style={{
@@ -345,9 +381,14 @@ export default function HomeScreen() {
                     alignItems: "center",
                   }}
                 >
-                  <TouchableOpacity>
-                    <Text style={styles.showAllText}>Xem tất cả</Text>
+                  <TouchableOpacity onPress={handleNavigateToCVList}>
+                    <Text onPress={goToCVList} style={styles.showAllText}>
+                      Xem tất cả
+                    </Text>
                   </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => setVisibleModal("modal_fiter")}
+                  >
                   <TouchableOpacity
                     onPress={() => setVisibleModal("modal_fiter")}
                   >
@@ -363,7 +404,7 @@ export default function HomeScreen() {
                 <FlatList
                   data={tutors}
                   renderItem={({ item }) => (
-                    <View style={styles.classItem}>
+                    <Pressable onPress={goToDetailCV} style={styles.classItem}>
                       <TutorItem
                         avatar={item.avatar}
                         userName={item.userName}
@@ -373,7 +414,7 @@ export default function HomeScreen() {
                         address={item.address}
                         skills={item.skills}
                       />
-                    </View>
+                    </Pressable>
                   )}
                   keyExtractor={(item) => item.id.toString()}
                   horizontal={true}
@@ -384,6 +425,10 @@ export default function HomeScreen() {
             </View>
           </View>
         </View>
+        <Filter
+          isVisible={visibleModal}
+          onRequestClose={() => setVisibleModal(null)}
+        />
         <Filter
           isVisible={visibleModal}
           onRequestClose={() => setVisibleModal(null)}
@@ -468,6 +513,7 @@ const styles = StyleSheet.create({
 
   line: {
     height: 1,
+    backgroundColor: BackgroundColor.gray_c6,
     backgroundColor: BackgroundColor.gray_c6,
   },
 

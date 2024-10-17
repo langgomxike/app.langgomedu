@@ -1,9 +1,10 @@
 import { ScrollView, Text } from "react-native";
+import BackWithDetailLayout from "../layouts/BackWithDetail";
 
 export default function ProfileScreen() {
   return (
-    <ScrollView>
-      <Text>Profile Screen</Text>
-    </ScrollView>
+    <BackWithDetailLayout icName="">
+      <Text>ProfileScreen</Text>
+    </BackWithDetailLayout>
   );
 }
