@@ -3,24 +3,37 @@ import MyIcon, { AppIcon } from "../components/MyIcon";
 import InputRegister from "../components/Inputs/InputRegister";
 import MyText from "../components/MyText";
 import Button from "../components/Button";
-import { useContext } from "react";
+import { useCallback, useContext } from "react";
 import { NavigationContext } from "@react-navigation/native";
 import ScreenName from "../../constants/ScreenName";
-export default function DuTestScreen() {
+export default function Register2Screen() {
+  //contexts
+  const navigation = useContext(NavigationContext);
+
+  //handlers
+  const goBack = useCallback(() => {
+    navigation?.goBack();
+    navigation?.navigate(ScreenName.REGISTER_1);
+  }, []);
+
+  const onRegister = useCallback(() => {
+    navigation?.navigate(ScreenName.HOME);
+  }, []);
+
   function myEmptyFunction(): void {
     // Hàm này không làm gì cả
   }
-  const navigation= useContext(NavigationContext)
-  function goBack(): void {
-    navigation?.goBack();
-  }
-  function goToLogin(): void {
-    navigation?.navigate(ScreenName.LOGIN);
-  };
+  // const navigation= useContext(NavigationContext)
+  // function goBack(): void {
+  //   navigation?.goBack();
+  // }
+  // function goToLogin(): void {
+  //   navigation?.navigate(ScreenName.LOGIN);
+  // };
   return (
     <ScrollView style={styles.container}>
       <View style={styles.icon}>
-        <MyIcon icon={AppIcon.ic_back_circle} onPress={goBack} />
+        <MyIcon onPress={goBack} icon={AppIcon.ic_back_circle} />
       </View>
       <View style={styles.row}>
         <View>
@@ -34,10 +47,18 @@ export default function DuTestScreen() {
       <View>
         <View style={styles.row1}>
           <View style={styles.image}>
-            <MyIcon icon={AppIcon.icon_image} size="50" onPress={myEmptyFunction}></MyIcon>
+            <MyIcon
+              icon={AppIcon.icon_image}
+              size="50"
+              onPress={myEmptyFunction}
+            ></MyIcon>
           </View>
           <View style={styles.image}>
-            <MyIcon icon={AppIcon.ic_camera}  size="50"  onPress={myEmptyFunction}></MyIcon>
+            <MyIcon
+              icon={AppIcon.ic_camera}
+              size="50"
+              onPress={myEmptyFunction}
+            ></MyIcon>
           </View>
         </View>
         <Text style={styles.huongdan}>
@@ -100,7 +121,7 @@ export default function DuTestScreen() {
           title="Đăng ký"
           textColor="white"
           backgroundColor="blue"
-          onPress={myEmptyFunction}
+          onPress={onRegister}
         ></Button>
       </View>
     </ScrollView>
@@ -165,17 +186,16 @@ const styles = StyleSheet.create({
     flexDirection: "row", // Đặt các biểu tượng nằm trên cùng một hàng
     justifyContent: "center", // Cân đối khoảng cách giữa các biểu tượng
     marginBottom: 20, // Thêm khoảng cách dưới hàng icon
-   
   },
-  image:{
-marginHorizontal:20,
-marginBottom:10,
+  image: {
+    marginHorizontal: 20,
+    marginBottom: 10,
   },
   row: {
     // Đặt các biểu tượng nằm trên cùng một hàng
     marginLeft: "5%", // Cân đối khoảng cách giữa các biểu tượng
     marginBottom: " -12%", // Thêm khoảng cách dưới hàng icon
-    justifyContent: 'space-evenly',
+    justifyContent: "space-evenly",
   },
   textTaiAnh: {
     marginTop: 20,

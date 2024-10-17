@@ -1,6 +1,5 @@
 import { Text, View, FlatList, StyleSheet } from "react-native";
 import BackWithDetailLayout from "../layouts/BackWithDetail";
-import MyIcon, { AppIcon } from "../components/MyIcon";
 import { ListItem } from "../../configs/AccountListItemConfig";
 import AccountItem, { AccountItemProps } from "../components/AccountItem";
 

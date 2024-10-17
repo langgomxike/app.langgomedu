@@ -5,7 +5,7 @@ import { Text, View, TouchableOpacity, StyleSheet} from "react-native";
 
 type HintTextProps = {
   text?: string; // Sử dụng AppText cho prop hint
-  onPress: () => void;
+  onPress?: () => void;
 };
 
 const MyText: React.FC<HintTextProps> = ({ text, onPress }) => {

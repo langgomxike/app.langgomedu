@@ -3,7 +3,7 @@ import MyIcon, { AppIcon } from "../components/MyIcon";
 import InputRegister from "../components/Inputs/InputRegister";
 import MyText from "../components/MyText";
 import Button from "../components/Button";
-import { useContext, useState } from "react";
+import { useCallback, useContext, useState } from "react";
 import { NavigationContext } from "@react-navigation/native";
 import ScreenName from "../../constants/ScreenName";
 export default function DuTestScreen() {
@@ -73,7 +73,6 @@ export default function DuTestScreen() {
             Hãy cho chúng tôi biết thêm thông tin về bạn
           </Text>
         </View>
-        <View></View>
       </View>
       <View style={styles.input}>
         <InputRegister
@@ -133,7 +132,7 @@ export default function DuTestScreen() {
           title="Tiếp tục"
           textColor="white"
           backgroundColor="blue"
-          onPress={goRegister2}
+          onPress={goForward}
         ></Button>
         <Text>
           Bạn đã có tài khoản?{" "}
@@ -146,7 +145,7 @@ export default function DuTestScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // alignItems: "center",
+     alignItems: "center",
     // justifyContent: "center",
   },
   icon: {
@@ -181,12 +180,12 @@ const styles = StyleSheet.create({
     marginBottom: "20%",
   },
   test: {
-    top: -10,
+    marginTop: -20,
     // height: 50,
     // backgroundColor: "green",
   },
   text: {
-    top: 5,
+    top: -25,
     left: 90,
     marginBottom: "-15%",
   },
@@ -204,5 +203,8 @@ const styles = StyleSheet.create({
     // Đặt các biểu tượng nằm trên cùng một hàng
     marginLeft: "5%", // Cân đối khoảng cách giữa các biểu tượng
     marginBottom: " -12%", // Thêm khoảng cách dưới hàng icon
+  },
+  lastText: {
+    flexDirection: "row",
   },
 });

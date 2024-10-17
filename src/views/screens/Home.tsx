@@ -1,4 +1,4 @@
-import { useContext, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState, useCallback } from "react";
 import {
   Text,
   View,
@@ -10,7 +10,11 @@ import {
   Pressable,
   Animated,
 } from "react-native";
-import { useNavigation, NavigationProp, NavigationContext } from "@react-navigation/native";
+import {
+  useNavigation,
+  NavigationProp,
+  NavigationContext,
+} from "@react-navigation/native";
 
 import { BackgroundColor } from "../../configs/ColorConfig";
 import Search from "../components/Inputs/SearchBar";
@@ -19,73 +23,21 @@ import TutorItem from "../components/CvItem";
 import Filter from "../components/Filter";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import ScreenName from "../../constants/ScreenName";
-import { RootStackParamList, RootStackParamListFilter } from "../../configs/NavigationRouteTypeConfig";
-import ACV from "../../apis/ACV";
-import CV from "../../models/CV";
-
-type Course = {
-  id: number;
-  name: string;
-  level: string;
-  date: string;
-  time: number;
-  type: string;
-  address: string;
-  cost: number;
-};
-
-const courses = [
-  {
-    id: 1,
-    name: "Tìm gia sư dạy toán",
-    level: "Lớp 12",
-    date: "24/09/2024",
-    time: 4,
-    type: "Tại nhà",
-    address: "Linh Chiểu, Thủ Đức",
-    cost: 200000,
-  },
-  {
-    id: 2,
-    name: "Khóa học lập trình JavaScript",
-    level: "Người mới bắt đầu",
-    date: "01/10/2024",
-    time: 6,
-    type: "Online",
-    address: "Phạm Văn Đồng, Thủ Đức",
-    cost: 300000,
-  },
-  {
-    id: 3,
-    name: "Gia sư tiếng Anh giao tiếp",
-    level: "Trình độ trung cấp",
-    date: "15/09/2024",
-    time: 2,
-    type: "Tại nhà",
-    address: "Phạm Văn Đồng, Gò Vấp",
-    cost: 150000,
-  },
-  {
-    id: 4,
-    name: "Khóa học thiết kế đồ họa Photoshop",
-    level: "Trình độ cơ bản",
-    date: "05/10/2024",
-    time: 8,
-    type: "Online",
-    address: "Quận 1",
-    cost: 400000,
-  },
-  {
-    id: 5,
-    name: "Lớp học Toán cao cấp",
-    level: "Đại học",
-    date: "20/10/2024",
-    time: 5,
-    type: "Tại nhà",
-    address: "Nguyễn Văn Linh, Quận 7",
-    cost: 250000,
-  },
-];
+import {
+  RootStackParamList,
+  RootStackParamListFilter,
+} from "../../configs/NavigationRouteTypeConfig";
+import AMajor from "../../apis/AMajor";
+import Major from "../../models/Major";
+import { UserContext, UserType } from "../../configs/UserContext";
+import ReactAppUrl from "../../configs/ConfigUrl";
+import AClass from "../../apis/AClass";
+import Class from "../../models/Class";
+import CustomShimmer from "../components/skeleton/CustomShimmer";
+import ListMajorSkeleton from "../components/skeleton/ListMajorSkeleton";
+import ClassListSkeleton from "../components/skeleton/ClassListSkeleten";
+import AUser from "../../apis/AUser";
+import { AccountContext } from "../../configs/AccountConfig";
 
 const tutors = [
   {
@@ -120,59 +72,179 @@ const tutors = [
   },
 ];
 
+const items = [
+  { id: 1, title: 'Các lớp học đang tham gia'},
+  { id: 2, title: 'Các lớp học đang dạy'},
+  { id: 3, title: 'Các lớp học đã tạo'},
+];
+
+const URL = ReactAppUrl.PUBLIC_URL;
+
 export default function HomeScreen() {
+  //contexts, refs
+  const navigation = useContext(NavigationContext);
+  const accountContext = useContext(AccountContext);
 
+  //states
   const [visibleModal, setVisibleModal] = useState<string | null>("");
-
+  const [searchKey, setSearchKey] = useState<string>("");
+  const [loading, setLoading] = useState(false);
+  const [expandedItems, setExpandedItems] = useState<number[]>(items.map(item => item.id));
+  const [userTypeName, setUserTypeName] = useState("Leaner");
   // const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  // const [searchKey, setSearchKey] = useState<string>("");
   // const handleNavigateToDetail = (course: Course) => {
   //   navigation.navigate(ScreenName.DETAIL_CLASS, { course });
   // };
-  const navigation = useContext(NavigationContext);
-  const [searchKey, setSearchKey] = useState<string>("");
-  const handleNavigateToDetail = (course: Course) => {
+
+  const [majors, setMajors] = useState<Major[]>([]);
+  const [attedingClasses, setAttedingClasses] = useState<Class[]>([]);
+  const [teachingClasses, setTeachingClasses] = useState<Class[]>([]);
+  const [createdClasses, setCreatedClasses] = useState<Class[]>([]);
+
+  // context
+  const { user, setUser } = useContext(UserContext);
+
+  // handle
+  const handleChangeUserType = ()  => {
+    setUser({
+      ...user,  // Giữ nguyên các thông tin cũ
+      TYPE: user.TYPE === UserType.LEANER ? UserType.TUTOR : UserType.LEANER
+    });
+
+    setUserTypeName(user.TYPE === UserType.LEANER ? "Tutor" : "Leaner");
+  }
+
+  //handlers
+  const goToScan = useCallback(() => {
+    navigation?.navigate(ScreenName.SCANNER);
+  }, []);
+
+  const handleNavigateToDetail = (course: Class) => {
     navigation?.navigate(ScreenName.DETAIL_CLASS, { course });
   };
-  navigation?.navigate(ScreenName.LOGIN);
+
+  const goToClassList = useCallback(() => {
+    navigation?.navigate(ScreenName.CLASS_LIST);
+  }, []);
+
+  const goToCVList = useCallback(() => {
+    navigation?.navigate(ScreenName.CV_LIST);
+  }, []);
+
+  const goToDetailCV = useCallback(() => {
+    navigation?.navigate(ScreenName.CV);
+  }, []);
+
   const handleOpenDrawer = () => {
     // navigation
-  }
-  //cvs
-  const [cvs, setCvs] = useState<CV[]>([]);
-  const [isExpanded, setIsExpanded] = useState(true);
-  const animation = useRef(new Animated.Value(1)).current;
+  };
 
-  const toggleExpand = () => {
-    const finalValue = isExpanded ? 0 : 1;
-    Animated.timing(animation, {
-      toValue: finalValue,
+  // effect
+  useEffect(() => {
+    AMajor.getAllMajors((data) => {
+      setMajors(data);
+    }, setLoading);
+
+    AClass.getAttedingClass(
+      user.ID,
+      (data) => {
+        setAttedingClasses(data);
+      },
+      setLoading
+    );
+
+    AClass.getAttedingClass(
+      user.ID,
+      (data) => {
+        setAttedingClasses(data);
+      },
+      setLoading
+    );
+
+    AClass.getTeachingClass(
+      user.ID,
+      (data) => {
+        setTeachingClasses(data);
+      },
+      setLoading
+    );
+
+    AClass.getCreatedClass(
+      user.ID,
+      (data) => {
+        setCreatedClasses(data);
+      },
+      setLoading
+    );
+
+  }, []);
+
+  
+
+  // animations
+  const animation = useRef(items.map(() => new Animated.Value(1))).current;
+
+  const toggleExpand = (id: number) => {
+    const isExplaned = expandedItems.includes(id);
+    console.log(">> Toggle Expand id", id );
+    console.log(">> Toggle Expand", isExplaned );
+    console.log(">> Toggle Expand items", expandedItems);
+    
+    let index = id - 1;
+    Animated.timing(animation[index], {
+      toValue: isExplaned ? 0 : 1,
       duration: 500,
       useNativeDriver: false,
     }).start();
 
-    setIsExpanded(!isExpanded);
+    setExpandedItems((prev) =>
+      isExplaned ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  }
+
+    // Hàm lấy height interpolation cho từng item
+  const getHeightInterpolation = (index:number) => {
+    return animation[index].interpolate({
+      inputRange: [0, 1],
+      outputRange: [0, 380], // Thu hẹp là 0, mở rộng là 450
+    });
   };
 
-  // Tạo height transition dựa trên giá trị của animation
-  const heightInterpolation = animation.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0, 450], // Độ cao khi thu hẹp là 0, khi mở rộng là 150 (có thể chỉnh sửa)
-  });
+    // Hàm lấy opacity interpolation cho từng item
+  const getOpacityInterpolation = (index:number) => {
+    return animation[index].interpolate({
+      inputRange: [0, 1],
+      outputRange: [0.5, 1], // Mờ là 0.5, rõ là 1
+    });
+  };
 
-  // Tạo opacity transition dựa trên giá trị của animation
-  const opacityInterpolation = animation.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0.5, 1], // Độ mờ: ẩn là 0, hiện là 1
-  });
+  // Hàm lấy rotation interpolation cho từng item
+  const getRotationInterpolation = (index:number) => {
+    return animation[index].interpolate({
+      inputRange: [0, 1],
+      outputRange: ["0deg", "90deg"], // Xoay từ 0 đến 90 độ
+    });
+  };
 
-  const rotation = animation.interpolate({
-    inputRange: [0, 1],
-    outputRange: ["0deg", "90deg"], // Xoay từ 0 đến -90 độ
-  });
+  const handleNavigateToCVList = useCallback(() => {
+    navigation?.navigate(ScreenName.CV_LIST);
+  }, []);
 
+  useEffect(() => {
+    AUser.implicitLogin((user) => {
+      if (!user) {
+        navigation?.navigate(ScreenName.LOGIN);
+      } else {
+        if (accountContext.setAccount) {
+          accountContext.setAccount(user);
+        }
+      }
+    });
+  }, []);
+
+  // render
   return (
-    <ScrollView>
+    <ScrollView showsVerticalScrollIndicator={false}>
       <View style={styles.container}>
         {/* Header */}
         <View style={styles.headerContainer}>
@@ -187,9 +259,10 @@ export default function HomeScreen() {
 
             <View style={{ flex: 1, alignItems: "flex-end" }}>
               <TouchableOpacity
+              onPress={handleChangeUserType}
                 style={[styles.btnSwitchRole, styles.boxShadow]}
               >
-                <Text>Leaner</Text>
+                <Text>{userTypeName}</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -202,7 +275,12 @@ export default function HomeScreen() {
 
             <View>
               <TouchableOpacity style={[styles.btnQrScan, styles.boxShadow]}>
-                <Ionicons name="qr-code-outline" size={24} color="black" />
+                <Ionicons
+                  onPress={goToScan}
+                  name="qr-code-outline"
+                  size={24}
+                  color="black"
+                />
               </TouchableOpacity>
             </View>
           </View>
@@ -219,68 +297,52 @@ export default function HomeScreen() {
             </View>
           </View>
 
-          <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
-            <View style={styles.listMajorContainer}>
-              <View style={[styles.majorItem, styles.boxShadow]}>
-                <Image
-                  source={require("../../../assets/images/ic_math.png")}
-                  style={styles.majorIcon}
-                />
-                <Text style={styles.majorText}>Toán</Text>
-              </View>
+          {/* Majors list */}
+          {loading && <ListMajorSkeleton />}
 
-              <View style={[styles.majorItem, styles.boxShadow]}>
-                <Image
-                  source={require("../../../assets/images/ic_math.png")}
-                  style={styles.majorIcon}
-                />
-                <Text style={styles.majorText}>Toán</Text>
-              </View>
-
-              <View style={[styles.majorItem, styles.boxShadow]}>
-                <Image
-                  source={require("../../../assets/images/ic_math.png")}
-                  style={styles.majorIcon}
-                />
-                <Text style={styles.majorText}>Toán</Text>
-              </View>
-
-              <View style={[styles.majorItem, styles.boxShadow]}>
-                <Image
-                  source={require("../../../assets/images/ic_math.png")}
-                  style={styles.majorIcon}
-                />
-                <Text style={styles.majorText}>Web</Text>
-              </View>
-
-              <View style={[styles.majorItem, styles.boxShadow]}>
-                <Image
-                  source={require("../../../assets/images/ic_math.png")}
-                  style={styles.majorIcon}
-                />
-                <Text
-                  style={styles.majorText}
-                  numberOfLines={1}
-                  ellipsizeMode="tail"
-                >
-                  Lập trình web
-                </Text>
-              </View>
-            </View>
-          </ScrollView>
+          {!loading && (
+            <FlatList
+              horizontal={true}
+              showsHorizontalScrollIndicator={false}
+              data={majors}
+              renderItem={({ item: major }) => (
+                <View style={styles.listMajorContainer}>
+                  <View style={[styles.majorItem, styles.boxShadow]}>
+                    {URL && (
+                      <Image
+                        source={{ uri: URL + major.icon?.path }}
+                        style={styles.majorIcon}
+                      />
+                    )}
+                    <View style={styles.majorTextContainer}>
+                      <Text
+                        style={styles.majorText}
+                        numberOfLines={2}
+                        ellipsizeMode="tail"
+                      >
+                        {major.vn_name}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+              )}
+              contentContainerStyle={{ paddingHorizontal: 10 }}
+            />
+          )}
 
           {/* Class */}
           <View>
+            {/* Attending class */}
             <View style={styles.classContainer}>
               <View style={[styles.titleContainer, { paddingHorizontal: 20 }]}>
                 <TouchableOpacity
-                  onPress={toggleExpand}
+                 onPress={() => toggleExpand(items[0].id)}
                   style={{ flexDirection: "row", gap: 10 }}
                 >
-                  <Animated.View style={{ transform: [{ rotate: rotation }] }}>
+                  <Animated.View style={{ transform: [{ rotate: getRotationInterpolation(items[0].id -1) }] }}>
                     <Ionicons name="chevron-forward" size={20} color="black" />
                   </Animated.View>
-                  <Text style={styles.title}>Các lớp học</Text>
+                  <Text style={styles.title}>{items[0].title}</Text>
                 </TouchableOpacity>
                 <View
                   style={{
@@ -290,9 +352,13 @@ export default function HomeScreen() {
                   }}
                 >
                   <TouchableOpacity>
-                    <Text style={styles.showAllText}>Xem tất cả</Text>
+                    <Text onPress={goToClassList} style={styles.showAllText}>
+                      Xem tất cả
+                    </Text>
                   </TouchableOpacity>
-                  <TouchableOpacity onPress={() => setVisibleModal("modal_fiter")}>
+                  <TouchableOpacity
+                    onPress={() => setVisibleModal("modal_fiter")}
+                  >
                     <Image
                       source={require("../../../assets/images/ic_filter.png")}
                       style={{ width: 20, height: 20 }}
@@ -305,35 +371,206 @@ export default function HomeScreen() {
                 style={[
                   styles.relatedClassContainer,
                   {
-                    height: heightInterpolation,
-                    opacity: opacityInterpolation,
+                    height: getHeightInterpolation(items[0].id -1),
+                    opacity: getOpacityInterpolation(items[0].id -1),
                   },
                 ]}
               >
-                <FlatList
-                  data={courses}
-                  renderItem={({ item }) => (
-                    <View style={styles.classItem}>
-                      <Pressable onPress={() => handleNavigateToDetail(item)}>
-                        <CourseItem
-                          name={item.name}
-                          level={item.level}
-                          date={item.date}
-                          time={item.time}
-                          type={item.type}
-                          address={item.address}
-                          cost={item.cost}
-                        />
-                      </Pressable>
-                    </View>
-                  )}
-                  keyExtractor={(item) => item.id.toString()}
-                  horizontal={true}
-                  showsHorizontalScrollIndicator={true}
-                  contentContainerStyle={styles.classList}
-                />
+                {loading && <ClassListSkeleton />}
+
+                {!loading && (
+                  <FlatList
+                    data={attedingClasses}
+                    renderItem={({ item: attedingClass }) => {
+                      return (
+                        <View style={styles.classItem}>
+                          <Pressable>
+                            <CourseItem
+                              majorIconUrl={`${URL}${attedingClass.major?.icon?.path}`}
+                              name={attedingClass.title}
+                              level={attedingClass.class_level?.vn_name || ""}
+                              date={attedingClass.started_at + ""}
+                              time={2}
+                              type={"Tại nhà"}
+                              address={attedingClass.address1}
+                              cost={attedingClass.price}
+                            />
+                          </Pressable>
+                        </View>
+                      );
+                    }}
+                    keyExtractor={(item) => item.id.toString()}
+                    horizontal={true}
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={[
+                      styles.classList,
+                      attedingClasses.length === 1 && styles.centeredItem,
+                    ]}
+                  />
+                )}
               </Animated.View>
             </View>
+
+              {/* Teaching class */}
+              {teachingClasses.length > 0 && 
+              <View style={styles.classContainer}>
+                <View style={[styles.titleContainer, { paddingHorizontal: 20 }]}>
+                  <TouchableOpacity
+                    onPress={() => toggleExpand(items[1].id)}
+                    style={{ flexDirection: "row", gap: 10 }}
+                  >
+                    <Animated.View style={{ transform: [{ rotate: getRotationInterpolation(items[1].id -1) }] }}>
+                      <Ionicons name="chevron-forward" size={20} color="black" />
+                    </Animated.View>
+                    <Text style={styles.title}>{items[1].title}</Text>
+                  </TouchableOpacity>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      gap: 10,
+                      alignItems: "center",
+                    }}
+                  >
+                    <TouchableOpacity>
+                      <Text style={styles.showAllText}>Xem tất cả</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={() => setVisibleModal("modal_fiter")}
+                    >
+                      <Image
+                        source={require("../../../assets/images/ic_filter.png")}
+                        style={{ width: 20, height: 20 }}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                </View>
+
+                <Animated.View
+                  style={[
+                    styles.relatedClassContainer,
+                    {
+                      height: getHeightInterpolation(items[1].id -1),
+                      opacity: getOpacityInterpolation(items[1].id -1),
+                    },
+                  ]}
+                >
+                  {loading && <ClassListSkeleton />}
+
+                  {!loading && (
+                    <FlatList
+                      data={teachingClasses}
+                      renderItem={({ item: attedingClass }) => {
+                        return (
+                          <View style={styles.classItem}>
+                            <Pressable>
+                              <CourseItem
+                                majorIconUrl={`${URL}${attedingClass.major?.icon?.path}`}
+                                name={attedingClass.title}
+                                level={attedingClass.class_level?.vn_name || ""}
+                                date={attedingClass.started_at + ""}
+                                time={2}
+                                type={"Tại nhà"}
+                                address={attedingClass.address1}
+                                cost={attedingClass.price}
+                              />
+                            </Pressable>
+                          </View>
+                        );
+                      }}
+                      keyExtractor={(item) => item.id.toString()}
+                      horizontal={true}
+                      showsHorizontalScrollIndicator={false}
+                      contentContainerStyle={[
+                        styles.classList,
+                        teachingClasses.length === 1 && styles.centeredItem,
+                      ]}
+                    />
+                  )}
+                </Animated.View>
+              </View>
+              }
+
+
+              {/* Created classes */}
+              {createdClasses.length > 0 && 
+              <View style={styles.classContainer}>
+                <View style={[styles.titleContainer, { paddingHorizontal: 20 }]}>
+                  <TouchableOpacity
+                    onPress={() => toggleExpand(items[2].id)}
+                    style={{ flexDirection: "row", gap: 10 }}
+                  >
+                    <Animated.View style={{ transform: [{ rotate: getRotationInterpolation(items[2].id -1) }] }}>
+                      <Ionicons name="chevron-forward" size={20} color="black" />
+                    </Animated.View>
+                    <Text style={styles.title}>{items[2].title}</Text>
+                  </TouchableOpacity>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      gap: 10,
+                      alignItems: "center",
+                    }}
+                  >
+                    <TouchableOpacity>
+                      <Text style={styles.showAllText}>Xem tất cả</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={() => setVisibleModal("modal_fiter")}
+                    >
+                      <Image
+                        source={require("../../../assets/images/ic_filter.png")}
+                        style={{ width: 20, height: 20 }}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                </View>
+
+                <Animated.View
+                  style={[
+                    styles.relatedClassContainer,
+                    {
+                      height: getHeightInterpolation(items[2].id -1),
+                      opacity: getOpacityInterpolation(items[2].id -1),
+                    },
+                  ]}
+                >
+                  {loading && <ClassListSkeleton />}
+
+                  {!loading && (
+                    <FlatList
+                      data={createdClasses}
+                      renderItem={({ item: attedingClass }) => {
+                        return (
+                          <View style={styles.classItem}>
+                            <Pressable>
+                              <CourseItem
+                                majorIconUrl={`${URL}${attedingClass.major?.icon?.path}`}
+                                name={attedingClass.title}
+                                level={attedingClass.class_level?.vn_name || ""}
+                                date={attedingClass.started_at + ""}
+                                time={2}
+                                type={"Tại nhà"}
+                                address={attedingClass.address1}
+                                cost={attedingClass.price}
+                              />
+                            </Pressable>
+                          </View>
+                        );
+                      }}
+                      keyExtractor={(item) => item.id.toString()}
+                      horizontal={true}
+                      showsHorizontalScrollIndicator={false}
+                      contentContainerStyle={[
+                        styles.classList,
+                        createdClasses.length === 1 && styles.centeredItem,
+                      ]}
+                    />
+                  )}
+                </Animated.View>
+              </View>
+              }
+
+
 
             {/* <View style={styles.line}></View> */}
 
@@ -346,7 +583,7 @@ export default function HomeScreen() {
                     color="black"
                   />
                   {/* <Ionicons name="chevron-forward" size={24} color="black" /> */}
-                  <Text style={styles.title}>Các lớp học</Text>
+                  <Text style={styles.title}>Các CV</Text>
                 </View>
                 <View
                   style={{
@@ -355,10 +592,14 @@ export default function HomeScreen() {
                     alignItems: "center",
                   }}
                 >
-                  <TouchableOpacity>
-                    <Text style={styles.showAllText}>Xem tất cả</Text>
+                  <TouchableOpacity onPress={handleNavigateToCVList}>
+                    <Text onPress={goToCVList} style={styles.showAllText}>
+                      Xem tất cả
+                    </Text>
                   </TouchableOpacity>
-                  <TouchableOpacity onPress={() => setVisibleModal("modal_fiter")}>
+                  <TouchableOpacity
+                    onPress={() => setVisibleModal("modal_fiter")}
+                  >
                     <Image
                       source={require("../../../assets/images/ic_filter.png")}
                       style={{ width: 20, height: 20 }}
@@ -371,7 +612,7 @@ export default function HomeScreen() {
                 <FlatList
                   data={tutors}
                   renderItem={({ item }) => (
-                    <View style={styles.classItem}>
+                    <Pressable onPress={goToDetailCV} style={styles.classItem}>
                       <TutorItem
                         avatar={item.avatar}
                         userName={item.userName}
@@ -381,7 +622,7 @@ export default function HomeScreen() {
                         address={item.address}
                         // skills={item.skills}
                       />
-                    </View>
+                    </Pressable>
                   )}
                   keyExtractor={(item) => item.id.toString()}
                   horizontal={true}
@@ -392,10 +633,18 @@ export default function HomeScreen() {
             </View>
           </View>
         </View>
-        <Filter isVisible={visibleModal} onRequestClose={() => setVisibleModal (null)}/>
+        <Filter
+          isVisible={visibleModal}
+          onRequestClose={() => setVisibleModal(null)}
+        />
+        <Filter
+          isVisible={visibleModal}
+          onRequestClose={() => setVisibleModal(null)}
+        />
       </View>
     </ScrollView>
   );
+ 
 }
 
 const styles = StyleSheet.create({
@@ -405,7 +654,7 @@ const styles = StyleSheet.create({
   },
   headerContainer: {
     backgroundColor: BackgroundColor.primary,
-    paddingTop: 30,
+    paddingTop: 50,
     paddingBottom: 100,
     paddingHorizontal: 20,
   },
@@ -473,7 +722,7 @@ const styles = StyleSheet.create({
 
   line: {
     height: 1,
-    backgroundColor: BackgroundColor.gray_c6
+    backgroundColor: BackgroundColor.gray_c6,
   },
 
   majorContainer: {
@@ -503,6 +752,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
 
+  majorTextContainer: {
+    height: 43,
+    justifyContent: "center",
+  },
+
   majorItem: {
     flexDirection: "column",
     alignItems: "center",
@@ -521,6 +775,7 @@ const styles = StyleSheet.create({
 
   majorText: {
     textAlign: "center",
+    fontSize: 12,
   },
 
   classContainer: {
@@ -534,11 +789,17 @@ const styles = StyleSheet.create({
 
   classItem: {
     padding: 10,
-    width: 350,
+    width: 340,
   },
 
   classList: {
     paddingBottom: 10,
     paddingHorizontal: 10,
+  },
+
+  centeredItem: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });

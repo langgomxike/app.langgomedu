@@ -13,6 +13,7 @@ export enum BackgroundColor {
     gray_30 = '#D9D9D9',
     gray_50 = '#C3C3C3', //dark gray
     gray_c6 = '#CCCCCC',
+    gray_c9 = "#C9C9C9",
     gray_49 = '#494949',
     schedule_leaner = '#FFD028',
     schedule_tutor = '#CD84F1',
