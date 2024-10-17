@@ -1,10 +1,11 @@
 import { FunctionComponent, useContext, useEffect, useState } from "react";
 import { FlatList, StyleSheet, Text, View } from "react-native";
 import { LanguageContext, Languages } from "../../configs/LanguageConfig";
+import { TextColor } from "../../configs/ColorConfig";
 
 type HorizontalListProp = {
-  title: string;
-  onViewAll: () => void;
+  title?: string;
+  onViewAll?: () => void;
   list: Array<object>;
   ItemView: ({ item }: ItemViewProp) => React.JSX.Element;
 };
@@ -13,12 +14,15 @@ type ItemViewProp = {
   item: unknown;
 };
 
-const activeColor = "#0D99FF";
-const hintColor = "#AAA";
+const HEADER_PADDING = 10;
+const CONTENT_MARGIN = 10;
 
-const BUTTON_SIZE = 35;
-
-export default function HorizontalList({title = "",onViewAll = () => {},list = [],ItemView = ({ item }: ItemViewProp) => <></>,}: HorizontalListProp) {
+export default function HorizontalList({
+  title = "",
+  onViewAll = () => {},
+  list = [],
+  ItemView = ({ item }: ItemViewProp) => <></>,
+}: HorizontalListProp) {
   //refs, contexts
   const languageContext = useContext(LanguageContext);
 
@@ -56,24 +60,24 @@ const styles = StyleSheet.create({
 
   header: {
     flexDirection: "row",
-    paddingHorizontal: 10,
-    paddingTop: 10,
+    paddingHorizontal: HEADER_PADDING,
+    paddingTop: HEADER_PADDING,
   },
 
   title: {
     flex: 1,
     fontSize: 15,
     fontWeight: "bold",
-    color: "#000",
+    color: TextColor.black,
   },
 
   viewAll: {
     fontSize: 15,
     fontWeight: "bold",
-    color: hintColor,
+    color: TextColor.hint,
   },
 
   content: {
-    margin: 10,
+    margin: CONTENT_MARGIN,
   },
 });

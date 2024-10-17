@@ -36,6 +36,8 @@ import Class from "../../models/Class";
 import CustomShimmer from "../components/skeleton/CustomShimmer";
 import ListMajorSkeleton from "../components/skeleton/ListMajorSkeleton";
 import ClassListSkeleton from "../components/skeleton/ClassListSkeleten";
+import AUser from "../../apis/AUser";
+import { AccountContext } from "../../configs/AccountConfig";
 
 const tutors = [
   {
@@ -79,14 +81,17 @@ const items = [
 const URL = ReactAppUrl.PUBLIC_URL;
 
 export default function HomeScreen() {
-  // state
+  //contexts, refs
+  const navigation = useContext(NavigationContext);
+  const accountContext = useContext(AccountContext);
+
+  //states
   const [visibleModal, setVisibleModal] = useState<string | null>("");
-  const [loading, setLoading] = useState(false);
-  // const [isExpanded, setIsExpanded] = useState(true);
-  const [expandedItems, setExpandedItems] = useState<number[]>(items.map(item => item.id));
-  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [searchKey, setSearchKey] = useState<string>("");
+  const [loading, setLoading] = useState(false);
+  const [expandedItems, setExpandedItems] = useState<number[]>(items.map(item => item.id));
   const [userTypeName, setUserTypeName] = useState("Leaner");
+  // const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   // const handleNavigateToDetail = (course: Course) => {
   //   navigation.navigate(ScreenName.DETAIL_CLASS, { course });
   // };
@@ -108,6 +113,31 @@ export default function HomeScreen() {
 
     setUserTypeName(user.TYPE === UserType.LEANER ? "Tutor" : "Leaner");
   }
+
+  //handlers
+  const goToScan = useCallback(() => {
+    navigation?.navigate(ScreenName.SCANNER);
+  }, []);
+
+  const handleNavigateToDetail = (course: Class) => {
+    navigation?.navigate(ScreenName.DETAIL_CLASS, { course });
+  };
+
+  const goToClassList = useCallback(() => {
+    navigation?.navigate(ScreenName.CLASS_LIST);
+  }, []);
+
+  const goToCVList = useCallback(() => {
+    navigation?.navigate(ScreenName.CV_LIST);
+  }, []);
+
+  const goToDetailCV = useCallback(() => {
+    navigation?.navigate(ScreenName.CV);
+  }, []);
+
+  const handleOpenDrawer = () => {
+    // navigation
+  };
 
   // effect
   useEffect(() => {
@@ -149,18 +179,10 @@ export default function HomeScreen() {
 
   }, []);
 
-  // const navigation = useContext(NavigationContext);
-  // const [searchKey, setSearchKey] = useState<string>("");
-  // const handleNavigateToDetail = (course: Course) => {
-  //   navigation?.navigate(ScreenName.DETAIL_CLASS, { course });
-  // };
-  // navigation?.navigate(ScreenName.LOGIN);
-  const handleOpenDrawer = () => {
-    // navigation
-  };
+  
 
-  // const animation = useRef(new Animated.Value(1)).current;
-  const animation = useRef(items.map(() => new Animated.Value(1))).current
+  // animations
+  const animation = useRef(items.map(() => new Animated.Value(1))).current;
 
   const toggleExpand = (id: number) => {
     const isExplaned = expandedItems.includes(id);
@@ -180,29 +202,45 @@ export default function HomeScreen() {
     );
   }
 
-  // Hàm lấy height interpolation cho từng item
-const getHeightInterpolation = (index:number) => {
-  return animation[index].interpolate({
-    inputRange: [0, 1],
-    outputRange: [0, 380], // Thu hẹp là 0, mở rộng là 450
-  });
-};
+    // Hàm lấy height interpolation cho từng item
+  const getHeightInterpolation = (index:number) => {
+    return animation[index].interpolate({
+      inputRange: [0, 1],
+      outputRange: [0, 380], // Thu hẹp là 0, mở rộng là 450
+    });
+  };
 
-  // Hàm lấy opacity interpolation cho từng item
-const getOpacityInterpolation = (index:number) => {
-  return animation[index].interpolate({
-    inputRange: [0, 1],
-    outputRange: [0.5, 1], // Mờ là 0.5, rõ là 1
-  });
-};
+    // Hàm lấy opacity interpolation cho từng item
+  const getOpacityInterpolation = (index:number) => {
+    return animation[index].interpolate({
+      inputRange: [0, 1],
+      outputRange: [0.5, 1], // Mờ là 0.5, rõ là 1
+    });
+  };
 
-// Hàm lấy rotation interpolation cho từng item
-const getRotationInterpolation = (index:number) => {
-  return animation[index].interpolate({
-    inputRange: [0, 1],
-    outputRange: ["0deg", "90deg"], // Xoay từ 0 đến 90 độ
-  });
-};
+  // Hàm lấy rotation interpolation cho từng item
+  const getRotationInterpolation = (index:number) => {
+    return animation[index].interpolate({
+      inputRange: [0, 1],
+      outputRange: ["0deg", "90deg"], // Xoay từ 0 đến 90 độ
+    });
+  };
+
+  const handleNavigateToCVList = useCallback(() => {
+    navigation?.navigate(ScreenName.CV_LIST);
+  }, []);
+
+  useEffect(() => {
+    AUser.implicitLogin((user) => {
+      if (!user) {
+        navigation?.navigate(ScreenName.LOGIN);
+      } else {
+        if (accountContext.setAccount) {
+          accountContext.setAccount(user);
+        }
+      }
+    });
+  }, []);
 
   return (
     <ScrollView showsVerticalScrollIndicator={false}>
@@ -236,7 +274,12 @@ const getRotationInterpolation = (index:number) => {
 
             <View>
               <TouchableOpacity style={[styles.btnQrScan, styles.boxShadow]}>
-                <Ionicons name="qr-code-outline" size={24} color="black" />
+                <Ionicons
+                  onPress={goToScan}
+                  name="qr-code-outline"
+                  size={24}
+                  color="black"
+                />
               </TouchableOpacity>
             </View>
           </View>
@@ -308,8 +351,13 @@ const getRotationInterpolation = (index:number) => {
                   }}
                 >
                   <TouchableOpacity>
-                    <Text style={styles.showAllText}>Xem tất cả</Text>
+                    <Text onPress={goToClassList} style={styles.showAllText}>
+                      Xem tất cả
+                    </Text>
                   </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => setVisibleModal("modal_fiter")}
+                  >
                   <TouchableOpacity
                     onPress={() => setVisibleModal("modal_fiter")}
                   >
@@ -537,7 +585,7 @@ const getRotationInterpolation = (index:number) => {
                     color="black"
                   />
                   {/* <Ionicons name="chevron-forward" size={24} color="black" /> */}
-                  <Text style={styles.title}>Các lớp học</Text>
+                  <Text style={styles.title}>Các CV</Text>
                 </View>
                 <View
                   style={{
@@ -546,9 +594,14 @@ const getRotationInterpolation = (index:number) => {
                     alignItems: "center",
                   }}
                 >
-                  <TouchableOpacity>
-                    <Text style={styles.showAllText}>Xem tất cả</Text>
+                  <TouchableOpacity onPress={handleNavigateToCVList}>
+                    <Text onPress={goToCVList} style={styles.showAllText}>
+                      Xem tất cả
+                    </Text>
                   </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => setVisibleModal("modal_fiter")}
+                  >
                   <TouchableOpacity
                     onPress={() => setVisibleModal("modal_fiter")}
                   >
@@ -564,7 +617,7 @@ const getRotationInterpolation = (index:number) => {
                 <FlatList
                   data={tutors}
                   renderItem={({ item }) => (
-                    <View style={styles.classItem}>
+                    <Pressable onPress={goToDetailCV} style={styles.classItem}>
                       <TutorItem
                         avatar={item.avatar}
                         userName={item.userName}
@@ -574,7 +627,7 @@ const getRotationInterpolation = (index:number) => {
                         address={item.address}
                         skills={item.skills}
                       />
-                    </View>
+                    </Pressable>
                   )}
                   keyExtractor={(item) => item.id.toString()}
                   horizontal={true}
@@ -585,6 +638,10 @@ const getRotationInterpolation = (index:number) => {
             </View>
           </View>
         </View>
+        <Filter
+          isVisible={visibleModal}
+          onRequestClose={() => setVisibleModal(null)}
+        />
         <Filter
           isVisible={visibleModal}
           onRequestClose={() => setVisibleModal(null)}
@@ -669,6 +726,7 @@ const styles = StyleSheet.create({
 
   line: {
     height: 1,
+    backgroundColor: BackgroundColor.gray_c6,
     backgroundColor: BackgroundColor.gray_c6,
   },
 

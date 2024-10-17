@@ -5,20 +5,15 @@ import ChatScreen from "../screens/Chat";
 import CreateClassScreen from "../screens/CreateClass";
 import PersonalScheduleScreen from "../screens/PersonalSchedule";
 import AccountScreen from "../screens/Account";
-import MyIcon, { AppIcon } from "./MyIcon";
-import {
-  Image,
-  ImageSourcePropType,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import { useCallback } from "react";
+import { Image, ImageSourcePropType, StyleSheet, View } from "react-native";
+import { BackgroundColor, TextColor } from "../../configs/ColorConfig";
 
 const activeColor = "#0D99FF";
 const hintColor = "#AAA";
 const TAB_BAR_BORDER_RADIUS = 15;
 const TAB_BAR_MARGIN = 8;
+
+const TAB_ICON_SIZE = 24;
 
 const Tab = createBottomTabNavigator();
 
@@ -31,19 +26,34 @@ export default function ButtonNavBar() {
 
           switch (route.name) {
             case ScreenName.HOME:
-              icon = require("../../../assets/icons/ic_home_tab.png");
+              icon = require(`../../../assets/icons/home-tab.png`);
+              if (focused) {
+                icon = require(`../../../assets/icons/home-tab-active.png`);
+              }
               break;
             case ScreenName.CHAT:
-              icon = require("../../../assets/icons/ic_chat_tag.png");
+              icon = require(`../../../assets/icons/chat-tab.png`);
+              if (focused) {
+                icon = require(`../../../assets/icons/chat-tab-active.png`);
+              }
               break;
             case ScreenName.CREATE_CLASS:
-              icon = require("../../../assets/icons/ic_plus.png");
+              icon = require(`../../../assets/icons/ic_plus-active.png`);
+              if (focused) {
+                icon = require(`../../../assets/icons/ic_plus.png`);
+              }
               break;
             case ScreenName.PERSONAL_SCHEDULE:
-              icon = require("../../../assets/icons/ic_file.png");
+              icon = require(`../../../assets/icons/ic_calendar_outline.png`);
+              if (focused) {
+                icon = require(`../../../assets/icons/ic_calendar_outline-active.png`);
+              }
               break;
             case ScreenName.ACCOUNT:
-              icon = require("../../../assets/icons/ic_account.png");
+              icon = require(`../../../assets/icons/account_tab.png`);
+              if (focused) {
+                icon = require(`../../../assets/icons/account_tab-active.png`);
+              }
               break;
           }
 
@@ -53,8 +63,8 @@ export default function ButtonNavBar() {
             </View>
           );
         },
-        tabBarActiveTintColor: activeColor,
-        tabBarInactiveTintColor: hintColor,
+        tabBarActiveTintColor: BackgroundColor.primary,
+        tabBarInactiveTintColor: BackgroundColor.gray_10,
         tabBarStyle: {
           borderRadius: TAB_BAR_BORDER_RADIUS,
           margin: TAB_BAR_MARGIN,
@@ -87,16 +97,15 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     alignItems: "center",
     marginTop: 10,
-    // marginBottom: 10,
   },
   icon: {
-    width: 24, // Chiều rộng của biểu tượng
-    height: 24, // Chiều cao của biểu tượng
+    width: TAB_ICON_SIZE, // Chiều rộng của biểu tượng
+    height: TAB_ICON_SIZE, // Chiều cao của biểu tượng
     borderRadius: 5,
   },
   iconName: {
     marginTop: 5,
     fontSize: 16,
-    color: "#000", // Màu sắc của tên biểu tượng
+    color: TextColor.black, // Màu sắc của tên biểu tượng
   },
 });

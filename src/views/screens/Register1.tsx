@@ -3,10 +3,27 @@ import MyIcon, { AppIcon } from "../components/MyIcon";
 import InputRegister from "../components/Inputs/InputRegister";
 import MyText from "../components/MyText";
 import Button from "../components/Button";
-import { useContext } from "react";
+import { useCallback, useContext } from "react";
 import { NavigationContext } from "@react-navigation/native";
 import ScreenName from "../../constants/ScreenName";
-export default function Register1Screen() {
+export default function DuTestScreen() {
+  //contexts
+  const navigation = useContext(NavigationContext);
+
+  //handlers
+  const goBack = useCallback(() => {
+    navigation?.goBack();
+  }, []);
+
+  const goToLogin = useCallback(() => {
+    navigation?.goBack();
+    navigation?.navigate(ScreenName.LOGIN);
+  }, []);
+
+  const goForward = useCallback(() => {
+    navigation?.navigate(ScreenName.REGISTER_2);
+  }, []);
+
   function myEmptyFunction(): void {
     // Hàm này không làm gì cả
   }
@@ -21,22 +38,21 @@ export default function Register1Screen() {
     navigation?.navigate(ScreenName.LOGIN);
   }
   return (
-    <ScrollView>
-        <View style={styles.icon}>
-          <MyIcon icon={AppIcon.ic_back_circle} onPress={goBack} />
-        </View>
-        <Image
-          style={styles.img}
-          source={require("../../../assets/images/ illustration/Mobile login-rafiki.png")}
-        ></Image>
-        <View style={styles.row}>
-          <View>
-            <Text style={styles.title}>Tạo tài khoản</Text>
-            <Text style={styles.content}>
-              Hãy cho chúng tôi biết thêm thông tin về bạn
-            </Text>
-          </View>
+    <ScrollView style={styles.container}>
+      <View style={styles.icon}>
+        <MyIcon onPress={goBack} icon={AppIcon.ic_back_circle} />
+      </View>
 
+      <Image
+        style={styles.img}
+        source={require("../../../assets/images/ illustration/Mobile login-rafiki.png")}
+      ></Image>
+      <View style={styles.row}>
+        <View>
+          <Text style={styles.title}>Tạo tài khoản</Text>
+          <Text style={styles.content}>
+            Hãy cho chúng tôi biết thêm thông tin về bạn
+          </Text>
         </View>
       <View style={styles.container}>
       
@@ -91,13 +107,10 @@ export default function Register1Screen() {
         <Button
           title="Tiếp tục"
           textColor="white"
-          backgroundColor="#0D99FF"
-          onPress={goRegister2}
+          backgroundColor="blue"
+          onPress={goForward}
         ></Button>
-        <View style={styles.lastText}>
-          <Text>Bạn đã có tài khoản? </Text>
-          <MyText text="đăng nhập" onPress={goToLogin}></MyText>
-        </View>
+        <Text onPress={goToLogin}>Bạn đã có tài khoản? Đăng nhập</Text>
       </View>
     </ScrollView>
   );

@@ -19,8 +19,8 @@ import AMessage from "../../apis/AMessage";
 import { IdNavigationType } from "../../configs/NavigationRouteTypeConfig";
 
 const APP_NAME = "Langgom";
-const HEADER_IMAGE = require("../../../assets/icons/ic_chatbox.png");
-const HEADER_TEXT_SIXE = 25;
+const HEADER_IMAGE = require("../../../assets/icons/ic-chatbox.png");
+const HEADER_TEXT_SIZE = 25;
 const SCREEN_BORDER_HORIZONTAL = 20;
 const SCREEN_ITEM_GAP = 0;
 
@@ -51,17 +51,17 @@ const messageTab: TabItem = {
       [searchContext]
     );
 
-    const handleGoToMessage = useCallback((userId: number) => {
+    const handleGoToMessage = useCallback((userId: string) => {
       const data: IdNavigationType = { id: userId };
       navigation?.navigate(ScreenName.MESSAGE, data);
     }, []);
 
     //effects
-    useEffect(() => {
-      AMessage.getChatsOfUser(-1, (chats: Chat[]) => {
-        setChatMessages(chats);
-      });
-    }, []);
+    // useEffect(() => {
+    //   AMessage.getChatsOfUser(-1, (chats: Chat[]) => {
+    //     setChatMessages(chats);
+    //   });
+    // }, []);
 
     return (
       <ScrollView
@@ -195,7 +195,7 @@ const styles = StyleSheet.create({
 
   headerText: {
     textAlignVertical: "bottom",
-    fontSize: HEADER_TEXT_SIXE,
+    fontSize: HEADER_TEXT_SIZE,
     fontWeight: "bold",
   },
 });

@@ -1,92 +1,99 @@
 import { ScrollView, Text, View, StyleSheet, Image, Alert } from "react-native";
 import MyIcon, { AppIcon } from "../components/MyIcon";
-import InputRegister from '../components/Inputs/InputRegister';
+import InputRegister from "../components/Inputs/InputRegister";
 import MyText from "../components/MyText";
 import Button from "../components/Button";
 import { useCallback, useContext } from "react";
 import { NavigationContext } from "@react-navigation/native";
 import ScreenName from "../../constants/ScreenName";
-
-export default function LoginScreen() {
-
+export default function DuTestScreen() {
+  //contexts
   const navigation = useContext(NavigationContext);
- 
-  function goToRegisterScreen(): void {
-    navigation?.navigate(ScreenName.REGISTER1);
-  }
-  function goToOTPScreen():void {
-    navigation?.navigate(ScreenName.OTP);
-  }
-  function handleInputChange(value: string): void {
-    console.log(value);
-  }
-  function emty() {
-    alert('ban da nhay');
-  }
-  function goBack()
-  {
+
+  //handlers
+  const handleForgettingPassword = useCallback(() => {
     navigation?.goBack();
+    navigation?.navigate(ScreenName.OTP);
+  }, []);
+
+  const goBack = useCallback(() => {
+    navigation?.goBack();
+  }, []);
+
+  const goToRegister = useCallback(() => {
+    navigation?.goBack();
+    navigation?.navigate(ScreenName.REGISTER_1);
+  }, []);
+
+  const handleLogin = useCallback(() => {
+    navigation?.goBack();
+    navigation?.navigate(ScreenName.HOME);
+  }, []);
+
+  function myEmptyFunction(): void {
+    // Hàm này không làm gì cả
   }
-
-
   return (
-    <ScrollView >
+    <ScrollView>
       <View style={styles.container}>
-       
-
-     
-
-      <Image
-        style={styles.img}
-        source={require("../../../assets/images/ illustration/Mobile login-rafiki.png")}
-      ></Image>
-      <View style={styles.row}>
-        <View>
-      <Text style={styles.title}> Đăng nhập</Text>
-      <Text style={styles.content}>Hãy nhập thông tin để đăng nhập</Text>
-      </View>
-      <View></View>
-      </View>
-      <View style={styles.input}>
-        <InputRegister
-          label="Email hoặc số điện thoại"
-          required={true}
-          onChangeText={handleInputChange}
-          placeholder="Emal hoặc số điện thoại"
-          type="phone"
-          iconName="phone"
-        ></InputRegister>
-      </View>
-      <View style={styles.input}>
-        <InputRegister
-          label="Mật khẩu của bạn"
-          required={true}
-          onChangeText={handleInputChange}
-          placeholder="Mật khẩu của bạn"
-          type="password"
-          iconName="password"
-        ></InputRegister>
-      </View>
-      <View style={styles.row1}>
-        <Text></Text>
-        <View style={styles.testQuenMatKhau}>
-        <MyText text='Bạn quên mật khẩu?' onPress={goToOTPScreen}></MyText>
+        <View style={styles.icon}>
+          <MyIcon onPress={goBack} icon={AppIcon.ic_back_circle} />
         </View>
-      </View>
-      <Button title="Đăng nhập" textColor="white" backgroundColor="blue" onPress={emty}></Button>
-      <View style={styles.lastText}>
-  
-      <Text>Bạn chưa có tài khoản? </Text>
-      <MyText text='Hãy đăng ký' onPress={goToRegisterScreen}></MyText>
-      </View>
-     
+        <Image
+          style={styles.img}
+          source={require("../../../assets/images/ illustration/Mobile login-rafiki.png")}
+        ></Image>
+        <View style={styles.row}>
+          <View>
+            <Text style={styles.title}> Đăng nhập</Text>
+            <Text style={styles.content}>Hãy nhập thông tin để đăng nhập</Text>
+          </View>
+          <View></View>
+        </View>
+
+        <View style={styles.input}>
+          <InputRegister
+            label="Email hoặc số điện thoại"
+            required={true}
+            onChangeText={myEmptyFunction}
+            placeholder="Emal hoặc số điện thoại"
+            type="phone"
+            iconName="phone"
+          ></InputRegister>
+        </View>
+
+        <View style={styles.input}>
+          <InputRegister
+            label="Mật khẩu của bạn"
+            required={true}
+            onChangeText={myEmptyFunction}
+            placeholder="Mật khẩu của bạn"
+            type="password"
+            iconName="password"
+          ></InputRegister>
+        </View>
+
+        <View style={styles.row1}>
+          <Text></Text>
+          <View style={styles.testQuenMatKhau}>
+            <Text onPress={handleForgettingPassword}>Bạn quên mật khẩu?</Text>
+          </View>
+        </View>
+
+        <Button
+          title="Đăng nhập"
+          textColor="white"
+          backgroundColor="blue"
+          onPress={handleLogin}
+        ></Button>
+        <Text onPress={goToRegister}>Bạn chưa có tài khoản? Hãy đăng ký</Text>
       </View>
     </ScrollView>
-  );
+  ); 
 }
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flex: 1, 
     alignItems: "center",
     // justifyContent: "center",
   },
@@ -105,7 +112,7 @@ const styles = StyleSheet.create({
     width: "90%",
     marginBottom: "20%",
   },
-  
+
   img: {
     top: -10,
     width: 250,
@@ -114,7 +121,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    fontWeight:'bold',
+    fontWeight: "bold",
   },
   content: {
     fontSize: 14,
@@ -131,7 +138,7 @@ const styles = StyleSheet.create({
     marginBottom: "20%",
   },
   button: {
-    marginTop: '10%',
+    marginTop: "10%",
     alignItems: "center",
   },
   dangky: {},
@@ -141,9 +148,9 @@ const styles = StyleSheet.create({
     marginBottom: 20, // Thêm khoảng cách dưới hàng icon
   },
   row: {
-     // Đặt các biểu tượng nằm trên cùng một hàng
-    marginLeft:'-40%', // Cân đối khoảng cách giữa các biểu tượng
-    marginBottom:' -12%', // Thêm khoảng cách dưới hàng icon
+    // Đặt các biểu tượng nằm trên cùng một hàng
+    marginLeft: "-40%", // Cân đối khoảng cách giữa các biểu tượng
+    marginBottom: " -12%", // Thêm khoảng cách dưới hàng icon
   },
   lastText:{
     flexDirection: 'row',
