@@ -27,16 +27,16 @@ export default function DuTestScreen() {
   function myEmptyFunction(): void {
     // Hàm này không làm gì cả
   }
-  const navigation = useContext(NavigationContext);
-  function goBack(): void {
-    navigation?.goBack();
-  }
-  function goRegister2(): void {
-    navigation?.navigate(ScreenName.REGISTER2);
-  }
-  function goToLogin(): void {
-    navigation?.navigate(ScreenName.LOGIN);
-  }
+  // const navigation = useContext(NavigationContext);
+  // function goBack(): void {
+  //   navigation?.goBack();
+  // }
+  // function goRegister2(): void {
+  //   navigation?.navigate(ScreenName.REGISTER2);
+  // }
+  // function goToLogin(): void {
+  //   navigation?.navigate(ScreenName.LOGIN);
+  // }
   return (
     <ScrollView style={styles.container}>
       <View style={styles.icon}>
@@ -54,6 +54,7 @@ export default function DuTestScreen() {
             Hãy cho chúng tôi biết thêm thông tin về bạn
           </Text>
         </View>
+      </View>
       <View style={styles.container}>
       
 
