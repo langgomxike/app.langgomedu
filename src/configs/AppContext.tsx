@@ -16,6 +16,7 @@ export default function AppContext({ children }: PropsWithChildren) {
   const navigation = useContext(NavigationContext);
   const [language, setLanguage] = useState<LanguageType>(languages.VN);
   const [account, setAccount] = useState<User | undefined>(undefined);
+  const [inboxes, setInboxes] = useState<any[]>([]);
 
   //handlers
   const setLanguageContext = useCallback((language: Languages) => {

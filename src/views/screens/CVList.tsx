@@ -44,7 +44,7 @@ const tutors = [
     skills: ["History", "Geography"],
   },
 ];
-export default function CVList() {
+export default function CVListScreen() {
   const [searchKey, setSearchKey] = useState("");
   const [currentPage, setCurentPage] = useState(1);
   return (

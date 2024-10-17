@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useCallback, useContext } from "react";
 import {
   View,
   Text,
@@ -9,12 +9,20 @@ import {
   Image,
 } from "react-native";
 import MyIcon, { AppIcon } from "../components/MyIcon";
+import { NavigationContext } from "@react-navigation/native";
 
 export default function OTPScreen() {
+  //context
+  const navigation = useContext(NavigationContext);
   const [otp, setOtp] = useState<string[]>(["", "", "", "", "", ""]);
 
   // Tạo ref cho từng ô nhập OTP
   const otpInputs = useRef<TextInput[]>([]);
+
+  //handlers
+  const goBack = useCallback(() => {
+    navigation?.goBack();
+  }, []);
 
   const handleChangeText = (text: string, index: number) => {
     const newOtp = [...otp];
@@ -48,7 +56,7 @@ export default function OTPScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.ic}>
-        <MyIcon icon={AppIcon.ic_back_circle} />
+        <MyIcon onPress={goBack} icon={AppIcon.ic_back_circle} />
       </View>
 
       <Text style={styles.title}>Xác Nhận OTP</Text>

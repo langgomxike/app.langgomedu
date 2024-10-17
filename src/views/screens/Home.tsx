@@ -136,9 +136,27 @@ export default function HomeScreen() {
   const [visibleModal, setVisibleModal] = useState<string | null>("");
 
   const [searchKey, setSearchKey] = useState<string>("");
+
+  //handlers
+  const goToScan = useCallback(() => {
+    navigation?.navigate(ScreenName.SCANNER);
+  }, []);
+
   const handleNavigateToDetail = (course: Course) => {
     navigation?.navigate(ScreenName.DETAIL_CLASS, { course });
   };
+
+  const goToClassList = useCallback(() => {
+    navigation?.navigate(ScreenName.CLASS_LIST);
+  }, []);
+
+  const goToCVList = useCallback(() => {
+    navigation?.navigate(ScreenName.CV_LIST);
+  }, []);
+
+  const goToDetailCV = useCallback(() => {
+    navigation?.navigate(ScreenName.CV);
+  }, []);
 
   const handleOpenDrawer = () => {
     // navigation
@@ -222,7 +240,12 @@ export default function HomeScreen() {
 
             <View>
               <TouchableOpacity style={[styles.btnQrScan, styles.boxShadow]}>
-                <Ionicons name="qr-code-outline" size={24} color="black" />
+                <Ionicons
+                  onPress={goToScan}
+                  name="qr-code-outline"
+                  size={24}
+                  color="black"
+                />
               </TouchableOpacity>
             </View>
           </View>
@@ -310,7 +333,9 @@ export default function HomeScreen() {
                   }}
                 >
                   <TouchableOpacity>
-                    <Text style={styles.showAllText}>Xem tất cả</Text>
+                    <Text onPress={goToClassList} style={styles.showAllText}>
+                      Xem tất cả
+                    </Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     onPress={() => setVisibleModal("modal_fiter")}
@@ -368,7 +393,7 @@ export default function HomeScreen() {
                     color="black"
                   />
                   {/* <Ionicons name="chevron-forward" size={24} color="black" /> */}
-                  <Text style={styles.title}>Các lớp học</Text>
+                  <Text style={styles.title}>Các CV</Text>
                 </View>
                 <View
                   style={{
@@ -378,7 +403,9 @@ export default function HomeScreen() {
                   }}
                 >
                   <TouchableOpacity onPress={handleNavigateToCVList}>
-                    <Text style={styles.showAllText}>Xem tất cả</Text>
+                    <Text onPress={goToCVList} style={styles.showAllText}>
+                      Xem tất cả
+                    </Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     onPress={() => setVisibleModal("modal_fiter")}
@@ -395,7 +422,7 @@ export default function HomeScreen() {
                 <FlatList
                   data={tutors}
                   renderItem={({ item }) => (
-                    <View style={styles.classItem}>
+                    <Pressable onPress={goToDetailCV} style={styles.classItem}>
                       <TutorItem
                         avatar={item.avatar}
                         userName={item.userName}
@@ -405,7 +432,7 @@ export default function HomeScreen() {
                         address={item.address}
                         skills={item.skills}
                       />
-                    </View>
+                    </Pressable>
                   )}
                   keyExtractor={(item) => item.id.toString()}
                   horizontal={true}

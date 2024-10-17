@@ -7,12 +7,7 @@ import MessageScreen from "./src/views/screens/Message";
 import ProfileScreen from "./src/views/screens/Profile";
 import ClassDetail from "./src/views/screens/ClassDetail";
 import { BackgroundColor } from "./src/configs/ColorConfig";
-import LoginScreen from "./src/views/screens/Login";
-import Register1Screen from "./src/views/screens/Register1";
-import Register2Screen from "./src/views/screens/Register2";
-import OTPScreen from "./src/views/screens/OTP";
-import ChangePasswordScreen from "./src/views/screens/ChangePassword";
-import CVList from "./src/views/screens/CVList";
+import CVListScreen from "./src/views/screens/CVList";
 import SLog, { LogType } from "./src/services/SLog";
 import SAsyncStorage, { AsyncStorageKeys } from "./src/services/SAsyncStorage";
 import AppContext from "./src/configs/AppContext";
@@ -34,7 +29,11 @@ import AttendanceHistoryScreen from "./src/views/screens/AttendanceHistory";
 import AttendanceForLearnerScreen from "./src/views/screens/AttendanceForLearner";
 import AttendanceForTutorScreen from "./src/views/screens/AttendanceForTutor";
 import ScannerScreen from "./src/views/screens/Scanner";
-
+import LoginScreen from "./src/views/screens/Login";
+import Register1Screen from "./src/views/screens/Register1";
+import Register2Screen from "./src/views/screens/Register2";
+import OTPScreen from "./src/views/screens/OTP";
+import ChangePasswordScreen from "./src/views/screens/ChangePassword";
 const Stack = createNativeStackNavigator();
 const SCREEN_PADDING_TOP = 50;
 const SCREEN_PADDING_HORIZONTAL = 0;
@@ -46,16 +45,15 @@ export default function App() {
         <Stack.Navigator
           screenOptions={{
             headerShown: false,
+            title: "",
             contentStyle: {
-              paddingTop: SCREEN_PADDING_TOP,
               paddingHorizontal: SCREEN_PADDING_HORIZONTAL,
+              paddingTop: SCREEN_PADDING_TOP,
               backgroundColor: BackgroundColor.white,
             },
           }}
         >
-          {/* NAV BAR (INCLUDES SCREENS IN NAV ALREADY) */}
           <Stack.Screen name={ScreenName.NAV_BAR} component={ButtonNavBar} />
-
           <Stack.Screen name={ScreenName.MESSAGE} component={MessageScreen} />
           <Stack.Screen name={ScreenName.PROFILE} component={ProfileScreen} />
           <Stack.Screen name={ScreenName.SCANNER} component={ScannerScreen} />
@@ -67,17 +65,6 @@ export default function App() {
           <Stack.Screen
             name={ScreenName.DETAIL_CLASS}
             component={ClassDetail}
-            options={{
-              title: "Chi tiết lớp học",
-              headerShown: true,
-              contentStyle: {
-                padding: 0,
-              },
-              headerStyle: {
-                backgroundColor: BackgroundColor.primary,
-              },
-              headerTintColor: BackgroundColor.white,
-            }}
           />
           <Stack.Screen name={ScreenName.RATING} component={RatingScreen} />
 
@@ -94,7 +81,7 @@ export default function App() {
             component={AttendanceForTutorScreen}
           />
 
-          <Stack.Screen name={ScreenName.CV_LIST} component={CVList} />
+          <Stack.Screen name={ScreenName.CV_LIST} component={CVListScreen} />
           <Stack.Screen name={ScreenName.CV} component={CVScreen} />
           <Stack.Screen name={ScreenName.INPUT_CV} component={InputCVScreen} />
 
@@ -138,7 +125,6 @@ export default function App() {
             name={ScreenName.USER_MANAGEMENT}
             component={UserManagementScreen}
           />
-
           <Stack.Screen
             name={ScreenName.USER_REPORT_LIST}
             component={UserReportListScreen}

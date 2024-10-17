@@ -38,9 +38,9 @@ export default function ButtonNavBar() {
               }
               break;
             case ScreenName.CREATE_CLASS:
-              icon = require(`../../../assets/icons/ic_plus.png`);
+              icon = require(`../../../assets/icons/ic_plus-active.png`);
               if (focused) {
-                icon = require(`../../../assets/icons/ic_plus-active.png`);
+                icon = require(`../../../assets/icons/ic_plus.png`);
               }
               break;
             case ScreenName.PERSONAL_SCHEDULE:

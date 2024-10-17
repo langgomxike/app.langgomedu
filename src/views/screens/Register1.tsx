@@ -3,14 +3,34 @@ import MyIcon, { AppIcon } from "../components/MyIcon";
 import InputRegister from "../components/Inputs/InputRegister";
 import MyText from "../components/MyText";
 import Button from "../components/Button";
+import { useCallback, useContext } from "react";
+import { NavigationContext } from "@react-navigation/native";
+import ScreenName from "../../constants/ScreenName";
 export default function DuTestScreen() {
+  //contexts
+  const navigation = useContext(NavigationContext);
+
+  //handlers
+  const goBack = useCallback(() => {
+    navigation?.goBack();
+  }, []);
+
+  const goToLogin = useCallback(() => {
+    navigation?.goBack();
+    navigation?.navigate(ScreenName.LOGIN);
+  }, []);
+
+  const goForward = useCallback(() => {
+    navigation?.navigate(ScreenName.REGISTER_2);
+  }, []);
+
   function myEmptyFunction(): void {
     // Hàm này không làm gì cả
   }
   return (
     <ScrollView style={styles.container}>
       <View style={styles.icon}>
-        <MyIcon icon={AppIcon.ic_back_circle} />
+        <MyIcon onPress={goBack} icon={AppIcon.ic_back_circle} />
       </View>
 
       <Image
@@ -20,7 +40,9 @@ export default function DuTestScreen() {
       <View style={styles.row}>
         <View>
           <Text style={styles.title}>Tạo tài khoản</Text>
-          <Text style={styles.content}>Hãy cho chúng tôi biết thêm thông tin về bạn</Text>
+          <Text style={styles.content}>
+            Hãy cho chúng tôi biết thêm thông tin về bạn
+          </Text>
         </View>
         <View></View>
       </View>
@@ -75,9 +97,9 @@ export default function DuTestScreen() {
           title="Tiếp tục"
           textColor="white"
           backgroundColor="blue"
-          onPress={myEmptyFunction}
+          onPress={goForward}
         ></Button>
-        <Text>Bạn đã có tài khoản? Đăng nhập</Text>
+        <Text onPress={goToLogin}>Bạn đã có tài khoản? Đăng nhập</Text>
       </View>
     </ScrollView>
   );
@@ -106,7 +128,6 @@ const styles = StyleSheet.create({
   },
 
   img: {
-
     width: 200,
     height: 200,
     alignSelf: "center",
