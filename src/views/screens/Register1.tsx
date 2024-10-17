@@ -3,14 +3,63 @@ import MyIcon, { AppIcon } from "../components/MyIcon";
 import InputRegister from "../components/Inputs/InputRegister";
 import MyText from "../components/MyText";
 import Button from "../components/Button";
+import { useCallback, useContext, useState } from "react";
+import { NavigationContext } from "@react-navigation/native";
+import ScreenName from "../../constants/ScreenName";
 export default function DuTestScreen() {
+  // tao state luu du luu
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+
+  // kiem tra du lieu khi nhan nut tiep tuc
+  const handleNext = () => {
+
+    if (password.length < 6 || password.length > 24) {
+      setErrorMessage("Mật khẩu phải từ 6 đến 24 ký tự!!!");
+      return false;
+    }
+
+    if (password !== confirmPassword) {
+      setErrorMessage("Mật khẩu xác nhận không khớp!");
+      return false;
+    }
+
+    if (phone && email && password) {
+      console.log("Dien thoai: ", phone);
+      console.log("Email: ", email);
+      console.log("Pass: ", password);
+
+      setErrorMessage("");
+      return true;
+    } else {
+      setErrorMessage("Vui lòng nhập đầy đủ thông tin");
+      return false;
+    }
+  };
+
   function myEmptyFunction(): void {
     // Hàm này không làm gì cả
+  }
+  const navigation = useContext(NavigationContext);
+  function goBack(): void {
+    navigation?.goBack();
+  }
+  function goRegister2(): void {
+    const canProceed = handleNext();
+    if (canProceed) {
+      navigation?.navigate(ScreenName.REGISTER2);
+    }
+  }
+  function goToLogin(): void {
+    navigation?.navigate(ScreenName.LOGIN);
   }
   return (
     <ScrollView style={styles.container}>
       <View style={styles.icon}>
-        <MyIcon icon={AppIcon.ic_back_circle} />
+        <MyIcon icon={AppIcon.ic_back_circle} onPress={goBack} />
       </View>
 
       <Image
@@ -20,15 +69,17 @@ export default function DuTestScreen() {
       <View style={styles.row}>
         <View>
           <Text style={styles.title}>Tạo tài khoản</Text>
-          <Text style={styles.content}>Hãy cho chúng tôi biết thêm thông tin về bạn</Text>
+          <Text style={styles.content}>
+            Hãy cho chúng tôi biết thêm thông tin về bạn
+          </Text>
         </View>
-        <View></View>
       </View>
       <View style={styles.input}>
         <InputRegister
           label="Số điện thoại"
           required={true}
-          onChangeText={myEmptyFunction}
+          onChangeText={setPhone}
+          value={phone}
           placeholder="Số điện thoại"
           type="phone"
           iconName="phone"
@@ -38,7 +89,8 @@ export default function DuTestScreen() {
         <InputRegister
           label="Email"
           required={true}
-          onChangeText={myEmptyFunction}
+          onChangeText={setEmail}
+          value={email}
           placeholder="Emal"
           type="email"
           iconName="email"
@@ -46,10 +98,11 @@ export default function DuTestScreen() {
       </View>
       <View style={styles.input}>
         <InputRegister
-          label="Xác nhận lại mật khẩu của bạn"
+          label="Mật khẩu"
           required={true}
-          onChangeText={myEmptyFunction}
-          placeholder="Xác nhận lại mật khẩu của bạn"
+          onChangeText={setPassword}
+          value={password}
+          placeholder="Nhập mật khẩu của bạn"
           type="password"
           iconName="password"
         ></InputRegister>
@@ -58,7 +111,8 @@ export default function DuTestScreen() {
         <InputRegister
           label="Xác nhận lại mật khẩu của bạn"
           required={true}
-          onChangeText={myEmptyFunction}
+          onChangeText={setConfirmPassword}
+          value={confirmPassword}
           placeholder="Xác nhận lại mật khẩu của bạn"
           type="password"
           iconName="password"
@@ -70,14 +124,20 @@ export default function DuTestScreen() {
           <Text>Mật khẩu phải từ 6 đến 24 kí tự</Text>
         </View>
       </View>
+      {errorMessage ? (
+        <Text style={{ color: "red" }}>{errorMessage}</Text>
+      ) : null}
       <View style={styles.button}>
         <Button
           title="Tiếp tục"
           textColor="white"
           backgroundColor="blue"
-          onPress={myEmptyFunction}
+          onPress={goForward}
         ></Button>
-        <Text>Bạn đã có tài khoản? Đăng nhập</Text>
+        <Text>
+          Bạn đã có tài khoản?{" "}
+          <MyText text="đăng nhập" onPress={goToLogin}></MyText>
+        </Text>
       </View>
     </ScrollView>
   );
@@ -85,7 +145,7 @@ export default function DuTestScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // alignItems: "center",
+     alignItems: "center",
     // justifyContent: "center",
   },
   icon: {
@@ -106,7 +166,6 @@ const styles = StyleSheet.create({
   },
 
   img: {
-
     width: 200,
     height: 200,
     alignSelf: "center",
@@ -121,12 +180,12 @@ const styles = StyleSheet.create({
     marginBottom: "20%",
   },
   test: {
-    top: -10,
+    marginTop: -20,
     // height: 50,
     // backgroundColor: "green",
   },
   text: {
-    top: 5,
+    top: -25,
     left: 90,
     marginBottom: "-15%",
   },
@@ -144,5 +203,8 @@ const styles = StyleSheet.create({
     // Đặt các biểu tượng nằm trên cùng một hàng
     marginLeft: "5%", // Cân đối khoảng cách giữa các biểu tượng
     marginBottom: " -12%", // Thêm khoảng cách dưới hàng icon
+  },
+  lastText: {
+    flexDirection: "row",
   },
 });

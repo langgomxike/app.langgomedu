@@ -106,12 +106,7 @@ export default function customInput({
     <View>
       {/* Các loại input như: "text", "number","password", "email","phone","date" */}
       <View style={style}>
-        <Text style={styles.label}>
-          {label}
-          {required && <Text style={styles.required}> *</Text>}
-        </Text>
-
-        <View style={[styles.inputBlock, styles.boxShadow]}>
+        <View style={styles.inputContainer}>
           <View style={{ flex: 1 }}>
             <Image source={source} style={styles.inputIcon} />
           </View>
@@ -121,7 +116,7 @@ export default function customInput({
                 styles.input,
                 { flex: 9 },
                 editable === false
-                  ? { backgroundColor: GRAY_DISABLE }
+                  ? styles.inputDisabled
                   : { backgroundColor: "white" },
               ]}
               onChangeText={onChangeText}
@@ -155,7 +150,7 @@ export default function customInput({
               </TouchableOpacity>
             )}
             {/* Hiển thị Close x với thẻ input text */}
-            {type !== "date" && type !== "password" && (
+            { editable === false || editable === undefined  && type !== "date" && type !== "password" && (
               <TouchableOpacity
                 onPress={() => onChangeText("")}
                 style={{ flex: 1 }}
@@ -181,13 +176,9 @@ export default function customInput({
 }
 
 const styles = StyleSheet.create({
-  inputWithIcon: {
-    borderBottomWidth: 1,
-    borderColor: "#ccc",
-  },
   inputIcon: {
-    width: 30,
-    height: 30,
+    width: 32,
+    height: 32,
   },
   textAreaContainer: {
     backgroundColor: "white",
@@ -200,26 +191,29 @@ const styles = StyleSheet.create({
     textAlignVertical: "top",
   },
 
-  label: {
-    fontSize: 16,
-    marginBottom: 5,
-    fontWeight: "600",
-  },
-
   required: {
     color: "red",
   },
 
-  input: {},
+  input: {
+    fontSize: 15,
+  },
+
+  inputDisabled: {
+
+  },
 
   inputBlock: {
     flexDirection: "row",
-    backgroundColor: "white",
-    borderRadius: 10,
     alignItems: "center",
-    paddingHorizontal: 5,
-    paddingVertical: 5,
+    borderBottomWidth: 1,
+    borderBottomColor: "#ccc",
   },
+
+  inputContainer: {
+    flexDirection: "row",
+    gap: 10,
+  }, 
 
   boxShadow: {
     shadowColor: "#000",

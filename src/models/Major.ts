@@ -1,22 +1,17 @@
-import MajorDTO from "../dtos/MajorDTO";
-
+import File from "./../models/File";
 export default class Major {
     public id: number;
-    public vnName: string;
-    public jaName: string;
-    public enName: string;
+    public vn_name: string;
+    public ja_name: string;
+    public en_name: string;
+    public icon: File | undefined;
 
-    constructor(id = -1, vnName = "", jaName = "", enName = "") {
+    constructor(id: number, vn_name: string, ja_name: string, en_name: string, icon: File | undefined = undefined){
         this.id = id;
-        this.vnName = vnName;
-        this.jaName = jaName;
-        this.enName = enName;
-    }
-
-    fromDTO(majorDTO: MajorDTO): void {
-        this.id = majorDTO.id;
-        this.vnName = majorDTO.vn_name;
-        this.jaName = majorDTO.ja_name;
-        this.enName = majorDTO.en_name;
-    }
+        this.vn_name = vn_name;
+        this.ja_name = ja_name;
+        this.en_name = en_name;
+        this.icon = icon;
+    };
+    
 }

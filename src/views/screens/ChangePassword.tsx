@@ -3,14 +3,24 @@ import MyIcon, { AppIcon } from "../components/MyIcon";
 import InputRegister from "../components/Inputs/InputRegister";
 import MyText from "../components/MyText";
 import Button from "../components/Button";
-export default function DuTestScreen() {
+import { useContext } from "react";
+import { NavigationContext } from "@react-navigation/native";
+import ScreenName from "../../constants/ScreenName";
+export default function ChangePasswordScreen() {
   function myEmptyFunction(): void {
     // Hàm này không làm gì cả
+  }
+  const navigation = useContext(NavigationContext);
+  function goBack(): void {
+    navigation?.goBack();
+  }
+  function goToLogin(): void {
+    navigation?.navigate(ScreenName.LOGIN);
   }
   return (
     <View style={styles.container}>
       <View style={styles.icon}>
-        <MyIcon icon={AppIcon.ic_back_circle} />
+        <MyIcon icon={AppIcon.back_button} onPress={goBack}/>
       </View>
       <View style={styles.row}>
         <View>
@@ -56,8 +66,8 @@ export default function DuTestScreen() {
         <Text>Mật khẩu phải từ 6 đến 24 kí tự</Text>
         </View>
       </View>
-      <View style={styles.btn}>
-      <Button  title="Xác nhận" textColor="white" backgroundColor="blue" onPress={myEmptyFunction}></Button>
+    <View style={styles.btn}>
+      <Button  title="Xác nhận" textColor="white" backgroundColor="#0D99FF" onPress={goToLogin}></Button>
 
       </View>
     </View>
@@ -70,7 +80,7 @@ const styles = StyleSheet.create({
     // justifyContent: "center",
   },
   icon: {
-    marginTop: "12%",
+
     marginLeft: "-85%",
   },
   iconInput: {
@@ -122,7 +132,9 @@ const styles = StyleSheet.create({
     marginBottom:' -12%', // Thêm khoảng cách dưới hàng icon
   },
   btn:{
-    marginTop:'30%',
+    marginTop:'40%',
+    width:'100%',
+
 
   }
 });

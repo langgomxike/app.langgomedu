@@ -2,15 +2,21 @@ import GenderDTO from "../dtos/GenderDTO";
 
 export default class Gender {
     public id: number;
-    public gender: string;
+    public vnGender: string;
+    public enGender: string;
+    public jaGender: string;
 
-    constructor(id = -1, gender = "") {
+    constructor(id = -1, vnGender = "", enGender = "", jaGender = "") {
         this.id = id;
-        this.gender = gender;
+        this.vnGender = vnGender;
+        this.enGender = enGender;
+        this.jaGender = jaGender;
     }
 
     fromDTO(genderDTO: GenderDTO): void {
         this.id = genderDTO.id;
-        this.gender = genderDTO.gender;
+        this.vnGender = genderDTO.vnGender;
+        this.enGender = genderDTO.enGender;
+        this.jaGender = genderDTO.jaGender;
     }
 }

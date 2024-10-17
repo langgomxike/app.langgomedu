@@ -1,6 +1,8 @@
 import { useContext, useEffect, useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { LanguageContext } from "./../../configs/LanguageConfig";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import { BackgroundColor, TextColor } from "../../configs/ColorConfig";
 
 type PaginationProp = {
   totalPage: number;
@@ -42,18 +44,19 @@ export default function Pagination({
       <View style={styles.buttonContainer}>
         {/* back */}
         <View style={styles.button}>
-          {active > 2 && <Text onPress={() => setActive(1)}>{"<<"}</Text>}
+          {active > 2 && (
+            <TouchableOpacity onPress={() => setActive(1)}>
+              <Ionicons name="arrow-back" />
+            </TouchableOpacity>
+          )}
         </View>
 
         {/* prev offset pages */}
         <View style={styles.button}>
           {active > 1 && (
-            <Text
-              style={{ fontWeight: "500" }}
-              onPress={() => setActive(active - 1)}
-            >
-              {active - 1}
-            </Text>
+            <TouchableOpacity onPress={() => setActive(active - 1)}>
+              <Text style={{ fontWeight: "700" }}>{active - 1}</Text>
+            </TouchableOpacity>
           )}
         </View>
 
@@ -65,19 +68,18 @@ export default function Pagination({
         {/* next offset pages */}
         <View style={styles.button}>
           {active < totalPage && (
-            <Text
-              style={{ fontWeight: "500" }}
-              onPress={() => setActive(active + 1)}
-            >
-              {active + 1}
-            </Text>
+            <TouchableOpacity onPress={() => setActive(active + 1)}>
+              <Text style={{ fontWeight: "700" }}>{active + 1}</Text>
+            </TouchableOpacity>
           )}
         </View>
 
         {/* next */}
         <View style={styles.button}>
           {active < totalPage - 1 && (
-            <Text onPress={() => setActive(totalPage)}>{">>"}</Text>
+            <TouchableOpacity onPress={() => setActive(totalPage)}>
+              <Ionicons name="arrow-forward" />
+            </TouchableOpacity>
           )}
         </View>
       </View>
@@ -92,16 +94,17 @@ const styles = StyleSheet.create({
   },
 
   title: {
-    fontSize: 15,
-    fontWeight: "bold",
-    color: hintColor,
+    fontSize: 12,
+    color: TextColor.hint,
+    fontStyle: "italic",
   },
 
   buttonContainer: {
     flexDirection: "row",
-    gap: 20,
+    gap: 5,
     alignItems: "center",
     justifyContent: "center",
+    paddingHorizontal: 40,
   },
 
   button: {
@@ -118,8 +121,8 @@ const styles = StyleSheet.create({
     width: BUTTON_SIZE,
     height: BUTTON_SIZE,
     borderRadius: BUTTON_SIZE / 2,
-    backgroundColor: activeColor,
-    color: "#fff",
+    backgroundColor: BackgroundColor.primary,
+    color: TextColor.white,
     textAlign: "center",
     textAlignVertical: "center",
     fontWeight: "bold",

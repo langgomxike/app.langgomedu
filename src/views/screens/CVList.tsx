@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   StyleSheet,
@@ -7,11 +7,14 @@ import {
   FlatList,
 } from "react-native";
 import Search from "../components/Inputs/SearchBar";
-import Feather from '@expo/vector-icons/Feather';
+import Feather from "@expo/vector-icons/Feather";
 import { BackgroundColor } from "../../configs/ColorConfig";
-import TutorItem from "../components/TutorItem";
+import CvItem from "../components/CvItem";
 import Pagination from "../components/Pagination";
+import ACV from "../../apis/ACV";
+import CV from "../../models/CV";
 
+const PER_PAGE = 3;
 const tutors = [
   {
     id: 1,
@@ -44,9 +47,25 @@ const tutors = [
     skills: ["History", "Geography"],
   },
 ];
-export default function CVList() {
+export default function CVListScreen() {
   const [searchKey, setSearchKey] = useState("");
-  const [currentPage, setCurentPage] = useState(1);
+  const [curentPage, setCurentPage] = useState(1);
+  const [tutorList, setTutorList] = useState<CV[]>([]);
+  
+
+  // effect
+  useEffect(() => {
+    const fetchGetAllTutors = async () => {
+      ACV.getAllCVList((cvs) => {
+        () => {
+          setTutorList(cvs);
+        };
+      });
+    };
+
+    fetchGetAllTutors();
+  }, []);
+
   return (
     <View style={styles.container}>
       <View style={styles.searchContainer}>
@@ -54,45 +73,50 @@ export default function CVList() {
           <Search value={searchKey} onChangeText={setSearchKey} />
         </View>
         <View>
-          <TouchableOpacity style={[styles.btnFilter, styles.boxShadow]}>
-          <Feather name="filter" size={24} color="black" />
+          <TouchableOpacity
+            onPress={() => {
+              alert("Filter");
+            }}
+            style={[styles.btnFilter, styles.boxShadow]}
+          >
+            <Feather name="filter" size={24} color="black" />
           </TouchableOpacity>
         </View>
       </View>
 
       <View style={styles.bodyContainer}>
-          <View style={styles.relatedClassContainer}>
-            <FlatList
-              data={tutors}
-              renderItem={({ item }) => (
-                <View style={styles.classItem}>
-                  <TutorItem
-                    avatar={item.avatar}
-                    userName={item.userName}
-                    phoneNumber={item.phoneNumber}
-                    email={item.email}
-                    dayOfBirth={item.dayOfBirth}
-                    address={item.address}
-                    skills={item.skills}
-                  />
-                </View>
-              )}
-              keyExtractor={(item) => item.id.toString()}
-              horizontal={false}
-              showsHorizontalScrollIndicator={true}
-              contentContainerStyle={styles.classList}
-              style={{ height: 500 }} 
-              ListFooterComponent={
-                <View style={{ padding: 30 }}>
-                  <Pagination
-                    totalPage={5}
-                    currentPage={currentPage}
-                    onChange={setCurentPage}
-                  />
-                </View>
-              }
-            />
-          </View>
+        <View style={styles.relatedClassContainer}>
+          <FlatList
+            data={tutorList}
+            renderItem={({ item: cv }) => (
+              <View style={styles.classItem}>
+                <CvItem
+                  avatar={cv.user?.avatar?.path}
+                  userName={cv.user?.full_name}
+                  phoneNumber={cv.user?.phone_number}
+                  email={cv.user?.email}
+                  dayOfBirth={cv.information?.birthday}
+                  address={cv.information?.address1}
+                  skills={cv.skills}
+                />
+              </View>
+            )}
+            keyExtractor={(item) => item.user?.id.toString() ?? ''}
+            horizontal={false}
+            showsHorizontalScrollIndicator={true}
+            contentContainerStyle={styles.classList}
+            style={{ height: 500 }}
+            ListFooterComponent={
+              <View style={{ padding: 30 }}>
+                <Pagination
+                  totalPage={tutorList.length / PER_PAGE}
+                  currentPage={curentPage}
+                  onChange={setCurentPage}
+                />
+              </View>
+            }
+          />
+        </View>
       </View>
     </View>
   );
@@ -108,9 +132,9 @@ const styles = StyleSheet.create({
   searchContainer: {
     flexDirection: "row",
     gap: 20,
-    marginTop: 70,
+    marginTop: 30,
     paddingHorizontal: 20,
-    paddingVertical: 20
+    paddingVertical: 20,
   },
 
   btnFilter: {
@@ -133,7 +157,7 @@ const styles = StyleSheet.create({
   bodyContainer: {
     backgroundColor: BackgroundColor.white,
     marginTop: 10,
-    flex: 1
+    flex: 1,
   },
 
   relatedClassContainer: {

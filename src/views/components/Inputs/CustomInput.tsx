@@ -107,7 +107,6 @@ export default function customInput({
             <TextInput
               style={[
                 styles.input,
-                { flex: 9 },
                 editable === false
                   ? { backgroundColor: GRAY_DISABLE }
                   : { backgroundColor: "white" },
@@ -125,7 +124,6 @@ export default function customInput({
             {type === "password" && (
               <TouchableOpacity
                 onPress={togglePasswordVisibility}
-                style={{ flex: 1 }}
               >
                 <Ionicons
                   name={isPasswordVisible ? "eye-off-outline" : "eye-outline"}
@@ -138,7 +136,6 @@ export default function customInput({
             {type === "date" && (
               <TouchableOpacity
                 onPress={() => setShowDatePicker(true)}
-                style={{ flex: 1 }}
               >
                 <Ionicons name="calendar-outline" size={24} color="gray" />
               </TouchableOpacity>
@@ -147,7 +144,6 @@ export default function customInput({
             {type !== "date" && type !== "password" && (
               <TouchableOpacity
                 onPress={() => onChangeText("")}
-                style={{ flex: 1 }}
               >
                 <Ionicons name="close-sharp" size={24} color="gray" />
               </TouchableOpacity>
@@ -201,6 +197,7 @@ export default function customInput({
           </View>
         </View>
       )}
+
     </View>
   );
 }
@@ -220,14 +217,16 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 16,
     marginBottom: 5,
-    fontWeight: "600",
+    fontWeight: "500",
   },
 
   required: {
     color: "red",
   },
 
-  input: {},
+  input: {
+    flex: 1,
+  },
 
   inputBlock: {
     flexDirection: "row",

@@ -1,14 +1,23 @@
 import React from "react";
-import { FlatList, Image, ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+  FlatList,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { BackgroundColor } from "../../configs/ColorConfig";
+import Skill from "../../models/Skill";
+
 type TutorItemProps = {
-  avatar: string;
-  userName: string;
-  phoneNumber: string;
-  email: string;
-  dayOfBirth: string;
-  address: string;
-  skills: string[];
+  avatar?: string;
+  userName?: string;
+  phoneNumber?: string;
+  email?: string;
+  dayOfBirth?: Date;
+  address?: string;
+  skills?: Skill[];
 };
 
 export default function tutorItem({
@@ -19,17 +28,20 @@ export default function tutorItem({
   dayOfBirth,
   address,
   skills,
-  
 }: TutorItemProps) {
+  // Render
   return (
     <View style={[styles.container, styles.boxShadow]}>
       <View style={styles.headerContainer}>
-        <Image
-          source={require("../../../assets/images/img_avatar_user.png")}
-          style={styles.avatar}
-        />
+        <View style={styles.boxShadow}>
+          <Image
+            source={require("../../../assets/images/img_avatar_user.png")}
+            style={[styles.avatar]}
+          />
+        </View>
         <Text style={styles.tutorName}>{userName}</Text>
       </View>
+
       <View style={styles.bodyContainer}>
         <View style={styles.personalInfomation}>
           <View style={styles.col2}>
@@ -41,20 +53,29 @@ export default function tutorItem({
               />
               <Text style={styles.contentText}>{phoneNumber}</Text>
             </View>
+
             <View style={[styles.infoContent, { flex: 1 }]}>
               <Image
                 source={require("../../../assets/images/register_icon/ic_calendar.png")}
                 style={styles.contentImage}
               />
-              <Text style={styles.contentText}>{dayOfBirth}</Text>
+              <Text style={styles.contentText}>
+                {dayOfBirth?.getDate() +
+                  "/" +
+                  dayOfBirth?.getMonth +
+                  "/" +
+                  dayOfBirth?.getFullYear}
+              </Text>
             </View>
           </View>
+
           {/* Email */}
           <View style={styles.infoContent}>
             <Image
               source={require("../../../assets/images/register_icon/ic_mail.png")}
               style={styles.contentImage}
             />
+
             <Text style={styles.contentText}>{email}</Text>
           </View>
 
@@ -63,10 +84,13 @@ export default function tutorItem({
               source={require("../../../assets/images/register_icon/ic_home.png")}
               style={styles.contentImage}
             />
+
             <Text>{address}</Text>
           </View>
         </View>
+
         <View style={styles.line}></View>
+
         <View style={styles.awardsContainer}>
           <ScrollView
             horizontal={true}
@@ -74,12 +98,12 @@ export default function tutorItem({
             contentContainerStyle={styles.scrollContainer}
             nestedScrollEnabled={true}
           >
-            {skills.map((item, index) => (
+            {skills?.map((item, index) => (
               <Text
                 key={index.toString()}
-                style={[styles.awardItem, styles.boxShadow]}
+                style={[styles.awardItem, styles.boxshadow2]}
               >
-                {item}
+                {item.vnName}
               </Text>
             ))}
           </ScrollView>
@@ -110,6 +134,19 @@ const styles = StyleSheet.create({
 
     elevation: 5,
   },
+
+  boxshadow2: {
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 1.41,
+
+    elevation: 2,
+  },
+
   headerContainer: {
     backgroundColor: BackgroundColor.primary,
     borderTopLeftRadius: 20,
@@ -137,7 +174,7 @@ const styles = StyleSheet.create({
 
   awardsContainer: {
     marginTop: 5,
-    marginBottom: 20,
+    marginBottom: 10,
     paddingHorizontal: 20,
   },
 

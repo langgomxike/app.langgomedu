@@ -57,6 +57,7 @@ export default function PersonalScheduleScreen() { //{ days }: DaysOfWeek props
             <WeekCalendar today={day.today} currentDate={day.currentDate} haveLearnerClass ={day.haveLearnerClass} haveTutorClass = {day.haveLearnerClass} onNext={handlerSetCurrentDate}/>
             <TimeLine lessons={lessons}/>
           </ScrollView>
+          {/* <RatingScreen/> */}
 
         </View>
       </View>
