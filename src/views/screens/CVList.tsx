@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   StyleSheet,
@@ -9,7 +9,7 @@ import {
 import Search from "../components/Inputs/SearchBar";
 import Feather from '@expo/vector-icons/Feather';
 import { BackgroundColor } from "../../configs/ColorConfig";
-import TutorItem from "../components/TutorItem";
+import CvItem from "../components/CvItem";
 import Pagination from "../components/Pagination";
 
 const tutors = [
@@ -46,7 +46,20 @@ const tutors = [
 ];
 export default function CVListScreen() {
   const [searchKey, setSearchKey] = useState("");
-  const [currentPage, setCurentPage] = useState(1);
+  const [curentPage, setCurentPage] = useState(1);
+  const [tutorList, setTutorList] = useState<object[]>([]);
+
+  // effect
+  useEffect(() => {
+    const fetchGetAllTutors = async () => {
+      const api  = new ACV();
+      const data = await api.getAllCVList();
+      setTutorList(data);
+    }
+
+    fetchGetAllTutors();
+  }, []);
+
   return (
     <View style={styles.container}>
       <View style={styles.searchContainer}>
@@ -54,7 +67,7 @@ export default function CVListScreen() {
           <Search value={searchKey} onChangeText={setSearchKey} />
         </View>
         <View>
-          <TouchableOpacity style={[styles.btnFilter, styles.boxShadow]}>
+          <TouchableOpacity onPress={() => {alert("Filter")}} style={[styles.btnFilter, styles.boxShadow]}>
           <Feather name="filter" size={24} color="black" />
           </TouchableOpacity>
         </View>
@@ -63,17 +76,17 @@ export default function CVListScreen() {
       <View style={styles.bodyContainer}>
           <View style={styles.relatedClassContainer}>
             <FlatList
-              data={tutors}
-              renderItem={({ item }) => (
+              data={tutorList}
+              renderItem={({ item: cv }) => (
                 <View style={styles.classItem}>
-                  <TutorItem
-                    avatar={item.avatar}
-                    userName={item.userName}
-                    phoneNumber={item.phoneNumber}
-                    email={item.email}
-                    dayOfBirth={item.dayOfBirth}
-                    address={item.address}
-                    skills={item.skills}
+                  <CvItem
+                    avatar={cv.avatar}
+                    userName={cv.userName}
+                    phoneNumber={cv.phoneNumber}
+                    email={cv.email}
+                    dayOfBirth={cv.dayOfBirth}
+                    address={cv.address}
+                    skills={cv.skills}
                   />
                 </View>
               )}
@@ -85,8 +98,8 @@ export default function CVListScreen() {
               ListFooterComponent={
                 <View style={{ padding: 30 }}>
                   <Pagination
-                    totalPage={5}
-                    currentPage={currentPage}
+                    totalPage={tutorList.length / PER_PAGE}
+                    currentPage={curentPage}
                     onChange={setCurentPage}
                   />
                 </View>
@@ -108,7 +121,7 @@ const styles = StyleSheet.create({
   searchContainer: {
     flexDirection: "row",
     gap: 20,
-    marginTop: 70,
+    marginTop: 30,
     paddingHorizontal: 20,
     paddingVertical: 20
   },

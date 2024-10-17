@@ -27,22 +27,47 @@ export default function OTPScreen() {
   const handleChangeText = (text: string, index: number) => {
     const newOtp = [...otp];
 
-    // Kiểm tra nếu ô đầu tiên rỗng và người dùng bắt đầu nhập ở ô khác
-    if (!otp[0] && index > 0) {
-      otpInputs.current[0].focus(); // Chuyển focus về ô đầu tiên
+    // Nếu ô đầu tiên chưa được nhập thì focus vào ô đầu tiên
+  if (otp[0] === '' && index !== 0) {
+    inputRefs.current[0]?.focus();
+    return;
+  }
+
+  // Không cho phép nhập vào ô sau khi các ô trước đó chưa điền
+  for (let i = 1; i <= index; i++) {
+    if (newOtp[i - 1] === '') {
+      inputRefs.current[i - 1]?.focus();
       return;
     }
-
-    newOtp[index] = text;
-
-    // Tự động chuyển đến ô tiếp theo khi người dùng nhập
-    if (text && index < 5) {
-      otpInputs.current[index + 1].focus(); // Chuyển sang ô tiếp theo
-    }
-
+  }
+    newOtp[index] = value;
     setOtp(newOtp);
-  };
 
+    // Tự động chuyển sang ô tiếp theo nếu có số được nhập
+    if (index < 5 && value) {
+      inputRefs.current[index + 1]?.focus();
+    }
+  }
+};
+
+  // Xử lý khi nhấn nút xóa
+  const handleKeyPress = (e: any, index: number) => {
+    const newOtp = [...otp];
+
+    // Nếu ô hiện tại trống và người dùng nhấn Backspace
+    if (e.nativeEvent.key === 'Backspace') {
+      if (newOtp[index] === '' && index > 0) {
+        // Xóa giá trị của ô trước đó
+        newOtp[index - 1] = '';
+        setOtp(newOtp);
+
+        // Focus về ô trước
+        inputRefs.current[index - 1]?.focus();
+      } else {
+        // Xóa giá trị của ô hiện tại
+        newOtp[index] = '';
+        setOtp(newOtp);
+      }
   const handleVerifyOtp = () => {
     const validOtp = "123456"; // Thay thế bằng OTP thực tế của bạn
     if (otp.join("") === validOtp) {

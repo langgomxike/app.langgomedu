@@ -1,34 +1,24 @@
-import FileDTO from "../dtos/FileDTO";
 
 export default class File {
     public id: number;
     public name: string;
     public path: string;
     public capacity: number;
-    public imageWith: number;
-    public imageHeight: number;
-    public createdAt: Date;
-    public updatedAt: Date;
+    public image_width: number;
+    public image_height: number;
+    public created_at: Date;
+    public updated_at: Date;
 
-    constructor(id = -1, name = "", path = "", capacity = 0, imageWidth = 0, imageHeight = 0, createdAt = new Date(), updatedAt = new Date()) {
+    constructor(id = -1, name = "", path = "", capacity = 0, image_width = 0, image_height = 0, created_at = new Date(), updated_at = new Date()) {
         this.id = id;
         this.name = name;
         this.path = path;
         this.capacity = capacity;
-        this.imageWith = imageWidth;
-        this.imageHeight = imageHeight;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
+        this.image_width = image_width;
+        this.image_height = image_height;
+        this.created_at = created_at;
+        this.updated_at = updated_at;
     }
 
-    fromDTO(fileDTO: FileDTO): void {
-        this.id = fileDTO.id;
-        this.name = fileDTO.name;
-        this.path = fileDTO.path;
-        this.capacity = fileDTO.capacity;
-        this.imageWith = fileDTO.image_with;
-        this.imageHeight = fileDTO.image_height;
-        this.createdAt = new Date(fileDTO.created_at);
-        this.updatedAt = new Date(fileDTO.updated_at);
-    }
+    
 }

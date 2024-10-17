@@ -27,6 +27,16 @@ export default function DuTestScreen() {
   function myEmptyFunction(): void {
     // Hàm này không làm gì cả
   }
+  const navigation = useContext(NavigationContext);
+  function goBack(): void {
+    navigation?.goBack();
+  }
+  function goRegister2(): void {
+    navigation?.navigate(ScreenName.REGISTER2);
+  }
+  function goToLogin(): void {
+    navigation?.navigate(ScreenName.LOGIN);
+  }
   return (
     <ScrollView style={styles.container}>
       <View style={styles.icon}>
@@ -44,55 +54,56 @@ export default function DuTestScreen() {
             Hãy cho chúng tôi biết thêm thông tin về bạn
           </Text>
         </View>
-        <View></View>
-      </View>
-      <View style={styles.input}>
-        <InputRegister
-          label="Số điện thoại"
-          required={true}
-          onChangeText={myEmptyFunction}
-          placeholder="Số điện thoại"
-          type="phone"
-          iconName="phone"
-        ></InputRegister>
-      </View>
-      <View style={styles.input}>
-        <InputRegister
-          label="Email"
-          required={true}
-          onChangeText={myEmptyFunction}
-          placeholder="Emal"
-          type="email"
-          iconName="email"
-        ></InputRegister>
-      </View>
-      <View style={styles.input}>
-        <InputRegister
-          label="Xác nhận lại mật khẩu của bạn"
-          required={true}
-          onChangeText={myEmptyFunction}
-          placeholder="Xác nhận lại mật khẩu của bạn"
-          type="password"
-          iconName="password"
-        ></InputRegister>
-      </View>
-      <View style={styles.input}>
-        <InputRegister
-          label="Xác nhận lại mật khẩu của bạn"
-          required={true}
-          onChangeText={myEmptyFunction}
-          placeholder="Xác nhận lại mật khẩu của bạn"
-          type="password"
-          iconName="password"
-        ></InputRegister>
-      </View>
-      <View style={styles.row1}>
-        <Text></Text>
-        <View style={styles.text}>
-          <Text>Mật khẩu phải từ 6 đến 24 kí tự</Text>
+      <View style={styles.container}>
+      
+
+      
+        <View style={styles.input}>
+          <InputRegister
+            label="Số điện thoại"
+            required={true}
+            onChangeText={myEmptyFunction}
+            placeholder="Số điện thoại"
+            type="phone"
+            iconName="phone"
+          ></InputRegister>
         </View>
-      </View>
-      <View style={styles.button}>
+        <View style={styles.input}>
+          <InputRegister
+            label="Email"
+            required={true}
+            onChangeText={myEmptyFunction}
+            placeholder="Emal"
+            type="email"
+            iconName="email"
+          ></InputRegister>
+        </View>
+        <View style={styles.input}>
+          <InputRegister
+            label="Xác nhận mật khẩu của bạn"
+            required={true}
+            onChangeText={myEmptyFunction}
+            placeholder="Xác nhận mật khẩu của bạn"
+            type="password"
+            iconName="password"
+          ></InputRegister>
+        </View>
+        <View style={styles.input}>
+          <InputRegister
+            label="Xác nhận lại mật khẩu của bạn"
+            required={true}
+            onChangeText={myEmptyFunction}
+            placeholder="Xác nhận lại mật khẩu của bạn"
+            type="password"
+            iconName="password"
+          ></InputRegister>
+        </View>
+        <View style={styles.row1}>
+          <Text></Text>
+          <View style={styles.text}>
+            <Text>Mật khẩu phải từ 6 đến 24 kí tự</Text>
+          </View>
+        </View>
         <Button
           title="Tiếp tục"
           textColor="white"
@@ -107,7 +118,7 @@ export default function DuTestScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // alignItems: "center",
+     alignItems: "center",
     // justifyContent: "center",
   },
   icon: {
@@ -142,12 +153,12 @@ const styles = StyleSheet.create({
     marginBottom: "20%",
   },
   test: {
-    top: -10,
+    marginTop: -20,
     // height: 50,
     // backgroundColor: "green",
   },
   text: {
-    top: 5,
+    top: -25,
     left: 90,
     marginBottom: "-15%",
   },
@@ -165,5 +176,8 @@ const styles = StyleSheet.create({
     // Đặt các biểu tượng nằm trên cùng một hàng
     marginLeft: "5%", // Cân đối khoảng cách giữa các biểu tượng
     marginBottom: " -12%", // Thêm khoảng cách dưới hàng icon
+  },
+  lastText: {
+    flexDirection: "row",
   },
 });

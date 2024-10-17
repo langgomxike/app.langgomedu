@@ -15,11 +15,16 @@ import {
   NavigationProp,
   NavigationContext,
 } from "@react-navigation/native";
+import {
+  useNavigation,
+  NavigationProp,
+  NavigationContext,
+} from "@react-navigation/native";
 
 import { BackgroundColor } from "../../configs/ColorConfig";
 import Search from "../components/Inputs/SearchBar";
 import CourseItem from "../components/CourseItem";
-import TutorItem from "../components/TutorItem";
+import TutorItem from "../components/CvItem";
 import Filter from "../components/Filter";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import ScreenName from "../../constants/ScreenName";
@@ -127,6 +132,8 @@ const tutors = [
   },
 ];
 
+const PUBLIC_URL = "http://192.168.43.156:3002/public/";
+
 export default function HomeScreen() {
   //contexts, refs
   const navigation = useContext(NavigationContext);
@@ -160,6 +167,7 @@ export default function HomeScreen() {
 
   const handleOpenDrawer = () => {
     // navigation
+  };
   };
 
   const [isExpanded, setIsExpanded] = useState(true);
@@ -210,7 +218,7 @@ export default function HomeScreen() {
   }, []);
 
   return (
-    <ScrollView>
+    <ScrollView showsVerticalScrollIndicator={false}>
       <View style={styles.container}>
         {/* Header */}
         <View style={styles.headerContainer}>
@@ -262,55 +270,23 @@ export default function HomeScreen() {
             </View>
           </View>
 
-          <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
-            <View style={styles.listMajorContainer}>
-              <View style={[styles.majorItem, styles.boxShadow]}>
-                <Image
-                  source={require("../../../assets/images/ic_math.png")}
-                  style={styles.majorIcon}
-                />
-                <Text style={styles.majorText}>Toán</Text>
+          {/* Majors list */}  
+          <FlatList
+            horizontal={true}
+            showsHorizontalScrollIndicator={false}
+            data={majors}
+            renderItem={({ item: major }) => (
+              <View style={styles.listMajorContainer}>
+                <View style={[styles.majorItem, styles.boxShadow]}>
+                  <Image
+                    source={{ uri: PUBLIC_URL + major.icon?.path }}
+                    style={styles.majorIcon}
+                  />
+                  <Text style={styles.majorText}>{major.vn_name}</Text>
+                </View>
               </View>
-
-              <View style={[styles.majorItem, styles.boxShadow]}>
-                <Image
-                  source={require("../../../assets/images/ic_math.png")}
-                  style={styles.majorIcon}
-                />
-                <Text style={styles.majorText}>Toán</Text>
-              </View>
-
-              <View style={[styles.majorItem, styles.boxShadow]}>
-                <Image
-                  source={require("../../../assets/images/ic_math.png")}
-                  style={styles.majorIcon}
-                />
-                <Text style={styles.majorText}>Toán</Text>
-              </View>
-
-              <View style={[styles.majorItem, styles.boxShadow]}>
-                <Image
-                  source={require("../../../assets/images/ic_math.png")}
-                  style={styles.majorIcon}
-                />
-                <Text style={styles.majorText}>Web</Text>
-              </View>
-
-              <View style={[styles.majorItem, styles.boxShadow]}>
-                <Image
-                  source={require("../../../assets/images/ic_math.png")}
-                  style={styles.majorIcon}
-                />
-                <Text
-                  style={styles.majorText}
-                  numberOfLines={1}
-                  ellipsizeMode="tail"
-                >
-                  Lập trình web
-                </Text>
-              </View>
-            </View>
-          </ScrollView>
+            )}
+          />
 
           {/* Class */}
           <View>
@@ -337,6 +313,9 @@ export default function HomeScreen() {
                       Xem tất cả
                     </Text>
                   </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => setVisibleModal("modal_fiter")}
+                  >
                   <TouchableOpacity
                     onPress={() => setVisibleModal("modal_fiter")}
                   >
@@ -410,6 +389,9 @@ export default function HomeScreen() {
                   <TouchableOpacity
                     onPress={() => setVisibleModal("modal_fiter")}
                   >
+                  <TouchableOpacity
+                    onPress={() => setVisibleModal("modal_fiter")}
+                  >
                     <Image
                       source={require("../../../assets/images/ic_filter.png")}
                       style={{ width: 20, height: 20 }}
@@ -447,6 +429,10 @@ export default function HomeScreen() {
           isVisible={visibleModal}
           onRequestClose={() => setVisibleModal(null)}
         />
+        <Filter
+          isVisible={visibleModal}
+          onRequestClose={() => setVisibleModal(null)}
+        />
       </View>
     </ScrollView>
   );
@@ -459,7 +445,7 @@ const styles = StyleSheet.create({
   },
   headerContainer: {
     backgroundColor: BackgroundColor.primary,
-    paddingTop: 30,
+    paddingTop: 50,
     paddingBottom: 100,
     paddingHorizontal: 20,
   },
@@ -527,6 +513,7 @@ const styles = StyleSheet.create({
 
   line: {
     height: 1,
+    backgroundColor: BackgroundColor.gray_c6,
     backgroundColor: BackgroundColor.gray_c6,
   },
 

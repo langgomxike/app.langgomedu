@@ -1,4 +1,4 @@
-import { ScrollView, Text, View, StyleSheet, Image } from "react-native";
+import { ScrollView, Text, View, StyleSheet, Image, Alert } from "react-native";
 import MyIcon, { AppIcon } from "../components/MyIcon";
 import InputRegister from "../components/Inputs/InputRegister";
 import MyText from "../components/MyText";
@@ -152,4 +152,7 @@ const styles = StyleSheet.create({
     marginLeft: "-40%", // Cân đối khoảng cách giữa các biểu tượng
     marginBottom: " -12%", // Thêm khoảng cách dưới hàng icon
   },
+  lastText:{
+    flexDirection: 'row',
+  }
 });
