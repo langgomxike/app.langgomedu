@@ -11,7 +11,10 @@ import Feather from "@expo/vector-icons/Feather";
 import { BackgroundColor } from "../../configs/ColorConfig";
 import CvItem from "../components/CvItem";
 import Pagination from "../components/Pagination";
+import ACV from "../../apis/ACV";
+import CV from "../../models/CV";
 
+const PER_PAGE = 3;
 const tutors = [
   {
     id: 1,
@@ -53,7 +56,6 @@ export default function CVListScreen() {
   // effect
   useEffect(() => {
     const fetchGetAllTutors = async () => {
-      const api = new ACV();
       ACV.getAllCVList((cvs) => {
         () => {
           setTutorList(cvs);
@@ -90,8 +92,8 @@ export default function CVListScreen() {
               <View style={styles.classItem}>
                 <CvItem
                   avatar={cv.user?.avatar?.path}
-                  userName={cv.user?.fullName}
-                  phoneNumber={cv.user?.phoneNumber}
+                  userName={cv.user?.full_name}
+                  phoneNumber={cv.user?.phone_number}
                   email={cv.user?.email}
                   dayOfBirth={cv.information?.birthday}
                   address={cv.information?.address1}
