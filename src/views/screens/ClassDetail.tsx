@@ -12,11 +12,12 @@ import {
 import { BackgroundColor, BorderColor } from "../../configs/ColorConfig";
 import CourseItem from "../components/CourseItem";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { useNavigation,  NavigationProp } from '@react-navigation/native';
-import { useRoute,  RouteProp } from '@react-navigation/native';
+import { useNavigation, NavigationProp } from "@react-navigation/native";
+import { useRoute, RouteProp } from "@react-navigation/native";
 import ScreenName from "../../constants/ScreenName";
 import { RootStackParamList } from "../../configs/NavigationRouteTypeConfig";
-
+import QRInfo from "../components/QRInfo";
+import { QRItems } from "../../configs/QRConfig";
 
 const courses = [
   {
@@ -73,15 +74,15 @@ const courses = [
 export default function ClassDetail() {
   const navigation: NavigationProp<RootStackParamList> = useNavigation();
   const route: RouteProp<RootStackParamList> = useRoute();
-  const course = route.params.course
+  const course = route.params.course;
   // Hàm để điều hướng đến màn hình DetailClass mới
   // const handleNavigateToDetail = (classId: string) => {
   //   navigation.navigate(ScreenName.DETAIL_CLASS, { classId }); // Truyền classId qua route params
   // };
 
-
   return (
     <View style={styles.container}>
+      <QRInfo id={123} type={QRItems.CLASS} />
       <View style={{ flex: 9 }}>
         <ScrollView>
           <View>
@@ -102,9 +103,7 @@ export default function ClassDetail() {
               {/* Class infomation */}
               <View style={styles.classInfoContainer}>
                 {/* Tiêu đề môn học */}
-                <Text style={styles.classInfoTitle}>
-                  {course.name}
-                </Text>
+                <Text style={styles.classInfoTitle}>{course.name}</Text>
 
                 <View style={styles.row}>
                   <View style={styles.itemInfoTwo}>
@@ -147,7 +146,9 @@ export default function ClassDetail() {
                     <Ionicons name="timer-outline" size={24} color="black" />
                     <Text>Thời gian</Text>
                   </View>
-                  <Text style={[styles.itemContent]}>{course.time} giờ/Buổi</Text>
+                  <Text style={[styles.itemContent]}>
+                    {course.time} giờ/Buổi
+                  </Text>
                 </View>
 
                 <View style={styles.itemInfo}>
@@ -155,7 +156,9 @@ export default function ClassDetail() {
                     <Ionicons name="cash-outline" size={24} color="black" />
                     <Text>Học phí</Text>
                   </View>
-                  <Text style={[styles.itemContent]}>{course.cost} VNĐ/Buổi</Text>
+                  <Text style={[styles.itemContent]}>
+                    {course.cost} VNĐ/Buổi
+                  </Text>
                 </View>
 
                 <View style={[styles.line, { marginTop: 10 }]}></View>
@@ -195,22 +198,22 @@ export default function ClassDetail() {
                   renderItem={({ item }) => (
                     <View style={styles.classItem}>
                       <Pressable>
-                      <CourseItem
-                        name={item.name}
-                        level={item.level}
-                        date={item.date}
-                        time={item.time}
-                        type={item.type}
-                        address={item.address}
-                        cost={item.cost}
-                      />
+                        <CourseItem
+                          name={item.name}
+                          level={item.level}
+                          date={item.date}
+                          time={item.time}
+                          type={item.type}
+                          address={item.address}
+                          cost={item.cost}
+                        />
                       </Pressable>
                     </View>
                   )}
                   keyExtractor={(item) => item.id.toString()}
                   horizontal={true}
                   showsHorizontalScrollIndicator={true}
-                  contentContainerStyle={styles.classList} 
+                  contentContainerStyle={styles.classList}
                 />
               </View>
             </View>
@@ -232,7 +235,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: BackgroundColor.gray_e6,
   },
-  
+
   headerContainer: {
     backgroundColor: BackgroundColor.primary,
     paddingTop: 30,
@@ -246,7 +249,7 @@ const styles = StyleSheet.create({
     shadowOffset: {
       width: 0,
       height: 2,
-    }, 
+    },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
 
@@ -386,7 +389,7 @@ const styles = StyleSheet.create({
   relatedClassContainer: {
     backgroundColor: BackgroundColor.white,
     marginBottom: 20,
-    paddingBottom: 20
+    paddingBottom: 20,
   },
 
   classItem: {
@@ -397,6 +400,5 @@ const styles = StyleSheet.create({
   classList: {
     paddingBottom: 10,
     paddingHorizontal: 10,
-  }
-
+  },
 });

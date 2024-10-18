@@ -7,7 +7,7 @@ import PersonalScheduleScreen from "../screens/PersonalSchedule";
 import AccountScreen from "../screens/Account";
 import { Image, ImageSourcePropType, StyleSheet, View } from "react-native";
 import { BackgroundColor, TextColor } from "../../configs/ColorConfig";
-import { AntDesign, Feather } from '@expo/vector-icons';
+import Ionicons from "@expo/vector-icons/Ionicons";
 
 const activeColor = "#0D99FF";
 const hintColor = "#AAA";
@@ -27,48 +27,58 @@ export default function ButtonNavBar() {
     <Tab.Navigator
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, color, size }) => {
-          let icon: ImageSourcePropType | undefined;
-          let iconType: 'ant' | 'feather' | undefined;
-          let iconName: AntDesignIconName | FeatherIconName | undefined;
+          let icon;
+
           switch (route.name) {
             case ScreenName.HOME:
-              iconType = 'ant';
-              iconName = 'home';
-              // icon = focused
-              // ? require('../../../assets/icons/home-tab-active.png')
-              // : require('../../../assets/icons/ic_home_tab.png');
-            iconType = 'ant';
-            iconName = 'home';
-            break;
+              icon = (
+                <Ionicons
+                  name="home-sharp"
+                  size={size}
+                  style={styles.icon}
+                  color={focused ? TextColor.sub_primary : TextColor.hint}
+                />
+              );
+              break;
             case ScreenName.CHAT:
-              // iconType = 'ant';
-              // iconName = 'message1';
-              icon = require(`../../../assets/icons/ic_chatbox.png`);
-              if (focused) {
-                icon = require(`../../../assets/icons/chat-tab-active.png`);
-              }
+              icon = (
+                <Ionicons
+                  name="chatbubble-ellipses"
+                  size={size}
+                  style={styles.icon}
+                  color={focused ? TextColor.sub_primary : TextColor.hint}
+                />
+              );
               break;
             case ScreenName.CREATE_CLASS:
-              icon = require(`../../../assets/icons/ic_plus.png`);
-              if (focused) {
-                icon = require(`../../../assets/icons/ic_plus.png`);
-              }
+              icon = (
+                <Ionicons
+                  name="add-circle"
+                  size={size}
+                  style={styles.icon}
+                  color={focused ? TextColor.sub_primary : TextColor.hint}
+                />
+              );
               break;
             case ScreenName.PERSONAL_SCHEDULE:
-              iconType = 'ant';
-              iconName = 'calendar';
-              // icon = require(`../../../assets/icons/ic_calendar_outline.png`);
-              // if (focused) {
-              //   icon = require(`../../../assets/icons/ic_calendar_outline-active.png`);
-              // }
+              icon = (
+                <Ionicons
+                  name="calendar"
+                  size={size}
+                  style={styles.icon}
+                  color={focused ? TextColor.sub_primary : TextColor.hint}
+                />
+              );
               break;
             case ScreenName.ACCOUNT:
-              iconType = 'feather';
-              iconName = 'user';
-              // icon = require(`../../../assets/icons/ic_account.png`);
-              // if (focused) {
-              //   icon = require(`../../../assets/icons/account_tab-active.png`);
-              // }
+              icon = (
+                <Ionicons
+                  name="person"
+                  size={size}
+                  style={styles.icon}
+                  color={focused ? TextColor.sub_primary : TextColor.hint}
+                />
+              );
               break;
           }
 
@@ -81,12 +91,7 @@ export default function ButtonNavBar() {
             <Feather name={iconName as FeatherIconName} size={size} color={color} />
           );
 
-          return (
-            <View style={styles.iconContainer}>
-              {iconComponent}
-              {/* <Image source={icon} style={styles.icon} /> */}
-            </View>
-          );
+          return <View style={styles.iconContainer}>{icon}</View>;
         },
         tabBarActiveTintColor: BackgroundColor.primary,
         tabBarInactiveTintColor: "#737373",

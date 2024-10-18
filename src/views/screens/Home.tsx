@@ -633,6 +633,7 @@ export default function HomeScreen() {
             </View>
           </View>
         </View>
+
         <Filter
           isVisible={visibleModal}
           onRequestClose={() => setVisibleModal(null)}
