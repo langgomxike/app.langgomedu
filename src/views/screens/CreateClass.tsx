@@ -60,14 +60,14 @@ export default function CreateClassScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 10,
-    backgroundColor: "#fff",
+    padding: 15,
+    // backgroundColor: "#fff",
   },
   header: {
     fontSize: 24,
     textAlign: "center",
     fontWeight: "bold",
-    paddingBottom: 20,
+    marginVertical: 30,
   },
   tabContainer: {
     flexDirection: "row",
