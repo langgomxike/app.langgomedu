@@ -24,9 +24,7 @@ export default function ClassDetail() {
             <View>
               {/* Header */}
               <View style={styles.headerContainer}>
-                <View style={styles.imageContainer}>
-                  <CustomShimmer width={70} height={70} isCircle={true}/>
-                </View>
+                <CustomShimmer width={80} height={80} isCircle={true}/>
                 <CustomShimmer width={200} height={30} style={{marginTop: 20}}/>
               </View>
               {/* Body */}
