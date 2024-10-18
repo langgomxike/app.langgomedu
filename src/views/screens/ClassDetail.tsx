@@ -14,11 +14,18 @@ import CourseItem from "../components/CourseItem";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useNavigation, NavigationProp } from "@react-navigation/native";
 import { useRoute, RouteProp } from "@react-navigation/native";
+<<<<<<< HEAD
 import { RootStackParamList } from "../../configs/NavigationRouteTypeConfig";
 import AClass from "../../apis/AClass";
 import ReactAppUrl from "../../configs/ConfigUrl";
 import Class from "../../models/Class";
 import DetailClassSkeleton from "../components/skeleton/DetailClassSkeleton";
+=======
+import ScreenName from "../../constants/ScreenName";
+import { RootStackParamList } from "../../configs/NavigationRouteTypeConfig";
+import QRInfo from "../components/QRInfo";
+import { QRItems } from "../../configs/QRConfig";
+>>>>>>> 47df0373db3b06af894eef30d8f6074173072555
 
 const courses = [
   {
@@ -76,6 +83,7 @@ const courses = [
 const URL = ReactAppUrl.PUBLIC_URL;
 export default function ClassDetail() {
   const route: RouteProp<RootStackParamList> = useRoute();
+<<<<<<< HEAD
   // Get class id
   const param = route.params;
 
@@ -84,12 +92,16 @@ export default function ClassDetail() {
   const [relatedClasses, setRelatedClasses] = useState<Class[]>([]);
   const [loading, setLoading] = useState(true);
 
+=======
+  const course = route.params.course;
+>>>>>>> 47df0373db3b06af894eef30d8f6074173072555
   // Hàm để điều hướng đến màn hình DetailClass mới
   // const navigation: NavigationProp<RootStackParamList> = useNavigation();
   // const handleNavigateToDetail = (classId: string) => {
   // navigation.navigate(ScreenName.DETAIL_CLASS, { classId }); // Truyền classId qua route params
   // };
 
+<<<<<<< HEAD
   // handlers
   function fomatDate(timestamp: number) {
     if (!timestamp) return ""; // Kiểm tra nếu timestamp là undefined hoặc null
@@ -130,9 +142,13 @@ export default function ClassDetail() {
   }, []);
 
   // render
+=======
+>>>>>>> 47df0373db3b06af894eef30d8f6074173072555
   return (
     <View style={styles.container}>
+      <QRInfo id={123} type={QRItems.CLASS} />
       <View style={{ flex: 9 }}>
+<<<<<<< HEAD
       {loading &&
        <DetailClassSkeleton/> }
         {!loading && classDetail && (
@@ -152,6 +168,93 @@ export default function ClassDetail() {
                 <Text style={styles.headerTitle}>
                   {classDetail.major?.vn_name}
                 </Text>
+=======
+        <ScrollView>
+          <View>
+            {/* Header */}
+            <View style={styles.headerContainer}>
+              <View style={styles.imageContainer}>
+                <Image
+                  source={{
+                    uri: "https://cdn-icons-png.flaticon.com/128/15311/15311632.png",
+                  }}
+                  style={styles.headerImage}
+                />
+              </View>
+              <Text style={styles.headerTitle}>Lập trình ứng dụng</Text>
+            </View>
+            {/* Body */}
+            <View style={styles.bodyContainer}>
+              {/* Class infomation */}
+              <View style={styles.classInfoContainer}>
+                {/* Tiêu đề môn học */}
+                <Text style={styles.classInfoTitle}>{course.name}</Text>
+
+                <View style={styles.row}>
+                  <View style={styles.itemInfoTwo}>
+                    <Ionicons name="book-outline" size={24} color="black" />
+                    <Text>{course.level}</Text>
+                  </View>
+
+                  <View
+                    style={[styles.itemInfoTwo, { justifyContent: "flex-end" }]}
+                  >
+                    <Ionicons name="calendar-outline" size={24} color="black" />
+                    <Text>{course.date}</Text>
+                  </View>
+                </View>
+
+                <View style={[styles.line, { marginTop: 10 }]}></View>
+
+                <View style={styles.itemInfo}>
+                  <View style={styles.row}>
+                    <Ionicons name="cube-outline" size={24} color="black" />
+                    <Text>Lớp</Text>
+                  </View>
+                  <Text style={styles.itemContent}>{course.level}</Text>
+                </View>
+
+                <View style={styles.itemInfo}>
+                  <View style={styles.row}>
+                    <Ionicons
+                      name="git-commit-outline"
+                      size={24}
+                      color="black"
+                    />
+                    <Text>Hình thức</Text>
+                  </View>
+                  <Text style={styles.itemContent}>{course.type}</Text>
+                </View>
+
+                <View style={styles.itemInfo}>
+                  <View style={styles.row}>
+                    <Ionicons name="timer-outline" size={24} color="black" />
+                    <Text>Thời gian</Text>
+                  </View>
+                  <Text style={[styles.itemContent]}>
+                    {course.time} giờ/Buổi
+                  </Text>
+                </View>
+
+                <View style={styles.itemInfo}>
+                  <View style={styles.row}>
+                    <Ionicons name="cash-outline" size={24} color="black" />
+                    <Text>Học phí</Text>
+                  </View>
+                  <Text style={[styles.itemContent]}>
+                    {course.cost} VNĐ/Buổi
+                  </Text>
+                </View>
+
+                <View style={[styles.line, { marginTop: 10 }]}></View>
+
+                <View style={[styles.itemInfo, { marginTop: 20 }]}>
+                  <View style={styles.row}>
+                    <Text>Phí nhận lớp</Text>
+                  </View>
+                  <Text style={[styles.itemContentFee]}>50.000</Text>
+                </View>
+>>>>>>> 47df0373db3b06af894eef30d8f6074173072555
               </View>
               {/* Body */}
               <View style={styles.bodyContainer}>
@@ -264,6 +367,7 @@ export default function ClassDetail() {
                   <Text>{classDetail.description}</Text>
                 </View>
 
+<<<<<<< HEAD
                 {/* Các lớp học liên quan */}
                 <View style={styles.relatedClassContainer}>
                   <Text style={[styles.containerTitle, { padding: 20 }]}>
@@ -296,6 +400,35 @@ export default function ClassDetail() {
                     ]}
                   />
                 </View>
+=======
+              {/* Các lớp học liên quan */}
+              <View style={styles.relatedClassContainer}>
+                <Text style={[styles.containerTitle, { padding: 20 }]}>
+                  Các lớp liên quan
+                </Text>
+                <FlatList
+                  data={courses}
+                  renderItem={({ item }) => (
+                    <View style={styles.classItem}>
+                      <Pressable>
+                        <CourseItem
+                          name={item.name}
+                          level={item.level}
+                          date={item.date}
+                          time={item.time}
+                          type={item.type}
+                          address={item.address}
+                          cost={item.cost}
+                        />
+                      </Pressable>
+                    </View>
+                  )}
+                  keyExtractor={(item) => item.id.toString()}
+                  horizontal={true}
+                  showsHorizontalScrollIndicator={true}
+                  contentContainerStyle={styles.classList}
+                />
+>>>>>>> 47df0373db3b06af894eef30d8f6074173072555
               </View>
             </View>
           </ScrollView>
@@ -482,10 +615,13 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
     paddingHorizontal: 10,
   },
+<<<<<<< HEAD
 
   centeredItem: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
   },
+=======
+>>>>>>> 47df0373db3b06af894eef30d8f6074173072555
 });

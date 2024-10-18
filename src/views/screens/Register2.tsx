@@ -23,13 +23,10 @@ export default function Register2Screen() {
   function myEmptyFunction(): void {
     // Hàm này không làm gì cả
   }
-  // const navigation= useContext(NavigationContext)
-  // function goBack(): void {
-  //   navigation?.goBack();
-  // }
-  // function goToLogin(): void {
-  //   navigation?.navigate(ScreenName.LOGIN);
-  // };
+
+  function goToLogin(): void {
+    navigation?.navigate(ScreenName.LOGIN);
+  }
   return (
     <ScrollView style={styles.container}>
       <View style={styles.icon}>
