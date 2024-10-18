@@ -1,7 +1,6 @@
 import { ScrollView, Text, View, StyleSheet, Image } from "react-native";
 import MyIcon, { AppIcon } from "../components/MyIcon";
 import InputRegister from "../components/Inputs/InputRegister";
-import MyText from "../components/MyText";
 import Button from "../components/Button";
 import { useCallback, useContext, useState } from "react";
 import { NavigationContext } from "@react-navigation/native";
@@ -66,6 +65,7 @@ export default function DuTestScreen() {
         style={styles.img}
         source={require("../../../assets/images/ illustration/Mobile login-rafiki.png")}
       ></Image>
+
       <View style={styles.row}>
         <View>
           <Text style={styles.title}>Tạo tài khoản</Text>
@@ -145,7 +145,7 @@ export default function DuTestScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-     alignItems: "center",
+    alignItems: "center",
     // justifyContent: "center",
   },
   icon: {
