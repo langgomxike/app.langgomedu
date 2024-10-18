@@ -5,15 +5,31 @@ import ReactAppUrl from "../configs/ConfigUrl";
 export default class AClass {
   private static API_URL = ReactAppUrl.API_BASE_URL;
 
+  public static getClassById(
+    classId:number,
+    onNext: (course:Class, realatedClasses: Class[]) => void,
+    onLoading: (loading: boolean) => void
+  ){
+    onLoading(true);
+    axios.get(`${this.API_URL}/classes/${classId}`)
+    .then((response) => {
+      const data = response.data.data
+      onNext(data.class, data.related_classes);
+      onLoading(false);
+    })
+    .catch((err) => {
+      console.log("Error: ", err);
+      onNext(new Class(), []);
+      onLoading(true);
+    });
+  }
+
   public static getAttedingClass(
     userId: string,
     onNext: (classes: Class[]) => void,
     onLoading: (loading: boolean) => void
   ) {
-
     // console.log(">>> url: ", this.API_URL);
-    
-
     onLoading(true);
     axios.get(`${this.API_URL}/classes/attending/${userId}`)
     .then((response) => {

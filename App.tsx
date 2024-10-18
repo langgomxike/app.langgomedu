@@ -80,6 +80,17 @@ export default function App() {
           <Stack.Screen
             name={ScreenName.DETAIL_CLASS}
             component={ClassDetail}
+            options={{
+              title: "Chi tiết lớp học",
+              headerShown: true,
+              contentStyle: {
+                padding: 0
+              },
+              headerStyle: {
+                backgroundColor: BackgroundColor.primary
+              },
+              headerTintColor: '#fff',
+            }}
           />
           <Stack.Screen name={ScreenName.RATING} component={RatingScreen} />
 
