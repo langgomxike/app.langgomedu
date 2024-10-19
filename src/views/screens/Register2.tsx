@@ -3,12 +3,28 @@ import MyIcon, { AppIcon } from "../components/MyIcon";
 import InputRegister from "../components/Inputs/InputRegister";
 import MyText from "../components/MyText";
 import Button from "../components/Button";
-import { useCallback, useContext } from "react";
+import { useCallback, useContext, useState } from "react";
 import { NavigationContext } from "@react-navigation/native";
 import ScreenName from "../../constants/ScreenName";
+import {
+  useCameraPermissions,
+  Camera,
+  BarcodeScanningResult,
+} from "expo-camera";
+import * as ImagePicker from "expo-image-picker";
+import SLog, { LogType } from "../../services/SLog";
+
 export default function Register2Screen() {
   //contexts
   const navigation = useContext(NavigationContext);
+  const [permission, requestPermission] = useCameraPermissions();
+
+  //states
+  const [id, setId] = useState("");
+  const [name, setName] = useState("");
+  const [dayOfBirth, setDayOfBirth] = useState("");
+  const [gender, setGender] = useState("");
+  const [address, setAddress] = useState("");
 
   //handlers
   const goBack = useCallback(() => {
@@ -27,6 +43,72 @@ export default function Register2Screen() {
   function goToLogin(): void {
     navigation?.navigate(ScreenName.LOGIN);
   }
+
+  const pickImage = useCallback(() => {
+    ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      quality: 1,
+    })
+      .then((result) => {
+        SLog.log(LogType.Info, "ImagePicker", "process result", result);
+
+        if (!result.canceled) {
+          return Camera.scanFromURLAsync(result.assets[0].uri);
+        }
+        return [];
+      })
+      .then((value: BarcodeScanningResult[]) => {
+        SLog.log(
+          LogType.Info,
+          "BarcodeScanningResult",
+          "process result",
+          value
+        );
+
+        processResult(value.length > 0 ? value[0].data : "");
+      });
+  }, [permission]);
+
+  const processResult = useCallback(
+    (result: string) => {
+      alert(result);
+
+      const data = result.split("|");
+      let id: string,
+        name: string,
+        dayOfBirth: string,
+        gender: string,
+        address: string;
+
+      if (data.length > 1) {
+        id = data[0];
+        setId(id);
+      }
+
+      if (data.length > 3) {
+        name = data[2];
+        setName(name);
+      }
+
+      if (data.length > 4) {
+        dayOfBirth = data[3];
+        setDayOfBirth(dayOfBirth);
+      }
+
+      if (data.length > 5) {
+        gender = data[4];
+        setGender(gender);
+      }
+
+      if (data.length > 6) {
+        address = data[5];
+        setAddress(address);
+      }
+    },
+    [permission]
+  );
+
   return (
     <ScrollView style={styles.container}>
       <View style={styles.icon}>
@@ -47,7 +129,7 @@ export default function Register2Screen() {
             <MyIcon
               icon={AppIcon.icon_image}
               size="50"
-              onPress={myEmptyFunction}
+              onPress={pickImage}
             ></MyIcon>
           </View>
           <View style={styles.image}>
@@ -65,6 +147,7 @@ export default function Register2Screen() {
       <View style={styles.input}>
         <InputRegister
           label="Họ và tên"
+          value={name}
           required={false}
           onChangeText={myEmptyFunction}
           placeholder="Họ và tên"
@@ -76,6 +159,7 @@ export default function Register2Screen() {
       <View style={styles.input}>
         <InputRegister
           label="Ngày tháng năm sinh"
+          value={dayOfBirth}
           required={false}
           onChangeText={myEmptyFunction}
           placeholder="Ngày tháng năm sinh"
@@ -87,6 +171,7 @@ export default function Register2Screen() {
       <View style={styles.input}>
         <InputRegister
           label="Giới tính"
+          value={gender}
           required={false}
           onChangeText={myEmptyFunction}
           placeholder="Giới tính"
@@ -98,6 +183,7 @@ export default function Register2Screen() {
       <View style={styles.input}>
         <InputRegister
           label="Địa chỉ thường trú"
+          value={address}
           required={false}
           onChangeText={myEmptyFunction}
           placeholder="Địa chỉ thường trú"

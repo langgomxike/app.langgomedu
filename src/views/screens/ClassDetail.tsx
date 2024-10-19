@@ -206,6 +206,7 @@ export default function ClassDetail() {
                           type={item.type}
                           address={item.address}
                           cost={item.cost}
+                          majorIconUrl=""
                         />
                       </Pressable>
                     </View>
