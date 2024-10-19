@@ -38,7 +38,7 @@ import ListMajorSkeleton from "../components/skeleton/ListMajorSkeleton";
 import ClassListSkeleton from "../components/skeleton/ClassListSkeleten";
 import AUser from "../../apis/AUser";
 import { AccountContext } from "../../configs/AccountConfig";
-import SFirebase from "../../services/SFirebase";
+import SFirebase, { FirebaseNode } from "../../services/SFirebase";
 import SLog, { LogType } from "../../services/SLog";
 
 const tutors = [
@@ -182,17 +182,17 @@ export default function HomeScreen() {
   //   );
   // }, []);
 
-  useEffect(() => {
-    SFirebase.trackMajor(1, () => {
-      // SLog.log(LogType.Info, "track major", "done tracking");
-      //give api to get a major by id here...
-    });
+  // useEffect(() => {
+  //   SFirebase.trackOne(FirebaseNode.CLASS, 1, () => {
+  //     SLog.log(LogType.Info, "track one", "done tracking");
+  //     //give api to get one by id here...
+  //   });
 
-    SFirebase.trackMajors(() => {
-      // SLog.log(LogType.Info, "track all majors", "done tracking");
-      //give api to get all majors here...
-    });
-  }, []);
+  //   SFirebase.trackAll(FirebaseNode.CLASS, () => {
+  //     SLog.log(LogType.Info, "track all", "done tracking");
+  //     //give api to get all here... 
+  //   });
+  // }, []);
 
   // animations
   const animation = useRef(items.map(() => new Animated.Value(1))).current;

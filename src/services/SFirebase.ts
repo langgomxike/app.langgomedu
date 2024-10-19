@@ -4,10 +4,31 @@ import firebaseConfig from "../../firebase_account_service.json";
 import SLog, { LogType } from './SLog';
 
 export enum FirebaseNode {
-    "PROJECTS",
-    "ACTIVITIES",
-    "MESSAGES",
+    MAJOR = 0,
+    CLASS = 1,
+    CV = 2
 }
+
+const firebaseNodeProps = [
+    {
+        node: "MAJORS",
+        key: "MAJOR_ID",
+        singular_name: "major",
+        plural_name: "majors",
+    },
+    {
+        node: "CLASSES",
+        key: "CLASS_ID",
+        singular_name: "class",
+        plural_name: "classes",
+    },
+    {
+        node: "CVS",
+        key: "OF_USER_ID",
+        singular_name: "cv",
+        plural_name: "cvs",
+    }
+]
 
 export default class SFirebase {
     private static app: FirebaseApp;
@@ -25,35 +46,53 @@ export default class SFirebase {
         }
     }
 
-    static trackMajors(onNext: () => void) {
+    public static trackAll(firebaseNode: FirebaseNode, onNext: () => void) {
         this.init();
-        const firebaseReference = ref(this.firebaseDatabase, "MAJORS");
+        const firebaseReference = ref(this.firebaseDatabase, firebaseNodeProps[firebaseNode].node);
 
         onValue(firebaseReference,
             () => {
-                SLog.log(LogType.Info, "trackMajors", "track all majors", "track successfully");
+                SLog.log(
+                    LogType.Info,
+                    "trackAll " + firebaseNodeProps[firebaseNode].plural_name,
+                    "track all " + firebaseNodeProps[firebaseNode].plural_name,
+                    "track successfully"
+                );
                 onNext();
             },
             (error) => {
-                SLog.log(LogType.Error, "trackMajors", "track all majors" + " found error", error);
+                SLog.log(
+                    LogType.Error,
+                    "trackAll " + firebaseNodeProps[firebaseNode].plural_name,
+                    "track all " + firebaseNodeProps[firebaseNode].plural_name + " found error",
+                    error
+                );
                 onNext();
             }
         );
     }
 
-    static trackMajor(id: number = -1, onNext: () => void) {
+    public static trackOne(firebaseNode: FirebaseNode, key: number | string, onNext: () => void) {
         this.init();
-        const firebaseReference = ref(this.firebaseDatabase, `MAJORS/MAJOR_ID:${id}`);
-
-        SLog.log(LogType.Warning, "trackAMajor", `track the major with id = ${id}`, firebaseReference);
+        const firebaseReference = ref(this.firebaseDatabase, `${firebaseNodeProps[firebaseNode].node}/${firebaseNodeProps[firebaseNode].key}:${key}`);
 
         onValue(firebaseReference,
             (data) => {
-                SLog.log(LogType.Info, "trackMajor", `track the major with id = ${id}`, "last updated: " + new Date(+(data?.val() ?? 0)).toISOString());
+                SLog.log(
+                    LogType.Info,
+                    `trackOne ${firebaseNodeProps[firebaseNode].singular_name}`,
+                    `track the ${firebaseNodeProps[firebaseNode].singular_name} with key ${firebaseNodeProps[firebaseNode].key} = ${key}`,
+                    `track successfully, last updated at: ${new Date(+(data?.val() ?? 0)).toUTCString()}`
+                );
                 onNext();
             },
             (error) => {
-                SLog.log(LogType.Error, "trackMajor", `track the major with id = ${id}` + " found error", error);
+                SLog.log(
+                    LogType.Info,
+                    "trackOne " + firebaseNodeProps[firebaseNode].singular_name,
+                    `track the ${firebaseNodeProps[firebaseNode].singular_name} with key ${firebaseNodeProps[firebaseNode].key} = ${key} found error`,
+                    error
+                );
                 onNext();
             }
         );
