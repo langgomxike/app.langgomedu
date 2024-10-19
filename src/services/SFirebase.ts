@@ -2,33 +2,13 @@ import { initializeApp, FirebaseApp } from 'firebase/app';
 import { getDatabase, ref, onValue, child, Database, DataSnapshot } from 'firebase/database';
 import firebaseConfig from "../../firebase_account_service.json";
 import SLog, { LogType } from './SLog';
+import firebaseNodeProps from "../../firebase_node_props.json";
 
 export enum FirebaseNode {
     MAJOR = 0,
     CLASS = 1,
     CV = 2
 }
-
-const firebaseNodeProps = [
-    {
-        node: "MAJORS",
-        key: "MAJOR_ID",
-        singular_name: "major",
-        plural_name: "majors",
-    },
-    {
-        node: "CLASSES",
-        key: "CLASS_ID",
-        singular_name: "class",
-        plural_name: "classes",
-    },
-    {
-        node: "CVS",
-        key: "OF_USER_ID",
-        singular_name: "cv",
-        plural_name: "cvs",
-    }
-]
 
 export default class SFirebase {
     private static app: FirebaseApp;
