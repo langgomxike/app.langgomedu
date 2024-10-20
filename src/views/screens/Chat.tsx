@@ -95,20 +95,20 @@ const contactTab: TabItem = {
     const handleFilter = useCallback(
       (contact: User) => {
         return !!(
-          contact.fullName
+          contact.full_name
             .toLowerCase()
             .includes(searchContext.toLowerCase()) ||
           contact.email.toLowerCase().includes(searchContext.toLowerCase()) ||
-          contact.phoneNumber
+          contact.phone_number
             .toLowerCase()
             .includes(searchContext.toLowerCase()) ||
           searchContext
             .toLowerCase()
-            .includes(contact.fullName.toLowerCase()) ||
+            .includes(contact.full_name.toLowerCase()) ||
           searchContext.toLowerCase().includes(contact.email.toLowerCase()) ||
           searchContext
             .toLowerCase()
-            .includes(contact.phoneNumber.toLowerCase())
+            .includes(contact.phone_number.toLowerCase())
         );
       },
       [searchContext]
