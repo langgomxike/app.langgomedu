@@ -16,11 +16,6 @@ type CourseItemProps = {
   cost: number;
 }
 
-function formatNumberWithDot(value:number) {
-    // return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")
-    return new Intl.NumberFormat('vi-VN').format(value) 
-}
-
 export default function courseItem({
   majorIconUrl,
   name,
@@ -31,6 +26,23 @@ export default function courseItem({
   address,
   cost,
 }:CourseItemProps){
+
+  //handler
+  function formatCurrency(amount: number, locale = "vi-VN", currency = "VND") {
+    // Kiểm tra nếu không phải số, trả về chuỗi lỗi
+    if (typeof amount !== "number") return "Invalid input";
+  
+    return amount.toLocaleString(locale, {
+      style: "currency",
+      currency,
+    });
+  
+    // console.log(formatCurrency(price, "en-GB", "GBP")); // "£123,456,789.00" (Anh)
+    // console.log(formatCurrency(price, "ja-JP", "JPY")); // "￥123,456,789" (Nhật)
+    // console.log(formatCurrency(price, "vi-VN", "VND")); // "123.456.789 ₫" (Việt Nam)
+  }
+
+
   return (
     <View style={[styles.courseContainer, styles.boxShadow]}>
       {/* Header */}
@@ -86,7 +98,7 @@ export default function courseItem({
         <View style={styles.line} />
 
         <View>
-            <Text style={styles.footerText}>{formatNumberWithDot(cost)} VNĐ/Buổi</Text>
+            <Text style={styles.footerText}>{formatCurrency(cost)}/Buổi</Text>
         </View>
       </View>
     </View>

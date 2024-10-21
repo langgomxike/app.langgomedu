@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import CustomInput from "../components/Inputs/CustomInput";
 import { BackgroundColor } from "../../configs/ColorConfig";
-import DetailHistoryBottonSheet from "../components/DetailHistoryBottonSheet";
+import DetailHistoryBottonSheet from "../components/bottom-sheet/DetailHistoryBottomSheet";
 
 const historyList = [
   {

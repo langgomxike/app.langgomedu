@@ -38,6 +38,8 @@ import ListMajorSkeleton from "../components/skeleton/ListMajorSkeleton";
 import ClassListSkeleton from "../components/skeleton/ClassListSkeleten";
 import AUser from "../../apis/AUser";
 import { AccountContext } from "../../configs/AccountConfig";
+import SFirebase, { FirebaseNode } from "../../services/SFirebase";
+import SLog, { LogType } from "../../services/SLog";
 
 const tutors = [
   {
@@ -73,9 +75,9 @@ const tutors = [
 ];
 
 const items = [
-  { id: 1, title: 'Các lớp học đang tham gia'},
-  { id: 2, title: 'Các lớp học đang dạy'},
-  { id: 3, title: 'Các lớp học đã tạo'},
+  { id: 1, title: "Các lớp học đang tham gia" },
+  { id: 2, title: "Các lớp học đang dạy" },
+  { id: 3, title: "Các lớp học đã tạo" },
 ];
 
 const URL = ReactAppUrl.PUBLIC_URL;
@@ -89,12 +91,11 @@ export default function HomeScreen() {
   const [visibleModal, setVisibleModal] = useState<string | null>("");
   const [searchKey, setSearchKey] = useState<string>("");
   const [loading, setLoading] = useState(false);
-  const [expandedItems, setExpandedItems] = useState<number[]>(items.map(item => item.id));
+  const [expandedItems, setExpandedItems] = useState<number[]>(
+    items.map((item) => item.id)
+  );
   const [userTypeName, setUserTypeName] = useState("Leaner");
   // const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  // const handleNavigateToDetail = (course: Course) => {
-  //   navigation.navigate(ScreenName.DETAIL_CLASS, { course });
-  // };
 
   const [majors, setMajors] = useState<Major[]>([]);
   const [attedingClasses, setAttedingClasses] = useState<Class[]>([]);
@@ -105,13 +106,24 @@ export default function HomeScreen() {
   const { user, setUser } = useContext(UserContext);
 
   // handle
-  const handleChangeUserType = ()  => {
+  const handleChangeUserType = () => {
     setUser({
-      ...user,  // Giữ nguyên các thông tin cũ
-      TYPE: user.TYPE === UserType.LEANER ? UserType.TUTOR : UserType.LEANER
+      ...user, // Giữ nguyên các thông tin cũ
+      TYPE: user.TYPE === UserType.LEANER ? UserType.TUTOR : UserType.LEANER,
     });
 
     setUserTypeName(user.TYPE === UserType.LEANER ? "Tutor" : "Leaner");
+  };
+
+  function fomatDate(timestamp: number) {
+    if (!timestamp) return ""; // Kiểm tra nếu timestamp là undefined hoặc null
+
+    const date = new Date(timestamp);
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+
+    return `${day}/${month}/${year}`; // Trả về chuỗi theo định dạng DD/MM/YYYY
   }
 
   //handlers
@@ -119,9 +131,9 @@ export default function HomeScreen() {
     navigation?.navigate(ScreenName.SCANNER);
   }, []);
 
-  const handleNavigateToDetail = (course: Class) => {
-    navigation?.navigate(ScreenName.DETAIL_CLASS, { course });
-  };
+  const handleNavigateToDetail = (classId: number)=> {    
+    navigation?.navigate(ScreenName.DETAIL_CLASS, { classId });
+  }
 
   const goToClassList = useCallback(() => {
     navigation?.navigate(ScreenName.CLASS_LIST);
@@ -176,19 +188,25 @@ export default function HomeScreen() {
       },
       setLoading
     );
-
   }, []);
 
-  
+  // useEffect(() => {
+  //   SFirebase.trackOne(FirebaseNode.CLASS, 1, () => {
+  //     SLog.log(LogType.Info, "track one", "done tracking");
+  //     //give api to get one by id here...
+  //   });
+
+  //   SFirebase.trackAll(FirebaseNode.CLASS, () => {
+  //     SLog.log(LogType.Info, "track all", "done tracking");
+  //     //give api to get all here... 
+  //   });
+  // }, []);
 
   // animations
   const animation = useRef(items.map(() => new Animated.Value(1))).current;
 
   const toggleExpand = (id: number) => {
     const isExplaned = expandedItems.includes(id);
-    console.log(">> Toggle Expand id", id );
-    console.log(">> Toggle Expand", isExplaned );
-    console.log(">> Toggle Expand items", expandedItems);
     
     let index = id - 1;
     Animated.timing(animation[index], {
@@ -200,18 +218,18 @@ export default function HomeScreen() {
     setExpandedItems((prev) =>
       isExplaned ? prev.filter((item) => item !== id) : [...prev, id]
     );
-  }
+  };
 
-    // Hàm lấy height interpolation cho từng item
-  const getHeightInterpolation = (index:number) => {
+  // Hàm lấy height interpolation cho từng item
+  const getHeightInterpolation = (index: number) => {
     return animation[index].interpolate({
       inputRange: [0, 1],
       outputRange: [0, 380], // Thu hẹp là 0, mở rộng là 450
     });
   };
 
-    // Hàm lấy opacity interpolation cho từng item
-  const getOpacityInterpolation = (index:number) => {
+  // Hàm lấy opacity interpolation cho từng item
+  const getOpacityInterpolation = (index: number) => {
     return animation[index].interpolate({
       inputRange: [0, 1],
       outputRange: [0.5, 1], // Mờ là 0.5, rõ là 1
@@ -219,7 +237,7 @@ export default function HomeScreen() {
   };
 
   // Hàm lấy rotation interpolation cho từng item
-  const getRotationInterpolation = (index:number) => {
+  const getRotationInterpolation = (index: number) => {
     return animation[index].interpolate({
       inputRange: [0, 1],
       outputRange: ["0deg", "90deg"], // Xoay từ 0 đến 90 độ
@@ -259,7 +277,7 @@ export default function HomeScreen() {
 
             <View style={{ flex: 1, alignItems: "flex-end" }}>
               <TouchableOpacity
-              onPress={handleChangeUserType}
+                onPress={handleChangeUserType}
                 style={[styles.btnSwitchRole, styles.boxShadow]}
               >
                 <Text>{userTypeName}</Text>
@@ -336,10 +354,16 @@ export default function HomeScreen() {
             <View style={styles.classContainer}>
               <View style={[styles.titleContainer, { paddingHorizontal: 20 }]}>
                 <TouchableOpacity
-                 onPress={() => toggleExpand(items[0].id)}
+                  onPress={() => toggleExpand(items[0].id)}
                   style={{ flexDirection: "row", gap: 10 }}
                 >
-                  <Animated.View style={{ transform: [{ rotate: getRotationInterpolation(items[0].id -1) }] }}>
+                  <Animated.View
+                    style={{
+                      transform: [
+                        { rotate: getRotationInterpolation(items[0].id - 1) },
+                      ],
+                    }}
+                  >
                     <Ionicons name="chevron-forward" size={20} color="black" />
                   </Animated.View>
                   <Text style={styles.title}>{items[0].title}</Text>
@@ -371,8 +395,8 @@ export default function HomeScreen() {
                 style={[
                   styles.relatedClassContainer,
                   {
-                    height: getHeightInterpolation(items[0].id -1),
-                    opacity: getOpacityInterpolation(items[0].id -1),
+                    height: getHeightInterpolation(items[0].id - 1),
+                    opacity: getOpacityInterpolation(items[0].id - 1),
                   },
                 ]}
               >
@@ -384,15 +408,15 @@ export default function HomeScreen() {
                     renderItem={({ item: attedingClass }) => {
                       return (
                         <View style={styles.classItem}>
-                          <Pressable>
+                          <Pressable onPress={() => handleNavigateToDetail(attedingClass.id)}>
                             <CourseItem
                               majorIconUrl={`${URL}${attedingClass.major?.icon?.path}`}
                               name={attedingClass.title}
                               level={attedingClass.class_level?.vn_name || ""}
-                              date={attedingClass.started_at + ""}
+                              date={fomatDate(attedingClass.started_at)}
                               time={2}
                               type={"Tại nhà"}
-                              address={attedingClass.address1}
+                              address={attedingClass.address_1}
                               cost={attedingClass.price}
                             />
                           </Pressable>
@@ -411,16 +435,28 @@ export default function HomeScreen() {
               </Animated.View>
             </View>
 
-              {/* Teaching class */}
-              {teachingClasses.length > 0 && 
+            {/* Teaching class */}
+            {teachingClasses.length > 0 && (
               <View style={styles.classContainer}>
-                <View style={[styles.titleContainer, { paddingHorizontal: 20 }]}>
+                <View
+                  style={[styles.titleContainer, { paddingHorizontal: 20 }]}
+                >
                   <TouchableOpacity
                     onPress={() => toggleExpand(items[1].id)}
                     style={{ flexDirection: "row", gap: 10 }}
                   >
-                    <Animated.View style={{ transform: [{ rotate: getRotationInterpolation(items[1].id -1) }] }}>
-                      <Ionicons name="chevron-forward" size={20} color="black" />
+                    <Animated.View
+                      style={{
+                        transform: [
+                          { rotate: getRotationInterpolation(items[1].id - 1) },
+                        ],
+                      }}
+                    >
+                      <Ionicons
+                        name="chevron-forward"
+                        size={20}
+                        color="black"
+                      />
                     </Animated.View>
                     <Text style={styles.title}>{items[1].title}</Text>
                   </TouchableOpacity>
@@ -449,8 +485,8 @@ export default function HomeScreen() {
                   style={[
                     styles.relatedClassContainer,
                     {
-                      height: getHeightInterpolation(items[1].id -1),
-                      opacity: getOpacityInterpolation(items[1].id -1),
+                      height: getHeightInterpolation(items[1].id - 1),
+                      opacity: getOpacityInterpolation(items[1].id - 1),
                     },
                   ]}
                 >
@@ -462,15 +498,15 @@ export default function HomeScreen() {
                       renderItem={({ item: attedingClass }) => {
                         return (
                           <View style={styles.classItem}>
-                            <Pressable>
+                            <Pressable onPress={() => handleNavigateToDetail(attedingClass.id)}>
                               <CourseItem
                                 majorIconUrl={`${URL}${attedingClass.major?.icon?.path}`}
                                 name={attedingClass.title}
                                 level={attedingClass.class_level?.vn_name || ""}
-                                date={attedingClass.started_at + ""}
+                                date={fomatDate(attedingClass.started_at)}
                                 time={2}
                                 type={"Tại nhà"}
-                                address={attedingClass.address1}
+                                address={attedingClass.address_1}
                                 cost={attedingClass.price}
                               />
                             </Pressable>
@@ -488,19 +524,30 @@ export default function HomeScreen() {
                   )}
                 </Animated.View>
               </View>
-              }
+            )}
 
-
-              {/* Created classes */}
-              {createdClasses.length > 0 && 
+            {/* Created classes */}
+            {createdClasses.length > 0 && (
               <View style={styles.classContainer}>
-                <View style={[styles.titleContainer, { paddingHorizontal: 20 }]}>
+                <View
+                  style={[styles.titleContainer, { paddingHorizontal: 20 }]}
+                >
                   <TouchableOpacity
                     onPress={() => toggleExpand(items[2].id)}
                     style={{ flexDirection: "row", gap: 10 }}
                   >
-                    <Animated.View style={{ transform: [{ rotate: getRotationInterpolation(items[2].id -1) }] }}>
-                      <Ionicons name="chevron-forward" size={20} color="black" />
+                    <Animated.View
+                      style={{
+                        transform: [
+                          { rotate: getRotationInterpolation(items[2].id - 1) },
+                        ],
+                      }}
+                    >
+                      <Ionicons
+                        name="chevron-forward"
+                        size={20}
+                        color="black"
+                      />
                     </Animated.View>
                     <Text style={styles.title}>{items[2].title}</Text>
                   </TouchableOpacity>
@@ -529,8 +576,8 @@ export default function HomeScreen() {
                   style={[
                     styles.relatedClassContainer,
                     {
-                      height: getHeightInterpolation(items[2].id -1),
-                      opacity: getOpacityInterpolation(items[2].id -1),
+                      height: getHeightInterpolation(items[2].id - 1),
+                      opacity: getOpacityInterpolation(items[2].id - 1),
                     },
                   ]}
                 >
@@ -539,19 +586,19 @@ export default function HomeScreen() {
                   {!loading && (
                     <FlatList
                       data={createdClasses}
-                      renderItem={({ item: attedingClass }) => {
+                      renderItem={({ item: createdClass }) => {
                         return (
                           <View style={styles.classItem}>
-                            <Pressable>
+                            <Pressable onPress={() => handleNavigateToDetail(createdClass.id)}>
                               <CourseItem
-                                majorIconUrl={`${URL}${attedingClass.major?.icon?.path}`}
-                                name={attedingClass.title}
-                                level={attedingClass.class_level?.vn_name || ""}
-                                date={attedingClass.started_at + ""}
+                                majorIconUrl={`${URL}${createdClass.major?.icon?.path}`}
+                                name={createdClass.title}
+                                level={createdClass.class_level?.vn_name || ""}
+                                date={fomatDate(createdClass.started_at)}
                                 time={2}
                                 type={"Tại nhà"}
-                                address={attedingClass.address1}
-                                cost={attedingClass.price}
+                                address={createdClass.address_1}
+                                cost={createdClass.price}
                               />
                             </Pressable>
                           </View>
@@ -568,9 +615,7 @@ export default function HomeScreen() {
                   )}
                 </Animated.View>
               </View>
-              }
-
-
+            )}
 
             {/* <View style={styles.line}></View> */}
 
@@ -645,7 +690,6 @@ export default function HomeScreen() {
       </View>
     </ScrollView>
   );
- 
 }
 
 const styles = StyleSheet.create({
