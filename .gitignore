@@ -43,3 +43,6 @@ yarn-error.*
 
 # package-lock
 package-lock.json
+
+# ConfigUrl
+src/configs/ConfigUrl.ts
