@@ -145,17 +145,17 @@ export default function HomeScreen() {
     fetchAllMajors;
   }, []);
 
-  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+    const navigation = useContext(NavigationContext);
   const [searchKey, setSearchKey] = useState<string>("");
-  const handleNavigateToDetail = (course: Course) => {
-    navigation.navigate(ScreenName.DETAIL_CLASS, { course });
-  };
+  // const handleNavigateToDetail = (course: Course) => {
+  //   navigation.navigate(ScreenName.DETAIL_CLASS, { course });
+  // };
   // const navigation = useContext(NavigationContext);
   // const [searchKey, setSearchKey] = useState<string>("");
   // const handleNavigateToDetail = (course: Course) => {
   //   navigation?.navigate(ScreenName.DETAIL_CLASS, { course });
   // };
-  // navigation?.navigate(ScreenName.LOGIN);
+  navigation?.navigate(ScreenName.LOGIN);
   const handleOpenDrawer = () => {
     // navigation
   };
@@ -304,7 +304,7 @@ export default function HomeScreen() {
                   data={courses}
                   renderItem={({ item }) => (
                     <View style={styles.classItem}>
-                      <Pressable onPress={() => handleNavigateToDetail(item)}>
+                      {/* <Pressable onPress={() => handleNavigateToDetail(item)}>
                         <CourseItem
                           name={item.name}
                           level={item.level}
@@ -314,7 +314,7 @@ export default function HomeScreen() {
                           address={item.address}
                           cost={item.cost}
                         />
-                      </Pressable>
+                      </Pressable> */}
                     </View>
                   )}
                   keyExtractor={(item) => item.id.toString()}

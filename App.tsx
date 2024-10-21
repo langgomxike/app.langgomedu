@@ -22,6 +22,8 @@ import LoginScreen from "./src/views/screens/Login";
 import Register1Screen from "./src/views/screens/Register1";
 import Register2Screen from "./src/views/screens/Register2";
 import OTPScreen from "./src/views/screens/OTP";
+import AdminHome from "./src/views/screens/Admin/AdminHome";
+import GeneralManagement from "./src/views/screens/Admin/GeneralManagement";
 import ChangePasswordScreen from "./src/views/screens/ChangePassword";
 const Stack = createNativeStackNavigator();
 const SCREEN_PADDING_TOP = 50;

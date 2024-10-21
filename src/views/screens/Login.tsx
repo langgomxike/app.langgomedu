@@ -7,9 +7,10 @@ import Button from "../components/Button";
 import { useCallback, useState,useContext } from "react";
 import { NavigationContext } from "@react-navigation/native";
 import ScreenName from "../../constants/ScreenName";
-
+import ReactAppUrl from "../../configs/ConfigUrl";
+const URL_API=ReactAppUrl.API_BASE_URL
 export default function LoginScreen() {
-
+//console.log(" URL LoginScreen", URL_API);
   const navigation = useContext(NavigationContext);
  
   function goToRegisterScreen(): void {
@@ -34,6 +35,7 @@ export default function LoginScreen() {
  // State để lưu giá trị input
  const [emailOrPhone, setEmailOrPhone] = useState("");
  const [password, setPassword] = useState("");
+ 
   // Hàm xử lý thay đổi input
   function handleInputChangeEmailOrPhone(value: string): void {
     setEmailOrPhone(value); // Lưu giá trị của email hoặc số điện thoại vào state
@@ -61,7 +63,8 @@ export default function LoginScreen() {
 
     try {
       // Gửi yêu cầu đăng nhập tới server
-      const response = await axios.post('10.0.2.2/login', {
+      console.log("duong dan axios",`${process.env.REACT_APP_API_BASE_URL}/users/login`);
+      const response = await axios.post(`http://192.168.2.191:3002/api/users/login`, {
         phoneOrEmail: emailOrPhone,
         password: password,
       });
@@ -101,7 +104,7 @@ export default function LoginScreen() {
             required={true}
             onChangeText={handleInputChangeEmailOrPhone} // Hàm cập nhật state khi nhập
             placeholder="Email hoặc số điện thoại"
-            type="phone"
+            type="text"
             iconName="phone"
           />
         </View>
@@ -155,7 +158,7 @@ const styles = StyleSheet.create({
   },
   
   img: {
-    top: -10,
+    top: 30,
     width: 250,
     height: 250,
     alignItems: "center",
