@@ -222,7 +222,6 @@ export default function ClassDetail() {
                       <View style={styles.classItem}>
                         <Pressable>
                         <CourseItem
-<<<<<<< HEAD
                               majorIconUrl={`${URL}${relatedClass.major?.icon?.path}`}
                               name={relatedClass.title}
                               level={relatedClass.class_level?.vn_name || ""}
@@ -244,25 +243,6 @@ export default function ClassDetail() {
                     ]}
                   />
                 </View>
-=======
-                          name={item.name}
-                          level={item.level}
-                          date={item.date}
-                          time={item.time}
-                          type={item.type}
-                          address={item.address}
-                          cost={item.cost}
-                          majorIconUrl=""
-                        />
-                      </Pressable>
-                    </View>
-                  )}
-                  keyExtractor={(item) => item.id.toString()}
-                  horizontal={true}
-                  showsHorizontalScrollIndicator={true}
-                  contentContainerStyle={styles.classList}
-                />
->>>>>>> 4ced0359b4e43884d12b28d4d68f3307644d317c
               </View>
             </View>
           </ScrollView>

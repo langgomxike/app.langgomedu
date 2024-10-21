@@ -152,51 +152,43 @@ export default function HomeScreen() {
   };
 
   // effect
-<<<<<<< HEAD
   useEffect(() => {
     AMajor.getAllMajors((data) => {
       setMajors(data);
-      
     }, setLoading);
-=======
-  // useEffect(() => {
-  //   AMajor.getAllMajors((data) => {
-  //     setMajors(data);
-  //   }, setLoading);
->>>>>>> 4ced0359b4e43884d12b28d4d68f3307644d317c
 
-  //   AClass.getAttedingClass(
-  //     user.ID,
-  //     (data) => {
-  //       setAttedingClasses(data);
-  //     },
-  //     setLoading
-  //   );
+    AClass.getAttedingClass(
+      user.ID,
+      (data) => {
+        setAttedingClasses(data);
+      },
+      setLoading
+    );
 
-  //   AClass.getAttedingClass(
-  //     user.ID,
-  //     (data) => {
-  //       setAttedingClasses(data);
-  //     },
-  //     setLoading
-  //   );
+    AClass.getAttedingClass(
+      user.ID,
+      (data) => {
+        setAttedingClasses(data);
+      },
+      setLoading
+    );
 
-  //   AClass.getTeachingClass(
-  //     user.ID,
-  //     (data) => {
-  //       setTeachingClasses(data);
-  //     },
-  //     setLoading
-  //   );
+    AClass.getTeachingClass(
+      user.ID,
+      (data) => {
+        setTeachingClasses(data);
+      },
+      setLoading
+    );
 
-  //   AClass.getCreatedClass(
-  //     user.ID,
-  //     (data) => {
-  //       setCreatedClasses(data);
-  //     },
-  //     setLoading
-  //   );
-  // }, []);
+    AClass.getCreatedClass(
+      user.ID,
+      (data) => {
+        setCreatedClasses(data);
+      },
+      setLoading
+    );
+  }, []);
 
   // useEffect(() => {
   //   SFirebase.trackOne(FirebaseNode.CLASS, 1, () => {
@@ -215,14 +207,7 @@ export default function HomeScreen() {
 
   const toggleExpand = (id: number) => {
     const isExplaned = expandedItems.includes(id);
-<<<<<<< HEAD
     
-=======
-    console.log(">> Toggle Expand id", id);
-    console.log(">> Toggle Expand", isExplaned);
-    console.log(">> Toggle Expand items", expandedItems);
-
->>>>>>> 4ced0359b4e43884d12b28d4d68f3307644d317c
     let index = id - 1;
     Animated.timing(animation[index], {
       toValue: isExplaned ? 0 : 1,
