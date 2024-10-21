@@ -151,6 +151,7 @@ export default function HomeScreen() {
   useEffect(() => {
     AMajor.getAllMajors((data) => {
       setMajors(data);
+      
     }, setLoading);
 
     AClass.getAttedingClass(

@@ -42,6 +42,9 @@ import Register2Screen from "./src/views/screens/Register2";
 import OTPScreen from "./src/views/screens/OTP";
 import ChangePasswordScreen from "./src/views/screens/ChangePassword";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import History from "./src/views/screens/History";
+import UserManager from "./src/views/screens/admin/UserManager";
+import ClassManager from "./src/views/screens/admin/ClassManager";
 const Stack = createNativeStackNavigator();
 const SCREEN_PADDING_TOP = 50;
 const SCREEN_PADDING_HORIZONTAL = 0;
@@ -49,21 +52,20 @@ const SCREEN_PADDING_HORIZONTAL = 0;
 export default function App() {
   // states
   const [language, setLanguage] = useState<LanguageType>(languages.VN);
-  const [user, setUser] = useState<UserDataType>({ ID: "089204010903", TYPE: UserType.TUTOR });
+  const [user, setUser] = useState<UserDataType>({ ID: "089204010905", TYPE: UserType.TUTOR });
 
   // jxs
   return (
     <AppContext>
       <UserContext.Provider value={{user, setUser}}>
        <GestureHandlerRootView>
-      <NavigationContainer>
+      {/* <NavigationContainer>
         <Stack.Navigator
           screenOptions={{
             headerShown: false,
             title: "",
             contentStyle: {
               paddingHorizontal: SCREEN_PADDING_HORIZONTAL,
-              // paddingTop: SCREEN_PADDING_TOP,
               backgroundColor: BackgroundColor.white,
             },
           }}
@@ -111,7 +113,7 @@ export default function App() {
           <Stack.Screen name={ScreenName.CV} component={CVScreen} />
           <Stack.Screen name={ScreenName.INPUT_CV} component={InputCVScreen} />
 
-          {/* <Stack.Screen name={ScreenName.OTP} component={OTPScreen} /> */}
+          <Stack.Screen name={ScreenName.OTP} component={OTPScreen} />
           <Stack.Screen name={ScreenName.LOGIN} component={LoginScreen} />
           <Stack.Screen
             name={ScreenName.REGISTER_1}
@@ -169,12 +171,15 @@ export default function App() {
             component={ClassApprovalScreen}
           />
         </Stack.Navigator>
-      </NavigationContainer>
+      </NavigationContainer> */}
 
       {/* <LeanerAttendance></LeanerAttendance> */}
       {/* <TutorAttendance></TutorAttendance> */}
       {/* <LeanerAttendance></LeanerAttendance> */}
       {/* <History/> */}
+      <UserManager/>
+      {/* <ClassManager/> */}
+
       {/* <HoangTestScreen/> */}
 
       </GestureHandlerRootView>

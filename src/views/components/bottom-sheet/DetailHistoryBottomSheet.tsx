@@ -5,8 +5,8 @@ import BottomSheet, {
   BottomSheetView,
   BottomSheetFlatList 
 } from "@gorhom/bottom-sheet";
-import ClassInfo from "./ClassInfo";
-import { BackgroundColor } from "../../configs/ColorConfig";
+import ClassInfo from "../ClassInfo";
+import { BackgroundColor } from "../../../configs/ColorConfig";
 import {FlatList } from 'react-native-gesture-handler';
 
 type DetailHistoryBottonSheetProps = {
