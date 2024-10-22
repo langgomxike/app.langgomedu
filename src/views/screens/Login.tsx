@@ -13,7 +13,7 @@ export default function LoginScreen() {
   const navigation = useContext(NavigationContext);
  
   function goToRegisterScreen(): void {
-    navigation?.navigate(ScreenName.REGISTER1);
+    navigation?.navigate(ScreenName.REGISTER_1);
   }
   function goToOTPScreen():void {
     navigation?.navigate(ScreenName.OTP);
@@ -44,41 +44,41 @@ export default function LoginScreen() {
   }
 
   // Hàm xử lý sự kiện khi nhấn nút Đăng nhập
-  async function handleLogin() {
-    // Kiểm tra xem các trường input có được điền đầy đủ không
-    if (!emailOrPhone || !password) {
-      Alert.alert('Lỗi', 'Vui lòng nhập đầy đủ thông tin!');
-      return;
-    }
+  // async function handleLogin() {
+  //   // Kiểm tra xem các trường input có được điền đầy đủ không
+  //   if (!emailOrPhone || !password) {
+  //     Alert.alert('Lỗi', 'Vui lòng nhập đầy đủ thông tin!');
+  //     return;
+  //   }
 
-    // Kiểm tra định dạng email hoặc số điện thoại
-    const emailRegex = /\S+@\S+\.\S+/;
-    const phoneRegex = /^[0-9]{10,11}$/;
-    if (!emailRegex.test(emailOrPhone) && !phoneRegex.test(emailOrPhone)) {
-      Alert.alert('Lỗi', 'Vui lòng nhập email hoặc số điện thoại hợp lệ!');
-      return;
-    }
+  //   // Kiểm tra định dạng email hoặc số điện thoại
+  //   const emailRegex = /\S+@\S+\.\S+/;
+  //   const phoneRegex = /^[0-9]{10,11}$/;
+  //   if (!emailRegex.test(emailOrPhone) && !phoneRegex.test(emailOrPhone)) {
+  //     Alert.alert('Lỗi', 'Vui lòng nhập email hoặc số điện thoại hợp lệ!');
+  //     return;
+  //   }
 
-    try {
-      // Gửi yêu cầu đăng nhập tới server
-      const response = await axios.post('10.0.2.2/login', {
-        phoneOrEmail: emailOrPhone,
-        password: password,
-      });
+  //   try {
+  //     // Gửi yêu cầu đăng nhập tới server
+  //     const response = await axios.post('10.0.2.2/login', {
+  //       phoneOrEmail: emailOrPhone,
+  //       password: password,
+  //     });
 
-      // Kiểm tra kết quả trả về từ server
-      if (response.status === 200) {
-        console.log('Đăng nhập thành công!', response.data);
-        // Điều hướng tới màn hình home nếu đăng nhập thành công
-        goHomeScreen();
-      } else {
-        Alert.alert('Lỗi', 'Thông tin đăng nhập không chính xác!');
-      }
-    } catch (error) {
-      console.error('Đã có lỗi xảy ra:', error);
-      Alert.alert('Lỗi', 'Đã có lỗi xảy ra trong quá trình đăng nhập!');
-    }
-  }
+  //     // Kiểm tra kết quả trả về từ server
+  //     if (response.status === 200) {
+  //       console.log('Đăng nhập thành công!', response.data);
+  //       // Điều hướng tới màn hình home nếu đăng nhập thành công
+  //       goHomeScreen();
+  //     } else {
+  //       Alert.alert('Lỗi', 'Thông tin đăng nhập không chính xác!');
+  //     }
+  //   } catch (error) {
+  //     console.error('Đã có lỗi xảy ra:', error);
+  //     Alert.alert('Lỗi', 'Đã có lỗi xảy ra trong quá trình đăng nhập!');
+  //   }
+  // }
 
 
   return (
@@ -125,7 +125,7 @@ export default function LoginScreen() {
         <MyText text='Bạn quên mật khẩu?' onPress={goToOTPScreen}></MyText>
         </View>
       </View>
-      <Button title="Đăng nhập" textColor="white" backgroundColor="blue" onPress={emty}></Button>
+      <Button title="Đăng nhập" textColor="white" backgroundColor="blue" onPress={goHomeScreen}></Button>
       <View style={styles.lastText}>
   
       <Text>Bạn chưa có tài khoản? </Text>
