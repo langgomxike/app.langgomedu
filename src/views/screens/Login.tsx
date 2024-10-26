@@ -1,14 +1,21 @@
 import { ScrollView, Text, View, StyleSheet, Image, Alert } from "react-native";
 import MyIcon, { AppIcon } from "../components/MyIcon";
 import InputRegister from "../components/Inputs/InputRegister";
-import MyText from "../components/MyText";
 import Button from "../components/Button";
-import { useCallback, useContext } from "react";
+import { useCallback, useContext, useState } from "react";
 import { NavigationContext } from "@react-navigation/native";
 import ScreenName from "../../constants/ScreenName";
+import AUser from "../../apis/AUser";
+import { AccountContext } from "./../../configs/AccountConfig";
 export default function DuTestScreen() {
   //contexts
   const navigation = useContext(NavigationContext);
+  const accountContext = useContext(AccountContext);
+
+  //states
+  const [emailOrPhoneNumber, setEmailOrPhoneNumber] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
   //handlers
   const handleForgettingPassword = useCallback(() => {
@@ -26,13 +33,54 @@ export default function DuTestScreen() {
   }, []);
 
   const handleLogin = useCallback(() => {
-    navigation?.goBack();
-    navigation?.navigate(ScreenName.HOME);
-  }, []);
+    //validate
+    if (
+      !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(
+        emailOrPhoneNumber
+      ) &&
+      !/^\s*(?:\+?(\d{1,3}))?[-. (]*(\d{3})[-. )]*(\d{3})[-. ]*(\d{4})(?: *x(\d+))?\s*$/.test(
+        emailOrPhoneNumber
+      )
+    ) {
+      alert(
+        "Email hoặc số điện thoại không đúng định dạng.\nVui lòng thử lại."
+      );
+      return;
+    }
 
-  function myEmptyFunction(): void {
-    // Hàm này không làm gì cả
-  }
+    if (!/(?=^.{6,}$)(?=.*[0-9])(?=.*[A-Z]).*/.test(password)) {
+      alert(
+        "Mật khẩu không đúng định dạng:\n\t\t- Từ 6 đến 25 kí tự \n\t\t- Chứa ít nhất 1 số\nVui lòng thử lại."
+      );
+      return;
+    }
+
+    const email = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(
+      emailOrPhoneNumber
+    )
+      ? emailOrPhoneNumber
+      : "";
+
+    const phoneNumber =
+      /^\s*(?:\+?(\d{1,3}))?[-. (]*(\d{3})[-. )]*(\d{3})[-. ]*(\d{4})(?: *x(\d+))?\s*$/.test(
+        emailOrPhoneNumber
+      )
+        ? emailOrPhoneNumber 
+        : "";
+
+    AUser.login(email, phoneNumber, password, (user) => {
+      if (!user) {
+        alert("Đăng nhập thất bại");
+        return;
+      } 
+
+      accountContext.setAccount && accountContext.setAccount(user);
+      
+      navigation?.goBack();
+      navigation?.navigate(ScreenName.HOME);
+    });
+  }, [emailOrPhoneNumber, password, accountContext.account]);
+
   return (
     <ScrollView>
       <View style={styles.container}>
@@ -55,22 +103,24 @@ export default function DuTestScreen() {
           <InputRegister
             label="Email hoặc số điện thoại"
             required={true}
-            onChangeText={myEmptyFunction}
             placeholder="Emal hoặc số điện thoại"
-            type="phone"
+            type="text"
             iconName="phone"
-          ></InputRegister>
+            value={emailOrPhoneNumber}
+            onChangeText={setEmailOrPhoneNumber}
+          />
         </View>
 
         <View style={styles.input}>
           <InputRegister
             label="Mật khẩu của bạn"
             required={true}
-            onChangeText={myEmptyFunction}
             placeholder="Mật khẩu của bạn"
             type="password"
             iconName="password"
-          ></InputRegister>
+            value={password}
+            onChangeText={setPassword}
+          />
         </View>
 
         <View style={styles.row1}>
@@ -89,11 +139,11 @@ export default function DuTestScreen() {
         <Text onPress={goToRegister}>Bạn chưa có tài khoản? Hãy đăng ký</Text>
       </View>
     </ScrollView>
-  ); 
+  );
 }
 const styles = StyleSheet.create({
   container: {
-    flex: 1, 
+    flex: 1,
     alignItems: "center",
     // justifyContent: "center",
   },
@@ -152,7 +202,7 @@ const styles = StyleSheet.create({
     marginLeft: "-40%", // Cân đối khoảng cách giữa các biểu tượng
     marginBottom: " -12%", // Thêm khoảng cách dưới hàng icon
   },
-  lastText:{
-    flexDirection: 'row',
-  }
+  lastText: {
+    flexDirection: "row",
+  },
 });

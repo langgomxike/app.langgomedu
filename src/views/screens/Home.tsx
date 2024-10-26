@@ -190,7 +190,7 @@ export default function HomeScreen() {
 
   //   SFirebase.trackAll(FirebaseNode.CLASS, () => {
   //     SLog.log(LogType.Info, "track all", "done tracking");
-  //     //give api to get all here... 
+  //     //give api to get all here...
   //   });
   // }, []);
 
@@ -252,6 +252,12 @@ export default function HomeScreen() {
           accountContext.setAccount(user);
         }
       }
+    });
+  }, []);
+
+  useEffect(() => {
+    SFirebase.getClassCreationFee((fee) => {
+      alert(fee);
     });
   }, []);
 
