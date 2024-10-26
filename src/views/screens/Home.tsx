@@ -96,9 +96,6 @@ export default function HomeScreen() {
   );
   const [userTypeName, setUserTypeName] = useState("Leaner");
   // const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  // const handleNavigateToDetail = (course: Course) => {
-  //   navigation.navigate(ScreenName.DETAIL_CLASS, { course });
-  // };
 
   const [majors, setMajors] = useState<Major[]>([]);
   const [attedingClasses, setAttedingClasses] = useState<Class[]>([]);
@@ -118,14 +115,25 @@ export default function HomeScreen() {
     setUserTypeName(user.TYPE === UserType.LEANER ? "Tutor" : "Leaner");
   };
 
+  function fomatDate(timestamp: number) {
+    if (!timestamp) return ""; // Kiểm tra nếu timestamp là undefined hoặc null
+
+    const date = new Date(timestamp);
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+
+    return `${day}/${month}/${year}`; // Trả về chuỗi theo định dạng DD/MM/YYYY
+  }
+
   //handlers
   const goToScan = useCallback(() => {
     navigation?.navigate(ScreenName.SCANNER);
   }, []);
 
-  const handleNavigateToDetail = (course: Class) => {
-    navigation?.navigate(ScreenName.DETAIL_CLASS, { course });
-  };
+  const handleNavigateToDetail = (classId: number)=> {    
+    navigation?.navigate(ScreenName.DETAIL_CLASS, { classId });
+  }
 
   const goToClassList = useCallback(() => {
     navigation?.navigate(ScreenName.CLASS_LIST);
@@ -144,43 +152,43 @@ export default function HomeScreen() {
   };
 
   // effect
-  // useEffect(() => {
-  //   AMajor.getAllMajors((data) => {
-  //     setMajors(data);
-  //   }, setLoading);
+  useEffect(() => {
+    AMajor.getAllMajors((data) => {
+      setMajors(data);
+    }, setLoading);
 
-  //   AClass.getAttedingClass(
-  //     user.ID,
-  //     (data) => {
-  //       setAttedingClasses(data);
-  //     },
-  //     setLoading
-  //   );
+    AClass.getAttedingClass(
+      user.ID,
+      (data) => {
+        setAttedingClasses(data);
+      },
+      setLoading
+    );
 
-  //   AClass.getAttedingClass(
-  //     user.ID,
-  //     (data) => {
-  //       setAttedingClasses(data);
-  //     },
-  //     setLoading
-  //   );
+    AClass.getAttedingClass(
+      user.ID,
+      (data) => {
+        setAttedingClasses(data);
+      },
+      setLoading
+    );
 
-  //   AClass.getTeachingClass(
-  //     user.ID,
-  //     (data) => {
-  //       setTeachingClasses(data);
-  //     },
-  //     setLoading
-  //   );
+    AClass.getTeachingClass(
+      user.ID,
+      (data) => {
+        setTeachingClasses(data);
+      },
+      setLoading
+    );
 
-  //   AClass.getCreatedClass(
-  //     user.ID,
-  //     (data) => {
-  //       setCreatedClasses(data);
-  //     },
-  //     setLoading
-  //   );
-  // }, []);
+    AClass.getCreatedClass(
+      user.ID,
+      (data) => {
+        setCreatedClasses(data);
+      },
+      setLoading
+    );
+  }, []);
 
   // useEffect(() => {
   //   SFirebase.trackOne(FirebaseNode.CLASS, 1, () => {
@@ -199,10 +207,7 @@ export default function HomeScreen() {
 
   const toggleExpand = (id: number) => {
     const isExplaned = expandedItems.includes(id);
-    console.log(">> Toggle Expand id", id);
-    console.log(">> Toggle Expand", isExplaned);
-    console.log(">> Toggle Expand items", expandedItems);
-
+    
     let index = id - 1;
     Animated.timing(animation[index], {
       toValue: isExplaned ? 0 : 1,
@@ -409,15 +414,15 @@ export default function HomeScreen() {
                     renderItem={({ item: attedingClass }) => {
                       return (
                         <View style={styles.classItem}>
-                          <Pressable>
+                          <Pressable onPress={() => handleNavigateToDetail(attedingClass.id)}>
                             <CourseItem
                               majorIconUrl={`${URL}${attedingClass.major?.icon?.path}`}
                               name={attedingClass.title}
                               level={attedingClass.class_level?.vn_name || ""}
-                              date={attedingClass.started_at + ""}
+                              date={fomatDate(attedingClass.started_at)}
                               time={2}
                               type={"Tại nhà"}
-                              address={attedingClass.address1}
+                              address={attedingClass.address_1}
                               cost={attedingClass.price}
                             />
                           </Pressable>
@@ -499,15 +504,15 @@ export default function HomeScreen() {
                       renderItem={({ item: attedingClass }) => {
                         return (
                           <View style={styles.classItem}>
-                            <Pressable>
+                            <Pressable onPress={() => handleNavigateToDetail(attedingClass.id)}>
                               <CourseItem
                                 majorIconUrl={`${URL}${attedingClass.major?.icon?.path}`}
                                 name={attedingClass.title}
                                 level={attedingClass.class_level?.vn_name || ""}
-                                date={attedingClass.started_at + ""}
+                                date={fomatDate(attedingClass.started_at)}
                                 time={2}
                                 type={"Tại nhà"}
-                                address={attedingClass.address1}
+                                address={attedingClass.address_1}
                                 cost={attedingClass.price}
                               />
                             </Pressable>
@@ -587,19 +592,19 @@ export default function HomeScreen() {
                   {!loading && (
                     <FlatList
                       data={createdClasses}
-                      renderItem={({ item: attedingClass }) => {
+                      renderItem={({ item: createdClass }) => {
                         return (
                           <View style={styles.classItem}>
-                            <Pressable>
+                            <Pressable onPress={() => handleNavigateToDetail(createdClass.id)}>
                               <CourseItem
-                                majorIconUrl={`${URL}${attedingClass.major?.icon?.path}`}
-                                name={attedingClass.title}
-                                level={attedingClass.class_level?.vn_name || ""}
-                                date={attedingClass.started_at + ""}
+                                majorIconUrl={`${URL}${createdClass.major?.icon?.path}`}
+                                name={createdClass.title}
+                                level={createdClass.class_level?.vn_name || ""}
+                                date={fomatDate(createdClass.started_at)}
                                 time={2}
                                 type={"Tại nhà"}
-                                address={attedingClass.address1}
-                                cost={attedingClass.price}
+                                address={createdClass.address_1}
+                                cost={createdClass.price}
                               />
                             </Pressable>
                           </View>

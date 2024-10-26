@@ -99,7 +99,7 @@ export default function OTPScreen() {
           <TextInput
             key={index}
             ref={(input) => (otpInputs.current[index] = input!)} // Lưu ref vào mảng
-            style={styles.input}
+            style={styles.otpInput}
             placeholder="0"
             keyboardType="numeric"
             value={value}
@@ -140,14 +140,18 @@ const styles = StyleSheet.create({
     width: "100%",
     marginBottom: 20,
   },
-  input: {
-    width: 50,
-    height: 50,
-    borderColor: "#ccc",
-    borderWidth: 1,
-    borderRadius: 5,
-    textAlign: "center",
-    fontSize: 20,
+   otpInput: {
+    borderWidth: 2,        
+    borderColor: '#000',    
+    borderRadius: 5,       
+    padding: 10,          
+    textAlign: 'center',  
+    fontSize: 20, 
+    marginLeft:5,
+    marginRight:5,          
+    marginBottom:20,
+    width: 45,   
+    height:60,         
   },
   ic: {
     marginTop: "-90%",
