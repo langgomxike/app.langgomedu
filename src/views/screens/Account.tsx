@@ -1,12 +1,46 @@
-import { Text, View, FlatList, StyleSheet } from "react-native";
+import {
+  Text,
+  View,
+  FlatList,
+  StyleSheet,
+  Pressable,
+  TouchableOpacity,
+} from "react-native";
 import BackWithDetailLayout from "../layouts/BackWithDetail";
 import { ListItem } from "../../configs/AccountListItemConfig";
 import AccountItem, { AccountItemProps } from "../components/AccountItem";
 import QRInfo from "../components/QRInfo";
 import { QRItems } from "../../configs/QRConfig";
+import { useContext, useEffect } from "react";
+import { NavigationContext } from "@react-navigation/native";
+import ScreenName from "../../constants/ScreenName";
 
 export default function AccountScreen() {
-  const FlatListItem = ({ item }: { item: AccountItemProps }) => {
+  // contexts
+  const navigation = useContext(NavigationContext);
+
+  //handlers
+  const FlatListItem = ({
+    item,
+    index,
+  }: {
+    item: AccountItemProps;
+    index: number;
+  }) => {
+    //handlers
+    const handlers = [
+      () => {},
+      () => {
+        navigation?.navigate(ScreenName.CV);
+      },
+      () => {},
+      () => {},
+      () => {},
+      () => {},
+      () => {},
+      () => {},
+    ];
+
     return (
       <View>
         <AccountItem
@@ -17,6 +51,8 @@ export default function AccountScreen() {
       </View>
     );
   };
+
+  navigation?.navigate(ScreenName.CV);
 
   return (
     <>

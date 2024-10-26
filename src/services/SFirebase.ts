@@ -77,4 +77,31 @@ export default class SFirebase {
             }
         );
     }
+
+    public static getClassCreationFee(onNext: (fee: number | undefined) => void) {
+        this.init();
+        const firebaseReference = ref(this.firebaseDatabase, `CLASSES/CLASS_CREATION_FEE`);
+
+        onValue(firebaseReference,
+            (data) => {
+                SLog.log(
+                    LogType.Info,
+                    `getCreationClassFee`,
+                    `get successfully`,
+                    data
+                );
+                onNext(data.val() as number ?? undefined);
+            },
+            (error) => {
+                SLog.log(
+                    LogType.Info,
+                    `getCreationClassFee`,
+                    `get unsuccessfully`,
+                    error
+                );
+                onNext(undefined);
+            }
+        );
+
+    }
 }
