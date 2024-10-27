@@ -245,7 +245,7 @@ export default function HomeScreen() {
   };
 
   const handleNavigateToCVList = useCallback(() => {
-    navigation?.navigate(ScreenName.CV_LIST);
+    navigation?.navigate(ScreenName.CV_LIST);   
   }, []);
 
   useEffect(() => {

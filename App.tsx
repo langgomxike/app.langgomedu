@@ -99,12 +99,12 @@ export default function App() {
                   title: "Chi tiết lớp học",
                   headerShown: true,
                   contentStyle: {
-                    padding: 0
+                    padding: 0,
                   },
                   headerStyle: {
-                    backgroundColor: BackgroundColor.primary
+                    backgroundColor: BackgroundColor.primary,
                   },
-                  headerTintColor: '#fff',
+                  headerTintColor: "#fff",
                 }}
               />
               <Stack.Screen name={ScreenName.RATING} component={RatingScreen} />
@@ -132,7 +132,7 @@ export default function App() {
                 component={InputCVScreen}
               />
 
-              {/* <Stack.Screen name={ScreenName.OTP} component={OTPScreen} /> */}
+              <Stack.Screen name={ScreenName.OTP} component={OTPScreen} />
               <Stack.Screen name={ScreenName.LOGIN} component={LoginScreen} />
               <Stack.Screen
                 name={ScreenName.REGISTER_1}
