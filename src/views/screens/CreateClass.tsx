@@ -3,6 +3,8 @@ import { Text, View } from "react-native";
 import ProfileScreen from "./Profile";
 import { useState } from "react";
 import InfoClass from "../components/InfoClass";
+import InfoLesson from "../components/InfoLesson";
+import Class from "../components/Class";
 
 export default function CreateClassScreen() {
   const [activeTab, setActiveTab] = useState("classInfo"); // State để quản lý tab đang được chọn
@@ -10,7 +12,7 @@ export default function CreateClassScreen() {
 
   return (
     <View style={styles.container}>
-        <Text style={styles.header}>Tạo lớp học tuyển gia sư</Text>
+      <Text style={styles.header}>Tạo lớp học tuyển gia sư</Text>
       <View style={styles.tabContainer}>
         {/* Tab Thông tin lớp */}
         <TouchableOpacity
@@ -46,9 +48,9 @@ export default function CreateClassScreen() {
       </View>
 
       {/* Nội dung của từng tab */}
-      <View style={styles.contentContainer}>
+      <View>
         {activeTab === "classInfo" ? (
-          <InfoClass/>
+          <Class />
         ) : (
           <Text>Nội dung Thông tin học sinh</Text>
         )}
@@ -59,22 +61,21 @@ export default function CreateClassScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    padding: 10,
-    backgroundColor: "#fff",
+    // padding: 10,
   },
   header: {
     fontSize: 24,
     textAlign: "center",
     fontWeight: "bold",
     paddingBottom: 20,
+    backgroundColor: "#fff"
   },
   tabContainer: {
     flexDirection: "row",
     justifyContent: "space-around",
     borderBottomWidth: 1,
     borderBottomColor: "#ccc",
-    marginBottom: 20,
+    backgroundColor: "#fff",
   },
   tab: {
     alignItems: "center",
@@ -93,8 +94,5 @@ const styles = StyleSheet.create({
     height: 2,
     backgroundColor: "#4da6ff", // Màu của đường gạch dưới tab đang hoạt động
     marginTop: 5,
-  },
-  contentContainer: {
-    marginTop: 20,
   },
 });
