@@ -29,7 +29,7 @@ export default class AUser {
                     }
                 })
                     .then(response => {
-                        SLog.log(LogType.Error, "implicitLogin", "Login successfully", response.data);
+                        SLog.log(LogType.Warning, "implicitLogin", "Login successfully", response.data);
                     })
                     .catch(error => {
                         SLog.log(LogType.Error, "implicitLogin", "Login with token failed", error);
@@ -43,5 +43,50 @@ export default class AUser {
                 return;
             }
         )
+    }
+
+    public static login(email: string, phoneNumber: string, password: string, onNext: (user: User | undefined) => void) {
+        //prepare parameters
+        const url = Config.API_BASE_URL + this.BASE_URL + "/login";
+
+        SLog.log(LogType.Warning, "Login", "check url", url); 
+
+        //validate parameters
+        if (email && !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
+            SLog.log(LogType.Error, "login", "Login unsuccessfully. Email is invalid");
+            onNext(undefined);
+            return;
+        }
+
+        if (phoneNumber && !/^\s*(?:\+?(\d{1,3}))?[-. (]*(\d{3})[-. )]*(\d{3})[-. ]*(\d{4})(?: *x(\d+))?\s*$/.test(phoneNumber)) {
+            SLog.log(LogType.Error, "login", "Login unsuccessfully. Phone number is invalid");
+            onNext(undefined);
+            return;
+        }
+
+        if (!/(?=^.{6,}$)(?=.*[0-9])(?=.*[A-Z]).*/.test(password)) {
+            SLog.log(LogType.Error, "login", "Login unsuccessfully. Password is invalid");
+            onNext(undefined);
+            return;
+        }
+
+        //process login with parameters
+        axios.post(url, {
+            email: email,
+            phone_number: phoneNumber,
+            password: password
+        }, {
+            headers: {
+                Accept: "application/json"
+            },
+        })
+            .then(response => {
+                SLog.log(LogType.Warning, "login", "Login successfully", response.data);
+            })
+            .catch(error => {
+                SLog.log(LogType.Error, "login", "Login with parameters failed", error);
+                onNext(undefined);
+                return;
+            });
     }
 }
