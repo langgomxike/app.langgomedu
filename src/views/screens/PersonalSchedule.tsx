@@ -4,49 +4,49 @@ import TimeLine from "../components/TimeLine";
 import { BackgroundColor } from "../../configs/ColorConfig";
 import { useState } from "react";
 import RatingScreen from "./Rating";
+import ProfileScreen from "./Profile";
 
 export type Day = {
-  dayOfMonth: number,
-  dayOfWeek: number,
-  haveLearnerClass?: boolean,
-  haveTutorClass?: boolean,
-}
+  dayOfMonth: number;
+  dayOfWeek: number;
+  haveLearnerClass?: boolean;
+  haveTutorClass?: boolean;
+};
 export type DaysOfWeek = {
-  days: Array<Day>
-}
+  days: Array<Day>;
+};
 
-export default function PersonalScheduleScreen() { //{ days }: DaysOfWeek props
+export default function PersonalScheduleScreen() {
+  //{ days }: DaysOfWeek props
 
   //day
   //schedule
-  const today: Date = new Date()
-  const daysOfWeek: Array<Day> = []
+  const today: Date = new Date();
+  const daysOfWeek: Array<Day> = [];
 
   for (let index = 0; index < 7; index++) {
-    const currentDay: Date = new Date()
-    currentDay.setDate(today.getDate() + index)
+    const currentDay: Date = new Date();
+    currentDay.setDate(today.getDate() + index);
 
     const day: Day = {
-      dayOfMonth: (currentDay.getDate()),
-      dayOfWeek: (currentDay.getDay()),
+      dayOfMonth: currentDay.getDate(),
+      dayOfWeek: currentDay.getDay(),
       haveLearnerClass: false,
       haveTutorClass: false,
-    }
+    };
     daysOfWeek.push(day);
   }
 
-
   return (
-      <View style={styles.container}>
-        <View style={styles.mainview}>
-          <ScrollView showsVerticalScrollIndicator={false}>
-            <WeekCalendar days={daysOfWeek} />
-            <TimeLine />
-          </ScrollView>
-          {/* <RatingScreen/> */}
-
-        </View>
+    <View style={styles.container}>
+      <View style={styles.mainview}>
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <WeekCalendar days={daysOfWeek} />
+          <TimeLine />
+        </ScrollView>
+        {/* <RatingScreen/> */}
       </View>
+    </View>
   );
 }
 
@@ -57,6 +57,5 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     backgroundColor: BackgroundColor.white,
   },
-  mainview: {
-  }
+  mainview: {},
 });
