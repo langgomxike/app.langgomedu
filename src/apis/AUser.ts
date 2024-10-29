@@ -1,8 +1,9 @@
 import axios from "axios";
-import SAsyncStorage, { AsyncStorageKeys } from "../services/SAsyncStorage";
+import SAsyncStorage, {AsyncStorageKeys} from "../services/SAsyncStorage";
 import Config from "../configs/Config";
-import SLog, { LogType } from "../services/SLog";
+import SLog, {LogType} from "../services/SLog";
 import User from "../models/User";
+import Response from "../models/Response";
 
 export default class AUser {
     private static BASE_URL = "/users";
@@ -10,6 +11,9 @@ export default class AUser {
     public static implicitLogin(onNext: (user: User | undefined) => void) {
         //prepare parameters
         const url = Config.API_BASE_URL + this.BASE_URL + "/login";
+
+        // done
+        // SLog.log(LogType.Warning, "login url", "", url);
 
         //get token from storage    
         SAsyncStorage.getData(AsyncStorageKeys.TOKEN,
@@ -22,14 +26,17 @@ export default class AUser {
                 }
 
                 // process login with token
-                axios.post(url, {}, {
+                axios.post<Response>(url, {}, {
                     headers: {
                         Authorization: "Bearer " + token,
                         Accept: "application/json"
                     }
                 })
                     .then(response => {
-                        SLog.log(LogType.Warning, "implicitLogin", "Login successfully", response.data);
+                        const user = response.data.data as User ?? undefined;
+                        SLog.log(LogType.Warning, "implicitLogin", "Login successfully", user?.full_name);
+                        onNext(user);
+                        return;
                     })
                     .catch(error => {
                         SLog.log(LogType.Error, "implicitLogin", "Login with token failed", error);
@@ -49,7 +56,7 @@ export default class AUser {
         //prepare parameters
         const url = Config.API_BASE_URL + this.BASE_URL + "/login";
 
-        SLog.log(LogType.Warning, "Login", "check url", url); 
+        SLog.log(LogType.Warning, "Login", "check url", url);
 
         //validate parameters
         if (email && !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
@@ -71,7 +78,7 @@ export default class AUser {
         }
 
         //process login with parameters
-        axios.post(url, {
+        axios.post<Response>(url, {
             email: email,
             phone_number: phoneNumber,
             password: password
@@ -81,7 +88,9 @@ export default class AUser {
             },
         })
             .then(response => {
-                SLog.log(LogType.Warning, "login", "Login successfully", response.data);
+                SLog.log(LogType.Warning, "login", "Login successfully", (response.data.data as User ?? undefined)?.full_name);
+                onNext(response.data.data as User ?? undefined);
+                return;
             })
             .catch(error => {
                 SLog.log(LogType.Error, "login", "Login with parameters failed", error);
