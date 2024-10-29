@@ -9,7 +9,7 @@ type ratingProps = {
 const Rating = ({style,onRatingChange} : ratingProps) => {
     //define
     const star = require('../../../assets/icons/ic_star_outline.png')
-    const star_active = require('../../../assets/icon/ic_star.png')
+    const star_active = require('../../../assets/icons/ic_star.png')
     const maxStar: number = 5
 
     const [activeStars, setActiveStars] = useState(0)

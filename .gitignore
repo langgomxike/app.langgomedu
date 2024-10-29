@@ -42,3 +42,6 @@ yarn-error.*
 
 # package-lock
 package-lock.json
+
+# config url
+*ConfigUrl*
