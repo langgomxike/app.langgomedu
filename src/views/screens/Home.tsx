@@ -1,20 +1,16 @@
-import {useContext, useEffect, useRef, useState, useCallback} from "react";
+import {useCallback, useContext, useEffect, useRef, useState} from "react";
 import {
-    Text,
-    View,
-    StyleSheet,
-    TouchableOpacity,
-    Image,
-    ScrollView,
-    FlatList,
-    Pressable,
     Animated,
+    FlatList,
+    Image,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
-import {
-    useNavigation,
-    NavigationProp,
-    NavigationContext,
-} from "@react-navigation/native";
+import {NavigationContext,} from "@react-navigation/native";
 
 import {BackgroundColor} from "../../configs/ColorConfig";
 import Search from "../components/Inputs/SearchBar";
@@ -23,24 +19,21 @@ import TutorItem from "../components/CvItem";
 import Filter from "../components/Filter";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import ScreenName from "../../constants/ScreenName";
-import {
-    RootStackParamList,
-    RootStackParamListFilter,
-} from "../../configs/NavigationRouteTypeConfig";
 import AMajor from "../../apis/AMajor";
 import Major from "../../models/Major";
 import {UserContext, UserType} from "../../configs/UserContext";
 import ReactAppUrl from "../../configs/ConfigUrl";
 import AClass from "../../apis/AClass";
 import Class from "../../models/Class";
-import CustomShimmer from "../components/skeleton/CustomShimmer";
 import ListMajorSkeleton from "../components/skeleton/ListMajorSkeleton";
 import ClassListSkeleton from "../components/skeleton/ClassListSkeleten";
 import AUser from "../../apis/AUser";
 import {AccountContext} from "../../configs/AccountConfig";
-import SFirebase, {FirebaseNode} from "../../services/SFirebase";
-import SLog, {LogType} from "../../services/SLog";
 import Role from "../../models/Role";
+import Toast from "react-native-simple-toast";
+import SAsyncStorage, {AsyncStorageKeys} from "../../services/SAsyncStorage";
+import {LanguageContext, Languages} from "../../configs/LanguageConfig";
+import SFirebase, {FirebaseNode} from "../../services/SFirebase";
 
 const tutors = [
     {
@@ -87,6 +80,7 @@ export default function HomeScreen() {
     //contexts, refs
     const navigation = useContext(NavigationContext);
     const accountContext = useContext(AccountContext);
+    const languageContext = useContext(LanguageContext);
 
     //states
     const [visibleModal, setVisibleModal] = useState<string | null>("");
@@ -249,11 +243,13 @@ export default function HomeScreen() {
         navigation?.navigate(ScreenName.CV_LIST);
     }, []);
 
+    //set up login
     useEffect(() => {
         AUser.implicitLogin((user) => {
             if (!user) {
                 navigation?.navigate(ScreenName.LOGIN);
             } else {
+
                 if (accountContext.setAccount) {
                     accountContext.setAccount(user);
 
@@ -261,9 +257,30 @@ export default function HomeScreen() {
                     if (user.role?.id === Role.SUPER_ADMIN_ROLE_ID || user.role?.id === Role.SUPER_ADMIN_ROLE_ID) {
                         navigation?.navigate(ScreenName.HOME_ADMIN);
                     }
+
+                    Toast.show("Xin chao " + user.full_name, 2000);
                 }
             }
         });
+    }, []);
+
+    //set up multilanguage
+    useEffect(() => {
+        SAsyncStorage.getData(AsyncStorageKeys.LANGUAGE,
+            (language) => {
+                switch (+language) {
+                    case Languages.VN:
+                        languageContext.setLanguage && languageContext.setLanguage(Languages.VN);
+                        break;
+                    case Languages.EN:
+                        languageContext.setLanguage && languageContext.setLanguage(Languages.EN);
+                        break;
+                    case Languages.JA:
+                        languageContext.setLanguage && languageContext.setLanguage(Languages.JA);
+                        break;
+                }
+            }
+        );
     }, []);
 
     //done
