@@ -1,5 +1,5 @@
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import Message, { MessageType } from "../../models/Message";
+import Message from "../../models/Message";
 import DateTimeConfig from "../../configs/DateTimeConfig";
 import { BackgroundColor, TextColor } from "../../configs/ColorConfig";
 
@@ -14,27 +14,22 @@ export default function MessageItem({
   ofMine = false,
   onReplyPress = () => {},
 }: MessageItemProps) {
-  let content;
-  let replyContent;
+  let content = (
+    <Text style={[styles.content, ofMine && styles.ofMine]}>
+      {message.content}
+    </Text>
+  );
 
   // main content
-  switch (message.messageType) {
-    case MessageType.TEXT:
-      content = (
-        <Text style={[styles.content, ofMine && styles.ofMine]}>
-          {message.content}
-        </Text>
-      );
-      break;
-
-    case MessageType.IMAGE:
+  if (message.file) {
+    if (message.is_image) {
       content = (
         <Image
           src={message.file.path}
           style={[
             {
-              width: message.file.imageWith || 280,
-              height: message.file.imageHeight || 280,
+              width: message.file.image_width || 280,
+              height: message.file.image_height || 280,
               borderRadius: 5,
             },
             ofMine && styles.ofMine,
@@ -44,9 +39,7 @@ export default function MessageItem({
           ]}
         />
       );
-      break;
-
-    case MessageType.FILE:
+    } else {
       content = (
         <Text
           style={[
@@ -58,38 +51,34 @@ export default function MessageItem({
           {message.file.name}
         </Text>
       );
-
-      break;
+    }
   }
 
   // reply content
-  switch (message.replyToMessage?.messageType) {
-    case MessageType.TEXT:
-      replyContent = (
-        <Text style={{ color: "#AAA" }}>{message.replyToMessage.content}</Text>
-      );
-      break;
+  let replyContent = (
+    <Text style={{ color: "#AAA" }}>{message.reply_to_message?.content}</Text>
+  );
 
-    case MessageType.IMAGE:
+  if (message.reply_to_message?.file) {
+    if (message.reply_to_message?.is_image) {
       replyContent = (
         <Text style={{ color: "#AAA", textDecorationLine: "underline" }}>
           {"Image"}
         </Text>
       );
-      break;
-    case MessageType.FILE:
+    } else {
       replyContent = (
         <Text style={{ color: "#AAA", textDecorationLine: "underline" }}>
-          {message.replyToMessage.file.name}
+          {message.reply_to_message.file.name}
         </Text>
       );
-      break;
+    }
   }
 
   //check main content active or not
   //mine  1, from user 0
   //mine 0, to user 0
-  if ((ofMine && !message.fromUserStatus) || (!ofMine && !message.toUser)) {
+  if ((ofMine && !message.from_user_status) || (!ofMine && !message.to_user)) {
     content = (
       <Text
         style={[
@@ -105,8 +94,8 @@ export default function MessageItem({
 
   //check reply content active or not
   if (
-    (ofMine && !message.replyToMessage?.fromUserStatus) ||
-    (!ofMine && !message.replyToMessage?.toUser)
+    (ofMine && !message.reply_to_message?.from_user_status) ||
+    (!ofMine && !message.reply_to_message?.to_user)
   ) {
     replyContent = (
       <Text
@@ -124,7 +113,7 @@ export default function MessageItem({
   return (
     <>
       {/* reply message */}
-      {message.replyToMessage && (
+      {message.reply_to_message && (
         <TouchableOpacity
           onPress={onReplyPress}
           style={[styles.replyToContainer, ofMine && styles.ofMine]}
@@ -138,13 +127,13 @@ export default function MessageItem({
         style={[
           styles.container,
           ofMine && styles.ofMine,
-          message.replyToMessage && styles.hasReply,
-          message.replyToMessage && ofMine && styles.hasReplyOfMine,
+          message.reply_to_message && styles.hasReply,
+          message.reply_to_message && ofMine && styles.hasReplyOfMine,
         ]}
       >
         {content}
         <Text style={[styles.time, !ofMine && styles.ofMine]}>
-          {DateTimeConfig.getDateFormat(message.createdAt, true, true)}
+          {DateTimeConfig.getDateFormat(message.created_at, true, true)}
         </Text>
       </View>
     </>

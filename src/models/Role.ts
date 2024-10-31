@@ -1,6 +1,11 @@
 import RoleDTO from "../dtos/RoleDTO";
 
 export default class Role {
+    public static SUPER_ADMIN_ROLE_ID = 1;
+    public static ADMIN_ROLE_ID = 2;
+    public static USER_ROLE_ID = 3;
+
+
     public id: number;
     public role: string;
 

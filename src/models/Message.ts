@@ -1,46 +1,31 @@
-import MessageDTO from "../dtos/MessageDTO";
 import File from "./File";
 import User from "./User";
 
 export default class Message {
     public id: number;
-    public fromUser: User | undefined;
-    public toUser: User | undefined;
+    public from_user: User | undefined;
+    public to_user: User | undefined;
     public content: string;
     public file: File | undefined;
-    public isImage: boolean;
-    public createdAt: Date;
-    public replyToMessage: Message | undefined;
-    public fromUserStatus: boolean;
-    public toUserStatus: boolean;
-    public asRead: boolean;
+    public is_image: boolean;
+    public created_at: number;
+    public reply_to_message: Message | undefined;
+    public from_user_status: boolean;
+    public to_user_status: boolean;
+    public as_read: boolean;
 
 
     constructor(id = -1, fromUser: User | undefined = undefined, toUser: User | undefined = undefined, content = "", file: File | undefined, isImage = false, createdAt = new Date(), replyToMessage: Message | undefined, fromUserStatus = true, toUserStatus = true, asRead = false) {
         this.id = id;
         this.content = content;
-        this.isImage = isImage;
-        this.createdAt = createdAt;
+        this.is_image = isImage;
+        this.created_at = createdAt.getTime();
         this.file = file;
-        this.fromUser = fromUser;
-        this.toUser = toUser;
-        this.replyToMessage = replyToMessage;
-        this.fromUserStatus = fromUserStatus;
-        this.toUserStatus = toUserStatus;
-        this.asRead = asRead;
-    }
-
-    fromDTO(messageDTO: MessageDTO): void {
-        this.id = messageDTO.id;
-        this.content = messageDTO.content;
-        this.isImage = messageDTO.isImage;
-        this.createdAt = new Date(messageDTO.created_at);
-        this.file = messageDTO.file && new File().fromDTO(messageDTO.file) || undefined;
-        this.fromUser = messageDTO.from_user && new User().fromDTO(messageDTO.from_user) || undefined;
-        this.toUser = messageDTO.to_user && new User().fromDTO(messageDTO.to_user) || undefined;
-        this.replyToMessage = messageDTO.reply_to_message && new Message(-1, undefined, undefined, "", undefined, undefined, new Date(), undefined).fromDTO(messageDTO.reply_to_message) || undefined;
-        this.fromUserStatus = messageDTO.from_user_status;
-        this.toUserStatus = messageDTO.to_user_status;
-        this.asRead = messageDTO.as_read;
+        this.from_user = fromUser;
+        this.to_user = toUser;
+        this.reply_to_message = replyToMessage;
+        this.from_user_status = fromUserStatus;
+        this.to_user_status = toUserStatus;
+        this.as_read = asRead;
     }
 }

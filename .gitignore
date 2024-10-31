@@ -46,3 +46,6 @@ package-lock.json
 
 # ConfigUrl
 src/configs/ConfigUrl.ts
+
+# .idea in inteliji
+.idea
