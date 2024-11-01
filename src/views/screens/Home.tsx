@@ -33,7 +33,7 @@ import Role from "../../models/Role";
 import Toast from "react-native-simple-toast";
 import SAsyncStorage, {AsyncStorageKeys} from "../../services/SAsyncStorage";
 import {LanguageContext, Languages} from "../../configs/LanguageConfig";
-import SFirebase, {FirebaseNode} from "../../services/SFirebase";
+import SLog, {LogType} from "../../services/SLog";
 
 const tutors = [
     {
@@ -249,6 +249,8 @@ export default function HomeScreen() {
             if (!user) {
                 navigation?.navigate(ScreenName.LOGIN);
             } else {
+                //store new token into async storage
+                SAsyncStorage.setData(AsyncStorageKeys.TOKEN, user.token);
 
                 if (accountContext.setAccount) {
                     accountContext.setAccount(user);

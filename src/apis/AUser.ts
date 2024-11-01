@@ -34,7 +34,7 @@ export default class AUser {
                 })
                     .then(response => {
                         const user = response.data.data as User ?? undefined;
-                        SLog.log(LogType.Warning, "implicitLogin", "Login successfully", user?.full_name);
+                        SLog.log(LogType.Warning, "implicitLogin", "Login successfully", response.data);
                         onNext(user);
                         return;
                     })
@@ -56,7 +56,8 @@ export default class AUser {
         //prepare parameters
         const url = Config.API_BASE_URL + this.BASE_URL + "/login";
 
-        SLog.log(LogType.Warning, "Login", "check url", url);
+        // done
+        // SLog.log(LogType.Warning, "Login", "check url", url);
 
         //validate parameters
         if (email && !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
@@ -88,7 +89,7 @@ export default class AUser {
             },
         })
             .then(response => {
-                SLog.log(LogType.Warning, "login", "Login successfully", (response.data.data as User ?? undefined)?.full_name);
+                SLog.log(LogType.Warning, "login", "Login successfully", response.data);
                 onNext(response.data.data as User ?? undefined);
                 return;
             })
