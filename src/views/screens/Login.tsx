@@ -74,8 +74,6 @@ export default function LoginScreen() {
                 return;
             }
 
-            SLog.log(LogType.Warning, "check login", "", navigation);
-
             if (accountContext.setAccount) {
                 //save to global context
                 accountContext.setAccount(user);

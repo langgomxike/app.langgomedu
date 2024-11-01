@@ -14,14 +14,14 @@ import {LanguageContext, Languages} from "../../configs/LanguageConfig";
 import RBSheet from "react-native-raw-bottom-sheet";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import {BackgroundColor, TextColor} from "../../configs/ColorConfig";
+import ConfirmDialog from "../components/ConfirmDialog";
 
-const FlatListItem = ({
-                          item,
-                          index
-                      }: {
+type FlatListItemProps = {
     item: AccountItemProps;
     index: number;
-}) => {
+}
+
+function FlatListItem({item, index}: FlatListItemProps) {
     // contexts
     const navigation = useContext(NavigationContext);
     const accountContext = useContext(AccountContext);
@@ -32,6 +32,8 @@ const FlatListItem = ({
 
     //states
     const [handlers, setHandler] = useState<Array<any>>([]);
+    const [showConfirmLogout, setShowConfirmLogout] = useState(false);
+    const [showConfirmDeleteAccount, setShowConfirmDeleteAccount] = useState(false);
 
     //handlers
     const goToPersonalInfoScreen = useCallback(() => {
@@ -55,6 +57,7 @@ const FlatListItem = ({
     }, []);
 
     const handleDeleteAccount = useCallback(() => {
+        setShowConfirmDeleteAccount(false);
         alert("handleDeleteAccount");
     }, []);
 
@@ -65,7 +68,7 @@ const FlatListItem = ({
     }, []);
 
     const handleLogout = useCallback(() => {
-
+        setShowConfirmLogout(false);
         SAsyncStorage.removeData(AsyncStorageKeys.TOKEN,
             () => {
                 accountContext.setAccount && accountContext.setAccount(undefined);
@@ -86,9 +89,9 @@ const FlatListItem = ({
             goToScheduleScreen,
             goToRatingScreen,
             goToChangePasswordScreen,
-            handleDeleteAccount,
+            () => setShowConfirmDeleteAccount(true),
             refRBSheet.current?.open,
-            handleLogout,
+            () => setShowConfirmLogout(true),
         ];
 
         setHandler(handlers);
@@ -133,9 +136,24 @@ const FlatListItem = ({
                     <Text style={action.item}>日本語</Text>
                 </TouchableOpacity>
             </RBSheet>
+
+            {/*confirm dialog for logout*/}
+            <ConfirmDialog title={"Dang xuat"} content={"Xac nhan dang xuat"} open={showConfirmLogout}
+                           confirm={"Xac nhan"}
+                           cancel={"Huy"}
+                           onConfirm={handleLogout}
+                           onCancel={() => setShowConfirmLogout(false)}/>
+
+            {/*confirm dialog for delete account*/}
+            <ConfirmDialog title={"Xoa tai khoan"} content={"Xac nhan xoa tai khoan"} open={showConfirmDeleteAccount}
+                           confirm={"Xac nhan"}
+                           cancel={"Huy"}
+                           onConfirm={handleDeleteAccount}
+                           onCancel={() => setShowConfirmDeleteAccount(false)}/>
+
         </>
     );
-};
+}
 
 export default function AccountScreen() {
     //contexts
@@ -167,7 +185,6 @@ export default function AccountScreen() {
     //tsx
     return (
         <>
-
             <QRInfo id={123} type={QRItems.USER}/>
             <BackWithDetailLayout icName="Back">
                 <ScrollView showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false}>
@@ -175,14 +192,11 @@ export default function AccountScreen() {
                         <FlatListItem item={item} index={index} key={item.title}/>
                     ))}
                 </ScrollView>
-
                 <View style={{marginBottom: 50}}/>
-
             </BackWithDetailLayout>
         </>
     );
 }
-
 
 const action = StyleSheet.create({
     action: {
