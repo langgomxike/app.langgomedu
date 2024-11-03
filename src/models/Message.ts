@@ -1,4 +1,4 @@
-import MessageDTO from "../dtos/MessageDTO";
+
 import File from "./File";
 import User from "./User";
 
@@ -28,19 +28,5 @@ export default class Message {
         this.fromUserStatus = fromUserStatus;
         this.toUserStatus = toUserStatus;
         this.asRead = asRead;
-    }
-
-    fromDTO(messageDTO: MessageDTO): void {
-        this.id = messageDTO.id;
-        this.content = messageDTO.content;
-        this.isImage = messageDTO.isImage;
-        this.createdAt = new Date(messageDTO.created_at);
-        this.file = messageDTO.file && new File().fromDTO(messageDTO.file) || undefined;
-        this.fromUser = messageDTO.from_user && new User().fromDTO(messageDTO.from_user) || undefined;
-        this.toUser = messageDTO.to_user && new User().fromDTO(messageDTO.to_user) || undefined;
-        this.replyToMessage = messageDTO.reply_to_message && new Message(-1, undefined, undefined, "", undefined, undefined, new Date(), undefined).fromDTO(messageDTO.reply_to_message) || undefined;
-        this.fromUserStatus = messageDTO.from_user_status;
-        this.toUserStatus = messageDTO.to_user_status;
-        this.asRead = messageDTO.as_read;
     }
 }

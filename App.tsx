@@ -42,6 +42,11 @@ import Register2Screen from "./src/views/screens/Register2";
 import OTPScreen from "./src/views/screens/OTP";
 import ChangePasswordScreen from "./src/views/screens/ChangePassword";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import UserReportList from "./src/views/screens/admin/UserReportList";
+import UserManager from "./src/views/screens/admin/UserManager";
+import ClassManager from "./src/views/screens/admin/ClassManager";
+import History from "./src/views/screens/History";
+import GeneralManager from "./src/views/screens/admin/GeneralManager";
 const Stack = createNativeStackNavigator();
 const SCREEN_PADDING_TOP = 50;
 const SCREEN_PADDING_HORIZONTAL = 0;
@@ -51,7 +56,7 @@ export default function App() {
   const [language, setLanguage] = useState<LanguageType>(languages.VN);
   const [user, setUser] = useState<UserDataType>({
     ID: "089204010903",
-    TYPE: UserType.TUTOR,
+    TYPE: UserType.LEANER,
   });
 
   // jxs
@@ -132,7 +137,7 @@ export default function App() {
                 component={InputCVScreen}
               />
 
-              {/* <Stack.Screen name={ScreenName.OTP} component={OTPScreen} /> */}
+              <Stack.Screen name={ScreenName.OTP} component={OTPScreen} />
               <Stack.Screen name={ScreenName.LOGIN} component={LoginScreen} />
               <Stack.Screen
                 name={ScreenName.REGISTER_1}
@@ -197,6 +202,10 @@ export default function App() {
           {/* <LeanerAttendance></LeanerAttendance> */}
           {/* <History/> */}
           {/* <HoangTestScreen/> */}
+          {/* <UserReportList/> */}
+          {/* <ClassManager/> */}
+          {/* <UserManager/> */}
+          {/* <GeneralManager/> */}
         </GestureHandlerRootView>
       </UserContext.Provider>
     </AppContext>

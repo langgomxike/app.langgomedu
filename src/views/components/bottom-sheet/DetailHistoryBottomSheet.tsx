@@ -87,7 +87,7 @@ export default function ({
                         <View style={styles.otherUser}>
                           <View style={styles.otherUserAvatarContainer}>
                             <Image
-                              source={require("../../../assets/avatar/img_avatar_cat.png")}
+                              source={require("../../../../assets/avatar/img_avatar_cat.png")}
                               style={styles.otherUserAvatar}
                             />
                           </View>

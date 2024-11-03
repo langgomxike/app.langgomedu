@@ -78,6 +78,7 @@ const items = [
   { id: 1, title: "Các lớp học đang tham gia" },
   { id: 2, title: "Các lớp học đang dạy" },
   { id: 3, title: "Các lớp học đã tạo" },
+  { id: 4, title: "Các lớp học gợi ý" },
 ];
 
 const URL = ReactAppUrl.PUBLIC_URL;
@@ -98,6 +99,7 @@ export default function HomeScreen() {
   // const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   const [majors, setMajors] = useState<Major[]>([]);
+  const [suggettingClasses, setSuggettingClasses] = useState<Class[]>([]);
   const [attedingClasses, setAttedingClasses] = useState<Class[]>([]);
   const [teachingClasses, setTeachingClasses] = useState<Class[]>([]);
   const [createdClasses, setCreatedClasses] = useState<Class[]>([]);
@@ -157,6 +159,15 @@ export default function HomeScreen() {
       setMajors(data);
     }, setLoading);
 
+    AClass.getSuggetingClass(
+      user.ID,
+      user.TYPE,
+      (data) => {
+        setSuggettingClasses(data);
+      },
+      setLoading
+    );
+
     AClass.getAttedingClass(
       user.ID,
       (data) => {
@@ -188,7 +199,7 @@ export default function HomeScreen() {
       },
       setLoading
     );
-  }, []);
+  }, [user.TYPE]);
 
   // useEffect(() => {
   //   SFirebase.trackOne(FirebaseNode.CLASS, 1, () => {
@@ -350,6 +361,92 @@ export default function HomeScreen() {
 
           {/* Class */}
           <View>
+
+            {/* Suggetting class */}
+            <View style={styles.classContainer}>
+              <View style={[styles.titleContainer, { paddingHorizontal: 20 }]}>
+                <TouchableOpacity
+                  onPress={() => toggleExpand(items[3].id)}
+                  style={{ flexDirection: "row", gap: 10 }}
+                >
+                  <Animated.View
+                    style={{
+                      transform: [
+                        { rotate: getRotationInterpolation(items[3].id - 1) },
+                      ],
+                    }}
+                  >
+                    <Ionicons name="chevron-forward" size={20} color="black" />
+                  </Animated.View>
+                  <Text style={styles.title}>{items[3].title}</Text>
+                </TouchableOpacity>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    gap: 10,
+                    alignItems: "center",
+                  }}
+                >
+                  <TouchableOpacity>
+                    <Text onPress={goToClassList} style={styles.showAllText}>
+                      Xem tất cả
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => setVisibleModal("modal_fiter")}
+                  >
+                    <Image
+                      source={require("../../../assets/images/ic_filter.png")}
+                      style={{ width: 20, height: 20 }}
+                    />
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+              <Animated.View
+                style={[
+                  styles.relatedClassContainer,
+                  {
+                    height: getHeightInterpolation(items[3].id - 1),
+                    opacity: getOpacityInterpolation(items[3].id - 1),
+                  },
+                ]}
+              >
+                {loading && <ClassListSkeleton />}
+
+                {!loading && (
+                  <FlatList
+                    data={suggettingClasses}
+                    renderItem={({ item: suggettingClass }) => {
+                      return (
+                        <View style={styles.classItem}>
+                          <Pressable onPress={() => handleNavigateToDetail(suggettingClass.id)}>
+                            <CourseItem
+                              majorIconUrl={`${URL}${suggettingClass.major?.icon?.path}`}
+                              name={suggettingClass.title}
+                              level={suggettingClass.class_level?.vn_name || ""}
+                              date={fomatDate(suggettingClass.started_at)}
+                              time={2}
+                              type={"Tại nhà"}
+                              address={suggettingClass.address_1}
+                              cost={suggettingClass.price}
+                            />
+                          </Pressable>
+                        </View>
+                      );
+                    }}
+                    keyExtractor={(item) => item.id.toString()}
+                    horizontal={true}
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={[
+                      styles.classList,
+                      suggettingClasses.length === 1 && styles.centeredItem,
+                    ]}
+                  />
+                )}
+              </Animated.View>
+            </View>
+
             {/* Attending class */}
             <View style={styles.classContainer}>
               <View style={[styles.titleContainer, { paddingHorizontal: 20 }]}>
@@ -735,6 +832,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     paddingVertical: 5,
     borderRadius: 7,
+    width: 80,
+    alignItems: "center",
   },
 
   btnSwitchRoleText: {

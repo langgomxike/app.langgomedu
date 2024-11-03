@@ -1,4 +1,3 @@
-import ClassReportDTO from "../dtos/ClassReportDTO";
 import Class from "./Class";
 import User from "./User";
 
@@ -15,13 +14,5 @@ export default class ClassReport {
         this.content = content;
         this.class = _class;
         this.createdAt = createdAt;
-    }
-
-    fromDTO(reportDTO: ClassReportDTO): void {
-        this.id = reportDTO.id;
-        this.user = reportDTO.user && new User().fromDTO(reportDTO.user) || undefined;
-        this.class = reportDTO.class && new Class().fromDTO(reportDTO.class) || undefined;
-        this.content = reportDTO.content;
-        this.createdAt = new Date(reportDTO.created_at);
     }
 }
