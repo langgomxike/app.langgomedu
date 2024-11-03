@@ -1,7 +1,5 @@
 import {
   FlatList,
-  InteractionManager,
-  Modal,
   Pressable,
   StyleSheet,
   Text,
@@ -10,16 +8,27 @@ import {
   View,
 } from "react-native";
 import { BackgroundColor, TextColor } from "../../configs/ColorConfig";
-import { ElementRef, useCallback, useEffect, useRef, useState } from "react";
-import Message, { MessageType } from "../../models/Message";
+import {
+  ElementRef,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import Message from "../../models/Message";
 import AMessage from "../../apis/AMessage";
 import MessageItem from "../components/MessageItem";
 import MyIcon, { AppIcon } from "../components/MyIcon";
 import RBSheet from "react-native-raw-bottom-sheet";
-import BackWithDetailLayout from "../layouts/BackWithDetail";
 import { Image } from "react-native";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import { NavigationContext } from "@react-navigation/native";
 
 export default function MessageScreen() {
+  //contexts
+  const navigation = useContext(NavigationContext);
+
   //refs
   const inputRef = useRef<ElementRef<typeof TextInput>>(null);
   const listRef = useRef<ElementRef<typeof FlatList<Message>>>(null);
@@ -38,50 +47,50 @@ export default function MessageScreen() {
 
   let replyContent;
 
-  if (replyMessage) {
-    switch (replyMessage.messageType) {
-      case MessageType.TEXT:
-        replyContent = (
-          <Text style={{ color: "#AAA", flex: 1 }}>{replyMessage.content}</Text>
-        );
-        break;
+  // if (replyMessage) {
+  //   switch (replyMessage.messageType) {
+  //     case MessageType.TEXT:
+  //       replyContent = (
+  //         <Text style={{ color: "#AAA", flex: 1 }}>{replyMessage.content}</Text>
+  //       );
+  //       break;
 
-      case MessageType.IMAGE:
-        replyContent = (
-          <Text
-            style={{ color: "#AAA", flex: 1, textDecorationLine: "underline" }}
-          >
-            {"Image"}
-          </Text>
-        );
-        break;
-      case MessageType.FILE:
-        replyContent = (
-          <Text
-            style={{ color: "#AAA", flex: 1, textDecorationLine: "underline" }}
-          >
-            {replyMessage.file.name}
-          </Text>
-        );
-        break;
-    }
-  }
+  //     case MessageType.IMAGE:
+  //       replyContent = (
+  //         <Text
+  //           style={{ color: "#AAA", flex: 1, textDecorationLine: "underline" }}
+  //         >
+  //           {"Image"}
+  //         </Text>
+  //       );
+  //       break;
+  //     case MessageType.FILE:
+  //       replyContent = (
+  //         <Text
+  //           style={{ color: "#AAA", flex: 1, textDecorationLine: "underline" }}
+  //         >
+  //           {replyMessage.file.name}
+  //         </Text>
+  //       );
+  //       break;
+  //   }
+  // }
 
-  if (replyMessage) {
-    if (!replyMessage.fromUserStatus || !replyMessage.toUser) {
-      replyContent = (
-        <Text
-          style={{
-            color: "#AAA",
-            flex: 1,
-            textDecorationLine: "underline line-through",
-          }}
-        >
-          Tin nhan da go
-        </Text>
-      );
-    }
-  }
+  // if (replyMessage) {
+  //   if (!replyMessage.fromUserStatus || !replyMessage.toUser) {
+  //     replyContent = (
+  //       <Text
+  //         style={{
+  //           color: "#AAA",
+  //           flex: 1,
+  //           textDecorationLine: "underline line-through",
+  //         }}
+  //       >
+  //         Tin nhan da go
+  //       </Text>
+  //     );
+  //   }
+  // }
 
   //handlers
   const handlePickImage = useCallback(() => {
@@ -102,13 +111,17 @@ export default function MessageScreen() {
     }
 
     const message = new Message(
-      new Date().getTime(),
+      1,
+      undefined,
+      undefined,
       newMessage,
-      MessageType.TEXT,
-      new Date().getTime()
+      undefined,
+      false,
+      new Date(),
+      undefined
     );
 
-    message.replyToMessage = replyMessage;
+    message.reply_to_message = replyMessage;
 
     setMessages((messages) => [message, ...messages]);
     setNewMessage("");
@@ -133,7 +146,7 @@ export default function MessageScreen() {
         (message) => message.id === activeMessage.id
       );
       if (message) {
-        message.fromUserStatus = false;
+        message.from_user_status = false;
       }
     }
     setMessages(messages);
@@ -146,45 +159,71 @@ export default function MessageScreen() {
         (message) => message.id === activeMessage.id
       );
       if (message) {
-        message.fromUserStatus = false;
-        message.toUserStatus = false;
+        message.from_user_status = false;
+        message.to_user_status = false;
       }
     }
     setMessages(messages);
     refRBSheet.current?.close();
   }, [activeMessage, messages]);
 
+  //handlers
+  const goBack = useCallback(() => {
+    navigation?.goBack();
+  }, []);
+
   //effects
   useEffect(() => {
     AMessage.getMessagesOfTowUsers(1, 2, (messages: Message[]) => {
-      setMessages(messages);
+      setMessages([
+        ...messages,
+        ...messages,
+        ...messages,
+        ...messages,
+        ...messages,
+        ...messages,
+      ]);
     });
   }, []);
 
   return (
-    <BackWithDetailLayout
-      icName="Back"
-      subIcon={<MyIcon icon={AppIcon.ic_info} onPress={() => {}} />}
-    >
-      <View style={[styles.container, { marginBottom: 10 }]}>
+    <View style={styles.container}>
+      <Ionicons
+        name="close"
+        size={30}
+        style={styles.backButton}
+        onPress={goBack}
+      />
+
+      {/* user */}
+      <View style={{ alignSelf: "center" }}>
+        <Image src="" style={styles.avatar} />
+
+        <Text style={styles.userName}>{"messages"}</Text>
+      </View>
+
+      <View style={[styles.container, styles.chatContent]}>
         <FlatList
           ref={listRef}
-          inverted={true}
+          inverted={false}
           showsHorizontalScrollIndicator={false}
           showsVerticalScrollIndicator={false}
           data={messages}
           onScroll={(event) =>
-            setAtBottom(event.nativeEvent.contentOffset.y === 0)
+            setAtBottom(
+              event.nativeEvent.contentOffset.y >
+                event.nativeEvent.layoutMeasurement.height
+            )
           }
-          renderItem={({ item: message }) => (
+          renderItem={({ item: message, index }) => (
             <Pressable onLongPress={() => handleShowAction(message)}>
               <MessageItem
-                key={message.id}
+                key={message.id + index}
                 message={message}
                 ofMine={message.id % 2 == 0}
                 onReplyPress={() =>
                   listRef.current?.scrollToItem({
-                    item: message.replyToMessage ?? message,
+                    item: message.reply_to_message ?? message,
                     animated: true,
                   })
                 }
@@ -215,20 +254,23 @@ export default function MessageScreen() {
           {/* actions */}
           {!newMessage && (
             <>
-              <MyIcon
-                icon={AppIcon.ic_photo}
+              <Ionicons
+                name="images"
+                size={30}
+                color={BackgroundColor.black}
                 onPress={handlePickImage}
-                iconName=""
               />
-              <MyIcon
-                icon={AppIcon.ic_folder}
+              <Ionicons
+                name="reader"
+                size={30}
+                color={BackgroundColor.black}
                 onPress={handlePickFolder}
-                iconName=""
               />
-              <MyIcon
-                icon={AppIcon.ic_collab}
+              <Ionicons
+                name="hand-left"
+                size={30}
+                color={BackgroundColor.black}
                 onPress={handleMakingContact}
-                iconName=""
               />
             </>
           )}
@@ -241,10 +283,11 @@ export default function MessageScreen() {
             style={styles.input}
           />
 
-          <MyIcon
-            icon={AppIcon.send}
+          <Ionicons
+            name="send"
+            size={30}
+            color={BackgroundColor.black}
             onPress={handleSendNewMessage}
-            iconName=""
           />
 
           {/* back to bottom button */}
@@ -252,7 +295,10 @@ export default function MessageScreen() {
             <TouchableOpacity style={action.scrollToBottomButtonContainer}>
               <Text
                 onPress={() =>
-                  listRef.current?.scrollToIndex({ index: 0, animated: true })
+                  listRef.current?.scrollToIndex({
+                    index: messages.length - 1,
+                    animated: true,
+                  })
                 }
                 style={action.scrollToBottomButton}
               >
@@ -265,7 +311,11 @@ export default function MessageScreen() {
         {/* action */}
         <RBSheet ref={refRBSheet} useNativeDriver={false} height={200}>
           <TouchableOpacity style={action.action} onPress={handleReplyMessage}>
-            <MyIcon icon={AppIcon.ic_close_desk} onPress={() => {}} />
+            <Ionicons
+              name="return-down-forward-outline"
+              size={30}
+              color={BackgroundColor.black}
+            />
             <Text style={action.item}>Tra loi</Text>
           </TouchableOpacity>
 
@@ -273,7 +323,11 @@ export default function MessageScreen() {
             style={action.action}
             onPress={handleDeleteOneSideMessage}
           >
-            <MyIcon icon={AppIcon.ic_bin} onPress={() => {}} />
+            <Ionicons
+              name="trash"
+              size={30}
+              color={BackgroundColor.sub_warning}
+            />
             <Text style={action.item}>Go phia ban</Text>
           </TouchableOpacity>
 
@@ -281,20 +335,63 @@ export default function MessageScreen() {
             style={action.action}
             onPress={handleDeleteTwoSideMessage}
           >
-            <MyIcon icon={AppIcon.ic_bin} onPress={() => {}} />
+            <Ionicons
+              name="trash"
+              size={30}
+              color={BackgroundColor.sub_danger}
+            />
             <Text style={action.item}>Go ca 2 phia</Text>
           </TouchableOpacity>
         </RBSheet>
       </View>
-
-    </BackWithDetailLayout>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: BackgroundColor.sub_primary,
+  },
+
+  chatContent: {
+    padding: 10,
+    paddingTop: 20,
+    marginTop: 10,
     backgroundColor: BackgroundColor.white,
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+    shadowColor: BackgroundColor.sub_primary,
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.32,
+    shadowRadius: 5.46,
+
+    elevation: 9,
+  },
+
+  backButton: {
+    position: "absolute",
+    top: 20,
+    left: 20,
+    zIndex: 10,
+  },
+
+  userName: {
+    textAlign: "center",
+    fontWeight: "600",
+    fontSize: 20,
+    color: TextColor.white,
+  },
+
+  avatar: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: BackgroundColor.primary,
+    marginTop: 20,
   },
 
   chatContainer: {

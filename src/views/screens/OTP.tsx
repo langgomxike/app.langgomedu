@@ -1,15 +1,10 @@
 import React, { useState, useRef, useCallback, useContext } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TextInput,
-  Button,
-  Alert,
-  Image,
-} from "react-native";
+import { View, Text, StyleSheet, TextInput, Alert, Image } from "react-native";
 import MyIcon, { AppIcon } from "../components/MyIcon";
 import { NavigationContext } from "@react-navigation/native";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import Button from "../components/Button";
+import { BackgroundColor } from "../../configs/ColorConfig";
 
 export default function OTPScreen() {
   //context
@@ -49,27 +44,6 @@ export default function OTPScreen() {
     }
   };
 
-  // Xử lý khi nhấn nút xóa
-  const handleKeyPress = (e: any, index: number) => {
-    const newOtp = [...otp];
-
-    // Nếu ô hiện tại trống và người dùng nhấn Backspace
-    if (e.nativeEvent.key === "Backspace") {
-      if (newOtp[index] === "" && index > 0) {
-        // Xóa giá trị của ô trước đó
-        newOtp[index - 1] = "";
-        setOtp(newOtp);
-
-        // Focus về ô trước
-        otpInputs.current[index - 1]?.focus();
-      } else {
-        // Xóa giá trị của ô hiện tại
-        newOtp[index] = "";
-        setOtp(newOtp);
-      }
-    }
-  };
-
   const handleVerifyOtp = () => {
     const validOtp = "123456"; // Thay thế bằng OTP thực tế của bạn
     if (otp.join("") === validOtp) {
@@ -82,25 +56,32 @@ export default function OTPScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.ic}>
-        <MyIcon onPress={goBack} icon={AppIcon.ic_back_circle} />
-      </View>
+      <Ionicons
+        name="close"
+        size={30}
+        style={styles.backButton}
+        onPress={goBack}
+      />
 
-      <Text style={styles.title}>Xác Nhận OTP</Text>
       <Image
         style={styles.img}
         source={require("../../../assets/images/ illustration/Mobile login-rafiki.png")}
       />
+
+      {/* title */}
+      <Text style={styles.title}>Xác Thực OTP</Text>
+
       <Text style={styles.instructions}>
         Nhập mã OTP đã gửi đến điện thoại của bạn
       </Text>
+
+      {/* inputs */}
       <View style={styles.otpContainer}>
         {otp.map((value, index) => (
           <TextInput
             key={index}
             ref={(input) => (otpInputs.current[index] = input!)} // Lưu ref vào mảng
-            style={styles.input}
-            placeholder="0"
+            style={styles.otpInput}
             keyboardType="numeric"
             value={value}
             onChangeText={(text) => handleChangeText(text, index)}
@@ -108,7 +89,18 @@ export default function OTPScreen() {
           />
         ))}
       </View>
-      <Button title="Xác Nhận" onPress={handleVerifyOtp} />
+
+      {/* submit button */}
+      <Button
+        title="Xác thực"
+        textColor="white"
+        backgroundColor={
+          otp.join("").length == 6
+            ? BackgroundColor.primary
+            : BackgroundColor.sub_primary
+        }
+        onPress={otp.join("").length == 6 ? handleVerifyOtp : () => {}}
+      />
     </View>
   );
 }
@@ -120,37 +112,46 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     padding: 20,
   },
+
+  backButton: {
+    position: "absolute",
+    top: 20,
+    left: 20,
+  },
+
   img: {
     width: 200,
     height: 200,
   },
+
   title: {
     fontSize: 24,
     fontWeight: "bold",
-    marginBottom: 20,
+    marginVertical: 5,
   },
+
   instructions: {
     fontSize: 16,
-    marginBottom: 10,
+    marginVertical: 15,
     textAlign: "center",
   },
+
   otpContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
     width: "100%",
-    marginBottom: 20,
+    marginTop: 20,
+    marginBottom: 40,
   },
-  input: {
-    width: 50,
-    height: 50,
-    borderColor: "#ccc",
+
+  otpInput: {
     borderWidth: 1,
+    borderColor: BackgroundColor.sub_primary,
     borderRadius: 5,
+    padding: 10,
     textAlign: "center",
     fontSize: 20,
-  },
-  ic: {
-    marginTop: "-90%",
-    marginLeft: "-90%",
+    width: 45,
+    height: 60,
   },
 });

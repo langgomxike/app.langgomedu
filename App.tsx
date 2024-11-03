@@ -104,12 +104,12 @@ export default function App() {
                   title: "Chi tiết lớp học",
                   headerShown: true,
                   contentStyle: {
-                    padding: 0
+                    padding: 0,
                   },
                   headerStyle: {
-                    backgroundColor: BackgroundColor.primary
+                    backgroundColor: BackgroundColor.primary,
                   },
-                  headerTintColor: '#fff',
+                  headerTintColor: "#fff",
                 }}
               />
               <Stack.Screen name={ScreenName.RATING} component={RatingScreen} />

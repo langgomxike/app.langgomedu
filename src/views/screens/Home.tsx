@@ -1,20 +1,16 @@
-import { useContext, useEffect, useRef, useState, useCallback } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import {
-  Text,
-  View,
-  StyleSheet,
-  TouchableOpacity,
-  Image,
-  ScrollView,
-  FlatList,
-  Pressable,
   Animated,
+  FlatList,
+  Image,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
-import {
-  useNavigation,
-  NavigationProp,
-  NavigationContext,
-} from "@react-navigation/native";
+import { NavigationContext } from "@react-navigation/native";
 
 import { BackgroundColor } from "../../configs/ColorConfig";
 import Search from "../components/Inputs/SearchBar";
@@ -23,22 +19,20 @@ import TutorItem from "../components/CvItem";
 import Filter from "../components/Filter";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import ScreenName from "../../constants/ScreenName";
-import {
-  RootStackParamList,
-  RootStackParamListFilter,
-} from "../../configs/NavigationRouteTypeConfig";
 import AMajor from "../../apis/AMajor";
 import Major from "../../models/Major";
 import { UserContext, UserType } from "../../configs/UserContext";
 import ReactAppUrl from "../../configs/ConfigUrl";
 import AClass from "../../apis/AClass";
 import Class from "../../models/Class";
-import CustomShimmer from "../components/skeleton/CustomShimmer";
 import ListMajorSkeleton from "../components/skeleton/ListMajorSkeleton";
 import ClassListSkeleton from "../components/skeleton/ClassListSkeleten";
 import AUser from "../../apis/AUser";
 import { AccountContext } from "../../configs/AccountConfig";
-import SFirebase, { FirebaseNode } from "../../services/SFirebase";
+import Role from "../../models/Role";
+import Toast from "react-native-simple-toast";
+import SAsyncStorage, { AsyncStorageKeys } from "../../services/SAsyncStorage";
+import { LanguageContext, Languages } from "../../configs/LanguageConfig";
 import SLog, { LogType } from "../../services/SLog";
 
 const tutors = [
@@ -87,6 +81,7 @@ export default function HomeScreen() {
   //contexts, refs
   const navigation = useContext(NavigationContext);
   const accountContext = useContext(AccountContext);
+  const languageContext = useContext(LanguageContext);
 
   //states
   const [visibleModal, setVisibleModal] = useState<string | null>("");
@@ -133,9 +128,9 @@ export default function HomeScreen() {
     navigation?.navigate(ScreenName.SCANNER);
   }, []);
 
-  const handleNavigateToDetail = (classId: number)=> {    
+  const handleNavigateToDetail = (classId: number) => {
     navigation?.navigate(ScreenName.DETAIL_CLASS, { classId });
-  }
+  };
 
   const goToClassList = useCallback(() => {
     navigation?.navigate(ScreenName.CLASS_LIST);
@@ -199,7 +194,7 @@ export default function HomeScreen() {
       },
       setLoading
     );
-  }, [user.TYPE]);
+  }, []);
 
   // useEffect(() => {
   //   SFirebase.trackOne(FirebaseNode.CLASS, 1, () => {
@@ -209,7 +204,7 @@ export default function HomeScreen() {
 
   //   SFirebase.trackAll(FirebaseNode.CLASS, () => {
   //     SLog.log(LogType.Info, "track all", "done tracking");
-  //     //give api to get all here... 
+  //     //give api to get all here...
   //   });
   // }, []);
 
@@ -218,7 +213,7 @@ export default function HomeScreen() {
 
   const toggleExpand = (id: number) => {
     const isExplaned = expandedItems.includes(id);
-    
+
     let index = id - 1;
     Animated.timing(animation[index], {
       toValue: isExplaned ? 0 : 1,
@@ -259,17 +254,58 @@ export default function HomeScreen() {
     navigation?.navigate(ScreenName.CV_LIST);
   }, []);
 
+  //set up login
   useEffect(() => {
     AUser.implicitLogin((user) => {
       if (!user) {
         navigation?.navigate(ScreenName.LOGIN);
       } else {
+        //store new token into async storage
+        SAsyncStorage.setData(AsyncStorageKeys.TOKEN, user.token);
+
         if (accountContext.setAccount) {
           accountContext.setAccount(user);
+
+          //check if admin/superadmin or not
+          if (
+            user.role?.id === Role.SUPER_ADMIN_ROLE_ID ||
+            user.role?.id === Role.SUPER_ADMIN_ROLE_ID
+          ) {
+            navigation?.navigate(ScreenName.HOME_ADMIN);
+          }
+
+          Toast.show("Xin chao " + user.full_name, 2000);
         }
       }
     });
   }, []);
+
+  //set up multilanguage
+  useEffect(() => {
+    SAsyncStorage.getData(AsyncStorageKeys.LANGUAGE, (language) => {
+      switch (+language) {
+        case Languages.VN:
+          languageContext.setLanguage &&
+            languageContext.setLanguage(Languages.VN);
+          break;
+        case Languages.EN:
+          languageContext.setLanguage &&
+            languageContext.setLanguage(Languages.EN);
+          break;
+        case Languages.JA:
+          languageContext.setLanguage &&
+            languageContext.setLanguage(Languages.JA);
+          break;
+      }
+    });
+  }, []);
+
+  //done
+  // useEffect(() => {
+  //     SFirebase.getClassCreationFee((fee) => {
+  //         alert(fee);
+  //     });
+  // }, []);
 
   // render
   return (
@@ -282,7 +318,7 @@ export default function HomeScreen() {
             <View style={{ flex: 1 }}>
               <Text style={[styles.headerTitle, styles.title1]}>Xin Chào!</Text>
               <Text style={[styles.headerTitle, styles.title2]}>
-                Nguyễn Văn A
+                {accountContext.account?.full_name}
               </Text>
             </View>
 
@@ -361,7 +397,6 @@ export default function HomeScreen() {
 
           {/* Class */}
           <View>
-
             {/* Suggetting class */}
             <View style={styles.classContainer}>
               <View style={[styles.titleContainer, { paddingHorizontal: 20 }]}>
@@ -420,7 +455,11 @@ export default function HomeScreen() {
                     renderItem={({ item: suggettingClass }) => {
                       return (
                         <View style={styles.classItem}>
-                          <Pressable onPress={() => handleNavigateToDetail(suggettingClass.id)}>
+                          <Pressable
+                            onPress={() =>
+                              handleNavigateToDetail(suggettingClass.id)
+                            }
+                          >
                             <CourseItem
                               majorIconUrl={`${URL}${suggettingClass.major?.icon?.path}`}
                               name={suggettingClass.title}
@@ -505,7 +544,11 @@ export default function HomeScreen() {
                     renderItem={({ item: attedingClass }) => {
                       return (
                         <View style={styles.classItem}>
-                          <Pressable onPress={() => handleNavigateToDetail(attedingClass.id)}>
+                          <Pressable
+                            onPress={() =>
+                              handleNavigateToDetail(attedingClass.id)
+                            }
+                          >
                             <CourseItem
                               majorIconUrl={`${URL}${attedingClass.major?.icon?.path}`}
                               name={attedingClass.title}
@@ -595,7 +638,11 @@ export default function HomeScreen() {
                       renderItem={({ item: attedingClass }) => {
                         return (
                           <View style={styles.classItem}>
-                            <Pressable onPress={() => handleNavigateToDetail(attedingClass.id)}>
+                            <Pressable
+                              onPress={() =>
+                                handleNavigateToDetail(attedingClass.id)
+                              }
+                            >
                               <CourseItem
                                 majorIconUrl={`${URL}${attedingClass.major?.icon?.path}`}
                                 name={attedingClass.title}
@@ -686,7 +733,11 @@ export default function HomeScreen() {
                       renderItem={({ item: createdClass }) => {
                         return (
                           <View style={styles.classItem}>
-                            <Pressable onPress={() => handleNavigateToDetail(createdClass.id)}>
+                            <Pressable
+                              onPress={() =>
+                                handleNavigateToDetail(createdClass.id)
+                              }
+                            >
                               <CourseItem
                                 majorIconUrl={`${URL}${createdClass.major?.icon?.path}`}
                                 name={createdClass.title}

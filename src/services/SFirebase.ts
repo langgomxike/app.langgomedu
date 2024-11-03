@@ -7,7 +7,8 @@ import firebaseNodeProps from "../../firebase_node_props.json";
 export enum FirebaseNode {
     MAJOR = 0,
     CLASS = 1,
-    CV = 2
+    CV = 2,
+    USER = 3,
 }
 
 export default class SFirebase {
@@ -68,7 +69,7 @@ export default class SFirebase {
             },
             (error) => {
                 SLog.log(
-                    LogType.Info,
+                    LogType.Error,
                     "trackOne " + firebaseNodeProps[firebaseNode].singular_name,
                     `track the ${firebaseNodeProps[firebaseNode].singular_name} with key ${firebaseNodeProps[firebaseNode].key} = ${key} found error`,
                     error
@@ -76,5 +77,32 @@ export default class SFirebase {
                 onNext();
             }
         );
+    }
+
+    public static getClassCreationFee(onNext: (fee: number | undefined) => void) {
+        this.init();
+        const firebaseReference = ref(this.firebaseDatabase, `CLASSES/CLASS_CREATION_FEE`);
+
+        onValue(firebaseReference,
+            (data) => {
+                SLog.log(
+                    LogType.Info,
+                    `getCreationClassFee`,
+                    `get successfully`,
+                    data
+                );
+                onNext(data.val() as number ?? undefined);
+            },
+            (error) => {
+                SLog.log(
+                    LogType.Info,
+                    `getCreationClassFee`,
+                    `get unsuccessfully`,
+                    error
+                );
+                onNext(undefined);
+            }
+        );
+
     }
 }
