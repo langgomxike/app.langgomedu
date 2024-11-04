@@ -5,7 +5,7 @@ type valueAndStatus = {
   content: string;
   color: string;
   colorText: string;
-  onPress: () => void;
+  onPress?: () => void;
 }
 
 const Badge = ({ content, color, colorText, onPress }: valueAndStatus) => {

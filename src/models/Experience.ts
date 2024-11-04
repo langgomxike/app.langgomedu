@@ -25,15 +25,4 @@ export default class Experience {
         this.endedAt = endedAt;
     }
 
-    fromDTO(experienceDTO: ExperienceDTO): void {
-        this.id = experienceDTO.id;
-        this.user = experienceDTO.user && new User().fromDTO(experienceDTO.user) || undefined;
-        this.title = experienceDTO.title;
-        this.major = experienceDTO.major && new Major().fromDTO(experienceDTO.major) || undefined;
-        this.address = experienceDTO.address;
-        this.initial = experienceDTO.initial;
-        this.approved = experienceDTO.approved;
-        this.startedAt = new Date(experienceDTO.started_at);
-        this.endedAt = new Date(experienceDTO.ended_at);
-    }
 }
