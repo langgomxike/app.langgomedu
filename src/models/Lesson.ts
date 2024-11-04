@@ -1,4 +1,3 @@
-import LessonDTO from "../dtos/LessonDTO";
 import Class from "./Class";
 
 export default class Lesson {
@@ -18,15 +17,5 @@ export default class Lesson {
         this.duration = duration;
         this.isOnline = isOnline;
         this.note = note;
-    }
-
-    fromDTO(lessonDTO: LessonDTO): void {
-        this.id = lessonDTO.id;
-        this.class = lessonDTO.class && new Class().fromDTO(lessonDTO.class) || undefined;
-        this.day = lessonDTO.day;
-        this.startedAt = new Date(lessonDTO.started_at);
-        this.duration = new Date(lessonDTO.duration);
-        this.isOnline = lessonDTO.isOnline;
-        this.note = lessonDTO.note;
     }
 }

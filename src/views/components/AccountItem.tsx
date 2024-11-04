@@ -10,7 +10,7 @@ import MyIcon, { AppIcon } from "./MyIcon";
 export type AccountItemProps = {
   title: string;
   iconName: AppIcon;
-  screenName: string;
+  onPress?: () => void;
 };
 
 // const navigation = useNavigation();
@@ -19,9 +19,9 @@ export type AccountItemProps = {
 //     navigation.navigate(screenName); // Chuyển đến màn hình tương ứng
 // }
 
-const AccountItem = ({ iconName, title, screenName }: AccountItemProps) => {
+const AccountItem = ({ iconName, title, onPress }: AccountItemProps) => {
   return (
-    <TouchableOpacity style={styles.container}>
+    <TouchableOpacity onPress={onPress} style={styles.container}>
       <View
         style={{
           paddingTop: 20,
