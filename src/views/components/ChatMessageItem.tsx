@@ -1,7 +1,6 @@
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Chat from "../../models/Chat";
 import { BackgroundColor, TextColor } from "../../configs/ColorConfig";
-import { MessageType } from "../../models/Message";
 import DateTimeConfig from "../../configs/DateTimeConfig";
 
 const AVATAR_SIZE = 60;
@@ -16,27 +15,21 @@ export default function ChatMessageItem({
   chat,
   onPress = () => {},
 }: ChatMessageItemProps) {
-  let content;
+  let content = chat?.newest_message?.content;
 
-  switch (chat.newestMessage?.messageType) {
-    case MessageType.TEXT:
-      content = chat.newestMessage.content;
-      break;
-
-    case MessageType.FILE:
-      content = "[file]";
-      break;
-
-    case MessageType.IMAGE:
+  if (chat.newest_message?.file) {
+    if (chat.newest_message?.is_image) {
       content = "[image]";
-      break;
+    } else {
+      content = "[file]";
+    }
   }
 
   return (
     <TouchableOpacity onPress={onPress} style={styles.container}>
       {/* avatar */}
       {chat.user?.avatar ? (
-        <Image src={chat.user.avatar} style={styles.avatar} />
+        <Image src={chat.user?.avatar.path} style={styles.avatar} />
       ) : (
         <Image
           source={require("../../../assets/avatar/avatarTempt.png")}
@@ -47,7 +40,7 @@ export default function ChatMessageItem({
       {/* text container */}
       <View style={styles.textContainer}>
         {/* name */}
-        <Text style={styles.name}>{chat.user.fullName}</Text>
+        <Text style={styles.name}>{chat.user?.full_name}</Text>
 
         {/* new message */}
         <Text style={styles.message}>{content}</Text>
@@ -56,7 +49,7 @@ export default function ChatMessageItem({
       {/* time */}
       <Text style={styles.time}>
         {DateTimeConfig.getDateFormat(
-          +(chat.newestMessage?.createdAt ?? 0),
+          +(chat.newest_message?.created_at ?? 0),
           true,
           true
         )}
@@ -66,7 +59,7 @@ export default function ChatMessageItem({
       <View
         style={[
           styles.badge,
-          !chat?.newestMessage?.toUserAsRead && {
+          !chat?.newest_message?.to_user_status && {
             backgroundColor: BackgroundColor.white,
           },
         ]}

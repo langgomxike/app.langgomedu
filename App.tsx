@@ -42,6 +42,12 @@ import Register2Screen from "./src/views/screens/Register2";
 import OTPScreen from "./src/views/screens/OTP";
 import ChangePasswordScreen from "./src/views/screens/ChangePassword";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+// import UserReportList from "./src/views/screens/admin/UserReportList";
+// import UserManager from "./src/views/screens/admin/UserManager";
+// import ClassManager from "./src/views/screens/admin/ClassManager";
+// import History from "./src/views/screens/History";
+// import GeneralManager from "./src/views/screens/admin/GeneralManager";
+
 import Information from "./src/views/screens/settings/Information";
 import PersonalCV from "./src/views/screens/settings/PersonalCV";
 import PersonalClasses from "./src/views/screens/settings/PersonalClasses";
@@ -56,7 +62,10 @@ const SCREEN_PADDING_HORIZONTAL = 0;
 export default function App() {
   // states
   const [language, setLanguage] = useState<LanguageType>(languages.VN);
-  const [user, setUser] = useState<UserDataType>({ ID: "089204010903", TYPE: UserType.TUTOR });
+  const [user, setUser] = useState<UserDataType>({
+    ID: "089204010903",
+    TYPE: UserType.LEANER,
+  });
 
   // jxs
   return (
@@ -70,99 +79,129 @@ export default function App() {
                 title: "",
                 contentStyle: {
                   paddingHorizontal: SCREEN_PADDING_HORIZONTAL,
-                  // paddingTop: SCREEN_PADDING_TOP,
+                  paddingTop: SCREEN_PADDING_TOP,
                   backgroundColor: BackgroundColor.white,
                 },
               }}
             >
-              <Stack.Screen name={ScreenName.NAV_BAR} component={ButtonNavBar} />
-              <Stack.Screen name={ScreenName.MESSAGE} component={MessageScreen} />
-              <Stack.Screen name={ScreenName.PROFILE} component={ProfileScreen} />
-              <Stack.Screen name={ScreenName.SCANNER} component={ScannerScreen} />
+              <Stack.Screen
+                name={ScreenName.NAV_BAR}
+                component={ButtonNavBar}
+              />
+              <Stack.Screen
+                name={ScreenName.MESSAGE}
+                component={MessageScreen}
+              />
+              <Stack.Screen
+                name={ScreenName.PROFILE}
+                component={ProfileScreen}
+              />
+              <Stack.Screen
+                name={ScreenName.SCANNER}
+                component={ScannerScreen}
+              />
 
-              <Stack.Screen name={ScreenName.CLASS_LIST} component={ClassListScreen} />
-              <Stack.Screen name={ScreenName.DETAIL_CLASS} component={ClassDetail} />
-              <Stack.Screen name={ScreenName.RATING} component={RatingScreen} />
-
-              <Stack.Screen name={ScreenName.ATTENDANCE_HISTORY} component={AttendanceHistoryScreen} />
-              <Stack.Screen name={ScreenName.ATTENDED_FOR_LEARNER} component={AttendanceForLearnerScreen} />
-              <Stack.Screen name={ScreenName.ATTENDED_FOR_TUTOR} component={AttendanceForTutorScreen} />
-
-              <Stack.Screen name={ScreenName.CV_LIST} component={CVListScreen} />
-              <Stack.Screen name={ScreenName.CV} component={CVScreen} />
-              <Stack.Screen name={ScreenName.INPUT_CV} component={InputCVScreen} />
-
-              {/* <Stack.Screen name={ScreenName.OTP} component={OTPScreen} /> */}
-              <Stack.Screen name={ScreenName.LOGIN} component={LoginScreen} />
-              <Stack.Screen name={ScreenName.REGISTER_1} component={Register1Screen} />
-              <Stack.Screen name={ScreenName.REGISTER_2} component={Register2Screen} />
-              <Stack.Screen name={ScreenName.CHANGE_PASSWORD} component={ChangePasswordScreen} />
-
-              <Stack.Screen name={ScreenName.HOME_ADMIN} component={HomeAdminScreen} />
-
-              <Stack.Screen name={ScreenName.APP_INFO_MANAGEMENT} component={AppInfoManagementScreen} />
-              <Stack.Screen name={ScreenName.PERMISSION_MANAGEMENT} component={PermissionManagementScreen} />
-              <Stack.Screen name={ScreenName.CLASS_MANAGEMENT} component={ClassManagementScreen} />
-              <Stack.Screen name={ScreenName.APPROVE_CLASS} component={ApproveClassScreen} />
-              <Stack.Screen name={ScreenName.USER_MANAGEMENT} component={UserManagementScreen} />
-              <Stack.Screen name={ScreenName.USER_REPORT_LIST} component={UserReportListScreen} />
-              <Stack.Screen name={ScreenName.USER_REPORT_DETAIL} component={UserReportDetailScreen} />
-
-              <Stack.Screen name={ScreenName.CV_APPROVAL} component={CVApprovalScreen} />
-              <Stack.Screen name={ScreenName.CLASS_APPROVAL} component={ClassApprovalScreen} />
-
-              {/* settings screen */}
-              <Stack.Screen name={ScreenName.SETTING_INFORMATION} component={Information}
+              <Stack.Screen
+                name={ScreenName.CLASS_LIST}
+                component={ClassListScreen}
+              />
+              <Stack.Screen
+                name={ScreenName.DETAIL_CLASS}
+                component={ClassDetail}
                 options={{
-                  title: "Thông Tin cá nhân",
+                  title: "Chi tiết lớp học",
                   headerShown: true,
                   contentStyle: {
-                    padding: 0
+                    padding: 0,
                   },
                   headerStyle: {
                     backgroundColor: BackgroundColor.primary,
                   },
-                  headerTintColor: TextColor.white
-                }} />
-              <Stack.Screen name={ScreenName.SETTING_PERSONAL_CV} component={PersonalCV} options={{
-                title: "Hồ sơ CV",
-                headerShown: true,
-                contentStyle: {
-                  padding: 0
-                },
-                headerStyle: {
-                  backgroundColor: BackgroundColor.primary,
-                },
-                headerTintColor: TextColor.white,
-                headerRight: () => (
-                  <TouchableOpacity onPress={() =>{}}>
-                    <Octicons name="pencil" size={24} color={TextColor.white} />
-                  </TouchableOpacity>
-                )
-              }} />
-              <Stack.Screen name={ScreenName.SETTING_PERSONAL_CLASSES} component={PersonalClasses} options={{
-                title: "Danh sách lớp học ",
-                headerShown: true,
-                contentStyle: {
-                  padding: 0
-                },
-                headerStyle: {
-                  backgroundColor: BackgroundColor.primary,
-                },
-                headerTintColor: TextColor.white
-              }} />
-              <Stack.Screen name={ScreenName.SETTING_PERSONAL_RATINGS} component={PersonalRatings} options={{
-                title: "Đánh Giá từ phụ huynh học sinh",
-                headerShown: true,
-                contentStyle: {
-                  padding: 0
-                },
-                headerStyle: {
-                  backgroundColor: BackgroundColor.primary,
-                },
-                headerTintColor: TextColor.white
-              }} />
+                  headerTintColor: "#fff",
+                }}
+              />
+              <Stack.Screen name={ScreenName.RATING} component={RatingScreen} />
 
+              <Stack.Screen
+                name={ScreenName.ATTENDANCE_HISTORY}
+                component={AttendanceHistoryScreen}
+              />
+              <Stack.Screen
+                name={ScreenName.ATTENDED_FOR_LEARNER}
+                component={AttendanceForLearnerScreen}
+              />
+              <Stack.Screen
+                name={ScreenName.ATTENDED_FOR_TUTOR}
+                component={AttendanceForTutorScreen}
+              />
+
+              <Stack.Screen
+                name={ScreenName.CV_LIST}
+                component={CVListScreen}
+              />
+              <Stack.Screen name={ScreenName.CV} component={CVScreen} />
+              <Stack.Screen
+                name={ScreenName.INPUT_CV}
+                component={InputCVScreen}
+              />
+
+              <Stack.Screen name={ScreenName.OTP} component={OTPScreen} />
+              <Stack.Screen name={ScreenName.LOGIN} component={LoginScreen} />
+              <Stack.Screen
+                name={ScreenName.REGISTER_1}
+                component={Register1Screen}
+              />
+              <Stack.Screen
+                name={ScreenName.REGISTER_2}
+                component={Register2Screen}
+              />
+              <Stack.Screen
+                name={ScreenName.CHANGE_PASSWORD}
+                component={ChangePasswordScreen}
+              />
+
+              <Stack.Screen
+                name={ScreenName.HOME_ADMIN}
+                component={HomeAdminScreen}
+              />
+
+              <Stack.Screen
+                name={ScreenName.APP_INFO_MANAGEMENT}
+                component={AppInfoManagementScreen}
+              />
+              <Stack.Screen
+                name={ScreenName.PERMISSION_MANAGEMENT}
+                component={PermissionManagementScreen}
+              />
+              <Stack.Screen
+                name={ScreenName.CLASS_MANAGEMENT}
+                component={ClassManagementScreen}
+              />
+              <Stack.Screen
+                name={ScreenName.APPROVE_CLASS}
+                component={ApproveClassScreen}
+              />
+              <Stack.Screen
+                name={ScreenName.USER_MANAGEMENT}
+                component={UserManagementScreen}
+              />
+              <Stack.Screen
+                name={ScreenName.USER_REPORT_LIST}
+                component={UserReportListScreen}
+              />
+              <Stack.Screen
+                name={ScreenName.USER_REPORT_DETAIL}
+                component={UserReportDetailScreen}
+              />
+
+              <Stack.Screen
+                name={ScreenName.CV_APPROVAL}
+                component={CVApprovalScreen}
+              />
+              <Stack.Screen
+                name={ScreenName.CLASS_APPROVAL}
+                component={ClassApprovalScreen}
+              />
             </Stack.Navigator>
           </NavigationContainer>
 
@@ -171,7 +210,10 @@ export default function App() {
           {/* <LeanerAttendance></LeanerAttendance> */}
           {/* <History/> */}
           {/* <HoangTestScreen/> */}
-
+          {/* <UserReportList/> */}
+          {/* <ClassManager/> */}
+          {/* <UserManager/> */}
+          {/* <GeneralManager/> */}
         </GestureHandlerRootView>
       </UserContext.Provider>
     </AppContext>

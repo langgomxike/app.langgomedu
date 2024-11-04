@@ -7,26 +7,22 @@ import { BackgroundColor } from "../../configs/ColorConfig";
 import HLine, { HLineType } from "./HLine";
 import MyIcon, { AppIcon } from "./MyIcon";
 import ScreenName from "../../constants/ScreenName";
-import { Type } from "../../configs/AccountListItemConfig";
 
 export type AccountItemProps = {
-  title: string,
-  iconName: AppIcon,
-  screenName?: ScreenName,
-  type: Type,
-  onNext: (type: Type, screenName?: ScreenName)=> void
+  title: string;
+  iconName: AppIcon;
+  onPress?: () => void;
 };
 
+// const navigation = useNavigation();
 
+// const handlePress = (screenName: string) => {
+//     navigation.navigate(screenName); // Chuyển đến màn hình tương ứng
+// }
 
-
-const AccountItem = ({ iconName, title, screenName, type, onNext }: AccountItemProps) => {
-
-  //handler
- 
-
+const AccountItem = ({ iconName, title, onPress }: AccountItemProps) => {
   return (
-    <TouchableOpacity style={styles.container} onPress={()=> {onNext(type, screenName)}}>
+    <TouchableOpacity onPress={onPress} style={styles.container}>
       <View
         style={{
           paddingTop: 20,

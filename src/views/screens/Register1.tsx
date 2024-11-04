@@ -5,6 +5,7 @@ import Button from "../components/Button";
 import { useCallback, useContext, useState } from "react";
 import { NavigationContext } from "@react-navigation/native";
 import ScreenName from "../../constants/ScreenName";
+import MyText from "../components/MyText";
 export default function DuTestScreen() {
   // tao state luu du luu
   const [phone, setPhone] = useState("");
@@ -15,7 +16,6 @@ export default function DuTestScreen() {
 
   // kiem tra du lieu khi nhan nut tiep tuc
   const handleNext = () => {
-
     if (password.length < 6 || password.length > 24) {
       setErrorMessage("Mật khẩu phải từ 6 đến 24 ký tự!!!");
       return false;
@@ -46,98 +46,100 @@ export default function DuTestScreen() {
   function goBack(): void {
     navigation?.goBack();
   }
-  function goRegister2(): void {
+  function goForward(): void {
     const canProceed = handleNext();
     if (canProceed) {
-      navigation?.navigate(ScreenName.REGISTER2);
+      navigation?.navigate(ScreenName.REGISTER_2);
     }
   }
   function goToLogin(): void {
     navigation?.navigate(ScreenName.LOGIN);
   }
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.icon}>
-        <MyIcon icon={AppIcon.ic_back_circle} onPress={goBack} />
-      </View>
+    <ScrollView>
+      <View style={styles.container}>
+        <View style={styles.icon}>
+          <MyIcon icon={AppIcon.ic_back_circle} onPress={goBack} />
+        </View>
 
-      <Image
-        style={styles.img}
-        source={require("../../../assets/images/ illustration/Mobile login-rafiki.png")}
-      ></Image>
+        <Image
+          style={styles.img}
+          source={require("../../../assets/images/ illustration/Mobile login-rafiki.png")}
+        ></Image>
 
-      <View style={styles.row}>
-        <View>
-          <Text style={styles.title}>Tạo tài khoản</Text>
-          <Text style={styles.content}>
-            Hãy cho chúng tôi biết thêm thông tin về bạn
+        <View style={styles.row}>
+          <View>
+            <Text style={styles.title}>Tạo tài khoản</Text>
+            <Text style={styles.content}>
+              Hãy cho chúng tôi biết thêm thông tin về bạn
+            </Text>
+          </View>
+        </View>
+        <View style={styles.input}>
+          <InputRegister
+            label="Số điện thoại"
+            required={true}
+            onChangeText={setPhone}
+            value={phone}
+            placeholder="Số điện thoại"
+            type="phone"
+            iconName="phone"
+          ></InputRegister>
+        </View>
+        <View style={styles.input}>
+          <InputRegister
+            label="Email"
+            required={true}
+            onChangeText={setEmail}
+            value={email}
+            placeholder="Emal"
+            type="email"
+            iconName="email"
+          ></InputRegister>
+        </View>
+        <View style={styles.input}>
+          <InputRegister
+            label="Mật khẩu"
+            required={true}
+            onChangeText={setPassword}
+            value={password}
+            placeholder="Nhập mật khẩu của bạn"
+            type="password"
+            iconName="password"
+          ></InputRegister>
+        </View>
+        <View style={styles.input}>
+          <InputRegister
+            label="Xác nhận lại mật khẩu của bạn"
+            required={true}
+            onChangeText={setConfirmPassword}
+            value={confirmPassword}
+            placeholder="Xác nhận lại mật khẩu của bạn"
+            type="password"
+            iconName="password"
+          ></InputRegister>
+        </View>
+        <View style={styles.row1}>
+          <Text></Text>
+          <View style={styles.text}>
+            <Text>Mật khẩu phải từ 6 đến 24 kí tự</Text>
+          </View>
+        </View>
+        {errorMessage ? (
+          <Text style={{ color: "red" }}>{errorMessage}</Text>
+        ) : null}
+        <View style={styles.button}>
+          <Button
+            title="Tiếp tục"
+            textColor="white"
+            backgroundColor="blue"
+            onPress={goForward}
+          ></Button>
+          <Text>
+            Bạn đã có tài khoản?{" "}
+            <MyText text="đăng nhập" onPress={goToLogin}></MyText>
           </Text>
         </View>
-      </View>
-      <View style={styles.input}>
-        <InputRegister
-          label="Số điện thoại"
-          required={true}
-          onChangeText={setPhone}
-          value={phone}
-          placeholder="Số điện thoại"
-          type="phone"
-          iconName="phone"
-        ></InputRegister>
-      </View>
-      <View style={styles.input}>
-        <InputRegister
-          label="Email"
-          required={true}
-          onChangeText={setEmail}
-          value={email}
-          placeholder="Emal"
-          type="email"
-          iconName="email"
-        ></InputRegister>
-      </View>
-      <View style={styles.input}>
-        <InputRegister
-          label="Mật khẩu"
-          required={true}
-          onChangeText={setPassword}
-          value={password}
-          placeholder="Nhập mật khẩu của bạn"
-          type="password"
-          iconName="password"
-        ></InputRegister>
-      </View>
-      <View style={styles.input}>
-        <InputRegister
-          label="Xác nhận lại mật khẩu của bạn"
-          required={true}
-          onChangeText={setConfirmPassword}
-          value={confirmPassword}
-          placeholder="Xác nhận lại mật khẩu của bạn"
-          type="password"
-          iconName="password"
-        ></InputRegister>
-      </View>
-      <View style={styles.row1}>
-        <Text></Text>
-        <View style={styles.text}>
-          <Text>Mật khẩu phải từ 6 đến 24 kí tự</Text>
-        </View>
-      </View>
-      {errorMessage ? (
-        <Text style={{ color: "red" }}>{errorMessage}</Text>
-      ) : null}
-      <View style={styles.button}>
-        <Button
-          title="Tiếp tục"
-          textColor="white"
-          backgroundColor="blue"
-          onPress={goForward}
-        ></Button>
-        <Text>
-          Bạn đã có tài khoản?{" "}
-          <MyText text="đăng nhập" onPress={goToLogin}></MyText>
-        </Text>
       </View>
     </ScrollView>
   );

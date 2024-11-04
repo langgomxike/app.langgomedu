@@ -17,6 +17,7 @@ import { NavigationContext } from "@react-navigation/native";
 import ScreenName from "../../constants/ScreenName";
 import AMessage from "../../apis/AMessage";
 import { IdNavigationType } from "../../configs/NavigationRouteTypeConfig";
+import { BackgroundColor } from "../../configs/ColorConfig";
 
 const APP_NAME = "Langgom";
 const HEADER_IMAGE = require("../../../assets/icons/ic_chatbox.png");
@@ -41,12 +42,14 @@ const messageTab: TabItem = {
     //handlers
     const handleFilter = useCallback(
       (chat: Chat) => {
-        // return !!(
-        //   chat.user.fullName
-        //     .toLowerCase()
-        //     .includes(searchContext.toLowerCase()) ||
-        //   searchContext.toLowerCase().includes(chat.user.fullName.toLowerCase())
-        // );
+        return !!(
+          chat.user?.full_name
+            .toLowerCase()
+            .includes(searchContext.toLowerCase()) ||
+          searchContext
+            .toLowerCase()
+            .includes((chat.user?.full_name ?? "").toLowerCase())
+        );
       },
       [searchContext]
     );
@@ -56,26 +59,27 @@ const messageTab: TabItem = {
       navigation?.navigate(ScreenName.MESSAGE, data);
     }, []);
 
-    //effects
-    // useEffect(() => {
-    //   AMessage.getChatsOfUser(-1, (chats: Chat[]) => {
-    //     setChatMessages(chats);
-    //   });
-    // }, []);
+    // effects
+    useEffect(() => {
+      AMessage.getChatsOfUser(-1, (chats: Chat[]) => {
+        setChatMessages(chats);
+      });
+    }, []);
 
     return (
       <ScrollView
         showsHorizontalScrollIndicator={false}
         showsVerticalScrollIndicator={false}
       >
-        {chatMessages.filter(handleFilter).map((chat) => (
+        {chatMessages.filter(handleFilter).map((chat, index) => (
           <ChatMessageItem
-            // key={chat.user.id}
+            key={index}
             chat={chat}
-            onPress={() => {}}
-            // onPress={() => handleGoToMessage(chat.user.id)}
+            onPress={() => handleGoToMessage(chat?.user?.id ?? "")}
           />
         ))}
+
+        <View style={{ height: 70 }} />
       </ScrollView>
     );
   },
@@ -95,20 +99,20 @@ const contactTab: TabItem = {
     const handleFilter = useCallback(
       (contact: User) => {
         return !!(
-          contact.fullName
+          contact.full_name
             .toLowerCase()
             .includes(searchContext.toLowerCase()) ||
           contact.email.toLowerCase().includes(searchContext.toLowerCase()) ||
-          contact.phoneNumber
+          contact.phone_number
             .toLowerCase()
             .includes(searchContext.toLowerCase()) ||
           searchContext
             .toLowerCase()
-            .includes(contact.fullName.toLowerCase()) ||
+            .includes(contact.full_name.toLowerCase()) ||
           searchContext.toLowerCase().includes(contact.email.toLowerCase()) ||
           searchContext
             .toLowerCase()
-            .includes(contact.phoneNumber.toLowerCase())
+            .includes(contact.phone_number.toLowerCase())
         );
       },
       [searchContext]
@@ -137,6 +141,8 @@ const contactTab: TabItem = {
             onPress={handleGoToProfile}
           />
         ))}
+
+        <View style={{ height: 70 }} />
       </ScrollView>
     );
   },
@@ -179,7 +185,7 @@ export default function ChatScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: BackgroundColor.white,
     paddingHorizontal: SCREEN_BORDER_HORIZONTAL,
     gap: SCREEN_ITEM_GAP,
   },

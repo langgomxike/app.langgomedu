@@ -39,9 +39,13 @@ yarn-error.*
 
 # firebase
 *firebase_account_service*
+*firebase_node_props*
 
 # package-lock
 package-lock.json
 
-# config url
-*ConfigUrl*
+# ConfigUrl
+src/configs/ConfigUrl.ts
+
+# .idea in inteliji
+.idea

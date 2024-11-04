@@ -5,7 +5,7 @@ type propsButton = {
     title: string;
     textColor: string;
     backgroundColor: string;
-    onPress: () => void;
+    onPress?: () => void;
 }
 
 

@@ -1,74 +1,107 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+  FlatList,
+} from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { BackgroundColor } from "../../../configs/ColorConfig";
-import { color } from "react-native-elements/dist/helpers";
+import User from "../../../models/User";
+import ReactAppUrl from "../../../configs/ConfigUrl";
+import DateTimeConfig from "../../../configs/DateTimeConfig";
 
-export default function () {
-    //state 
-    const [report, setReport] = useState(false)
+type UserComponentProps = {
+  onPressOpenSheet?: () => void;
+  isButtonDetailReport?: boolean;
+  userData: User
+};
+
+const URL = ReactAppUrl.PUBLIC_URL;
+
+export default function UserComponent({
+  onPressOpenSheet,
+  isButtonDetailReport,
+  userData
+}: UserComponentProps) {
+  
+
+  function fomatDate(timestamp: number) {
+    if (!timestamp) return ""; // Kiểm tra nếu timestamp là undefined hoặc null
+
+    const date = new Date(timestamp);
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+
+    return `${day}/${month}/${year}`; // Trả về chuỗi theo định dạng DD/MM/YYYY
+  }
+
+
+
   //render
   return (
-    <View style={[styles.container, report === true ?  [styles.boxshadowDanger, styles.borderDanger]: styles.boxshadow]}>
-      <View style={styles.userHeaderContainer}>
-        <View style={styles.userInfoBlock}>
-          <View style={styles.userAvatarContainer}>
-            <Image
-              source={require("../../../../assets/avatar/img_avatar_cat.png")}
-              style={styles.userAvatar}
-            />
-            <Text style={styles.userFullName}>Nguyen Van A</Text>
+    <View
+      style={[
+        styles.container,
+        userData.is_reported
+          ? [styles.boxshadowDanger, styles.borderDanger]
+          : styles.boxshadow,
+      ]}
+    >
+      <TouchableOpacity onPress={onPressOpenSheet}>
+        <View style={styles.userHeaderContainer}>
+          <View style={styles.userInfoBlock}>
+            <View style={styles.userAvatarContainer}>
+              <Image
+                source={{uri: `${URL}${userData.avatar?.path}`}}
+                style={styles.userAvatar}
+              />
+              <Text style={styles.userFullName}>{userData.full_name}</Text>
+            </View>
+            {userData.is_reported && <Text style={styles.badge}>Bị báo cáo</Text>}
           </View>
-          {
-            report &&
-              <Text style={styles.badge}>Bị báo cáo</Text>
 
+          <View style={styles.line}></View>
+
+          <View style={styles.userHeaderContent}>
+            <View style={[styles.row, { marginBottom: 10 }]}>
+              <Text style={[styles.title, { color: BackgroundColor.primary }]}>
+                Điểm uy tín:
+              </Text>
+              <Text style={styles.content}>{userData.information?.point}</Text>
+            </View>
+
+            <View style={styles.rowItem}>
+              <View style={[styles.row, { flex: 1 }]}>
+                <Ionicons name="calendar-outline" size={20} color="black" />
+                <Text style={styles.content}>{fomatDate(userData.information?.birthday!)}</Text>
+              </View>
+
+              <View style={[styles.row, { flex: 1 }]}>
+                <Ionicons name="call-outline" size={20} color="black" />
+                <Text style={styles.content}>{userData.phone_number}</Text>
+              </View>
+            </View>
+
+            <View style={styles.row}>
+              <MaterialIcons name="location-history" size={20} color="black" />
+              <Text style={[styles.content, {marginTop: 7}]}>
+                {`${userData.information?.address_4}, ${userData.information?.address_3}\n${userData.information?.address_2}, ${userData.information?.address_1}`}
+              </Text>
+            </View>
+          </View>
+          { isButtonDetailReport &&
+            <TouchableOpacity style={styles.btnShowDetail}>
+              <Text style={styles.btnShowDetailText}>
+                Chi tiết báo cáo
+              </Text>
+            </TouchableOpacity>
           }
         </View>
-
-        <View style={styles.userHeaderContent}>
-          <View style={[styles.row, { marginBottom: 10 }]}>
-            <Text style={[styles.title, { color: BackgroundColor.primary }]}>
-              Điểm uy tín:
-            </Text>
-            <Text style={styles.content}>1000</Text>
-          </View>
-
-          <View style={styles.rowItem}>
-            <View style={[styles.row, { flex: 1 }]}>
-              <Ionicons name="calendar-outline" size={20} color="black" />
-              <Text style={styles.content}>10/10/2024</Text>
-            </View>
-
-            <View style={[styles.row, { flex: 1 }]}>
-              <Ionicons name="call-outline" size={20} color="black" />
-              <Text style={styles.content}>0999999999</Text>
-            </View>
-          </View>
-
-          <View style={styles.row}>
-            <MaterialIcons name="location-history" size={20} color="black" />
-            <Text style={styles.content}>
-              Đường số 6, phường Linh Chiểu, TP Thủ Đức
-            </Text>
-          </View>
-        </View>
-      </View>
-
-      <View style={styles.line}></View>
-
-      <View style={styles.userBodyContainer}>
-        <Text style={styles.titleBody}>Lớp học đã tham gia</Text>
-      </View>
-
-      <TouchableOpacity style={styles.showMoreContainer}>
-        <Text style={styles.showMoreText}>Xem thêm</Text>
-        <Ionicons
-          name="chevron-down"
-          size={20}
-          color={BackgroundColor.gray_c9}
-        />
       </TouchableOpacity>
     </View>
   );
@@ -76,17 +109,19 @@ export default function () {
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 30,
+    marginTop: 10,
     backgroundColor: "#fff",
     borderRadius: 10,
+    paddingTop: 15,
+    paddingBottom: 25,
     paddingHorizontal: 20,
-    paddingVertical: 10,
+    marginBottom: 10,
   },
 
   borderDanger: {
     borderColor: "#FF5050",
     borderWidth: 1,
-  }, 
+  },
 
   boxshadow: {
     shadowColor: "#000",
@@ -115,15 +150,13 @@ const styles = StyleSheet.create({
   userAvatar: {
     width: 40,
     height: 40,
+    borderRadius: 999,
   },
 
-  userHeaderContainer: {
-    marginBottom: 20,
-  },
+  userHeaderContainer: {},
 
   userAvatarContainer: {
     flexDirection: "row",
-    marginBottom: 10,
     alignItems: "center",
     gap: 10,
   },
@@ -168,6 +201,7 @@ const styles = StyleSheet.create({
 
   content: {
     fontSize: 14,
+    lineHeight: 20,
   },
 
   showMoreContainer: {
@@ -188,9 +222,17 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
 
-  userBodyContainer: {},
-
-  titleBody: {
-    fontWeight: "bold",
+  btnShowDetail: {
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+    marginTop: 20,
   },
+
+  btnShowDetailText: {
+    // color: BackgroundColor.white,
+    color:BackgroundColor.warning,
+    fontWeight: "bold",
+    textAlign: "center"
+    
+  }
 });

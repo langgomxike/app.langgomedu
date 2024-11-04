@@ -5,8 +5,8 @@ import BottomSheet, {
   BottomSheetView,
   BottomSheetFlatList 
 } from "@gorhom/bottom-sheet";
-import ClassInfo from "./ClassInfo";
-import { BackgroundColor } from "../../configs/ColorConfig";
+import ClassInfo from "../ClassInfo";
+import { BackgroundColor } from "../../../configs/ColorConfig";
 import {FlatList } from 'react-native-gesture-handler';
 
 type DetailHistoryBottonSheetProps = {
@@ -87,7 +87,7 @@ export default function ({
                         <View style={styles.otherUser}>
                           <View style={styles.otherUserAvatarContainer}>
                             <Image
-                              source={require("../../../assets/avatar/img_avatar_cat.png")}
+                              source={require("../../../../assets/avatar/img_avatar_cat.png")}
                               style={styles.otherUserAvatar}
                             />
                           </View>

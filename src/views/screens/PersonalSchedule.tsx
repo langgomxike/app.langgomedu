@@ -17,7 +17,8 @@ export type Day = {
   setCurrentWeek: (currentWeek: number) => void
 }
 
-export default function PersonalScheduleScreen() { //{ days }: DaysOfWeek props
+export default function PersonalScheduleScreen() {
+  //{ days }: DaysOfWeek props
 
   //day
   //schedule

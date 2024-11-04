@@ -1,4 +1,4 @@
-import SkillDTO from "../dtos/SkillDTO";
+
 import File from "../models/File";
 
 export default class Skill {
@@ -17,5 +17,4 @@ export default class Skill {
         this.progressPercent = progressPercent;
         this.icon = icon;
     }
-
 }

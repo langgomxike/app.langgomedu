@@ -1,4 +1,3 @@
-import ExperienceDTO from "../dtos/ExperienceDTO";
 import Major from "./Major";
 import User from "./User";
 
@@ -24,5 +23,4 @@ export default class Experience {
         this.startedAt = startedAt;
         this.endedAt = endedAt;
     }
-
 }

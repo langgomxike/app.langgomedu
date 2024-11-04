@@ -1,5 +1,3 @@
-import EducationDTO from "../dtos/EducationDTO";
-import File from "./File";
 import User from "./User";
 
 export default class Education {
@@ -20,5 +18,4 @@ export default class Education {
         this.startedAt = startedAt;
         this.endedAt = endedAt;
     }
-
 }
