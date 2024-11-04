@@ -8,9 +8,11 @@ export enum Languages {
 }
 
 export type LanguageType = {
+    TYPE: number;
     VIEW_ALL: string;
     SHOWING_PAGE: string;
-    SEARCH: string
+    SEARCH: string,
+    CHANGE_LANGUAGE: string;
 }
 
 type LanguageConfigType = {

@@ -39,11 +39,14 @@ import ScannerScreen from "./src/views/screens/Scanner";
 import LoginScreen from "./src/views/screens/Login";
 import Register1Screen from "./src/views/screens/Register1";
 import Register2Screen from "./src/views/screens/Register2";
-import UpdateReportedClass from "./src/views/screens/admin/UpdateReportedClass";
 import OTPScreen from "./src/views/screens/OTP";
 import ChangePasswordScreen from "./src/views/screens/ChangePassword";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import UpdateReportedUser from "./src/views/screens/admin/UpdateReportedUser";
+import UserReportList from "./src/views/screens/admin/UserReportList";
+import UserManager from "./src/views/screens/admin/UserManager";
+import ClassManager from "./src/views/screens/admin/ClassManager";
+import History from "./src/views/screens/History";
+import GeneralManager from "./src/views/screens/admin/GeneralManager";
 const Stack = createNativeStackNavigator();
 const SCREEN_PADDING_TOP = 50;
 const SCREEN_PADDING_HORIZONTAL = 0;
@@ -53,7 +56,7 @@ export default function App() {
   const [language, setLanguage] = useState<LanguageType>(languages.VN);
   const [user, setUser] = useState<UserDataType>({
     ID: "089204010903",
-    TYPE: UserType.TUTOR,
+    TYPE: UserType.LEANER,
   });
 
   // jxs
@@ -61,10 +64,7 @@ export default function App() {
     <AppContext>
       <UserContext.Provider value={{ user, setUser }}>
         <GestureHandlerRootView>
-        {/* <UpdateReportedUser></UpdateReportedUser> */}
-          <UpdateReportedUser></UpdateReportedUser>
-          {/* <UpdateReportedClass></UpdateReportedClass> */}
-          {/* <NavigationContainer>
+          <NavigationContainer>
             <Stack.Navigator
               screenOptions={{
                 headerShown: false,
@@ -104,12 +104,12 @@ export default function App() {
                   title: "Chi tiết lớp học",
                   headerShown: true,
                   contentStyle: {
-                    padding: 0
+                    padding: 0,
                   },
                   headerStyle: {
-                    backgroundColor: BackgroundColor.primary
+                    backgroundColor: BackgroundColor.primary,
                   },
-                  headerTintColor: '#fff',
+                  headerTintColor: "#fff",
                 }}
               />
               <Stack.Screen name={ScreenName.RATING} component={RatingScreen} />
@@ -195,13 +195,17 @@ export default function App() {
                 component={ClassApprovalScreen}
               />
             </Stack.Navigator>
-          </NavigationContainer> */}
+          </NavigationContainer>
 
           {/* <LeanerAttendance></LeanerAttendance> */}
           {/* <TutorAttendance></TutorAttendance> */}
           {/* <LeanerAttendance></LeanerAttendance> */}
           {/* <History/> */}
           {/* <HoangTestScreen/> */}
+          {/* <UserReportList/> */}
+          {/* <ClassManager/> */}
+          {/* <UserManager/> */}
+          {/* <GeneralManager/> */}
         </GestureHandlerRootView>
       </UserContext.Provider>
     </AppContext>

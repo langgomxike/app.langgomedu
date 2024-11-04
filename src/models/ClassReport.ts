@@ -1,4 +1,3 @@
-import ClassReportDTO from "../dtos/ClassReportDTO";
 import Class from "./Class";
 import User from "./User";
 

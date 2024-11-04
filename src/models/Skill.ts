@@ -1,4 +1,4 @@
-import SkillDTO from "../dtos/SkillDTO";
+
 import File from "../models/File";
 
 export default class Skill {
@@ -16,14 +16,5 @@ export default class Skill {
         this.jaName = jaName;
         this.progressPercent = progressPercent;
         this.icon = icon;
-    }
-
-    fromDTO(skillDTO: SkillDTO): void {
-        this.id = skillDTO.id;
-        this.vnName = skillDTO.vn_name;
-        this.enName = skillDTO.en_name;
-        this.jaName = skillDTO.ja_name;
-        this.progressPercent = skillDTO.progress_percent;
-        this.icon = skillDTO.icon && new File().fromDTO(skillDTO.icon) || undefined;
     }
 }

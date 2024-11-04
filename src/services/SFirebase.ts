@@ -7,7 +7,8 @@ import firebaseNodeProps from "../../firebase_node_props.json";
 export enum FirebaseNode {
     MAJOR = 0,
     CLASS = 1,
-    CV = 2
+    CV = 2,
+    USER = 3,
 }
 
 export default class SFirebase {
@@ -68,7 +69,7 @@ export default class SFirebase {
             },
             (error) => {
                 SLog.log(
-                    LogType.Info,
+                    LogType.Error,
                     "trackOne " + firebaseNodeProps[firebaseNode].singular_name,
                     `track the ${firebaseNodeProps[firebaseNode].singular_name} with key ${firebaseNodeProps[firebaseNode].key} = ${key} found error`,
                     error

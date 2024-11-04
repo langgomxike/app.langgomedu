@@ -15,6 +15,9 @@ import { BackgroundColor, TextColor } from "../../../configs/ColorConfig";
 import TabHeader from "../../components/admin/TabHeader";
 import Feather from "@expo/vector-icons/Feather";
 import SearchBar from "../../components/Inputs/SearchBar";
+import AUserAdmin from "../../../apis/admin/AUserAdmin";
+import User from "../../../models/User";
+
 
 const tabList: string[] = [
   "Tất cả",
@@ -30,12 +33,24 @@ export default function () {
   const [status, setStatus] = useState("Tất cả");
   const [page, setPage] = useState(0);
   const [searchKey, setSearchKey] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [users, setUsers] = useState<User[]>();
+  const [selectedUser, setSelectedUser] = useState<User>(new User()); 
 
   // handlers
   // Hàm để mở BottomSheet từ component con
-  const handleOpenBottomSheet = () => {
+  const handleOpenBottomSheet = (user:User) => {
     setIsVisible(true);
+    setSelectedUser(user)
   };
+
+  // effects 
+  useEffect(() => {
+    AUserAdmin.getAllUsers(
+      (data) => {
+        setUsers(data);
+    }, setLoading)
+  }, [])
 
   //render
   return (
@@ -57,9 +72,9 @@ export default function () {
         <FlatList
           scrollEnabled={true}
           showsVerticalScrollIndicator={false}
-          data={[1, 2, 3, 4, 5]}
-          renderItem={({ item }) => (
-            <UserComponent onPressOpenSheet={handleOpenBottomSheet} />
+          data={users}
+          renderItem={({ item:user }) => (
+            <UserComponent userData={user} onPressOpenSheet={() => handleOpenBottomSheet(user)} />
           )}
           contentContainerStyle={{ paddingHorizontal: 10 , paddingBottom: 90}}
         />
@@ -74,8 +89,9 @@ export default function () {
         </View>
       </View>
       <DetailUserButtomSheet
+        userData={selectedUser}
         isVisible={isVisible}
-        onCloseButtonSheet={() => setIsVisible(false)}
+        onCloseButtonSheet={() => setIsVisible(false)}  
       />
     </View>
   );

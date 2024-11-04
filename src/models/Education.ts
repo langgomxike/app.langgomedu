@@ -1,4 +1,3 @@
-import EducationDTO from "../dtos/EducationDTO";
 import User from "./User";
 
 export default class Education {
@@ -16,14 +15,5 @@ export default class Education {
         this.description = description;
         this.startedAt = startedAt;
         this.endedAt = endedAt;
-    }
-
-    fromDTO(educationDTO: EducationDTO): void {
-        this.id = educationDTO.id;
-        this.user = educationDTO.user && new User().fromDTO(educationDTO.user) || undefined;
-        this.title = educationDTO.title;
-        this.description = educationDTO.description;
-        this.startedAt = new Date(educationDTO.started_at);
-        this.endedAt = new Date(educationDTO.ended_at);
     }
 }

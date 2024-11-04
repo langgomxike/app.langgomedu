@@ -1,4 +1,3 @@
-import CertificateDTO from "../dtos/CertificateDTO";
 import File from "../models/File";
 
 export default class Certificate {
@@ -16,14 +15,5 @@ export default class Certificate {
         this.jaDesc = jaDesc;
         this.enDesc = enDesc;
         this.icon = icon;
-    }
-
-    fromDTO(certificateDTO: CertificateDTO): void {
-        this.id = certificateDTO.id;
-        this.name = certificateDTO.name;
-        this.vnDesc = certificateDTO.vn_desc;
-        this.jaDesc = certificateDTO.ja_desc;
-        this.enDesc = certificateDTO.en_desc;
-        this.icon = certificateDTO.icon && new File().fromDTO(certificateDTO.icon) || undefined;
     }
 }

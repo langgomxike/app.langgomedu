@@ -1,45 +1,33 @@
-import React, { useState } from "react";
-import { View, StyleSheet, Button, Modal, Text, TouchableOpacity } from "react-native";
-import { BackgroundColor, TextColor } from "../../configs/ColorConfig";
+import React, {useCallback, useState} from "react";
+import {View, StyleSheet, Button, Modal, Text, TouchableOpacity} from "react-native";
+import {BackgroundColor, TextColor} from "../../configs/ColorConfig";
 import HLine, {HLineType} from "./HLine";
 
 //define type
 type ConfirmDialogProps = {
     title: string,
     content: string,
-    buttonName: string,
-    confirm?: string, 
+    open: boolean,
+    confirm?: string,
     cancel?: string,
+    onConfirm: () => void;
+    onCancel: () => void;
 }
 
-const ConfirmDialog = ({ title, content, buttonName, confirm = 'confirm', cancel = 'cancel'}: ConfirmDialogProps) => {
-    //define state
-    const [modalVisible, setModalVisible] = useState(false)
-    //define handle
-    const openConfirmDialog = () => {
-        //show modal
-        setModalVisible(true);
-    }
-    const handleCancel = () => {
-        //hide modal
-        setModalVisible(false)
-    }
-    const handleConfirm = () => {
-        //hide modal
-        setModalVisible(false)
-    }
-
+const ConfirmDialog = ({
+                           title, content, open = false, confirm = 'Confirm', cancel = 'Cancel',
+                           onConfirm = () => {
+                           },
+                           onCancel = () => {
+                           }
+                       }: ConfirmDialogProps) => {
     return (
-        <View style={styles.container}>
-            <Button title={buttonName} onPress={openConfirmDialog} />
-
+        <View style={[styles.container, !open && {zIndex: -1, width: 0, height: 0}]}>
             <Modal
                 animationType="slide"
                 transparent={true}
-                visible={modalVisible}
-                onRequestClose={() => {
-                    setModalVisible(false);
-                }}
+                visible={open}
+                onRequestClose={onCancel}
             >
                 <View style={styles.modalBackground}>
                     <View style={styles.dialogContainer}>
@@ -51,11 +39,11 @@ const ConfirmDialog = ({ title, content, buttonName, confirm = 'confirm', cancel
 
                         <View style={styles.buttonContainer}>
                             {/* cancel button */}
-                            <TouchableOpacity style={styles.confirmButton} onPress={handleConfirm}>
+                            <TouchableOpacity style={styles.confirmButton} onPress={onCancel}>
                                 <Text style={styles.buttonText}>{cancel}</Text>
                             </TouchableOpacity>
                             {/* confirm button */}
-                            <TouchableOpacity style={styles.cancelButton} onPress={handleCancel}>
+                            <TouchableOpacity style={styles.cancelButton} onPress={onConfirm}>
                                 <Text style={[styles.buttonText, styles.TextConfirm]}>{confirm}</Text>
                             </TouchableOpacity>
                         </View>
@@ -69,8 +57,13 @@ const ConfirmDialog = ({ title, content, buttonName, confirm = 'confirm', cancel
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        width: "100%",
+        height: "100%",
         justifyContent: 'center',
         alignItems: 'center',
+        position: "absolute",
+        zIndex: 100,
+        // backgroundColor: "red"
     },
     modalBackground: {
         flex: 1,
@@ -85,7 +78,7 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         alignItems: 'center',
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
+        shadowOffset: {width: 0, height: 2},
         shadowOpacity: 0.25,
         shadowRadius: 3.84,
         elevation: 5, // Tạo hiệu ứng nổi (Android)
@@ -120,7 +113,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         fontSize: 16,
     },
-    TextConfirm:{
+    TextConfirm: {
         fontWeight: 'bold'
     }
 
