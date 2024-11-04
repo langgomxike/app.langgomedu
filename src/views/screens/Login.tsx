@@ -82,7 +82,7 @@ export default function DuTestScreen() {
     });
   }, [emailOrPhoneNumber, password, accountContext.account]);
 
-  }
+
   function goToOTPScreen():void {
     navigation?.navigate(ScreenName.OTP);
   }
@@ -95,13 +95,10 @@ export default function DuTestScreen() {
   function emty() {
     alert('ban da nhay');
   }
-  function goBack()
-  {
-    navigation?.goBack();
-  }
+
  // State để lưu giá trị input
  const [emailOrPhone, setEmailOrPhone] = useState("");
- const [password, setPassword] = useState("");
+
   // Hàm xử lý thay đổi input
   function handleInputChangeEmailOrPhone(value: string): void {
     setEmailOrPhone(value); // Lưu giá trị của email hoặc số điện thoại vào state
@@ -152,9 +149,6 @@ export default function DuTestScreen() {
   return (
     <ScrollView>
       <View style={styles.container}>
-       
-
-     
 
       <Image
         style={styles.img}
@@ -173,9 +167,6 @@ export default function DuTestScreen() {
             required={true}
             placeholder="Emal hoặc số điện thoại"
             type="text"
-            onChangeText={handleInputChangeEmailOrPhone} // Hàm cập nhật state khi nhập
-            placeholder="Email hoặc số điện thoại"
-            type="phone"
             iconName="phone"
             value={emailOrPhoneNumber}
             onChangeText={setEmailOrPhoneNumber}
