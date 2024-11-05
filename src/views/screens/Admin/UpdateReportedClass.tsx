@@ -17,13 +17,14 @@ import ClassReport from "../../../models/ClassReport";
 import AClassReport from "../../../apis/AClassReport";
 import { BackgroundColor } from "../../../configs/ColorConfig";
 import ReactAppUrl from "../../../configs/ConfigUrl";
+import Accordion from "../../components/Accordion";
 export default function UpdateReportedClass() {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [classReport, setClassReport] = useState<ClassReport | null>(null);
   const [loading, setLoading] = useState(true);
-  const classReportId = "4";
-const URL = ReactAppUrl.PUBLIC_URL;
+  const classReportId = "2";
+  const URL = ReactAppUrl.PUBLIC_URL;
   useEffect(() => {
     AClassReport.getClassReportById(
       classReportId,
@@ -49,34 +50,37 @@ const URL = ReactAppUrl.PUBLIC_URL;
 
   if (classReport?.files) {
     classReport.files.forEach((file, index) => {
-      console.log(`Path ${index + 1}: ${file.path}`);  // Kiểm tra giá trị của path
+      console.log(`Path ${index + 1}: ${file.path}`); // Kiểm tra giá trị của path
     });
   }
-  
+
   // Giả sử cấu trúc là [{ id, path }], không có file.files
-  const data: Item[] = classReport?.files?.map((file, index) => ({   
-    id: file.id || index, // Sử dụng index làm ID dự phòng nếu id bị null   
-    name: file.path || "", // Đảm bảo có giá trị chuỗi rỗng nếu path là null 
-  })) || [];
-  
+  const data: Item[] =
+    classReport?.files?.map((file, index) => ({
+      id: file.id || index, // Sử dụng index làm ID dự phòng nếu id bị null
+      name: file.path || "", // Đảm bảo có giá trị chuỗi rỗng nếu path là null
+    })) || [];
+
   // Log để kiểm tra kết quả của mảng data
   data.forEach((item, index) => {
     console.log(`Item ${index + 1}:`, item);
   });
-  
+
   const renderItem = ({ item, index }: { item: Item; index: number }) => {
     // Kiểm tra và tạo đường dẫn đầy đủ từ `URL` và `item.name`
     const imageUri = item.name ? `${URL}${item.name}` : URL; // Kết hợp URL và tên ảnh nếu có
-    
+
     console.log("Đường dẫn đến hình:", imageUri);
-  
+
     return (
-      <TouchableOpacity style={styles.imgParent} onPress={() => openModal(index)}>
+      <TouchableOpacity
+        style={styles.imgParent}
+        onPress={() => openModal(index)}
+      >
         <Image style={styles.img} source={{ uri: imageUri }} />
       </TouchableOpacity>
     );
   };
-  
 
   // Styles animated chevron
   const text: string =
@@ -93,16 +97,16 @@ const URL = ReactAppUrl.PUBLIC_URL;
         </View>
         {/* tài khoản báo cáo */}
         <Text style={styles.smallTitle1}>Tài khoản báo cáo</Text>
-     
+
         <IconReport
-        userAvatar={classReport?.user?.avatar?.path}
+          userAvatar={classReport?.user?.avatar?.path}
           userName={classReport?.user?.full_name + ""}
           credibility={classReport?.user?.information?.point}
         ></IconReport>
         {/* tài khoản bị báo cáo */}
         <Text style={styles.smallTitle2}>Tài khoản bị báo cáo</Text>
         <IconReport
-        userAvatar={classReport?.class?.author?.avatar?.path}
+          userAvatar={classReport?.class?.author?.avatar?.path}
           userName={classReport?.class?.author?.full_name + ""}
           credibility={classReport?.class?.author?.information?.point}
         ></IconReport>
@@ -134,10 +138,14 @@ const URL = ReactAppUrl.PUBLIC_URL;
                         nestedScrollEnabled={true}
                         showsVerticalScrollIndicator={false}
                       >
-                        <Text>
-                          {report.content  ||
-                            "Không có nội dung báo cáo trước đây"}
-                        </Text>
+                        {report.content ? (
+                          <Accordion
+                            title={`Báo cáo ${index + 1}`}
+                            details={report.content}
+                          />
+                        ) : (
+                          <Text>"Không có nội dung báo cáo trước đây"</Text>
+                        )}
                       </ScrollView>
                     </View>
                   </View>
@@ -152,9 +160,7 @@ const URL = ReactAppUrl.PUBLIC_URL;
         )}
 
         <Text style={styles.smallTitle3}>Lý do</Text>
-        <Text style={styles.reportContent}>{classReport?.content}
-          
-        </Text>
+        <Text style={styles.reportContent}>{classReport?.content}</Text>
       </View>
 
       <View style={styles.component2}>
@@ -184,25 +190,24 @@ const URL = ReactAppUrl.PUBLIC_URL;
       </View>
       {/* Modal hiển thị hình ảnh */}
       {selectedIndex !== null && (
-  <Modal
-    visible={modalVisible}
-    transparent={true}
-    onRequestClose={() => setModalVisible(false)} // Sửa để đóng modal khi nhấn nút back
-  >
-    <TouchableOpacity
-      style={styles.closeButton}
-      onPress={() => setModalVisible(false)}
-    >
-      <Ionicons name="close" size={30} color="#fff" />
-    </TouchableOpacity>
-    <ImageViewer
-      imageUrls={data.map((item) => ({ url: `${URL}${item.name}` }))} // Kết hợp URL với tên ảnh
-      index={selectedIndex}
-      onSwipeDown={() => setModalVisible(false)}
-      enableSwipeDown={true}
-    />
-  </Modal>
-
+        <Modal
+          visible={modalVisible}
+          transparent={true}
+          onRequestClose={() => setModalVisible(false)} // Sửa để đóng modal khi nhấn nút back
+        >
+          <TouchableOpacity
+            style={styles.closeButton}
+            onPress={() => setModalVisible(false)}
+          >
+            <Ionicons name="close" size={30} color="#fff" />
+          </TouchableOpacity>
+          <ImageViewer
+            imageUrls={data.map((item) => ({ url: `${URL}${item.name}` }))} // Kết hợp URL với tên ảnh
+            index={selectedIndex}
+            onSwipeDown={() => setModalVisible(false)}
+            enableSwipeDown={true}
+          />
+        </Modal>
       )}
     </ScrollView>
   );
@@ -306,7 +311,7 @@ const styles = StyleSheet.create({
   textareaContainer: {
     width: "98%",
     borderRadius: 10,
-   
+
     paddingHorizontal: 15,
     paddingVertical: 15,
     shadowColor: "#000",

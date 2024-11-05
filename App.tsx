@@ -47,6 +47,8 @@ import UserManager from "./src/views/screens/admin/UserManager";
 import ClassManager from "./src/views/screens/admin/ClassManager";
 import History from "./src/views/screens/History";
 import GeneralManager from "./src/views/screens/admin/GeneralManager";
+import UpdateReportedClass from "./src/views/screens/admin/UpdateReportedClass";
+import UpdateReportedUser from "./src/views/screens/admin/UpdateReportedUser";
 const Stack = createNativeStackNavigator();
 const SCREEN_PADDING_TOP = 50;
 const SCREEN_PADDING_HORIZONTAL = 0;
@@ -64,6 +66,8 @@ export default function App() {
     <AppContext>
       <UserContext.Provider value={{ user, setUser }}>
         <GestureHandlerRootView>
+{/* <UpdateReportedClass></UpdateReportedClass> */}
+{/* <UpdateReportedUser></UpdateReportedUser> */}
           <NavigationContainer>
             <Stack.Navigator
               screenOptions={{

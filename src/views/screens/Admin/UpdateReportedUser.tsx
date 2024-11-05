@@ -11,13 +11,14 @@ import {
 import MyIcon, { AppIcon } from "../../components/MyIcon";
 import Button from "../../components/Button";
 import IconReport from "../../components/ItemUserReport";
-import React, { useState ,useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import ImageViewer from "react-native-image-zoom-viewer";
 import AUserReport from "../../../apis/AUserReport";
 import UserReport from "../../../models/UserReport";
 import { BackgroundColor } from "../../../configs/ColorConfig";
 import ReactAppUrl from "../../../configs/ConfigUrl";
+import Accordion from "../../components/Accordion";
 export default function UpdateReportedUser() {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
@@ -26,19 +27,18 @@ export default function UpdateReportedUser() {
   const URL = ReactAppUrl.PUBLIC_URL;
   const userReportId = "1"; // Thay bằng ID thực tế
 
-    useEffect(() => {
-        AUserReport.getUserReportById(
-            userReportId,
-            (data: UserReport) => {
-              console.log(data);
-                // console.log(userReport?.to_user?.avatar_of_toUser?.to_user_avatar +"hhh");
-                setUserReport(data); // Lưu dữ liệu nhận được vào state
-            },
-            (isLoading: boolean) => {
-                setLoading(isLoading); // Cập nhật trạng thái tải
-            }
-        );
-    }, [userReportId]);
+  useEffect(() => {
+    AUserReport.getUserReportById(
+      userReportId,
+      (data: UserReport) => {
+        console.log(data);
+        setUserReport(data); // Lưu dữ liệu nhận được vào state
+      },
+      (isLoading: boolean) => {
+        setLoading(isLoading); // Cập nhật trạng thái tải
+      }
+    );
+  }, [userReportId]);
   const openModal = (index: number) => {
     setSelectedIndex(index);
     setModalVisible(true);
@@ -48,40 +48,43 @@ export default function UpdateReportedUser() {
     name: string;
   }
   // Kiểm tra và log giá trị của đường dẫn hình ảnh trong userReport
-if (userReport?.files) {
-  userReport.files.forEach((file, index) => {
-    console.log(`Path ${index + 1}: ${file.path}`);  // Kiểm tra giá trị của path
+  if (userReport?.files) {
+    userReport.files.forEach((file, index) => {
+      console.log(`Path ${index + 1}: ${file.path}`); // Kiểm tra giá trị của path
+    });
+  }
+
+  // Tạo mảng data từ userReport.files
+  const data: Item[] =
+    userReport?.files?.map((file, index) => ({
+      id: file.id || index, // Sử dụng index làm ID dự phòng nếu id bị null
+      name: file.path || "", // Đảm bảo có giá trị chuỗi rỗng nếu path là null
+    })) || [];
+
+  // Log để kiểm tra kết quả của mảng data
+  data.forEach((item, index) => {
+    console.log(`Item ${index + 1}:`, item);
   });
-}
 
-// Tạo mảng data từ userReport.files
-const data: Item[] = userReport?.files?.map((file, index) => ({   
-  id: file.id || index, // Sử dụng index làm ID dự phòng nếu id bị null   
-  name: file.path || "", // Đảm bảo có giá trị chuỗi rỗng nếu path là null 
-})) || [];
+  // Hàm renderItem để hiển thị hình ảnh từ `data`
+  const renderItem = ({ item, index }: { item: Item; index: number }) => {
+    // Tạo đường dẫn hình ảnh đầy đủ từ `URL` và `item.name`
+    const imageUri = item.name ? `${URL}${item.name}` : URL; // Kết hợp URL với tên ảnh nếu có
 
-// Log để kiểm tra kết quả của mảng data
-data.forEach((item, index) => {
-  console.log(`Item ${index + 1}:`, item);
-});
+    console.log("Đường dẫn đến hình:", imageUri);
 
-// Hàm renderItem để hiển thị hình ảnh từ `data`
-const renderItem = ({ item, index }: { item: Item; index: number }) => {
-  // Tạo đường dẫn hình ảnh đầy đủ từ `URL` và `item.name`
-  const imageUri = item.name ? `${URL}${item.name}` : URL; // Kết hợp URL với tên ảnh nếu có
-  
-  console.log("Đường dẫn đến hình:", imageUri);
-
-  return (
-    <TouchableOpacity style={styles.imgParent} onPress={() => openModal(index)}>
-      <Image style={styles.img} source={{ uri: imageUri }} />
-    </TouchableOpacity>
-  );
-};
-
+    return (
+      <TouchableOpacity
+        style={styles.imgParent}
+        onPress={() => openModal(index)}
+      >
+        <Image style={styles.img} source={{ uri: imageUri }} />
+      </TouchableOpacity>
+    );
+  };
 
   // Styles animated chevron
-    return (
+  return (
     <ScrollView showsVerticalScrollIndicator={false} style={styles.container}>
       {/* nút back và tên màn hình */}
       <View style={styles.component}>
@@ -94,56 +97,58 @@ const renderItem = ({ item, index }: { item: Item; index: number }) => {
         {/* tài khoản báo cáo */}
         <Text style={styles.smallTitle1}>Tài khoản báo cáo</Text>
 
-        <IconReport  userAvatar={userReport?.from_user?.avatar_of_fromUser?.from_user_avatar +""} userName={userReport?.from_user?.full_name +""} credibility={userReport?.from_user?.information?.point }></IconReport>
+        <IconReport
+          userAvatar={
+            userReport?.from_user?.avatar_of_fromUser?.from_user_avatar + ""
+          }
+          userName={userReport?.from_user?.full_name + ""}
+          credibility={userReport?.from_user?.information?.point}
+        ></IconReport>
         {/* tài khoản bị báo cáo */}
         <Text style={styles.smallTitle2}>Tài khoản bị báo cáo</Text>
         <IconReport
-         userAvatar={userReport?.to_user?.avatar_of_toUser?.to_user_avatar +""}
-         
-         userName={userReport?.to_user?.full_name +""}
-         credibility={userReport?.to_user?.information?.point }
+          userAvatar={
+            userReport?.to_user?.avatar_of_toUser?.to_user_avatar + ""
+          }
+          userName={userReport?.to_user?.full_name + ""}
+          credibility={userReport?.to_user?.information?.point}
         ></IconReport>
         {/* lớp học bị báo cáo */}
       </View>
       <View style={styles.component1}>
-
-  {/* Kiểm tra và hiển thị số lần bị báo cáo */}
-  {userReport && userReport.reports_before && userReport.reports_before.length > 0 && userReport.reports_before[0]?.content !== null ? (
-    <>
       <Text style={styles.smallTitle3}>
-          Đã bị báo cáo {userReport.reports_before.length} lần
-      </Text>
-      <View style={styles.reportParent}>
-        <ScrollView
-            showsVerticalScrollIndicator={false}
-            nestedScrollEnabled={true}
-        >
-            {userReport.reports_before.map((report, index) => (
-                <View key={index} style={styles.itemlCenter}>
-                    <View style={styles.textareaContainer}>
-                        <ScrollView nestedScrollEnabled={true} showsVerticalScrollIndicator={false}>
-                            <Text>{report.content || "Không có nội dung báo cáo trước đây"}</Text>
-                        </ScrollView>
-                    </View>
-                </View>
-            ))}
-        </ScrollView>
+              Đã bị báo cáo {userReport?.reports_before.length} lần
+            </Text>
+        {userReport?.reports_before.map((report, index) => (
+          <View key={index} style={styles.itemlCenter}>
+            <View style={styles.textareaContainer}>
+              <ScrollView
+                nestedScrollEnabled={true}
+                showsVerticalScrollIndicator={false}
+              >
+                {report.content ? (
+                  <Accordion
+                    title={`Báo cáo ${index + 1}`}
+                    details={report.content}
+                  />
+                ) : (
+                  <Text>"Không có nội dung báo cáo trước đây"</Text>
+                )}
+              </ScrollView>
+            </View>
+          </View>
+        ))}
+        {/* <View style={styles.line}></View> */}
+
+
+        <Text style={styles.smallTitle3}>Lý do</Text>
+        <Text style={styles.reportContent}>
+          {userReport?.report_content || "Không có thông tin lý do"}
+        </Text>
       </View>
-    </>
-  ) : (
-    <Text style={styles.smallTitle3}>Không có báo cáo nào trước đây.</Text>
-  )}
-
-  <Text style={styles.smallTitle3}>Lý do</Text>
-  <Text style={styles.reportContent}>
-      {userReport?.report_content || "Không có thông tin lý do"}
-  </Text>
-</View>
-
 
       <View style={styles.component2}>
         <Text style={styles.smallTitle3}>Minh chứng:</Text>
-        {/* <Image source={require('../../../../assets/'+userReport?.files.[0].path)} ></Image> */}
         <View style={styles.images}>
           <FlatList
             data={data}
@@ -169,24 +174,24 @@ const renderItem = ({ item, index }: { item: Item; index: number }) => {
       </View>
       {/* Modal hiển thị hình ảnh */}
       {selectedIndex !== null && (
-  <Modal
-    visible={modalVisible}
-    transparent={true}
-    onRequestClose={() => setModalVisible(false)} // Sửa để đóng modal khi nhấn nút back
-  >
-    <TouchableOpacity
-      style={styles.closeButton}
-      onPress={() => setModalVisible(false)}
-    >
-      <Ionicons name="close" size={30} color="#fff" />
-    </TouchableOpacity>
-    <ImageViewer
-      imageUrls={data.map((item) => ({ url: `${URL}${item.name}` }))} // Kết hợp URL với tên ảnh
-      index={selectedIndex}
-      onSwipeDown={() => setModalVisible(false)}
-      enableSwipeDown={true}
-    />
-  </Modal>
+        <Modal
+          visible={modalVisible}
+          transparent={true}
+          onRequestClose={() => setModalVisible(false)} 
+        >
+          <TouchableOpacity
+            style={styles.closeButton}
+            onPress={() => setModalVisible(false)}
+          >
+            <Ionicons name="close" size={30} color="#fff" />
+          </TouchableOpacity>
+          <ImageViewer
+            imageUrls={data.map((item) => ({ url: `${URL}${item.name}` }))} 
+            index={selectedIndex}
+            onSwipeDown={() => setModalVisible(false)}
+            enableSwipeDown={true}
+          />
+        </Modal>
       )}
     </ScrollView>
   );
@@ -290,7 +295,7 @@ const styles = StyleSheet.create({
   textareaContainer: {
     width: "98%",
     borderRadius: 10,
-    height: 100,
+
     paddingHorizontal: 15,
     paddingVertical: 15,
     shadowColor: "#000",
@@ -306,7 +311,6 @@ const styles = StyleSheet.create({
   },
 
   reportParent: {
-    
     marginBottom: 20,
   },
   itemlCenter: {
@@ -372,8 +376,8 @@ const styles = StyleSheet.create({
   },
   btns: {
     flexDirection: "row",
-    gap:15,
-    marginBottom:15
+    gap: 15,
+    marginBottom: 15,
   },
   btn: {
     padding: 15,
@@ -382,22 +386,21 @@ const styles = StyleSheet.create({
   },
   btnAccept: {
     backgroundColor: BackgroundColor.primary,
-    flex:1,
+    flex: 1,
   },
   textBtnAccept: {
     color: "#fff",
   },
   btnDeney: {
     backgroundColor: BackgroundColor.warning,
-    flex:1,
+    flex: 1,
   },
   textBtnDeney: {
     color: "#fff",
   },
   deleteUser: {
     backgroundColor: BackgroundColor.danger,
-    flex:1,
-
+    flex: 1,
   },
   textBtnDeleteUser: {
     color: "#fff",
