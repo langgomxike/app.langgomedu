@@ -45,6 +45,12 @@ enum ScreenName {
 
     CV_APPROVAL = "CV Approval",
     CLASS_APPROVAL = "Class Approval",
+
+
+    SETTING_INFORMATION = "Setting information personal",
+    SETTING_PERSONAL_CV = "Setting personal CV",
+    SETTING_PERSONAL_CLASSES = "Setting personal classes",
+    SETTING_PERSONAL_RATINGS = "Setting personal ratings",
 }
 
 export default ScreenName;
