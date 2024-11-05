@@ -1,4 +1,3 @@
-
 import ClassLevel from "./ClassLevel";
 import Major from "./Major";
 import User from "./User";
@@ -31,8 +30,8 @@ export default class Class {
         this.title = title;
         this.description = description;
         this.major = major;
-        this.tutor = tutor;
-        this.author = author;
+            this.tutor = tutor;
+            this.author = author;
         this.price = price;
         this.class_creation_fee = classCreationFee;
         this.class_level = classLevel;
