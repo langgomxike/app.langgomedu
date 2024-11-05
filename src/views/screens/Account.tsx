@@ -41,7 +41,7 @@ function FlatListItem({item, index}: FlatListItemProps) {
     }, []);
 
     const goToCVScreen = useCallback(() => {
-        navigation?.navigate(ScreenName.CV);
+        navigation?.navigate(ScreenName.SETTING_PERSONAL_CV);
     }, []);
 
     const goToScheduleScreen = useCallback(() => {

@@ -52,7 +52,7 @@ import Information from "./src/views/screens/settings/Information";
 import PersonalCV from "./src/views/screens/settings/PersonalCV";
 import PersonalClasses from "./src/views/screens/settings/PersonalClasses";
 import PersonalRatings from "./src/views/screens/settings/PersonalRatings";
-import { TouchableOpacity } from "react-native";
+import { Text, TouchableOpacity } from "react-native";
 import Octicons from '@expo/vector-icons/Octicons';
 
 const Stack = createNativeStackNavigator();
@@ -139,7 +139,26 @@ export default function App() {
                 name={ScreenName.CV_LIST}
                 component={CVListScreen}
               />
-              <Stack.Screen name={ScreenName.CV} component={CVScreen} />
+              <Stack.Screen 
+              name={ScreenName.SETTING_PERSONAL_CV} 
+              component={PersonalCV} 
+              options={{
+                headerShown: true,
+                contentStyle: {
+                  paddingHorizontal: 0,
+                  paddingTop: 0,
+                  backgroundColor: BackgroundColor.primary,
+                },
+                headerStyle: {
+                  backgroundColor: BackgroundColor.primary,
+                },
+                headerTintColor: TextColor.white,
+                headerRight: () => (
+                  <TouchableOpacity onPress={() => console.log("Button Pressed")}>
+                    <Octicons name="pencil" size={24} color="white" />
+                  </TouchableOpacity>
+                )
+              }} />
               <Stack.Screen
                 name={ScreenName.INPUT_CV}
                 component={InputCVScreen}

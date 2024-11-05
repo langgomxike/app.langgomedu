@@ -1,22 +1,34 @@
 import { View, StyleSheet, Text, Image } from "react-native";
 import Education from "../../../models/Education";
+import ReactAppUrl from "../../../configs/ConfigUrl";
+import { useEffect, useState } from "react";
 
 export type EducationItemProp = {
     education? : Education
 }
 
 const EducationItem = ({education}: EducationItemProp) => {
+
+    const [startedAt, setStartedAt] = useState<Date>(new Date());
+    const [endedAt, setEndedAt] = useState<Date>(new Date());
+    useEffect(()=>{
+        if(education){
+            setStartedAt(new Date(education.started_at));
+            setEndedAt(new Date(education.ended_at));
+        }
+    }, [])
+    
     return (
         <View style={styles.box}>
         <View style={styles.iconBox}>
             <Image
                 style={styles.icon}
-                source={{uri: education? education.icon.path : ''}} />
+                source={{uri: ReactAppUrl.PUBLIC_URL + education?.iconPath}} />
         </View>
         <View style={styles.textBox}>
-            <Text style={styles.title}> this is title</Text>
-            <Text style={styles.description}> description </Text>
-            <Text> 2019 - 2023 </Text>
+            <Text style={styles.title}> {education?.title}</Text>
+            <Text style={styles.description}> {education?.description} </Text>
+            <Text> {`${startedAt.getFullYear()} - ${endedAt.getFullYear()}`} </Text>
         </View>
     </View>
     )

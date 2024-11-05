@@ -2,9 +2,10 @@ import { View, StyleSheet, Text, ScrollView, Image } from "react-native";
 import WeekCalendar from "../components/schedule/WeekCalendar";
 import TimeLine from "../components/schedule/TimeLine";
 import { BackgroundColor, BorderColor, TextColor } from "../../configs/ColorConfig";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import ASchedule from "../../apis/ASchedule";
 import Lesson from "../../models/Lesson";
+import { UserContext } from "../../configs/UserContext";
 // import RatingScreen from "./Rating";
 
 export type Day = {
@@ -24,7 +25,8 @@ export default function PersonalScheduleScreen() {
   //schedule
   const day: Date = useMemo(() => new Date(), []);
   
-  const user_id = "089204010905";
+  const {user, setUser} = useContext(UserContext);
+  const user_id = user.ID;
   const student_id = "";
   
   //state

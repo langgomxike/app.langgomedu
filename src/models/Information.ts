@@ -1,4 +1,3 @@
-import InformationDTO from "../dtos/InformationDTO";
 import Gender from "./Gender";
 import User from "./User";
 
@@ -9,7 +8,7 @@ export default class Information {
     public address_2: string;
     public address_3: string;
     public address_4: string;
-    public birthday: number;
+    public birthday: Date;
     public gender: Gender | undefined;
     public point: number;
     public bankingNumber: string;
@@ -22,7 +21,7 @@ export default class Information {
         this.address_2 = address_2;
         this.address_3 = address_3;
         this.address_4 = address_4;
-        this.birthday = birthday;
+        this.birthday = new Date(birthday);
         this.gender = gender;
         this.point = point;
         this.bankingNumber = bankingNumber;

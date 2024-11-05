@@ -9,10 +9,10 @@ export default class Experience {
     public address: string;
     public initial: boolean;// [note: "0: automatically added, 1: initially added"]
     public approved: boolean // [note: "0: waiting to be approved, 1: approved"]
-    public startedAt: Date;
-    public endedAt: Date;
+    public started_at: Date;
+    public ended_at: Date;
 
-    constructor(id = -1, user: User | undefined = undefined, title = "", major: Major | undefined = undefined, address = "", initial = true, approved = false, startedAt = new Date(), endedAt = new Date()) {
+    constructor(id = -1, user: User | undefined = undefined, title = "", major: Major | undefined = undefined, address = "", initial = true, approved = false, started_at : number, ended_at : number) {
         this.id = id;
         this.user = user;
         this.title = title;
@@ -20,7 +20,7 @@ export default class Experience {
         this.address = address;
         this.initial = initial;
         this.approved = approved;
-        this.startedAt = startedAt;
-        this.endedAt = endedAt;
+        this.started_at = new Date(started_at);
+        this.ended_at = new Date(ended_at);
     }
 }

@@ -1,4 +1,4 @@
-import { Text, View, StyleSheet, Image, ScrollView } from 'react-native'
+import { Text, View, StyleSheet, Image, ScrollView, FlatList } from 'react-native'
 import React, { useContext, useEffect, useState } from 'react'
 //config
 import { BackgroundColor, TextColor } from '../../../configs/ColorConfig'
@@ -15,15 +15,38 @@ import SkillItem from '../../components/CV/SkillItem'
 import ACV from '../../../apis/ACV'
 import CV from '../../../models/CV'
 import { UserContext } from '../../../configs/UserContext'
+import User from '../../../models/User'
+import Education from '../../../models/Education'
+import Experience from '../../../models/Experience'
+import Skill from '../../../models/Skill'
+import Information from '../../../models/Information'
+import ReactAppUrl from '../../../configs/ConfigUrl'
+import CertificateItem from '../../components/CV/CertificateItem'
 
 export default function PersonalCV() {
   const {user, setUser} = useContext(UserContext);
-  const [cv, setCV] = useState<any>();
+  const [cv, setCV] = useState<CV>();
+  const [userInfo, setUserInfo] = useState<User>();
+  const [information, setInformation] = useState<Information>();
+  const [birthday, setBirthday] = useState<string>('');
 
   //effect
   useEffect(()=>{
     ACV.getPersonalCV(user.ID, (cv)=>{
-      setCV(cv);
+      if(cv){
+        setCV(cv);
+        // console.log('log in screen', JSON.stringify(cv?.user, null, 2));
+        setUserInfo(cv.user);
+        setInformation(cv.information);
+        // console.log('birthday', );
+        if(information){
+          const birthday = new Date(information?.birthday);
+          const birthdayData = birthday.getDate() + '/' + (birthday.getMonth() +1) + '/' + birthday.getFullYear()
+          setBirthday(birthdayData);
+        }
+        
+      }
+      
     })
   },[])
   
@@ -32,10 +55,10 @@ export default function PersonalCV() {
       style={styles.container}>
       {/* header */}
       <View style={styles.header}>
-        <Image style={styles.avatar} source={require('../../../../assets/avatar/img_avatar_cat.png')} />
-        <Text style={styles.badge}> 1000 </Text>
-        <Text style={styles.name}>Nguyen Van Hoang </Text>
-        <Text style={styles.title}> FullStack Developer</Text>
+        <Image style={styles.avatar} source={{uri: ReactAppUrl.PUBLIC_URL + userInfo?.avatar?.path}} />
+        <Text style={styles.badge}> {information?.point} </Text>
+        <Text style={styles.name}>{userInfo?.full_name}</Text>
+        <Text style={styles.title}> {cv?.title}</Text>
       </View>
       {/* main - view */}
       <View style={styles.main}>
@@ -45,12 +68,12 @@ export default function PersonalCV() {
             {/* day of birth */}
             <View style={styles.inforItemChild}>
               <AntDesign name="calendar" size={20} color="black" />
-              <Text style={styles.inforItemText}> 24/04/2004 </Text>
+              <Text style={styles.inforItemText}> {birthday} </Text>
             </View>
             {/* phone number */}
             <View style={styles.inforItemChild}>
               <Feather name="phone-call" size={20} color="black" />
-              <Text style={styles.inforItemText}> 0123456789 </Text>
+              <Text style={styles.inforItemText}> {userInfo?.phone_number} </Text>
             </View>
 
           </View>
@@ -58,14 +81,14 @@ export default function PersonalCV() {
             {/* mail */}
             <View style={styles.inforItemChild}>
               <Feather name="mail" size={20} color="black" />
-              <Text style={styles.inforItemText}> email@gmail.com </Text>
+              <Text style={styles.inforItemText}> {userInfo?.email} </Text>
             </View>
           </View>
           <View style={styles.inforItem}>
             {/* location */}
             <View style={styles.inforItemChild}>
               <Ionicons name="location-outline" size={20} color="black" />
-              <Text style={styles.inforItemText}> Địa chỉ a - b - c </Text>
+              <Text style={styles.inforItemText}> {`${information?.address_4}, ${information?.address_3}, ${information?.address_2}, ${information?.address_1}`}</Text>
             </View>
           </View>
 
@@ -74,36 +97,51 @@ export default function PersonalCV() {
         {/* about me */}
         <View style={styles.aboutView}>
           <Text style={styles.aboutText}>
-            Tôi tên là [Tên của bạn],
-            hiện là [công việc hoặc học vấn].
-            Tôi đam mê [sở thích hoặc lĩnh vực quan tâm],
-            thích khám phá những điều mới và luôn nỗ lực hoàn thiện bản thân để phát triển trong cuộc sống.
+            {cv?.biography}
           </Text>
         </View>
 
         {/* education */}
         <View >
           <CvBox title='Education'>
-            {/* <ExperienceItem /> */}
-            <EducationItem />
-            {/* <SkillItem/> */}
+            <FlatList 
+              scrollEnabled = {false}
+              data={cv?.educations}
+              renderItem={({ item }) => <EducationItem education={item} />}
+            />
+            
           </CvBox>
         </View>
         {/* work experience */}
         <View >
           <CvBox title='Work Experience'>
-            <ExperienceItem />
-            {/* <EducationItem/> */}
-            {/* <SkillItem/> */}
+          <FlatList 
+              scrollEnabled = {false}
+              data={cv?.experiences}
+              renderItem={({ item }) => <ExperienceItem experience={item} />}
+            />
           </CvBox>
         </View>
 
         {/* Skill */}
         <View >
           <CvBox title='Skill'>
-            {/* <ExperienceItem /> */}
-            {/* <EducationItem/> */}
-            <SkillItem />
+            <FlatList
+            scrollEnabled={false}
+              data={cv?.skills}
+              renderItem={({ item }) => <SkillItem skill={item} />}
+            />
+          </CvBox>
+        </View>
+
+        {/* Certificate */}
+        <View >
+          <CvBox title='Certificate'>
+            <FlatList
+              scrollEnabled= {false}
+              data={cv?.certificates}
+              renderItem={({ item }) => <CertificateItem certificate={item}/>}
+            />
           </CvBox>
         </View>
 

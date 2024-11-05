@@ -3,19 +3,19 @@ import User from "./User";
 export default class Education {
     public id: number;
     public user: User | undefined;
-    public icon: File;
+    public iconPath: string;
     public title: string;
     public description: string;
-    public startedAt: Date;
-    public endedAt: Date;
+    public started_at: Date;
+    public ended_at: Date;
 
-    constructor(id = -1, user: User | undefined = undefined, icon: File, title = "", description = "", startedAt = new Date(), endedAt = new Date()) {
+    constructor(id = -1, user: User | undefined = undefined, iconPath: string, title = "", description = "", started_at: number, ended_at: number) {
         this.id = id;
         this.user = user;
-        this.icon = icon,
+        this.iconPath = iconPath,
         this.title = title;
         this.description = description;
-        this.startedAt = startedAt;
-        this.endedAt = endedAt;
+        this.started_at = new Date(started_at);
+        this.ended_at = new Date(ended_at);
     }
 }
