@@ -7,7 +7,18 @@ import ClassLevel from "../../models/ClassLevel";
 import Major from "../../models/Major";
 import AMajor from "../../apis/AMajor";
 
-const InfoClass = () => {
+type props = {
+  // dataTitle: string;
+  // onDataTitle: (value: string) => void;
+  onNext: (
+    title?: string,
+    desc?: string,
+    monHoc?: string,
+    capHoc?: ClassLevel
+  ) => void;
+};
+
+const InfoClass = ({ onNext }: props) => {
   const [title, setTitle] = useState("");
   const [desc, setDesc] = useState("");
   const [capHocList, setCapHocList] = useState<ClassLevel[]>([]); // đặt select
@@ -44,6 +55,7 @@ const InfoClass = () => {
       setIsOtherSelected(true); // Chuyển Picker thành TextInput nếu chọn "Khác"
     } else {
       setMonHoc(itemValue); // Cập nhật giá trị đã chọn từ Picker
+      onNext(undefined, undefined, itemValue, undefined);
       setIsOtherSelected(false); // Ẩn TextInput nếu chọn lại từ các mục khác
     }
   };
@@ -82,9 +94,26 @@ const InfoClass = () => {
     });
   }, []);
 
+  const handleChangeCapHoc = (value: any) => {
+    setSelectedCapHoc(value);
+    onNext(undefined, undefined, undefined, value);
+  };
+
   /**
    * ===========================================
    */
+
+  // TITLE
+  const handleChangeTitle = (value: any) => {
+    setTitle(value);
+    onNext(value);
+  };
+
+  // DESCRIPTION
+  const handleChangeDesc = (value: any) => {
+    setDesc(value);
+    onNext(undefined, value, undefined, undefined);
+  };
   return (
     <View style={styles.container}>
       <View style={styles.marginInput}>
@@ -92,7 +121,7 @@ const InfoClass = () => {
           placeholder="Nhập tiêu đề..."
           type="text"
           label="Tiêu đề"
-          onChangeText={setTitle}
+          onChangeText={handleChangeTitle}
           required
           value={title}
         />
@@ -102,7 +131,7 @@ const InfoClass = () => {
           placeholder="Nhập mô tả..."
           type="textarea"
           label="Mô tả"
-          onChangeText={setDesc}
+          onChangeText={handleChangeDesc}
           required
           value={desc}
         />
@@ -152,7 +181,7 @@ const InfoClass = () => {
           <View style={styles.pickerContainer}>
             <Picker
               selectedValue={selectedCapHoc}
-              onValueChange={(itemValue) => setSelectedCapHoc(itemValue)}
+              onValueChange={(itemValue) => handleChangeCapHoc(itemValue)}
               style={styles.picker}
             >
               {/* <Picker.Item label="Sơ cấp" value="0" />
