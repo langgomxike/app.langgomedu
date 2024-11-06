@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
     boxEmpty:{
         alignItems: 'center',
         justifyContent: 'center',
-        marginVertical: 30,
+        marginVertical: 100,
     }
     
 })

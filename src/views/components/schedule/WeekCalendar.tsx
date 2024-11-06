@@ -103,31 +103,29 @@ const styles = StyleSheet.create({
         alignItems: 'center'
     },
     control: {
-        height: 20,
         flexDirection: 'row',
         width: '100%',
         justifyContent: 'space-between',
     },
     lastweekBox: {
         flexDirection: 'row',
-        alignItems: 'flex-start',
+        alignItems: 'center',
         paddingStart: 0,
     },
     lastWeek: {
         color: TextColor.white,
-        fontSize: 16,
+        fontSize: 14,
         fontWeight: 'semibold',
         textAlign: 'left',
-        alignItems: 'center',
     },
     nextWeekBox: {
         flexDirection: 'row',
-        alignItems: 'flex-end',
+        alignItems: 'center',
         paddingEnd: 0,
     },
     nextWeek: {
         color: TextColor.white,
-        fontSize: 16,
+        fontSize: 14,
         fontWeight: 'semibold',
         textAlign: 'right',
     },
