@@ -1,4 +1,3 @@
-import RatingDTO from "../dtos/RatingDTO";
 import Class from "./Class";
 import User from "./User";
 
@@ -17,14 +16,5 @@ export default class Rating {
         this.content = content;
         this.class = _class;
         this.createdAt = createdAt;
-    }
-
-    fromDTO(ratingDTO: RatingDTO): void {
-        this.rater = ratingDTO.rater && new User().fromDTO(ratingDTO.rater) || undefined;
-        this.ratee = ratingDTO.ratee && new User().fromDTO(ratingDTO.ratee) || undefined;
-        this.ratingValue = ratingDTO.ratingValue;
-        this.content = ratingDTO.content;
-        this.class = ratingDTO.class && new Class().fromDTO(ratingDTO.class) || undefined;
-        this.createdAt = new Date(ratingDTO.created_at);
     }
 }

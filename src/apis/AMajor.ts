@@ -16,7 +16,7 @@ export default class AMajor {
       .then((response) => {
 
         onNext(response.data);
-        console.log("data == ", response.data);
+        // console.log("data == ", response.data);
         
         onLoading(false);
       })

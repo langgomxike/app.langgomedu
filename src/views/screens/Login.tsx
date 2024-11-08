@@ -160,6 +160,7 @@ export default function LoginScreen() {
         </ScrollView>
     );
 }
+
 const styles = StyleSheet.create({
     container: {
         flex: 1,

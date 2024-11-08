@@ -1,7 +1,15 @@
 import CV from "../models/CV";
 import axios from "axios";
+import User from "../models/User";
+import Information from "../models/Information";
+import Skill from "../models/Skill";
+import Certificate from "../models/Certificate";
+import Experience from "../models/Experience";
+import Major from "../models/Major";
+import Education from "../models/Education";
+import ReactAppUrl from "../configs/ConfigUrl";
 
-const baseURL = process.env.API_LOCAL_BASE_URL || "http://192.168.1.38:3002/api"
+const baseURL =  ReactAppUrl.API_BASE_URL
 export default class ACV {
   public static getAllCVList(onNext: (cvs: CV[]) => void){
     // const tutors = [
@@ -68,5 +76,23 @@ export default class ACV {
       onNext([]);
     });
 
+  }
+
+
+  public static getPersonalCV( user_id: string,onNext: (cv?: CV) => void){
+    // console.log(baseURL+ '/cvs/'+ user_id);
+    
+    axios.get<any>(baseURL+ '/cvs/'+ user_id)
+    .then((response)=>{
+      const data = response.data.data[0].CV
+      // console.log("data in ACV", JSON.stringify(data));
+      
+      onNext(data as CV)
+    })
+    .catch((err)=>{
+      console.log(err);
+      
+      onNext()
+    })
   }
 }

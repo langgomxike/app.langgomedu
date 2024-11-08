@@ -2,12 +2,47 @@ import { Image, StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import React from "react";
 import { BackgroundColor } from "../../../configs/ColorConfig";
 import { MaterialIcons, FontAwesome, Ionicons } from "@expo/vector-icons";
+import Class from "../../../models/Class";
+import ReactAppUrl from "../../../configs/ConfigUrl";
+import { ScrollView } from "react-native-gesture-handler";
 
 const ICON_SIZE = 20;
+const URL = ReactAppUrl.PUBLIC_URL;
+ type ClassComponentProps = {
+    classData: Class;
+ }
 
-export default function ClassComponent() {
+export default function ClassComponent({classData}: ClassComponentProps) {
+  
+  function fomatDate(timestamp: number) {
+    if (!timestamp) return ""; // Kiểm tra nếu timestamp là undefined hoặc null
+
+    const date = new Date(timestamp);
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+
+    return `${day}/${month}/${year}`; // Trả về chuỗi theo định dạng DD/MM/YYYY
+  }
+
+  function formatCurrency(amount: number, locale = "vi-VN", currency = "VND") {
+    // Kiểm tra nếu không phải số, trả về chuỗi lỗi
+    if (typeof amount !== "number") return "Invalid input";
+
+    return amount.toLocaleString(locale, {
+      style: "currency",
+      currency,
+    });
+
+    // console.log(formatCurrency(price, "en-GB", "GBP")); // "£123,456,789.00" (Anh)
+    // console.log(formatCurrency(price, "ja-JP", "JPY")); // "￥123,456,789" (Nhật)
+    // console.log(formatCurrency(price, "vi-VN", "VND")); // "123.456.789 ₫" (Việt Nam)
+  }
+
   return (
     <View>
+    {classData &&
+    <ScrollView>
       <View style={styles.headerContent}>
         <Text style={styles.createdTime}>2 ngày trước</Text>
         <View style={styles.checkboxContainer}>
@@ -23,14 +58,14 @@ export default function ClassComponent() {
       <View style={styles.majorContainer}>
         <Image
           source={{
-            uri: "https://cdn-icons-png.flaticon.com/512/12343/12343168.png",
+            uri: `${URL}${classData.major?.icon?.path}`,
           }}
           style={styles.majorImage}
         />
-        <Text style={styles.majorName}>Kinh tế</Text>
+        <Text style={styles.majorName}>{classData.major?.vn_name}</Text>
       </View>
           
-      <Text style={styles.titleClass}>Tìm gia sư hỗ trợ</Text>  
+      <Text style={styles.titleClass}>{classData.title}</Text>  
 
       <View style={styles.line}></View>
 
@@ -44,7 +79,7 @@ export default function ClassComponent() {
             />
             <Text>Bắt đầu</Text>
           </View>
-          <Text>20/10/2024</Text>
+          <Text>{fomatDate(classData.started_at)}</Text>
         </View>
 
         <View style={styles.textWithIconContainer}>
@@ -56,7 +91,7 @@ export default function ClassComponent() {
             />
             <Text>Kết thúc</Text>
           </View>
-          <Text>20/10/2024</Text>
+          <Text>{fomatDate(classData.ended_at)}</Text>
         </View>
 
         <View style={styles.textWithIconContainer}>
@@ -76,7 +111,7 @@ export default function ClassComponent() {
             <Ionicons name="wallet-outline" size={ICON_SIZE} color="black" />
             <Text>Giá</Text>
           </View>
-          <Text>200.000đ/buổi</Text>
+          <Text>{formatCurrency(classData.price)}/buổi</Text>
         </View>
 
         <View style={styles.textWithIconContainer}>
@@ -84,7 +119,7 @@ export default function ClassComponent() {
             <Ionicons name="location-outline" size={20} color="black" />
             <Text>Địa chỉ</Text>
           </View>
-          <Text>đường số 6, Linh chiểu, Thủ Đức, TP HCM</Text>
+          <Text>{`${classData.address_4}, ${classData.address_3}\n${classData.address_2}, ${classData.address_1}`}</Text>
         </View>
       </View>
 
@@ -93,13 +128,15 @@ export default function ClassComponent() {
         <View style={styles.authorContent}>
           <Image
             source={{
-              uri: "https://cdn-icons-png.flaticon.com/512/4322/4322991.png",
+              uri: `${URL}${classData.author?.avatar?.path}`,
             }}
             style={styles.authorAvatar}
           />
-          <Text style={styles.authorName}>Đỗ Xuân Tuấn</Text>
+          <Text style={styles.authorName}>{classData.author?.full_name}</Text>
         </View>
       </View>
+      </ScrollView>
+    }
     </View>
   );
 }

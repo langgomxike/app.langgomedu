@@ -10,7 +10,16 @@ import { useState } from "react";
 import { Picker } from "@react-native-picker/picker";
 import { DateTimePickerAndroid } from "@react-native-community/datetimepicker";
 
-const InfoLesson = () => {
+type props = {
+  onNext: (
+    chonBuoiHoc?: string,
+    thoiLuongHoc?: number,
+    thoiGianBatDau?: number,
+    hinhThucHoc?: boolean
+  ) => void;
+};
+
+const InfoLesson = ({ onNext }: props) => {
   const [sessions, setSessions] = useState([
     {
       id: 1,
@@ -37,6 +46,16 @@ const InfoLesson = () => {
     updatedSessions[sessionIndex].timeText = formattedTime;
 
     setSessions(updatedSessions);
+
+    // GỌI HÀM ONNEXT VỚI DỮ LIỆU MỚI
+    const { selectedValue, thoiLuongBuoiHoc, hinhThucHoc } =
+      updatedSessions[sessionIndex];
+    onNext(
+      selectedValue,
+      parseInt(thoiLuongBuoiHoc),
+      currentTime.getTime(),
+      hinhThucHoc === "online"
+    );
   };
 
   // Hàm hiển thị picker cho Android
@@ -60,7 +79,17 @@ const InfoLesson = () => {
     setSessions(updatedSessions);
 
     // Gọi hàm lưu vào database nếu cần
-    saveToDatabase(updatedSessions[sessionIndex].hinhThucHoc);
+    // saveToDatabase(updatedSessions[sessionIndex].hinhThucHoc);
+    console.log("hic");
+    
+    const { selectedValue, thoiLuongBuoiHoc, time, hinhThucHoc } =
+      updatedSessions[sessionIndex];
+    onNext(
+      selectedValue,
+      parseInt(thoiLuongBuoiHoc),
+      time.getTime(),
+      hinhThucHoc === "online"
+    );
   };
 
   const saveToDatabase = (value: any) => {
@@ -96,15 +125,22 @@ const InfoLesson = () => {
               <View style={styles.pickerContainer}>
                 <Picker
                   selectedValue={session.selectedValue}
-                  onValueChange={(itemValue) =>
+                  onValueChange={(itemValue) => {
                     setSessions((prevSessions) =>
                       prevSessions.map((s) =>
                         s.id === session.id
                           ? { ...s, selectedValue: itemValue }
                           : s
                       )
-                    )
-                  }
+                    );
+                    const { thoiLuongBuoiHoc, time, hinhThucHoc } = session;
+                    onNext(
+                      itemValue,
+                      parseInt(thoiLuongBuoiHoc),
+                      time.getTime(),
+                      hinhThucHoc === "online"
+                    );
+                  }}
                   style={styles.picker}
                 >
                   <Picker.Item label="Chọn lịch trình buổi học" value="" />
@@ -127,13 +163,20 @@ const InfoLesson = () => {
                 style={styles.input}
                 placeholder="thời lượng học... (theo phút)"
                 value={session.thoiLuongBuoiHoc}
-                onChangeText={(text) =>
+                onChangeText={(text) => {
                   setSessions((prevSessions) =>
                     prevSessions.map((s) =>
                       s.id === session.id ? { ...s, thoiLuongBuoiHoc: text } : s
                     )
-                  )
-                }
+                  );
+                  const { selectedValue, time, hinhThucHoc } = session;
+                  onNext(
+                    selectedValue,
+                    parseInt(text),
+                    time.getTime(),
+                    hinhThucHoc === "online"
+                  );
+                }}
               />
             </View>
           </View>
