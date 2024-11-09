@@ -107,7 +107,10 @@ export default class AClass {
     onLoading(true);
 
     axios
-      .post(`${this.API_URL}/classes/${classId}/join`, { user_id: userId, student_ids: studentIds })
+      .post(`${this.API_URL}/classes/${classId}/join`, {
+        user_id: userId,
+        student_ids: studentIds,
+      })
       .then((response) => {
         onNext(response.data);
         onLoading(false);
@@ -120,6 +123,66 @@ export default class AClass {
       });
   }
 
+  public static createClass(
+    title: string,
+    description: string,
+    majorId: number,
+    classLevelId: number,
+    price: number,
+    startedAt: number | null,
+    endedAt: number | null,
+    lessons: {
+      day: number,
+      started_at: number | null,
+      duration: number,
+      is_online: boolean
+    }[],
+    onNext: (result: boolean, insertId?: number) => void
+  ) {
+    
+    console.log("title: ", title);
+    console.log("description: ", description);
+    console.log("majorId: ", majorId);
+    console.log("classLevelId: ", classLevelId);
+    console.log("startedAt: ", startedAt);
+    console.log("endedAt: ", endedAt);
+    console.log("lessons: ", lessons);
+    
+
+    console.log({
+      title: title,
+      description: description,
+      major_id: majorId,
+      class_level_id: classLevelId,
+      price: price,
+      started_at: startedAt,
+      ended_at: endedAt,
+      lessons: lessons,
+    });
+    
+
+    axios
+      .post(`${this.API_URL}/classes/class/create`, {
+        title: title,
+        description: description,
+        major_id: majorId,
+        class_level_id: classLevelId,
+        price: price,
+        started_at: startedAt,
+        ended_at: endedAt,
+        lessons: lessons,
+      })
+      .then((response) => {
+        console.log("Class created successfully:", response.data);
+        onNext(response.data.classId); // Truyền `classId` về từ response
+      })
+      .catch((err) => {
+        console.error("Error:", err);
+        console.log(">>> title", "Tạo lớp không thành công");
+        onNext(err);
+      });
+  }
+
   public static acceptClassToTeach(
     classId: number,
     tutorId: string,
@@ -129,7 +192,9 @@ export default class AClass {
     onLoading(true);
 
     axios
-      .post(`${this.API_URL}/classes/${classId}/accept_to_teach`, { tutor_id: tutorId})
+      .post(`${this.API_URL}/classes/${classId}/accept_to_teach`, {
+        tutor_id: tutorId,
+      })
       .then((response) => {
         onNext(response.data);
         onLoading(false);
@@ -162,6 +227,4 @@ export default class AClass {
         onLoading(true);
       });
   }
-
-  
 }
