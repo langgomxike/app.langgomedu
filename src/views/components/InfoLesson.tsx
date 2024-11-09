@@ -12,7 +12,7 @@ import { DateTimePickerAndroid } from "@react-native-community/datetimepicker";
 
 type props = {
   onNext: (
-    chonBuoiHoc?: string,
+    chonBuoiHoc?: number,
     thoiLuongHoc?: number,
     thoiGianBatDau?: number,
     hinhThucHoc?: boolean
@@ -23,7 +23,7 @@ const InfoLesson = ({ onNext }: props) => {
   const [sessions, setSessions] = useState([
     {
       id: 1,
-      selectedValue: "",
+      selectedValue: 0,
       thoiLuongBuoiHoc: "",
       time: new Date(),
       timeText: "",
@@ -80,7 +80,7 @@ const InfoLesson = ({ onNext }: props) => {
 
     // Gọi hàm lưu vào database nếu cần
     // saveToDatabase(updatedSessions[sessionIndex].hinhThucHoc);
-    console.log("hic");
+    // console.log("hic");
     
     const { selectedValue, thoiLuongBuoiHoc, time, hinhThucHoc } =
       updatedSessions[sessionIndex];
@@ -101,7 +101,7 @@ const InfoLesson = ({ onNext }: props) => {
       ...sessions,
       {
         id: sessions.length + 1,
-        selectedValue: "",
+        selectedValue: 0,
         thoiLuongBuoiHoc: "",
         time: new Date(),
         timeText: "",

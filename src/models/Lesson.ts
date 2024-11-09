@@ -3,9 +3,9 @@ import Class from "./Class";
 export default class Lesson {
     public id: number;
     public class: Class | undefined;
-    public day: number; //[note: "thứ, sunday: 0, ..."]
+    public day: number; //[note: "thứ, monday: 0, ..."]
     public started_at: Date;
-    public duration: number;
+    public duration: Date;
     public is_online: boolean;  //[note: "hình thức học, online: 1, offline: 0"]
     public note: string;
 
@@ -13,9 +13,9 @@ export default class Lesson {
         this.id = id;
         this.class = _class;
         this.day = day;
-        this.started_at = started_at;
+        this.started_at = startedAt;
         this.duration = duration;
-        this.is_online = is_online;
+        this.is_online = isOnline;
         this.note = note;
     }
 }
