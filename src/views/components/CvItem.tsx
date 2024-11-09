@@ -103,7 +103,7 @@ export default function tutorItem({
                 key={index.toString()}
                 style={[styles.awardItem, styles.boxshadow2]}
               >
-                {item.vnName}
+                {item.vn_name}
               </Text>
             ))}
           </ScrollView>

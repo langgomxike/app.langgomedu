@@ -3,28 +3,26 @@ import { View, TouchableOpacity, Image, StyleSheet, Text } from "react-native";
 
 import Ionicons from "@expo/vector-icons/Ionicons";
 import MyIcon, { AppIcon } from "./MyIcon";
+import ReactAppUrl from "../../configs/ConfigUrl";
 // Định nghĩa enum AppIcon ở đầu file
-
+const URL= ReactAppUrl.PUBLIC_URL;
 type IconReport = {
   userAvatar?: string;
   userName: string;
   credibility: number;
 };
 
-const IconReport: React.FC<IconReport> = ({
+export default function IconRepor ({
   userAvatar,
   userName,
   credibility,
-}) => {
+}:IconReport)  {
+  console.log("userAvatar", userAvatar);
   return (
     <View style={styles.user}>
       <View style={styles.userInfor}>
         <Image
-          source={
-            userAvatar
-              ? { uri: userAvatar }
-              : require("../../../assets/avatar/avatarTempt.png")
-          }
+        source={{uri:`${URL}${userAvatar}`}}
           style={styles.avatar}
         />
         <Text style={styles.userName}>{userName}</Text>
@@ -95,4 +93,3 @@ const styles = StyleSheet.create({
   },
 });
 
-export default IconReport;

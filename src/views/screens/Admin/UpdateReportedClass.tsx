@@ -9,14 +9,34 @@ import {
   FlatList,
 } from "react-native";
 import MyIcon, { AppIcon } from "../../components/MyIcon";
-import Button from "../../components/Button";
 import IconReport from "../../components/ItemUserReport";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import ImageViewer from "react-native-image-zoom-viewer";
+import ClassReport from "../../../models/ClassReport";
+import AClassReport from "../../../apis/AClassReport";
+import { BackgroundColor } from "../../../configs/ColorConfig";
+import ReactAppUrl from "../../../configs/ConfigUrl";
 export default function UpdateReportedClass() {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const [classReport, setClassReport] = useState<ClassReport | null>(null);
+  const [loading, setLoading] = useState(true);
+  const classReportId = "4";
+const URL = ReactAppUrl.PUBLIC_URL;
+  useEffect(() => {
+    AClassReport.getClassReportById(
+      classReportId,
+      (data: ClassReport) => {
+        console.log("Class report", JSON.stringify(data, null, 2));
+        setClassReport(data); // Lưu dữ liệu nhận được vào state
+      },
+      (isLoading: boolean) => {
+        setLoading(isLoading); // Cập nhật trạng thái tải
+      }
+    );
+  }, [classReportId]);
+
   const openModal = (index: number) => {
     setSelectedIndex(index);
     setModalVisible(true);
@@ -26,29 +46,37 @@ export default function UpdateReportedClass() {
     id: number;
     name: string;
   }
-  const data: Item[] = [
-    {
-      id: 1,
-      name: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSL63FzMpwJQvGI1Wt3WiKphfqKGtRD3OUC3w&s",
-    },
-    {
-      id: 2,
-      name: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSL63FzMpwJQvGI1Wt3WiKphfqKGtRD3OUC3w&s",
-    },
-    {
-      id: 3,
-      name: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSL63FzMpwJQvGI1Wt3WiKphfqKGtRD3OUC3w&s",
-    },
-    {
-      id: 4,
-      name: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSL63FzMpwJQvGI1Wt3WiKphfqKGtRD3OUC3w&s",
-    },
-  ];
-  const renderItem = ({ item, index }: { item: Item; index: number }) => (
-    <TouchableOpacity style={styles.imgParent} onPress={() => openModal(index)}>
-      <Image style={styles.img} source={{ uri: item.name }} />
-    </TouchableOpacity>
-  );
+
+  if (classReport?.files) {
+    classReport.files.forEach((file, index) => {
+      console.log(`Path ${index + 1}: ${file.path}`);  // Kiểm tra giá trị của path
+    });
+  }
+  
+  // Giả sử cấu trúc là [{ id, path }], không có file.files
+  const data: Item[] = classReport?.files?.map((file, index) => ({   
+    id: file.id || index, // Sử dụng index làm ID dự phòng nếu id bị null   
+    name: file.path || "", // Đảm bảo có giá trị chuỗi rỗng nếu path là null 
+  })) || [];
+  
+  // Log để kiểm tra kết quả của mảng data
+  data.forEach((item, index) => {
+    console.log(`Item ${index + 1}:`, item);
+  });
+  
+  const renderItem = ({ item, index }: { item: Item; index: number }) => {
+    // Kiểm tra và tạo đường dẫn đầy đủ từ `URL` và `item.name`
+    const imageUri = item.name ? `${URL}${item.name}` : URL; // Kết hợp URL và tên ảnh nếu có
+    
+    console.log("Đường dẫn đến hình:", imageUri);
+  
+    return (
+      <TouchableOpacity style={styles.imgParent} onPress={() => openModal(index)}>
+        <Image style={styles.img} source={{ uri: imageUri }} />
+      </TouchableOpacity>
+    );
+  };
+  
 
   // Styles animated chevron
   const text: string =
@@ -65,62 +93,67 @@ export default function UpdateReportedClass() {
         </View>
         {/* tài khoản báo cáo */}
         <Text style={styles.smallTitle1}>Tài khoản báo cáo</Text>
-        <IconReport userName="Phạm Anh Quân" credibility={111}></IconReport>
+     
+        <IconReport
+        userAvatar={classReport?.user?.avatar?.path}
+          userName={classReport?.user?.full_name + ""}
+          credibility={classReport?.user?.information?.point}
+        ></IconReport>
         {/* tài khoản bị báo cáo */}
         <Text style={styles.smallTitle2}>Tài khoản bị báo cáo</Text>
         <IconReport
-          userName="Khoai Lang Thang"
-          credibility={111111}
+        userAvatar={classReport?.class?.author?.avatar?.path}
+          userName={classReport?.class?.author?.full_name + ""}
+          credibility={classReport?.class?.author?.information?.point}
         ></IconReport>
         {/* lớp học bị báo cáo */}
         <Text style={styles.smallTitle2}>Lớp học bị báo cáo</Text>
         <View style={styles.classInfor}>
-          <Text>Lớp học này ở khu vực Thủ Đức</Text>
+          <Text>{classReport?.class?.title}</Text>
           <Ionicons name="chevron-forward" size={20} color="black" />
         </View>
       </View>
       <View style={styles.component1}>
-        <Text style={styles.smallTitle3}>Đã bị báo cáo 2 lần</Text>
-        <View style={styles.reportParent}>
-          <ScrollView
-            showsVerticalScrollIndicator={false}
-            nestedScrollEnabled={true}
-          >
-            <View style={styles.itemlCenter}>
-              <View style={styles.textareaContainer}>
-                <ScrollView
-                  nestedScrollEnabled={true}
-                  showsVerticalScrollIndicator={false}
-                >
-                  <Text>{text}</Text>
-                </ScrollView>
-              </View>
-              <View style={styles.textareaContainer}>
-                <ScrollView
-                  nestedScrollEnabled={true}
-                  showsVerticalScrollIndicator={false}
-                >
-                  <Text>{text}</Text>
-                </ScrollView>
-              </View>
-              <View style={styles.textareaContainer}>
-                <ScrollView
-                  nestedScrollEnabled={true}
-                  showsVerticalScrollIndicator={false}
-                >
-                  <Text>{text}</Text>
-                </ScrollView>
-              </View>
+        {classReport &&
+        classReport.reports_before &&
+        classReport.reports_before.length > 0 &&
+        classReport.reports_before[0]?.content !== null ? (
+          <>
+            <Text style={styles.smallTitle3}>
+              Đã bị báo cáo {classReport.reports_before.length} lần
+            </Text>
+            <View style={styles.reportParent}>
+              <ScrollView
+                showsVerticalScrollIndicator={false}
+                nestedScrollEnabled={true}
+              >
+                {classReport.reports_before.map((report, index) => (
+                  <View key={index} style={styles.itemlCenter}>
+                    <View style={styles.textareaContainer}>
+                      <ScrollView
+                        nestedScrollEnabled={true}
+                        showsVerticalScrollIndicator={false}
+                      >
+                        <Text>
+                          {report.content  ||
+                            "Không có nội dung báo cáo trước đây"}
+                        </Text>
+                      </ScrollView>
+                    </View>
+                  </View>
+                ))}
+              </ScrollView>
             </View>
-          </ScrollView>
-        </View>
+          </>
+        ) : (
+          <Text style={styles.smallTitle3}>
+            Không có báo cáo nào trước đây.
+          </Text>
+        )}
+
         <Text style={styles.smallTitle3}>Lý do</Text>
-        <Text style={styles.reportContent}>
-          {" "}
-          Lorem, ipsum dolor sit amet consectetur adipisicing elit. Tempora
-          excepturi dicta magni porro? Exercitationem consequuntur earum eaque
-          veniam adipisci quos molestiae inventore odio alias, ad, aspernatur,
-          aliquam odit saepe nesciunt!
+        <Text style={styles.reportContent}>{classReport?.content}
+          
         </Text>
       </View>
 
@@ -137,48 +170,39 @@ export default function UpdateReportedClass() {
         </View>
         <View>
           <View style={styles.btns}>
-            <View>
-              <Button
-                title="Chấp nhận báo cáo"
-                textColor="#fff"
-                backgroundColor="#0D99FF"
-              />
-            </View>
-            <View>
-              <Button
-                title=" Từ chối báo cáo "
-                textColor="#fff"
-                backgroundColor="#F9CA24"
-              />
-            </View>
+            <TouchableOpacity style={[styles.btn, styles.btnAccept]}>
+              <Text style={styles.textBtnAccept}>Chấp nhận</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.btn, styles.btnDeney]}>
+              <Text style={styles.textBtnDeney}>Từ chối</Text>
+            </TouchableOpacity>
           </View>
-          <Button
-            title="Chấp nhận báo cáo và xoá tài khoản"
-            textColor="#fff"
-            backgroundColor="#E10909"
-          />
+          <TouchableOpacity style={[styles.btn, styles.deleteUser]}>
+            <Text style={styles.textBtnDeleteUser}>Khoá tài khoản</Text>
+          </TouchableOpacity>
         </View>
       </View>
       {/* Modal hiển thị hình ảnh */}
       {selectedIndex !== null && (
-        <Modal
-          visible={modalVisible}
-          transparent={true}
-          onRequestClose={() => setModalVisible(true)}
-        >
-          <TouchableOpacity
-            style={styles.closeButton}
-            onPress={() => setModalVisible(false)}
-          >
-            <Ionicons name="close" size={30} color="#fff" />
-          </TouchableOpacity>
-          <ImageViewer
-            imageUrls={data.map((item) => ({ url: item.name }))}
-            index={selectedIndex}
-            onSwipeDown={() => setModalVisible(false)}
-            enableSwipeDown={true}
-          />
-        </Modal>
+  <Modal
+    visible={modalVisible}
+    transparent={true}
+    onRequestClose={() => setModalVisible(false)} // Sửa để đóng modal khi nhấn nút back
+  >
+    <TouchableOpacity
+      style={styles.closeButton}
+      onPress={() => setModalVisible(false)}
+    >
+      <Ionicons name="close" size={30} color="#fff" />
+    </TouchableOpacity>
+    <ImageViewer
+      imageUrls={data.map((item) => ({ url: `${URL}${item.name}` }))} // Kết hợp URL với tên ảnh
+      index={selectedIndex}
+      onSwipeDown={() => setModalVisible(false)}
+      enableSwipeDown={true}
+    />
+  </Modal>
+
       )}
     </ScrollView>
   );
@@ -277,11 +301,12 @@ const styles = StyleSheet.create({
   component2: {
     backgroundColor: "#fff",
     paddingHorizontal: 15,
+    paddingBottom: 20,
   },
   textareaContainer: {
     width: "98%",
     borderRadius: 10,
-    height: 100,
+   
     paddingHorizontal: 15,
     paddingVertical: 15,
     shadowColor: "#000",
@@ -297,7 +322,6 @@ const styles = StyleSheet.create({
   },
 
   reportParent: {
-    height: 350,
     marginBottom: 20,
   },
   itemlCenter: {
@@ -336,10 +360,7 @@ const styles = StyleSheet.create({
     elevation: 5,
     backgroundColor: "#fff",
   },
-  btns: {
-    flexDirection: "row",
-    marginBottom:-20,
-  },
+
   images: {
     marginBottom: 20,
   },
@@ -363,5 +384,36 @@ const styles = StyleSheet.create({
     justifyContent: "center", // Căn giữa nội dung theo chiều dọc
     alignItems: "center", // Căn giữa nội dung theo chiều ngang
     backgroundColor: "rgba(0, 0, 0, 0.8)", // Làm mờ nền
+  },
+  btns: {
+    flexDirection: "row",
+    gap: 15,
+    marginBottom: 15,
+  },
+  btn: {
+    padding: 15,
+    borderRadius: 10,
+    alignItems: "center",
+  },
+  btnAccept: {
+    backgroundColor: BackgroundColor.primary,
+    flex: 1,
+  },
+  textBtnAccept: {
+    color: "#fff",
+  },
+  btnDeney: {
+    backgroundColor: BackgroundColor.warning,
+    flex: 1,
+  },
+  textBtnDeney: {
+    color: "#fff",
+  },
+  deleteUser: {
+    backgroundColor: BackgroundColor.danger,
+    flex: 1,
+  },
+  textBtnDeleteUser: {
+    color: "#fff",
   },
 });

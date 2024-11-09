@@ -1,11 +1,12 @@
 import React from "react";
 import { View, StyleSheet, Text, TouchableOpacity } from "react-native";
 
-import Ionicons from "@expo/vector-icons/Ionicons";
-// import { useNavigation } from '@react-navigation/native';
+import Ionicons from '@expo/vector-icons/Ionicons';
+// import { useNavigation, NavigationProp } from '@react-navigation/native'; 
 import { BackgroundColor } from "../../configs/ColorConfig";
 import HLine, { HLineType } from "./HLine";
 import MyIcon, { AppIcon } from "./MyIcon";
+import ScreenName from "../../constants/ScreenName";
 
 export type AccountItemProps = {
   title: string;

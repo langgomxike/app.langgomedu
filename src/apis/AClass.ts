@@ -227,4 +227,23 @@ export default class AClass {
         onLoading(true);
       });
   }
+
+  public static getAllClasses(onNext: ()=> void){
+    // console.log("clicked");
+    
+    axios({method: 'get', baseURL: this.API_URL +'/classes'})
+    .then(
+        (result)=> {
+            // console.log("port", this.API_URL)
+            // console.log("data", result.data);
+            onNext();
+        }
+    ).catch(
+        (err)=> {
+            // console.log("port", this.API_URL)
+            // console.log("error", err);
+            onNext();
+        }
+    )
+}
 }

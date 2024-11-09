@@ -9,7 +9,7 @@ export default class Lesson {
     public is_online: boolean;  //[note: "hình thức học, online: 1, offline: 0"]
     public note: string;
 
-    constructor(id = -1, _class: Class | undefined = undefined, day = 0, startedAt = new Date(), duration = new Date(), isOnline = false, note = "") {
+    constructor(id = -1, _class: Class | undefined = undefined, day = 0, started_at = new Date(), duration = 0, is_online = false, note = "") {
         this.id = id;
         this.class = _class;
         this.day = day;
