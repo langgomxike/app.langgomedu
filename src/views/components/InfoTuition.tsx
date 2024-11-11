@@ -4,7 +4,7 @@ import { useState } from "react";
 import ViewShot from "react-native-view-shot";
 
 type props = {
-  onNext: (tuition?: string, dateStart?: Date, dateEnd?: Date) => void;
+  onNext: (tuition?: string, dateStart?: string, dateEnd?: string) => void;
 }
 
 const InfoTuition = ({onNext}: props) => {

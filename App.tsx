@@ -13,7 +13,7 @@ import ButtonNavBar from "./src/views/components/ButtonNavBar";
 import MessageScreen from "./src/views/screens/Message";
 import ProfileScreen from "./src/views/screens/Profile";
 import ClassDetail from "./src/views/screens/ClassDetail";
-import { BackgroundColor } from "./src/configs/ColorConfig";
+import { BackgroundColor, TextColor } from "./src/configs/ColorConfig";
 import CVListScreen from "./src/views/screens/CVList";
 import SLog, { LogType } from "./src/services/SLog";
 import SAsyncStorage, { AsyncStorageKeys } from "./src/services/SAsyncStorage";
@@ -42,13 +42,19 @@ import Register2Screen from "./src/views/screens/Register2";
 import OTPScreen from "./src/views/screens/OTP";
 import ChangePasswordScreen from "./src/views/screens/ChangePassword";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import UserReportList from "./src/views/screens/admin/UserReportList";
-import UserManager from "./src/views/screens/admin/UserManager";
-import ClassManager from "./src/views/screens/admin/ClassManager";
-import History from "./src/views/screens/History";
-import GeneralManager from "./src/views/screens/admin/GeneralManager";
-import UpdateReportedClass from "./src/views/screens/admin/UpdateReportedClass";
-import UpdateReportedUser from "./src/views/screens/admin/UpdateReportedUser";
+// import UserReportList from "./src/views/screens/admin/UserReportList";
+// import UserManager from "./src/views/screens/admin/UserManager";
+// import ClassManager from "./src/views/screens/admin/ClassManager";
+// import History from "./src/views/screens/History";
+// import GeneralManager from "./src/views/screens/admin/GeneralManager";
+
+import Information from "./src/views/screens/settings/Information";
+import PersonalCV from "./src/views/screens/settings/PersonalCV";
+import PersonalClasses from "./src/views/screens/settings/PersonalClasses";
+import PersonalRatings from "./src/views/screens/settings/PersonalRatings";
+import { Text, TouchableOpacity } from "react-native";
+import Octicons from '@expo/vector-icons/Octicons';
+
 const Stack = createNativeStackNavigator();
 const SCREEN_PADDING_TOP = 50;
 const SCREEN_PADDING_HORIZONTAL = 0;
@@ -135,7 +141,26 @@ export default function App() {
                 name={ScreenName.CV_LIST}
                 component={CVListScreen}
               />
-              <Stack.Screen name={ScreenName.CV} component={CVScreen} />
+              <Stack.Screen 
+              name={ScreenName.SETTING_PERSONAL_CV} 
+              component={PersonalCV} 
+              options={{
+                headerShown: true,
+                contentStyle: {
+                  paddingHorizontal: 0,
+                  paddingTop: 0,
+                  backgroundColor: BackgroundColor.primary,
+                },
+                headerStyle: {
+                  backgroundColor: BackgroundColor.primary,
+                },
+                headerTintColor: TextColor.white,
+                headerRight: () => (
+                  <TouchableOpacity onPress={() => console.log("Button Pressed")}>
+                    <Octicons name="pencil" size={24} color="white" />
+                  </TouchableOpacity>
+                )
+              }} />
               <Stack.Screen
                 name={ScreenName.INPUT_CV}
                 component={InputCVScreen}
