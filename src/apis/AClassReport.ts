@@ -23,4 +23,30 @@ export default class AClassReport {
         onLoading(true);
       });
   }
+  //từ chối báo cáo lớp học
+  // từ chối báo cáo lớp học
+public static denyClassReport(
+  reportId: string,
+  onNext: (response: any) => void,
+  onLoading: (loading: boolean) => void
+) {
+  // Bắt đầu loading
+  onLoading(true);
+
+  // Gửi request POST đến BE với reportId
+  axios.post(`${this.API_URL}/reports/lockClassReport`, { reportId })
+      .then((response) => {
+          // Nếu thành công, gọi callback `onNext` với kết quả từ BE
+          onNext(response.data);
+      })
+      .catch((error) => {
+          console.error("Error denying class report:", error);
+          onNext({ success: false, message: "Failed to deny class report." });
+      })
+      .finally(() => {
+          // Kết thúc loading
+          onLoading(false);
+      });
+}
+
 }
