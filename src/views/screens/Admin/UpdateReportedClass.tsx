@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Modal,
   FlatList,
+  Alert,
 } from "react-native";
 import MyIcon, { AppIcon } from "../../components/MyIcon";
 import IconReport from "../../components/ItemUserReport";
@@ -18,6 +19,9 @@ import AClassReport from "../../../apis/AClassReport";
 import { BackgroundColor } from "../../../configs/ColorConfig";
 import ReactAppUrl from "../../../configs/ConfigUrl";
 import Accordion from "../../components/Accordion";
+import AUser from "../../../apis/AUser";
+import AClass from "../../../apis/AClass";
+
 export default function UpdateReportedClass() {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
@@ -56,7 +60,7 @@ export default function UpdateReportedClass() {
 
   // Giả sử cấu trúc là [{ id, path }], không có file.files
   const data: Item[] =
-    classReport?.files?.map((file, index) => ({
+    classReport?.files?.map((file , index) => ({
       id: file.id || index, // Sử dụng index làm ID dự phòng nếu id bị null
       name: file.path || "", // Đảm bảo có giá trị chuỗi rỗng nếu path là null
     })) || [];
@@ -176,16 +180,195 @@ export default function UpdateReportedClass() {
         </View>
         <View>
           <View style={styles.btns}>
-            <TouchableOpacity style={[styles.btn, styles.btnAccept]}>
+            <TouchableOpacity
+              style={[styles.btn, styles.btnAccept]}
+              onPress={() => {
+                // Hiển thị alert xác nhận
+                Alert.alert(
+                  "Xác nhận",
+                  "Bạn có chắc chắn muốn chấp nhận báo cáo lớp học này không?",
+                  [
+                    {
+                      text: "Hủy",
+                      style: "cancel",
+                    },
+                    {
+                      text: "Xác nhận",
+                      onPress: () => {
+                        // Gọi hàm trừ điểm uy tín
+                        AUser.minusUserPoints(
+                          classReport?.class?.author?.id, // ID người dùng
+                          (pointResponse) => {
+                            if (pointResponse.success) {
+                              console.log("Điểm uy tín đã bị trừ thành công.");
+
+                              // Sau khi trừ điểm, gọi hàm khóa lớp học
+                              AClass.lockClass(
+                                classReport?.class?.class_id, // ID lớp học
+                                (lockResponse) => {
+                                  if (lockResponse.success) {
+                                    console.log(
+                                      "Lớp học đã bị khóa thành công."
+                                    );
+                                    Alert.alert(
+                                      "Lớp học đã được khóa thành công và đã trừ điểm uy tín người dùng!"
+                                    );
+                                  } else {
+                                    console.log(
+                                      "Không thể khóa lớp học: ",
+                                      lockResponse.message
+                                    );
+                                    Alert.alert(
+                                      "Đã xảy ra lỗi trong quá trình khóa lớp học."
+                                    );
+                                  }
+                                },
+                                (lockLoading) => {
+                                  // Xử lý trạng thái loading nếu cần thiết
+                                  console.log(
+                                    "Đang khóa lớp học...",
+                                    lockLoading
+                                  );
+                                }
+                              );
+                            } else {
+                              console.log(
+                                "Không thể trừ điểm uy tín: ",
+                                pointResponse.message
+                              );
+                              Alert.alert(
+                                "Đã xảy ra lỗi trong quá trình trừ điểm."
+                              );
+                            }
+                          },
+                          (pointLoading) => {
+                            // Xử lý trạng thái loading nếu cần thiết
+                            console.log(
+                              "Đang trừ điểm uy tín...",
+                              pointLoading
+                            );
+                          }
+                        );
+                      },
+                    },
+                  ]
+                );
+              }}
+            >
               <Text style={styles.textBtnAccept}>Chấp nhận</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={[styles.btn, styles.btnDeney]}>
+            <TouchableOpacity
+              style={[styles.btn, styles.btnDeney]}
+              onPress={() => {
+                // Hiển thị alert xác nhận
+                Alert.alert(
+                  "Xác nhận",
+                  "Bạn có chắc chắn muốn từ chối báo cáo lớp học này không?",
+                  [
+                    {
+                      text: "Hủy",
+                      style: "cancel",
+                    },
+                    {
+                      text: "Xác nhận",
+                      onPress: () => {
+                        // Gọi hàm từ chối báo cáo lớp học và xử lý trạng thái
+                        AClassReport.denyClassReport(
+                          classReport?.id, // Thay `classReport?.reportId` với ID báo cáo lớp học
+                          (response) => {
+                            if (response.success) {
+                              console.log("Class report denied successfully.");
+                              Alert.alert(
+                                "Từ chối báo cáo lớp học thành công!"
+                              );
+                            } else {
+                              console.log(
+                                "Failed to deny class report:",
+                                response.message
+                              );
+                              Alert.alert(
+                                "Đã xảy ra lỗi trong quá trình xử lý!"
+                              );
+                            }
+                          },
+                          (loading) => {} // Có thể xử lý trạng thái loading nếu cần thiết
+                        );
+                      },
+                    },
+                  ]
+                );
+              }}
+            >
               <Text style={styles.textBtnDeney}>Từ chối</Text>
             </TouchableOpacity>
           </View>
-          <TouchableOpacity style={[styles.btn, styles.deleteUser]}>
-            <Text style={styles.textBtnDeleteUser}>Khoá tài khoản</Text>
-          </TouchableOpacity>
+          <TouchableOpacity
+  style={[styles.btn, styles.deleteUser]}
+  onPress={() => {
+    // Hiển thị alert xác nhận
+    Alert.alert(
+      "Xác nhận",
+      "Bạn có chắc chắn muốn khoá tài khoản và lớp học này không?",
+      [
+        {
+          text: "Hủy",
+          style: "cancel",
+        },
+        {
+          text: "Xác nhận",
+          onPress: () => {
+            // Gọi hàm khóa tài khoản
+            AUser.lockUserAccount(
+              classReport?.class?.author?.id ?? "", // ID người dùng
+              (accountResponse) => {
+                if (accountResponse.success) {
+                  console.log("Tài khoản đã bị khóa thành công.");
+
+                  // Sau khi khóa tài khoản, gọi hàm khóa lớp học
+                  AClass.lockClass(
+                    classReport?.class?.class_id, // ID lớp học
+                    (classResponse) => {
+                      if (classResponse.success) {
+                        console.log("Lớp học đã bị khóa thành công.");
+                        Alert.alert(
+                          "Tài khoản và lớp học đã được khóa thành công!"
+                        );
+                      } else {
+                        console.log(
+                          "Không thể khóa lớp học: ",
+                          classResponse.message
+                        );
+                        Alert.alert(
+                          "Đã xảy ra lỗi trong quá trình khóa lớp học."
+                        );
+                      }
+                    },
+                    (classLoading) => {
+                      // Xử lý trạng thái loading nếu cần thiết
+                      console.log("Đang khóa lớp học...", classLoading);
+                    }
+                  );
+                } else {
+                  console.log(
+                    "Không thể khóa tài khoản: ",
+                    accountResponse.message
+                  );
+                  Alert.alert("Đã xảy ra lỗi trong quá trình khóa tài khoản.");
+                }
+              },
+              (accountLoading) => {
+                // Xử lý trạng thái loading nếu cần thiết
+                console.log("Đang khóa tài khoản...", accountLoading);
+              }
+            );
+          },
+        },
+      ]
+    );
+  }}
+>
+  <Text style={styles.textBtnDeleteUser}>Khoá tài khoản</Text>
+</TouchableOpacity>
         </View>
       </View>
       {/* Modal hiển thị hình ảnh */}

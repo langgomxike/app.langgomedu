@@ -66,9 +66,9 @@ export default function App() {
     <AppContext>
       <UserContext.Provider value={{ user, setUser }}>
         <GestureHandlerRootView>
-{/* <UpdateReportedClass></UpdateReportedClass> */}
+<UpdateReportedClass></UpdateReportedClass>
 {/* <UpdateReportedUser></UpdateReportedUser> */}
-          <NavigationContainer>
+          {/* <NavigationContainer>
             <Stack.Navigator
               screenOptions={{
                 headerShown: false,
@@ -199,7 +199,7 @@ export default function App() {
                 component={ClassApprovalScreen}
               />
             </Stack.Navigator>
-          </NavigationContainer>
+          </NavigationContainer> */}
 
           {/* <LeanerAttendance></LeanerAttendance> */}
           {/* <TutorAttendance></TutorAttendance> */}

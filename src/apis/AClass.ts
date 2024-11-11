@@ -162,6 +162,31 @@ export default class AClass {
         onLoading(true);
       });
   }
+  //khoá lớp học
+  // Hàm khoá lớp học
+public static lockClass(
+  classId: string,
+  onNext: (response: any) => void,
+  onLoading: (loading: boolean) => void
+) {
+  // Bắt đầu loading
+  onLoading(true);
+
+  // Gửi request POST đến BE với classId
+  axios.post(`${this.API_URL}/reports/lockClass`, { classId })
+      .then((response) => {
+          // Nếu thành công, gọi callback `onNext` với kết quả từ BE
+          onNext(response.data);
+      })
+      .catch((error) => {
+          console.error("Error locking class:", error);
+          onNext({ success: false, message: "Failed to lock class." });
+      })
+      .finally(() => {
+          // Kết thúc loading
+          onLoading(false);
+      });
+}
 
   
 }

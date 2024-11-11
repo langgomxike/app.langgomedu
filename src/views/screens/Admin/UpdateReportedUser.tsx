@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Modal,
   FlatList,
+  Alert,
 } from "react-native";
 import MyIcon, { AppIcon } from "../../components/MyIcon";
 import Button from "../../components/Button";
@@ -19,6 +20,7 @@ import UserReport from "../../../models/UserReport";
 import { BackgroundColor } from "../../../configs/ColorConfig";
 import ReactAppUrl from "../../../configs/ConfigUrl";
 import Accordion from "../../components/Accordion";
+import AUser from "../../../apis/AUser";
 export default function UpdateReportedUser() {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
@@ -116,9 +118,9 @@ export default function UpdateReportedUser() {
         {/* lớp học bị báo cáo */}
       </View>
       <View style={styles.component1}>
-      <Text style={styles.smallTitle3}>
-              Đã bị báo cáo {userReport?.reports_before.length} lần
-            </Text>
+        <Text style={styles.smallTitle3}>
+          Đã bị báo cáo {userReport?.reports_before.length} lần
+        </Text>
         {userReport?.reports_before.map((report, index) => (
           <View key={index} style={styles.itemlCenter}>
             <View style={styles.textareaContainer}>
@@ -140,7 +142,6 @@ export default function UpdateReportedUser() {
         ))}
         {/* <View style={styles.line}></View> */}
 
-
         <Text style={styles.smallTitle3}>Lý do</Text>
         <Text style={styles.reportContent}>
           {userReport?.report_content || "Không có thông tin lý do"}
@@ -160,24 +161,143 @@ export default function UpdateReportedUser() {
         </View>
         <View>
           <View style={styles.btns}>
-            <TouchableOpacity style={[styles.btn, styles.btnAccept]}>
+            <TouchableOpacity
+              style={[styles.btn, styles.btnAccept]}
+              onPress={() => {
+                // Hiển thị alert xác nhận
+                Alert.alert(
+                  "Xác nhận",
+                  "Bạn có chắc chắn muốn chấp nhận và trừ điểm uy tín không?",
+                  [
+                    {
+                      text: "Hủy",
+                      style: "cancel",
+                    },
+                    {
+                      text: "Xác nhận",
+                      onPress: () => {
+                        // Gọi hàm trừ điểm uy tín và xử lý trạng thái
+                        AUser.minusUserPoints(
+                          userReport?.to_user?.id, // Truyền user ID của người dùng cần trừ điểm
+                          (response) => {
+                            if (response.success) {
+                              console.log("Points deducted successfully.");
+                              Alert.alert(
+                                "Điểm uy tín đã được trừ thành công!"
+                              );
+                            } else {
+                              console.log(
+                                "Failed to deduct points:",
+                                response.message
+                              );
+                              Alert.alert(
+                                "Đã xảy ra lỗi trong quá trình xử lý!"
+                              );
+                            }
+                          },
+                          (loading) => {
+                            // Bạn có thể xử lý trạng thái loading tại đây nếu cần
+                          }
+                        );
+                      },
+                    },
+                  ]
+                );
+              }}
+            >
               <Text style={styles.textBtnAccept}>Chấp nhận</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={[styles.btn, styles.btnDeney]}>
+            <TouchableOpacity
+              style={[styles.btn, styles.btnDeney]}
+              onPress={() => {
+                // Hiển thị alert xác nhận
+                Alert.alert(
+                  "Xác nhận",
+                  "Bạn có chắc chắn muốn từ chối báo cáo này không?",
+                  [
+                    {
+                      text: "Hủy",
+                      style: "cancel",
+                    },
+                    {
+                      text: "Xác nhận",
+                      onPress: () => {
+                        // Gọi hàm từ chối báo cáo và xử lý trạng thái
+                        AUserReport.deneyUserReport(
+                          userReport?.report_id,
+                          (response) => {
+                            if (response.success) {
+                              console.log("Report denied successfully.");
+                              Alert.alert("Từ chối báo cáo thành công!");
+                            } else {
+                              console.log(
+                                "Failed to deny report:",
+                                response.message
+                              );
+                              Alert.alert(
+                                "Đã xảy ra lỗi trong quá trình xử lý!"
+                              );
+                            }
+                          },
+                          (loading) => {}
+                        );
+                      },
+                    },
+                  ]
+                );
+              }}
+            >
               <Text style={styles.textBtnDeney}>Từ chối</Text>
             </TouchableOpacity>
           </View>
-          <TouchableOpacity style={[styles.btn, styles.deleteUser]}>
-            <Text style={styles.textBtnDeleteUser}>Khoá tài khoản</Text>
-          </TouchableOpacity>
+          <TouchableOpacity
+  style={[styles.btn, styles.deleteUser]}
+  onPress={() => {
+    // Hiển thị alert xác nhận
+    Alert.alert(
+      "Xác nhận",
+      "Bạn có chắc chắn muốn khóa tài khoản người dùng này không?",
+      [
+        {
+          text: "Hủy",
+          style: "cancel",
+        },
+        {
+          text: "Xác nhận",
+          onPress: () => {
+            // Gọi hàm khóa tài khoản và xử lý trạng thái
+            AUser.lockUserAccount(
+              userReport?.to_user?.id, 
+              (response) => {
+                if (response.success) {
+                  console.log("User account locked successfully.");
+                  Alert.alert("Tài khoản đã được khóa thành công!");
+                } else {
+                  console.log("Failed to lock account:", response.message);
+                  Alert.alert("Đã xảy ra lỗi trong quá trình khóa tài khoản!");
+                }
+              },
+              (loading) => {
+                // Có thể cập nhật trạng thái loading tại đây nếu cần
+              }
+            );
+          },
+        },
+      ]
+    );
+  }}
+>
+  <Text style={styles.textBtnDeleteUser}>Khóa tài khoản</Text>
+</TouchableOpacity>
         </View>
       </View>
+
       {/* Modal hiển thị hình ảnh */}
       {selectedIndex !== null && (
         <Modal
           visible={modalVisible}
           transparent={true}
-          onRequestClose={() => setModalVisible(false)} 
+          onRequestClose={() => setModalVisible(false)}
         >
           <TouchableOpacity
             style={styles.closeButton}
@@ -186,7 +306,7 @@ export default function UpdateReportedUser() {
             <Ionicons name="close" size={30} color="#fff" />
           </TouchableOpacity>
           <ImageViewer
-            imageUrls={data.map((item) => ({ url: `${URL}${item.name}` }))} 
+            imageUrls={data.map((item) => ({ url: `${URL}${item.name}` }))}
             index={selectedIndex}
             onSwipeDown={() => setModalVisible(false)}
             enableSwipeDown={true}
