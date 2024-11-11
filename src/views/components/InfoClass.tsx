@@ -14,7 +14,7 @@ type props = {
     title?: string,
     desc?: string,
     monHoc?: string,
-    capHoc?: ClassLevel
+    capHoc?: number
   ) => void;
 };
 
@@ -22,10 +22,10 @@ const InfoClass = ({ onNext }: props) => {
   const [title, setTitle] = useState("");
   const [desc, setDesc] = useState("");
   const [capHocList, setCapHocList] = useState<ClassLevel[]>([]); // đặt select
-  const [selectedCapHoc, setSelectedCapHoc] = useState("");
+  const [selectedCapHoc, setSelectedCapHoc] = useState<number>(-1);
 
   // useState MÔN HỌC, FETCH DATA
-  const [monHoc, setMonHoc] = useState<number | string>(""); // đặt select
+  const [monHoc, setMonHoc] = useState<number>(-1); // đặt select
   const [isOtherSelected, setIsOtherSelected] = useState(false); // Kiểm tra khi chọn "Khác"
   const [customInput, setCustomInput] = useState(""); // Giá trị nhập khi chọn "Khác"
   const [isLoading, setIsLoading] = useState(false);
@@ -94,8 +94,10 @@ const InfoClass = ({ onNext }: props) => {
     });
   }, []);
 
-  const handleChangeCapHoc = (value: any) => {
+  const handleChangeCapHoc = (value: number) => {
     setSelectedCapHoc(value);
+    console.log("value cap hoc: ", value);
+    
     onNext(undefined, undefined, undefined, value);
   };
 

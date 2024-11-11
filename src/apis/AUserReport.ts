@@ -24,4 +24,29 @@ export default class AUserReport {
                 onLoading(true);
             });
     }
+    //từ chối báo cáo
+    public static deneyUserReport(
+        id: string,
+        onNext: (response: any) => void,
+        onLoading: (loading: boolean) => void
+    ) {
+        // Bắt đầu loading
+        onLoading(true);
+    
+        // Gửi request POST đến BE với ID
+        axios.post(`${this.API_URL}/reports/lockUserReport`, { reportId: id })
+            .then((response) => {
+                // Nếu thành công, gọi callback `onNext` với kết quả từ BE
+                onNext(response.data);
+            })
+            .catch((error) => {
+                console.error("Error denying user report:", error);
+                onNext({ success: false, message: "Failed to deny user report." });
+            })
+            .finally(() => {
+                // Kết thúc loading
+                onLoading(false);
+            });
+    }
+
 }
