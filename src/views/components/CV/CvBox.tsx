@@ -4,7 +4,7 @@ import { Children, ReactNode } from "react";
 import { BackgroundColor, BorderColor } from "../../../configs/ColorConfig";
 export type CvBoxProps = {
     title: string,
-    children?: ReactNode
+    children?: ReactNode,
 }
 
 const CvBox = ({ title, children }: CvBoxProps) => {
