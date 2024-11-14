@@ -3,26 +3,45 @@ import InfoClass from "./InfoClass";
 import InfoLesson from "./InfoLesson";
 import InfoTuition from "./InfoTuition";
 import { TouchableOpacity } from "react-native-gesture-handler";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import ClassLevel from "../../models/ClassLevel";
+import AClass from "../../apis/AClass";
+import { startAfter } from "firebase/database";
+import Lesson from "../../models/Lesson";
+
+type Session = {
+  id: number;
+  selectedValue: number;
+  thoiLuongBuoiHoc: string;
+  time: Date;
+  timeText: string;
+  hinhThucHoc: string;
+};
 
 const Class = () => {
+  // gia tri
   const [dataTitle, setDataTitle] = useState<string>("");
   const [dataDesc, setDataDesc] = useState<string>("");
-  const [dataMonHoc, setDataMonHoc] = useState<string>("");
-  const [dataCapHoc, setDataCapHoc] = useState<ClassLevel>();
+  const [dataMajorId, setDataMajorId] = useState<number>(-1);
+  const [dataClassLevel, setDataClassLevel] = useState<number>(-1);
 
-  const [dataBuoiHoc, setDataBuoiHoc] = useState<string>("");
-  const [dataThoiGianBuoiHoc, setDataThoiGianBuoiHoc] = useState<number>(0);
-  const [dataThoiGianBatDau, setDataThoiGianBatDau] = useState<number>(0);
-  const [dataHinhThuc, setDataHinhThuc] = useState<boolean>(false);
+  // lesson
+  const [lessons, setLessons] = useState<Lesson[]>([]);
+  const [dataDayLesson, setDataDayLesson] = useState<number>(0);
+  const [dataDuration, setDataDuration] = useState<number>(0);
+  const [dataStartedAt, setDataStartedAt] = useState<number>(0);
+  const [dataLessonType, setDataLessonType] = useState<boolean>(false);
 
-  const [dataTuition, setDataTuition] = useState("");
-  const [dataDateStart, setDataDateStart] = useState<Date | null>(null);
-  const [dataDateEnd, setDataDateEnd] = useState<Date | null>(null);
+  const [dataPrice, setDataPrice] = useState<number>(0);
+  const [dataDateStart, setDataDateStart] = useState("");
+  const [dataDateEnd, setDataDateEnd] = useState("");
 
-  const handleDataChangeClass = (title?: string, desc?: string, monHoc?: string, capHoc?: ClassLevel) => {
- 
+  const handleDataChangeClass = (
+    title?: string,
+    desc?: string,
+    monHoc?: string,
+    capHoc?: number
+  ) => {
     if (title) {
       setDataTitle(title);
     }
@@ -32,32 +51,27 @@ const Class = () => {
     }
 
     if (monHoc) {
-      setDataMonHoc(monHoc);
+      setDataMajorId(parseInt(monHoc));
     }
 
     if (capHoc) {
-      setDataCapHoc(capHoc);
+      setDataClassLevel(capHoc);
     }
   };
 
-  const handleDataChangeLesson = (buoiHoc?: string, thoiLuongBuoiHoc?: number, thoiGianBatDau?: number, hinhThucHoc?: boolean) => {
-    if (buoiHoc) {
-      setDataBuoiHoc(buoiHoc);
-    }
-    if (thoiLuongBuoiHoc) {
-      setDataThoiGianBuoiHoc(thoiLuongBuoiHoc);
-    }
-    if (thoiGianBatDau) {
-      setDataThoiGianBatDau(thoiGianBatDau);
-    }
-    if (hinhThucHoc) {
-      setDataHinhThuc(hinhThucHoc);
-    }
-  }
+  const handleDataChangeLesson = (lessons: Lesson[]) => {
+    console.log("class session", lessons);
+    
+    setLessons(lessons);
+  };
 
-  const handleDataChangeTuition = (tuition?: string, dateStart?: Date, dateEnd?: Date) => {
-    if (tuition) {
-      setDataTuition(tuition);
+  const handleDataChangeTuition = (
+    price?: string,
+    dateStart?: string,
+    dateEnd?: string
+  ) => {
+    if (price) {
+      setDataPrice(parseFloat(price));
     }
     if (dateStart) {
       setDataDateStart(dateStart);
@@ -65,42 +79,71 @@ const Class = () => {
     if (dateEnd) {
       setDataDateEnd(dateEnd);
     }
-  }
-
-  const handleNext = () => {
-    console.log("value: ", dataTitle);
   };
 
-  useEffect(() => {
+  // convert string to date
+  const convertStringToTimestamp = (dateString: string) => {
+    // Tách ngày, tháng, năm từ chuỗi ngày
+    const [day, month, year] = dateString.split("/").map(Number);
+
+    // Tạo đối tượng Date với thứ tự là (year, month - 1, day)
+    // Lưu ý: tháng trong Date là từ 0 - 11, nên cần trừ đi 1
+    const dateObj = new Date(year, month - 1, day);
+
+    // Kiểm tra tính hợp lệ của dateObj
+    if (!isNaN(dateObj.getTime())) {
+      // Trả về giá trị thời gian tính bằng milliseconds
+      return dateObj.getTime();
+    } else {
+      // Trả về null nếu dateString không hợp lệ
+      return null;
+    }
+  };
+
+  const handleSaveClass = useCallback(() => {
     console.log("title: ", dataTitle);
-    console.log("desc: ", dataDesc);
-    console.log("mon hoc: ", dataMonHoc);
-    console.log("cap hoc: ", dataCapHoc);
-    
-  }, [dataTitle, dataDesc, dataMonHoc, dataCapHoc]);
+    console.log("description: ", dataDesc);
+    console.log("majorId: ", dataMajorId);
+    console.log("classLevelId: ", dataClassLevel);
+    console.log("gia: ", dataPrice);
+    console.log("startedAt: ", dataDateStart);
+    console.log("endedAt: ", dataDateEnd);
+    console.log("Type of endedAt: ", typeof dataDateEnd);
 
-  useEffect(() => {
-    console.log("buoi hoc: ", dataBuoiHoc);
-    console.log("thoi luong buoi hoc: ", dataThoiGianBuoiHoc);
-    console.log("thoi gian bat dau: ", dataThoiGianBatDau);
-    console.log("hinh thuc hoc: ", dataHinhThuc);
-    
-  }, [dataBuoiHoc, dataThoiGianBuoiHoc, dataThoiGianBatDau, dataHinhThuc]);
+    if (dataDateStart && dataDateEnd) {
+      console.log("huhu");
 
-  useEffect(() => {
-    console.log("hoc phi: ", dataTuition);
-    console.log("ngay bat dau: ", dataDateStart);
-    console.log("ngay ket thuc: ", dataDateEnd);
-    
-  }, [dataTuition, dataDateStart, dataDateEnd]);
-
-
+      AClass.createClass(
+        dataTitle,
+        dataDesc,
+        dataMajorId,
+        dataClassLevel,
+        dataPrice,
+        convertStringToTimestamp(dataDateStart),
+        convertStringToTimestamp(dataDateEnd),
+        lessons,
+        () => {}
+      );
+    }
+  }, [
+    dataTitle,
+    dataDesc,
+    dataMajorId,
+    dataClassLevel,
+    dataPrice,
+    dataDateStart,
+    dataDateEnd,
+    dataDayLesson,
+    dataStartedAt,
+    dataDuration,
+    dataLessonType,
+  ]);
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
-      <InfoClass onNext={handleDataChangeClass}/>
-      <InfoLesson onNext={handleDataChangeLesson}/>
-      <InfoTuition onNext={handleDataChangeTuition}/>
-      <TouchableOpacity style={styles.btnNext} onPress={handleNext}>
+      <InfoClass onNext={handleDataChangeClass} />
+      <InfoLesson handleGetLesson={handleDataChangeLesson} />
+      <InfoTuition onNext={handleDataChangeTuition} />
+      <TouchableOpacity style={styles.btnNext} onPress={handleSaveClass}>
         <Text style={styles.txtNext}>Tạo Lớp</Text>
       </TouchableOpacity>
     </ScrollView>

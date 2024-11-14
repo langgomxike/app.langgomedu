@@ -181,7 +181,7 @@ export default function HoangTestScreen() {
       {/* <ClassDetail></ClassDetail> */}
       {/* <CVList></CVList> */}
       {/* <History/> */}
-      <UserManager/>
+      {/* <UserManager/> */}
     </View>
   );
 }

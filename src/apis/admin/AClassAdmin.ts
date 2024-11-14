@@ -6,6 +6,7 @@ import User from "../../models/User";
 
 export default class AClassAdmin {
   private static BASE_URL = `${ReactAppUrl.API_BASE_URL}/admin`;
+  private static BASE_URL1 = `${ReactAppUrl.API_BASE_URL}/reports/class`;
 
   // Get all class
   public static getAllClasses(
@@ -47,5 +48,21 @@ export default class AClassAdmin {
         onLoading(true);
       });
   }
-
+  public static getAllClassReports(
+    onNext: (classReports: Class[]) => void,
+    onLoading: (loading: boolean) => void
+  ) {
+    onLoading(true);
+    axios
+      .get(`${this.BASE_URL1}`)
+      .then((response) => {
+        onNext(response.data.data);
+        onLoading(false);
+      })
+      .catch((err) => {
+        console.log("Error: ", err);
+        onNext([]);
+        onLoading(false);
+      });
+  }
 }
