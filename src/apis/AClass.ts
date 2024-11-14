@@ -1,6 +1,7 @@
 import axios from "axios";
 import Class from "../models/Class";
 import ReactAppUrl from "../configs/ConfigUrl";
+import Lesson from "../models/Lesson";
 
 export default class AClass {
   private static API_URL = ReactAppUrl.API_BASE_URL;
@@ -107,7 +108,10 @@ export default class AClass {
     onLoading(true);
 
     axios
-      .post(`${this.API_URL}/classes/${classId}/join`, { user_id: userId, student_ids: studentIds })
+      .post(`${this.API_URL}/classes/${classId}/join`, {
+        user_id: userId,
+        student_ids: studentIds,
+      })
       .then((response) => {
         onNext(response.data);
         onLoading(false);
@@ -120,6 +124,61 @@ export default class AClass {
       });
   }
 
+  public static createClass(
+    title: string,
+    description: string,
+    majorId: number,
+    classLevelId: number,
+    price: number,
+    startedAt: number | null,
+    endedAt: number | null,
+    lessons: Lesson[],
+    onNext: (result: boolean, insertId?: number) => void
+  ) {
+    
+    console.log("title: ", title);
+    console.log("description: ", description);
+    console.log("majorId: ", majorId);
+    console.log("classLevelId: ", classLevelId);
+    console.log("startedAt: ", startedAt);
+    console.log("endedAt: ", endedAt);
+    console.log("lessons: ", lessons);
+    
+
+    console.log({
+      title: title,
+      description: description,
+      major_id: majorId,
+      class_level_id: classLevelId,
+      price: price,
+      started_at: startedAt,
+      ended_at: endedAt,
+      lessons: lessons,
+    });
+    
+
+    axios
+      .post(`${this.API_URL}/classes/class/create`, {
+        title: title,
+        description: description,
+        major_id: majorId,
+        class_level_id: classLevelId,
+        price: price,
+        started_at: startedAt,
+        ended_at: endedAt,
+        lessons: lessons,
+      })
+      .then((response) => {
+        console.log("Class created successfully:", response.data);
+        onNext(response.data.classId); // Truyền `classId` về từ response
+      })
+      .catch((err) => {
+        console.error("Error:", err);
+        console.log(">>> title", "Tạo lớp không thành công");
+        onNext(err);
+      });
+  }
+
   public static acceptClassToTeach(
     classId: number,
     tutorId: string,
@@ -129,7 +188,9 @@ export default class AClass {
     onLoading(true);
 
     axios
-      .post(`${this.API_URL}/classes/${classId}/accept_to_teach`, { tutor_id: tutorId})
+      .post(`${this.API_URL}/classes/${classId}/accept_to_teach`, {
+        tutor_id: tutorId,
+      })
       .then((response) => {
         onNext(response.data);
         onLoading(false);
@@ -162,6 +223,31 @@ export default class AClass {
         onLoading(true);
       });
   }
+  //khoá lớp học
+  // Hàm khoá lớp học
+public static lockClass(
+  classId: string,
+  onNext: (response: any) => void,
+  onLoading: (loading: boolean) => void
+) {
+  // Bắt đầu loading
+  onLoading(true);
+
+  // Gửi request POST đến BE với classId
+  axios.post(`${this.API_URL}/reports/lockClass`, { classId })
+      .then((response) => {
+          // Nếu thành công, gọi callback `onNext` với kết quả từ BE
+          onNext(response.data);
+      })
+      .catch((error) => {
+          console.error("Error locking class:", error);
+          onNext({ success: false, message: "Failed to lock class." });
+      })
+      .finally(() => {
+          // Kết thúc loading
+          onLoading(false);
+      });
+}
 
   public static getAllClasses(onNext: ()=> void){
     // console.log("clicked");

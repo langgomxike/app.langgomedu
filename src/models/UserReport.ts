@@ -1,26 +1,22 @@
-import UserReportDTO from "../dtos/UserReportDTO";
+
 import User from "./User";
 
 export default class UserReport {
-    public id: number;
-    public fromUser: User | undefined;
-    public toUser: User | undefined;
-    public content: string;
-    public createdAt: Date;
+    public report_id: number;
+    public from_user: User | undefined;
+    public to_user: User | undefined;
+    public report_content: string;
+    public reports_before: string;
+    public created_at: Date;
 
-    constructor(id = -1, fromUser: User | undefined = undefined, toUser: User | undefined = undefined, content = "", createdAt = new Date()) {
-        this.id = id;
-        this.fromUser = fromUser;
-        this.toUser = toUser;
-        this.content = content;
-        this.createdAt = createdAt;
+    constructor(id = -1, from_user: User | undefined = undefined, to_user: User | undefined = undefined, report_content = "",reports_before = "", created_at = new Date()) {
+        this.report_id = id;
+        this.from_user = from_user;
+        this.to_user = to_user;
+        this.report_content = report_content;
+        this.created_at = created_at;
+        this.reports_before = reports_before;
     }
 
-    fromDTO(reportDTO: UserReportDTO) {
-        this.id = reportDTO.id;
-        this.fromUser = reportDTO.from_user && new User().fromDTO(reportDTO.from_user) || undefined;
-        this.toUser = reportDTO.to_user && new User().fromDTO(reportDTO.to_user) || undefined;
-        this.content = reportDTO.content;
-        this.createdAt = new Date(reportDTO.created_at);
-    }
+   
 }
