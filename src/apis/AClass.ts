@@ -1,6 +1,7 @@
 import axios from "axios";
 import Class from "../models/Class";
 import ReactAppUrl from "../configs/ConfigUrl";
+import Lesson from "../models/Lesson";
 
 export default class AClass {
   private static API_URL = ReactAppUrl.API_BASE_URL;
@@ -131,12 +132,7 @@ export default class AClass {
     price: number,
     startedAt: number | null,
     endedAt: number | null,
-    lessons: {
-      day: number,
-      started_at: number | null,
-      duration: number,
-      is_online: boolean
-    }[],
+    lessons: Lesson[],
     onNext: (result: boolean, insertId?: number) => void
   ) {
     

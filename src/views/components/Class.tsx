@@ -7,6 +7,16 @@ import { useCallback, useEffect, useState } from "react";
 import ClassLevel from "../../models/ClassLevel";
 import AClass from "../../apis/AClass";
 import { startAfter } from "firebase/database";
+import Lesson from "../../models/Lesson";
+
+type Session = {
+  id: number;
+  selectedValue: number;
+  thoiLuongBuoiHoc: string;
+  time: Date;
+  timeText: string;
+  hinhThucHoc: string;
+};
 
 const Class = () => {
   // gia tri
@@ -16,6 +26,7 @@ const Class = () => {
   const [dataClassLevel, setDataClassLevel] = useState<number>(-1);
 
   // lesson
+  const [lessons, setLessons] = useState<Lesson[]>([]);
   const [dataDayLesson, setDataDayLesson] = useState<number>(0);
   const [dataDuration, setDataDuration] = useState<number>(0);
   const [dataStartedAt, setDataStartedAt] = useState<number>(0);
@@ -48,24 +59,10 @@ const Class = () => {
     }
   };
 
-  const handleDataChangeLesson = (
-    buoiHoc?: number,
-    thoiLuongBuoiHoc?: number,
-    thoiGianBatDau?: number,
-    hinhThucHoc?: boolean
-  ) => {
-    if (buoiHoc !== undefined) {
-      setDataDayLesson(buoiHoc);
-    }
-    if (thoiLuongBuoiHoc !== undefined) {
-      setDataDuration(thoiLuongBuoiHoc);
-    }
-    if (thoiGianBatDau !== undefined) {
-      setDataStartedAt(thoiGianBatDau);
-    }
-    if (hinhThucHoc !== undefined) {
-      setDataLessonType(hinhThucHoc);
-    }
+  const handleDataChangeLesson = (lessons: Lesson[]) => {
+    console.log("class session", lessons);
+    
+    setLessons(lessons);
   };
 
   const handleDataChangeTuition = (
@@ -104,7 +101,6 @@ const Class = () => {
   };
 
   const handleSaveClass = useCallback(() => {
-
     console.log("title: ", dataTitle);
     console.log("description: ", dataDesc);
     console.log("majorId: ", dataMajorId);
@@ -114,15 +110,6 @@ const Class = () => {
     console.log("endedAt: ", dataDateEnd);
     console.log("Type of endedAt: ", typeof dataDateEnd);
 
-    const lessons = [
-      {
-        day: dataDayLesson,
-        started_at: dataStartedAt,
-        duration: dataDuration,
-        is_online: dataLessonType
-      }
-    ]
-  
     if (dataDateStart && dataDateEnd) {
       console.log("huhu");
 
@@ -154,7 +141,7 @@ const Class = () => {
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
       <InfoClass onNext={handleDataChangeClass} />
-      <InfoLesson onNext={handleDataChangeLesson} />
+      <InfoLesson handleGetLesson={handleDataChangeLesson} />
       <InfoTuition onNext={handleDataChangeTuition} />
       <TouchableOpacity style={styles.btnNext} onPress={handleSaveClass}>
         <Text style={styles.txtNext}>Tạo Lớp</Text>
