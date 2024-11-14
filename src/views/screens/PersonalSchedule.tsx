@@ -129,20 +129,21 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     // paddingHorizontal: 10,
-    paddingVertical: 10,
+    // paddingVertical: 10,
     backgroundColor: BackgroundColor.white,
   },
   mainview: {
   },
   infoBox:{
     flexDirection: 'row',
+    paddingHorizontal: 20,
     height: '10%',
     alignItems: 'center',
     justifyContent: 'center'
   },
   infoText:{
     flex: 1,
-    fontSize: 26,
+    fontSize: 24,
     justifyContent: 'center',
     textAlignVertical: 'center',
     fontWeight: 'semibold',

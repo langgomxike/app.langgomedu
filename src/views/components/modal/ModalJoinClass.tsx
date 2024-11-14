@@ -19,6 +19,7 @@ type ModalJoinClassProps = {
   studentList: Student[];
   visiable: string | null;
   onRequestClose: () => void;
+  onResultValue: (result: boolean) => void; 
 };
 
 export default function ModalJoinClass({
@@ -26,6 +27,7 @@ export default function ModalJoinClass({
   studentList,
   visiable,
   onRequestClose,
+  onResultValue
 }: ModalJoinClassProps) {
 
   // states
@@ -127,6 +129,7 @@ export default function ModalJoinClass({
         onRequestClose={() => setIsConfirmingJoin(null)}
         selectedStudents={selectedStudents}
         classId = {classId}
+        onResultValue={onResultValue}
         />
     </View>
   );

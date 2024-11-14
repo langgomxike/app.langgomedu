@@ -11,13 +11,14 @@ import Modal from "react-native-modal";
 import { BackgroundColor } from "../../../configs/ColorConfig";
 import { Image } from "react-native";
 
-type ModalDialogForClassProps = {
+type ModalConfirmAttendClassProps = {
   confirmTitle: string;
   confirmContent: string;
   imageStatus: "success" | 'failure' | 'confirm';
   visiable: string | null;
   onRequestCloseDialog: () => void;
   loading?: boolean;
+  onAcceptAttendance?: () => void;
 };
 
 const images = [
@@ -35,15 +36,19 @@ const images = [
   },
 ];
 
-export default function ModalDialogForClass({
+export default function ModalConfirmAttendClass({
   confirmTitle,
   confirmContent,
   imageStatus,
   visiable,
   onRequestCloseDialog,
-  loading = false
-}: ModalDialogForClassProps) {
+  loading = false,
+  onAcceptAttendance
+}: ModalConfirmAttendClassProps) {
 
+  // states
+
+  // handlers
   const getImageSource = (iconName: string) => {
     const image = images.find((img) => img.name === iconName);
     return image ? image.source : null;
@@ -56,7 +61,7 @@ export default function ModalDialogForClass({
     <Modal
       isVisible={visiable === "modalDialogForClass"}
       animationIn={"slideInUp"}
-      animationOut={"slideOutDown"}
+      animationOut={"zoomOut"}
       onBackdropPress={() => onRequestCloseDialog()}
     >
       {loading ? (
@@ -88,12 +93,12 @@ export default function ModalDialogForClass({
           </View>
           
           <View style={[styles.btnContainer]}>
-              <TouchableOpacity
-                onPress={onRequestCloseDialog}
-                style={[styles.btn, styles.btnSave, styles.boxShadow]}
+              {/* <TouchableOpacity
+              onPress={onAcceptAttendance}
+                style={[styles.btn, styles.btnSave]}
               >
                 <Text style={styles.btnSaveText}>Ok</Text>
-              </TouchableOpacity>
+              </TouchableOpacity> */}
             </View>
 
         </View>
@@ -203,6 +208,20 @@ const styles = StyleSheet.create({
 
   btnSaveText: {
     color: BackgroundColor.white,
+    fontWeight: "bold",
+    fontSize: 16,
+    textAlign: "center",
+  },
+
+  btnNo: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: BackgroundColor.danger,
+    backgroundColor: BackgroundColor.white,
+  },
+
+  btnNoText: {
+    color: BackgroundColor.danger,
     fontWeight: "bold",
     fontSize: 16,
     textAlign: "center",
