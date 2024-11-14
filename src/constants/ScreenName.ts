@@ -16,8 +16,8 @@ enum ScreenName {
     RATING = "Rating",
 
     ATTENDANCE_HISTORY = "Attendance History",
-    ATTENDED_FOR_LEARNER = "Attended For Learner",
-    ATTENDED_FOR_TUTOR = "Attended For Tutor",
+    ATTENDED_FOR_LEARNER = "AttendedForLearner",
+    ATTENDED_FOR_TUTOR = "AttendedForTutor",
 
 
     CV_LIST = "CV List",

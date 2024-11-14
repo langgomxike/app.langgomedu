@@ -194,7 +194,7 @@ export default function HomeScreen() {
       },
       setLoading
     );
-  }, []);
+  }, [userTypeName]);
 
   // useEffect(() => {
   //   SFirebase.trackOne(FirebaseNode.CLASS, 1, () => {

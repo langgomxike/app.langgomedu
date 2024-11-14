@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { View, StyleSheet, Text } from "react-native";
 import { BackgroundColor, BorderColor, TextColor } from "../../../configs/ColorConfig";
-import { toFormData } from "axios";
 //define props need to use
 type DayProps = {
     day: number,
@@ -22,8 +21,8 @@ const DayBox = ({ day, dayOfWeek, isActive = false, isToday = false }: DayProps)
                 </View>
 
                 {
-                isToday ?
-                <View style={styles.todayPointActive}></View> :
+                    isToday ?
+                <View style={styles.todayPointActive}></View>: 
                 <View style={styles.todayPoint}></View>
                 }
         </View>
@@ -127,17 +126,18 @@ const styles = StyleSheet.create({
         opacity: 0.5,
     },
 
+    todayPoint: {
+        width: 10,
+        height: 5,
+        borderRadius: 5,
+        backgroundColor: BackgroundColor.primary,
+    },
+
     todayPointActive: {
         width: 10,
         height: 5,
         borderRadius: 5,
         backgroundColor: BackgroundColor.white,
-    },
-
-    todayPoint: {
-        width: 10,
-        height: 5,
-        borderRadius: 5,
     }
 })
 

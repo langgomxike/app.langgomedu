@@ -9,6 +9,7 @@ export enum FirebaseNode {
     CLASS = 1,
     CV = 2,
     USER = 3,
+    ATTENDANCE = 4,
 }
 
 export default class SFirebase {
@@ -29,14 +30,14 @@ export default class SFirebase {
 
     public static trackAll(firebaseNode: FirebaseNode, onNext: () => void) {
         this.init();
-        const firebaseReference = ref(this.firebaseDatabase, firebaseNodeProps[firebaseNode].node);
+        const firebaseReference = ref(this.firebaseDatabase, firebaseNodeProps[firebaseNode]?.node);
 
         onValue(firebaseReference,
             () => {
                 SLog.log(
                     LogType.Info,
-                    "trackAll " + firebaseNodeProps[firebaseNode].plural_name,
-                    "track all " + firebaseNodeProps[firebaseNode].plural_name,
+                    "trackAll " + firebaseNodeProps[firebaseNode]?.plural_name,
+                    "track all " + firebaseNodeProps[firebaseNode]?.plural_name,
                     "track successfully"
                 );
                 onNext();
@@ -44,8 +45,8 @@ export default class SFirebase {
             (error) => {
                 SLog.log(
                     LogType.Error,
-                    "trackAll " + firebaseNodeProps[firebaseNode].plural_name,
-                    "track all " + firebaseNodeProps[firebaseNode].plural_name + " found error",
+                    "trackAll " + firebaseNodeProps[firebaseNode]?.plural_name,
+                    "track all " + firebaseNodeProps[firebaseNode]?.plural_name + " found error",
                     error
                 );
                 onNext();
@@ -61,8 +62,8 @@ export default class SFirebase {
             (data) => {
                 SLog.log(
                     LogType.Info,
-                    `trackOne ${firebaseNodeProps[firebaseNode].singular_name}`,
-                    `track the ${firebaseNodeProps[firebaseNode].singular_name} with key ${firebaseNodeProps[firebaseNode].key} = ${key}`,
+                    `trackOne ${firebaseNodeProps[firebaseNode]?.singular_name}`,
+                    `track the ${firebaseNodeProps[firebaseNode]?.singular_name} with key ${firebaseNodeProps[firebaseNode].key} = ${key}`,
                     `track successfully, last updated at: ${new Date(+(data?.val() ?? 0)).toUTCString()}`
                 );
                 onNext();
@@ -70,8 +71,8 @@ export default class SFirebase {
             (error) => {
                 SLog.log(
                     LogType.Error,
-                    "trackOne " + firebaseNodeProps[firebaseNode].singular_name,
-                    `track the ${firebaseNodeProps[firebaseNode].singular_name} with key ${firebaseNodeProps[firebaseNode].key} = ${key} found error`,
+                    "trackOne " + firebaseNodeProps[firebaseNode]?.singular_name,
+                    `track the ${firebaseNodeProps[firebaseNode]?.singular_name} with key ${firebaseNodeProps[firebaseNode].key} = ${key} found error`,
                     error
                 );
                 onNext();

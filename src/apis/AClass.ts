@@ -109,7 +109,9 @@ export default class AClass {
     axios
       .post(`${this.API_URL}/classes/${classId}/join`, { user_id: userId, student_ids: studentIds })
       .then((response) => {
-        onNext(response.data);
+        console.log(">>>joinClass", response.data.data);
+        onNext(response.data.data);
+
         onLoading(false);
       })
       .catch((err) => {
@@ -131,7 +133,7 @@ export default class AClass {
     axios
       .post(`${this.API_URL}/classes/${classId}/accept_to_teach`, { tutor_id: tutorId})
       .then((response) => {
-        onNext(response.data);
+        onNext(response.data.data);
         onLoading(false);
       })
       .catch((err) => {
