@@ -51,6 +51,8 @@ enum ScreenName {
     SETTING_PERSONAL_CV = "Setting personal CV",
     SETTING_PERSONAL_CLASSES = "Setting personal classes",
     SETTING_PERSONAL_RATINGS = "Setting personal ratings",
+
+    CREATE_ACCOUNT_ADMIN = "Create Account Admin",
 }
 
 export default ScreenName;

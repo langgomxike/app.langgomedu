@@ -50,6 +50,7 @@ import GeneralManager from "./src/views/screens/admin/GeneralManager";
 import UpdateReportedClass from "./src/views/screens/admin/UpdateReportedClass";
 import UpdateReportedUser from "./src/views/screens/admin/UpdateReportedUser";
 
+
 // import UserReportList from "./src/views/screens/admin/UserReportList";
 // import UserManager from "./src/views/screens/admin/UserManager";
 // import ClassManager from "./src/views/screens/admin/ClassManager";
@@ -62,6 +63,7 @@ import PersonalClasses from "./src/views/screens/settings/PersonalClasses";
 import PersonalRatings from "./src/views/screens/settings/PersonalRatings";
 import { Text, TouchableOpacity } from "react-native";
 import Octicons from '@expo/vector-icons/Octicons';
+import CreatAcountAdmin from "./src/views/screens/admin/CreatAccountAdmin";
 
 
 const Stack = createNativeStackNavigator();
@@ -81,9 +83,11 @@ export default function App() {
     <AppContext>
       <UserContext.Provider value={{ user, setUser }}>
         <GestureHandlerRootView>
-<UpdateReportedClass></UpdateReportedClass>
+          {/* <ClassManager></ClassManager> */}
+{/*           
+<UpdateReportedClass></UpdateReportedClass> */}
 {/* <UpdateReportedUser></UpdateReportedUser> */}
-          {/* <NavigationContainer>
+          <NavigationContainer>
             <Stack.Navigator
               screenOptions={{
                 headerShown: false,
@@ -194,6 +198,10 @@ export default function App() {
                 name={ScreenName.HOME_ADMIN}
                 component={HomeAdminScreen}
               />
+                 <Stack.Screen
+                name={ScreenName.CREATE_ACCOUNT_ADMIN}
+                component={CreatAcountAdmin}
+              />
 
               <Stack.Screen
                 name={ScreenName.APP_INFO_MANAGEMENT}
@@ -233,7 +241,7 @@ export default function App() {
                 component={ClassApprovalScreen}
               />
             </Stack.Navigator>
-          </NavigationContainer> */}
+          </NavigationContainer>
 
           {/* <LeanerAttendance></LeanerAttendance> */}
           {/* <TutorAttendance></TutorAttendance> */}
