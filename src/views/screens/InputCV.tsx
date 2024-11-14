@@ -152,19 +152,27 @@ export default function InputCVScreen() {
         editable={true}
         />
 
-        <CvBoxEdit onAddItem={()=>{}}
+        <CvBoxEdit 
+        onAddItem={()=>{}}
+        typeItem="education"
         title="educations">
           
         </CvBoxEdit>
-        <CvBoxEdit onAddItem={()=>{}}
+        <CvBoxEdit 
+        onAddItem={()=>{}}
+        typeItem="experience"
         title="experiences">
 
         </CvBoxEdit>
-        <CvBoxEdit onAddItem={()=>{}}
+        <CvBoxEdit 
+        onAddItem={()=>{}}
+        typeItem="skills"
         title="skills">
 
         </CvBoxEdit>
-        <CvBoxEdit onAddItem={()=>{}}
+        <CvBoxEdit 
+        onAddItem={()=>{}}
+        typeItem="certificate"
         title="certificates">
 
         </CvBoxEdit>

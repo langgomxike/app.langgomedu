@@ -15,7 +15,6 @@ export default function LoginScreen() {
     //contexts
     const navigation = useContext(NavigationContext);
     const accountContext = useContext(AccountContext);
-    navigation?.navigate(ScreenName.CREATE_ACCOUNT_ADMIN)
 
     //states
     const [emailOrPhoneNumber, setEmailOrPhoneNumber] = useState("");
