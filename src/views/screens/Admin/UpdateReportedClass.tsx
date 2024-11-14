@@ -197,7 +197,7 @@ export default function UpdateReportedClass() {
                       onPress: () => {
                         // Gọi hàm trừ điểm uy tín
                         AUser.minusUserPoints(
-                          classReport?.class?.author?.id, // ID người dùng
+                          classReport?.class?.author?.id, 50, // ID người dùng trừ 50 điểm do là lỗi nghiêm trọng
                           (pointResponse) => {
                             if (pointResponse.success) {
                               console.log("Điểm uy tín đã bị trừ thành công.");
