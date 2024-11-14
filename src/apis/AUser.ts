@@ -13,11 +13,13 @@ export default class AUser {
         const url = Config.API_BASE_URL + this.BASE_URL + "/login";
 
         // done
-        // SLog.log(LogType.Warning, "login url", "", url);
+        SLog.log(LogType.Warning, "login url", "", url);
 
         //get token from storage    
         SAsyncStorage.getData(AsyncStorageKeys.TOKEN,
             (token: string) => {
+
+                // SLog.log(LogType.Warning, "token", "check token when login implicit",token);
 
                 if (!token) {
                     SLog.log(LogType.Error, "implicitLogin", "Login unsuccessfully. Token not found");
@@ -34,7 +36,7 @@ export default class AUser {
                 })
                     .then(response => {
                         const user = response.data.data as User ?? undefined;
-                        SLog.log(LogType.Warning, "implicitLogin", "Login successfully", response.data);
+                        SLog.log(LogType.Warning, "implicitLogin", "Login successfully", response.data.data);
                         onNext(user);
                         return;
                     })
@@ -89,7 +91,7 @@ export default class AUser {
             },
         })
             .then(response => {
-                SLog.log(LogType.Warning, "login", "Login successfully", response.data);
+                SLog.log(LogType.Warning, "login", "Login successfully", response.data.data);
                 onNext(response.data.data as User ?? undefined);
                 return;
             })
@@ -99,4 +101,6 @@ export default class AUser {
                 return;
             });
     }
+
+
 }

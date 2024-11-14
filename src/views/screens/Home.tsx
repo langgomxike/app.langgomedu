@@ -74,7 +74,7 @@ const items = [
     {id: 3, title: "Các lớp học đã tạo"},
 ];
 
-const URL = ReactAppUrl.PUBLIC_URL;
+const URL = ReactAppUrl.PUBLIC_URL; 
 
 export default function HomeScreen() {
     //contexts, refs
@@ -254,6 +254,7 @@ export default function HomeScreen() {
 
                 if (accountContext.setAccount) {
                     accountContext.setAccount(user);
+
 
                     //check if admin/superadmin or not
                     if (user.role?.id === Role.SUPER_ADMIN_ROLE_ID || user.role?.id === Role.SUPER_ADMIN_ROLE_ID) {
@@ -460,7 +461,7 @@ export default function HomeScreen() {
                                         showsHorizontalScrollIndicator={false}
                                         contentContainerStyle={[
                                             styles.classList,
-                                            attedingClasses.length === 1 && styles.centeredItem,
+                                            attedingClasses?.length === 1 && styles.centeredItem,
                                         ]}
                                     />
                                 )}
@@ -468,7 +469,7 @@ export default function HomeScreen() {
                         </View>
 
                         {/* Teaching class */}
-                        {teachingClasses.length > 0 && (
+                        {teachingClasses?.length > 0 && (
                             <View style={styles.classContainer}>
                                 <View
                                     style={[styles.titleContainer, {paddingHorizontal: 20}]}
@@ -551,7 +552,7 @@ export default function HomeScreen() {
                                             showsHorizontalScrollIndicator={false}
                                             contentContainerStyle={[
                                                 styles.classList,
-                                                teachingClasses.length === 1 && styles.centeredItem,
+                                                teachingClasses?.length === 1 && styles.centeredItem,
                                             ]}
                                         />
                                     )}
@@ -560,7 +561,7 @@ export default function HomeScreen() {
                         )}
 
                         {/* Created classes */}
-                        {createdClasses.length > 0 && (
+                        {createdClasses?.length > 0 && (
                             <View style={styles.classContainer}>
                                 <View
                                     style={[styles.titleContainer, {paddingHorizontal: 20}]}
