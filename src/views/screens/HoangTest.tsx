@@ -23,7 +23,6 @@ import ClassDetail from './ClassDetail'
 import ClassList from './ClassList'
 import CVList from './CVList'
 import History from "./History";
-import UserManager from "./admin/UserManager";
 
 export default function HoangTestScreen() {
   const [selectedOption, setSelectedOption] = useState("");
@@ -181,7 +180,7 @@ export default function HoangTestScreen() {
       {/* <ClassDetail></ClassDetail> */}
       {/* <CVList></CVList> */}
       {/* <History/> */}
-      <UserManager/>
+      {/* <UserManager/> */}
     </View>
   );
 }

@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useContext, useState } from "react";
 import languages from "./languages.json";
 import {
   LanguageContext,
@@ -6,7 +6,7 @@ import {
   LanguageType,
 } from "./src/configs/LanguageConfig";
 import { UserContext, UserDataType, UserType } from "./src/configs/UserContext";
-import { NavigationContainer } from "@react-navigation/native";
+import { NavigationContainer, NavigationContext } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import ScreenName from "./src/constants/ScreenName";
 import ButtonNavBar from "./src/views/components/ButtonNavBar";
@@ -60,6 +60,7 @@ const SCREEN_PADDING_TOP = 50;
 const SCREEN_PADDING_HORIZONTAL = 0;
 
 export default function App() {
+
   // states
   const [language, setLanguage] = useState<LanguageType>(languages.VN);
   const [user, setUser] = useState<UserDataType>({
@@ -142,7 +143,7 @@ export default function App() {
               <Stack.Screen 
               name={ScreenName.SETTING_PERSONAL_CV} 
               component={PersonalCV} 
-              options={{
+              options={({navigation})=>({
                 headerShown: true,
                 contentStyle: {
                   paddingHorizontal: 0,
@@ -154,14 +155,25 @@ export default function App() {
                 },
                 headerTintColor: TextColor.white,
                 headerRight: () => (
-                  <TouchableOpacity onPress={() => console.log("Button Pressed")}>
+                  <TouchableOpacity onPress={() => {navigation.navigate(ScreenName.INPUT_CV)}}>
                     <Octicons name="pencil" size={24} color="white" />
                   </TouchableOpacity>
                 )
-              }} />
+              })} />
               <Stack.Screen
                 name={ScreenName.INPUT_CV}
                 component={InputCVScreen}
+                options={()=> ({
+                  headerShown: true,
+                  contentStyle: {
+                    paddingHorizontal: 0,
+                    paddingTop: 0,
+                  }
+                })}
+              />
+              <Stack.Screen
+                name={ScreenName.CV}
+                component={CVScreen}
               />
 
               <Stack.Screen name={ScreenName.OTP} component={OTPScreen} />
