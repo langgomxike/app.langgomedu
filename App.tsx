@@ -49,7 +49,6 @@ import UpdateReportedClass from "./src/views/screens/admin/UpdateReportedClass";
 import UpdateReportedUser from "./src/views/screens/admin/UpdateReportedUser";
 import CreatAcountAdmin from "./src/views/screens/admin/CreatAccountAdmin";
 
-import History from "./src/views/screens/History";
 import Information from "./src/views/screens/settings/Information";
 import PersonalCV from "./src/views/screens/settings/PersonalCV";
 import PersonalClasses from "./src/views/screens/settings/PersonalClasses";
@@ -79,11 +78,7 @@ export default function App() {
     <AppContext>
       <UserContext.Provider value={{ user, setUser }}>
         <GestureHandlerRootView>
-<<<<<<< HEAD
         <SafeAreaView style={{ flex: 1, backgroundColor: BackgroundColor.primary}}>
-=======
-
->>>>>>> df54cd6f04ed821d06a1592b37078647ed6cf9aa
           <NavigationContainer>
             <Stack.Navigator
               screenOptions={{
@@ -253,7 +248,6 @@ export default function App() {
             </Stack.Navigator>
           </NavigationContainer>
 
-<<<<<<< HEAD
           {/* <LeanerAttendance></LeanerAttendance> */}
           {/* <TutorAttendance></TutorAttendance> */}
           {/* <LeanerAttendance></LeanerAttendance> */}
@@ -264,8 +258,6 @@ export default function App() {
           {/* <UserManager/> */}
           {/* <GeneralManager/> */}
         </SafeAreaView>
-=======
->>>>>>> df54cd6f04ed821d06a1592b37078647ed6cf9aa
         </GestureHandlerRootView>
       </UserContext.Provider>
     </AppContext>
