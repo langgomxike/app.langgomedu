@@ -43,13 +43,13 @@ import OTPScreen from "./src/views/screens/OTP";
 import ChangePasswordScreen from "./src/views/screens/ChangePassword";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
-// import UserReportList from "./src/views/screens/admin/UserReportList";
-// import UserManager from "./src/views/screens/admin/UserManager";
-// import ClassManager from "./src/views/screens/admin/ClassManager";
-// import GeneralManager from "./src/views/screens/admin/GeneralManager";
-// import UpdateReportedClass from "./src/views/screens/admin/UpdateReportedClass";
-// import UpdateReportedUser from "./src/views/screens/admin/UpdateReportedUser";
-// import CreatAcountAdmin from "./src/views/screens/admin/CreatAccountAdmin";
+import UserReportList from "./src/views/screens/admin/UserReportList";
+import UserManager from "./src/views/screens/admin/UserManager";
+import ClassManager from "./src/views/screens/admin/ClassManager";
+import GeneralManager from "./src/views/screens/admin/GeneralManager";
+import UpdateReportedClass from "./src/views/screens/admin/UpdateReportedClass";
+import UpdateReportedUser from "./src/views/screens/admin/UpdateReportedUser";
+import CreatAcountAdmin from "./src/views/screens/admin/CreatAccountAdmin";
 
 import History from "./src/views/screens/History";
 import Information from "./src/views/screens/settings/Information";
@@ -197,14 +197,18 @@ export default function App() {
                 component={ChangePasswordScreen}
               />
 
+            {/* ADMIN SCREENS */}
               <Stack.Screen
                 name={ScreenName.HOME_ADMIN}
                 component={HomeAdminScreen}
               />
-              {/* <Stack.Screen
+              <Stack.Screen
                 name={ScreenName.CREATE_ACCOUNT_ADMIN}
                 component={CreatAcountAdmin}
-              /> */}
+              />
+            {/* END ADMIN SCREENS */}
+
+
 
               <Stack.Screen
                 name={ScreenName.APP_INFO_MANAGEMENT}
