@@ -145,7 +145,7 @@ export default function HomeScreen() {
   }, []);
 
   // Đường dẫn tạm đếm admin
-  // navigation?.navigate(ScreenName.HOME_ADMIN);
+  navigation?.navigate(ScreenName.HOME_ADMIN);
 
   const handleOpenDrawer = () => {
     // navigation
