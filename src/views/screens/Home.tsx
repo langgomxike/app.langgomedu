@@ -157,14 +157,14 @@ export default function HomeScreen() {
       setMajors(data);
     }, setLoading);
 
-    AClass.getSuggetingClass(
-      user.ID,
-      user.TYPE,
-      (data) => {
-        setSuggettingClasses(data);
-      },
-      setLoading
-    );
+    // AClass.getSuggetingClass(
+    //   user.ID,
+    //   user.TYPE,
+    //   (data) => {
+    //     setSuggettingClasses(data);
+    //   },
+    //   setLoading
+    // );
 
     AClass.getAttedingClass(
       user.ID,
@@ -301,7 +301,7 @@ export default function HomeScreen() {
           break;
       }
     });
-  }, []);
+  }, []); 
 
   //done
   // useEffect(() => {

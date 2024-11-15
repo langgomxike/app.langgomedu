@@ -1,4 +1,5 @@
 import { useCallback, useContext, useState } from "react";
+// @ts-ignore
 import languages from "./languages.json";
 import {
   LanguageContext,
@@ -60,6 +61,9 @@ import HistoryAttendance from "./src/views/screens/attendance/HistoryAttendance"
 import TutorAttendance from "./src/views/screens/attendance/TutorAttendance";
 import AdminHome from "./src/views/screens/admin/AdminHome";
 
+
+import {PermissionsAndroid} from 'react-native'; 
+PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS);
 
 const Stack = createNativeStackNavigator();
 const SCREEN_PADDING_TOP = 50;
