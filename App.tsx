@@ -41,13 +41,13 @@ import OTPScreen from "./src/views/screens/OTP";
 import ChangePasswordScreen from "./src/views/screens/ChangePassword";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
-import UserReportList from "./src/views/screens/Admin/UserReportList";
-import UserManager from "./src/views/screens/Admin/UserManager";
-import ClassManager from "./src/views/screens/Admin/ClassManager";
-import GeneralManager from "./src/views/screens/Admin/GeneralManager";
-import UpdateReportedClass from "./src/views/screens/Admin/UpdateReportedClass";
-import UpdateReportedUser from "./src/views/screens/Admin/UpdateReportedUser";
-import CreatAcountAdmin from "./src/views/screens/Admin/CreatAccountAdmin";
+import UserReportList from "./src/views/screens/admin/UserReportList";
+import UserManager from "./src/views/screens/admin/UserManager";
+import ClassManager from "./src/views/screens/admin/ClassManager";
+import GeneralManager from "./src/views/screens/admin/GeneralManager";
+import UpdateReportedClass from "./src/views/screens/admin/UpdateReportedClass";
+import UpdateReportedUser from "./src/views/screens/admin/UpdateReportedUser";
+import CreatAcountAdmin from "./src/views/screens/admin/CreatAccountAdmin";
 
 import Information from "./src/views/screens/settings/Information";
 import PersonalCV from "./src/views/screens/settings/PersonalCV";
