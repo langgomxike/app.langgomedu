@@ -40,15 +40,16 @@ export default function MessageScreen() {
     const [isAtBottom, setAtBottom] = useState(true);
 
     let replyContent;
-
+    //
     // if (replyMessage) {
+    //     if (replyMessage.file)
     //   switch (replyMessage.messageType) {
     //     case MessageType.TEXT:
     //       replyContent = (
     //         <Text style={{ color: "#AAA", flex: 1 }}>{replyMessage.content}</Text>
     //       );
     //       break;
-
+    //
     //     case MessageType.IMAGE:
     //       replyContent = (
     //         <Text
@@ -69,9 +70,9 @@ export default function MessageScreen() {
     //       break;
     //   }
     // }
-
+    //
     // if (replyMessage) {
-    //   if (!replyMessage.fromUserStatus || !replyMessage.toUser) {
+    //   if (!replyMessage.from_user_status || !replyMessage.to_user_status) {
     //     replyContent = (
     //       <Text
     //         style={{
@@ -228,35 +229,6 @@ export default function MessageScreen() {
                         </Pressable>
                     ))}
                 </ScrollView>
-
-                {/*<FlatList*/}
-                {/*    ref={listRef}*/}
-                {/*    inverted={false}*/}
-                {/*    showsHorizontalScrollIndicator={false}*/}
-                {/*    showsVerticalScrollIndicator={false}*/}
-                {/*    data={messages}*/}
-                {/*    onScroll={(event) =>*/}
-                {/*        setAtBottom(*/}
-                {/*            event.nativeEvent.contentOffset.y >*/}
-                {/*            event.nativeEvent.layoutMeasurement.height*/}
-                {/*        )*/}
-                {/*    }*/}
-                {/*    renderItem={({item: message, index}) => (*/}
-                {/*        <Pressable onLongPress={() => handleShowAction(message)}>*/}
-                {/*            <MessageItem*/}
-                {/*                key={message.id + index}*/}
-                {/*                message={message}*/}
-                {/*                ofMine={accountContext.account?.id === message.from_user?.id}*/}
-                {/*                onReplyPress={() =>*/}
-                {/*                    listRef.current?.scrollToItem({*/}
-                {/*                        item: message.reply_to_message ?? message,*/}
-                {/*                        animated: true,*/}
-                {/*                    })*/}
-                {/*                }*/}
-                {/*            />*/}
-                {/*        </Pressable>*/}
-                {/*    )}*/}
-                {/*/>*/}
 
                 {/* reply message */}
                 {replyMessage && (

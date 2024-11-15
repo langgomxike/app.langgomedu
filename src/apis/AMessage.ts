@@ -157,4 +157,13 @@ export default class AMessage {
                 onNext();
             });
     }
+
+    public static replyMessage(message: Message, onNext: (result: boolean) => void) {
+        const url = Config.API_BASE_URL + this.BASE_URL + "/reply";
+    }
+
+    public static deleteMessage(message: Message, onNext: (result: boolean) => void) {
+        const url = Config.API_BASE_URL + this.BASE_URL + "/delete";
+
+    }
 }

@@ -74,7 +74,7 @@ const items = [
     {id: 3, title: "Các lớp học đã tạo"},
 ];
 
-const URL = ReactAppUrl.PUBLIC_URL; 
+const URL = ReactAppUrl.PUBLIC_URL;
 
 export default function HomeScreen() {
     //contexts, refs
@@ -241,11 +241,11 @@ export default function HomeScreen() {
 
     const handleNavigateToCVList = useCallback(() => {
         navigation?.navigate(ScreenName.CV_LIST);
-    }, []);
+    }, []); 
 
     //set up login
     useEffect(() => {
-        AUser.implicitLogin((user) => {
+        !user && AUser.implicitLogin((user) => {
             if (!user) {
                 navigation?.navigate(ScreenName.LOGIN);
             } else {

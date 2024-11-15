@@ -29,10 +29,10 @@ const SCREEN_ITEM_GAP = 0;
 
 const SearchContext = createContext("");
 
-const tabs: TabItem[] = []; 
+const tabs: TabItem[] = [];
 
 const messageTab: TabItem = {
-    title: "Message",
+    title: "Message", 
     view: () => {
         //contexts
         const searchContext = useContext(SearchContext);
