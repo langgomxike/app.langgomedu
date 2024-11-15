@@ -1,32 +1,24 @@
-import LessonDTO from "../dtos/LessonDTO";
 import Class from "./Class";
+import Student from "./Student";
 
 export default class Lesson {
     public id: number;
     public class: Class | undefined;
-    public day: number; //[note: "thứ, monday: 0, ..."]
-    public startedAt: Date;
-    public duration: Date;
-    public isOnline: boolean;  //[note: "hình thức học, online: 1, offline: 0"]
+    public day: number; //[note: "thứ, sunday: 0, ..."]
+    public started_at: number;
+    public duration: number;
+    public is_online: boolean;  //[note: "hình thức học, online: 1, offline: 0"]
     public note: string;
+    public students: Student[] | undefined
 
-    constructor(id = -1, _class: Class | undefined = undefined, day = 0, startedAt = new Date(), duration = new Date(), isOnline = false, note = "") {
+    constructor(id = -1, _class: Class | undefined = undefined, day = 0, started_at = -1, duration = 0, is_online = false, note = "", students: Student[] | undefined = undefined) {
         this.id = id;
         this.class = _class;
         this.day = day;
-        this.startedAt = startedAt;
+        this.started_at = started_at;
         this.duration = duration;
-        this.isOnline = isOnline;
+        this.is_online = is_online;
         this.note = note;
-    }
-
-    fromDTO(lessonDTO: LessonDTO): void {
-        this.id = lessonDTO.id;
-        this.class = lessonDTO.class && new Class().fromDTO(lessonDTO.class) || undefined;
-        this.day = lessonDTO.day;
-        this.startedAt = new Date(lessonDTO.started_at);
-        this.duration = new Date(lessonDTO.duration);
-        this.isOnline = lessonDTO.isOnline;
-        this.note = lessonDTO.note;
+        this.students = students;
     }
 }

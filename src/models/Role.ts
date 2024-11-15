@@ -1,4 +1,3 @@
-import RoleDTO from "../dtos/RoleDTO";
 
 export default class Role {
     public static SUPER_ADMIN_ROLE_ID = 1;
@@ -12,10 +11,5 @@ export default class Role {
     constructor(id = -1, role = "") {
         this.id = id;
         this.role = role;
-    }
-
-    fromDTO(roleDTO: RoleDTO) : void {
-        this.id = roleDTO.id;
-        this.role = roleDTO.role;
     }
 }

@@ -1,15 +1,29 @@
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import CustomInput from "./Inputs/CustomInput";
 import { useState } from "react";
+import ViewShot from "react-native-view-shot";
 
-const InfoTuition = () => {
+type props = {
+  onNext: (tuition?: string, dateStart?: string, dateEnd?: string) => void;
+}
+
+const InfoTuition = ({onNext}: props) => {
   const [tuition, setTuition] = useState("");
-  const [description, setDescription] = useState("");
   const [dateStart, setDateStare] = useState("");
   const [dateEnd, setDateEnd] = useState("");
 
-  const handleNext = () => {
-    alert("hi");
+  const handleChangeTuition = (value: any) => {
+    setTuition(value);
+    onNext(value, undefined, undefined);
+  }
+  const handleChangeDateStart = (value: any) => {
+    setDateStare(value);
+    onNext(undefined, value, undefined);
+  }
+
+  const handleChangeDateEnd = (value: any) => {
+    setDateEnd(value);
+    onNext(undefined, undefined, value);
   }
 
   return (
@@ -17,25 +31,17 @@ const InfoTuition = () => {
       <View style={styles.marginInput}>
         <CustomInput
           label="Học phí"
-          onChangeText={setTuition}
+          onChangeText={handleChangeTuition}
           placeholder="chọn mức học phí"
           required
           type="number"
-        />
-      </View>
-      <View style={styles.marginInput}>
-        <CustomInput
-          label="Mô tả và yêu cầu"
-          onChangeText={setDescription}
-          placeholder="có thể không nhập.."
-          required
-          type="text"
+          value={tuition}
         />
       </View>
       <View style={styles.marginInput}>
         <CustomInput
           label="Ngày bắt đầu"
-          onChangeText={setDateStare}
+          onChangeText={handleChangeDateStart}
           placeholder="chọn ngày bắt đầu cho buổi học"
           required={false}
           type="date"
@@ -45,16 +51,13 @@ const InfoTuition = () => {
       <View>
         <CustomInput
           label="Ngày kết thúc"
-          onChangeText={setDateEnd}
+          onChangeText={handleChangeDateEnd}
           placeholder="chọn ngày kết thúc cho buổi học"
           required={false}
           type="date"
           value={dateEnd}
         />
       </View>
-      <TouchableOpacity style={styles.btnNext} onPress={handleNext}>
-        <Text style={styles.txtNext}>Tạo Lớp</Text>
-      </TouchableOpacity>
     </View>
   );
 };
@@ -68,21 +71,6 @@ const styles = StyleSheet.create({
     marginInput: {
         marginBottom: 20,
     },
-    btnNext: {
-      justifyContent:"center",
-      alignItems: "center",
-      width: "60%",
-      height: 40,
-      backgroundColor: "#0D99FF",
-      marginTop: 20,
-      borderRadius: 10,
-      marginLeft: 75,
-    },
-    txtNext: {
-      color: "#FFF",
-      fontSize: 16,
-      fontWeight: "bold"
-    }
 })
 
 export default InfoTuition;

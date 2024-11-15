@@ -1,5 +1,3 @@
-import GenderDTO from "../dtos/GenderDTO";
-
 export default class Gender {
     public id: number;
     public vnGender: string;
@@ -11,12 +9,5 @@ export default class Gender {
         this.vnGender = vnGender;
         this.enGender = enGender;
         this.jaGender = jaGender;
-    }
-
-    fromDTO(genderDTO: GenderDTO): void {
-        this.id = genderDTO.id;
-        this.vnGender = genderDTO.vnGender;
-        this.enGender = genderDTO.enGender;
-        this.jaGender = genderDTO.jaGender;
     }
 }

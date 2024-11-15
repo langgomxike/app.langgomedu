@@ -1,29 +1,19 @@
-import CertificateDTO from "../dtos/CertificateDTO";
 import File from "../models/File";
 
 export default class Certificate {
     public id: number;
     public name: string;
-    public vnDesc: string;
-    public jaDesc: string;
-    public enDesc: string;
+    public vn_desc: string;
+    public ja_desc: string;
+    public en_desc: string;
     public icon: File | undefined;
 
-    constructor(id = -1, name = "", vnDesc = "", jaDesc = "", enDesc = "", icon: File | undefined = undefined) {
+    constructor(id = -1, name = "", vn_desc = "", ja_desc = "", en_desc = "", icon: File | undefined = undefined) {
         this.id = id;
         this.name = name;
-        this.vnDesc = vnDesc;
-        this.jaDesc = jaDesc;
-        this.enDesc = enDesc;
+        this.vn_desc = vn_desc;
+        this.ja_desc = ja_desc;
+        this.en_desc = en_desc;
         this.icon = icon;
-    }
-
-    fromDTO(certificateDTO: CertificateDTO): void {
-        this.id = certificateDTO.id;
-        this.name = certificateDTO.name;
-        this.vnDesc = certificateDTO.vn_desc;
-        this.jaDesc = certificateDTO.ja_desc;
-        this.enDesc = certificateDTO.en_desc;
-        this.icon = certificateDTO.icon && new File().fromDTO(certificateDTO.icon) || undefined;
     }
 }

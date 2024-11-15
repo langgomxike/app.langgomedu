@@ -1,93 +1,74 @@
+import React, { useEffect, useState } from "react";
 import {
-  Platform,
-  StyleSheet,
+  View,
   Text,
   TextInput,
   TouchableOpacity,
-  View,
+  Platform,
+  StyleSheet,
 } from "react-native";
-import { useState } from "react";
 import { Picker } from "@react-native-picker/picker";
-import { DateTimePickerAndroid } from "@react-native-community/datetimepicker";
+import DateTimePickerAndroid from "@react-native-community/datetimepicker";
+import Lesson from "../../models/Lesson";
 
-const InfoLesson = () => {
-  const [sessions, setSessions] = useState([
-    {
-      id: 1,
-      selectedValue: "",
-      thoiLuongBuoiHoc: "",
-      time: new Date(),
-      timeText: "",
-      hinhThucHoc: "online",
-    },
-  ]);
+type props = {
+  handleGetLesson: (lessons: Lesson[]) => void;
+};
 
-  // Hàm xử lý khi thay đổi thời gian
-  const onChange = (selectedTime: any, sessionIndex: any) => {
-    const currentTime = selectedTime || sessions[sessionIndex].time;
-    const updatedSessions = [...sessions];
-    updatedSessions[sessionIndex].time = currentTime;
+const InfoLesson = ({ handleGetLesson }: props) => {
+  const [lessons, setLessons] = useState<Lesson[]>([]);
+  // Khai báo state để xác định khi nào DateTimePicker hiển thị
+  const [show, setShow] = useState(false);
+  // Khai báo state lưu chỉ số bài học hiện tại khi chọn thời gian
+  const [selectedLessonIndex, setSelectedLessonIndex] = useState<number>(0);
 
-    let tempTime = new Date(currentTime);
-    let formattedTime =
-      tempTime.getHours() +
+  const onChange = (selectedTime: Date, lessonIndex: number) => {
+    const currentTime = selectedTime || lessons[lessonIndex].started_at;
+    const updatedLessons = [...lessons];
+    updatedLessons[lessonIndex].started_at = currentTime.getTime();
+
+    const formattedTime =
+      currentTime.getHours() +
       ":" +
-      (tempTime.getMinutes() < 10 ? "0" : "") +
-      tempTime.getMinutes();
-    updatedSessions[sessionIndex].timeText = formattedTime;
+      (currentTime.getMinutes() < 10 ? "0" : "") +
+      currentTime.getMinutes();
+    updatedLessons[lessonIndex].note = formattedTime;
 
-    setSessions(updatedSessions);
+    setLessons(updatedLessons);
   };
-
-  // Hàm hiển thị picker cho Android
-  const showTimepicker = (sessionIndex: any) => {
+  
+  const showTimepicker = (lessonIndex: number) => {
     if (Platform.OS === "android") {
-      DateTimePickerAndroid.open({
-        value: sessions[sessionIndex].time,
-        onChange: (event, selectedTime) => onChange(selectedTime, sessionIndex),
-        mode: "time",
-        is24Hour: true,
-      });
+      setShow(true); // Biến show xác định hiển thị `DateTimePicker`
+      setSelectedLessonIndex(lessonIndex); // Để nhận biết bài học nào đang được cập nhật
     }
   };
 
-  const toggleStatus = (sessionIndex: any) => {
-    const updatedSessions = [...sessions];
-    updatedSessions[sessionIndex].hinhThucHoc =
-      updatedSessions[sessionIndex].hinhThucHoc === "online"
-        ? "offline"
-        : "online";
-    setSessions(updatedSessions);
-
-    // Gọi hàm lưu vào database nếu cần
-    saveToDatabase(updatedSessions[sessionIndex].hinhThucHoc);
-  };
-
-  const saveToDatabase = (value: any) => {
-    console.log("Lưu giá trị:", value);
+  const toggleStatus = (lessonIndex: number) => {
+    const updatedLessons = [...lessons];
+    updatedLessons[lessonIndex].is_online =
+      !updatedLessons[lessonIndex].is_online;
+    setLessons(updatedLessons);
   };
 
   const handleAdd = () => {
-    setSessions([
-      ...sessions,
-      {
-        id: sessions.length + 1,
-        selectedValue: "",
-        thoiLuongBuoiHoc: "",
-        time: new Date(),
-        timeText: "",
-        hinhThucHoc: "online",
-      },
+    setLessons([
+      ...lessons,
+      new Lesson(lessons.length + 1, undefined, 0, 0, 0, true, ""),
     ]);
   };
 
+  useEffect(() => {
+    console.log("lesson: ", lessons);
+    handleGetLesson(lessons);
+  }, [lessons]);
+
   return (
     <View style={styles.container}>
-      {sessions.map((session, index) => (
-        <View key={session.id} style={{ marginBottom: 20 }}>
+      {lessons.map((lesson, index) => (
+        <View key={lesson.id} style={{ marginBottom: 20 }}>
           <Text style={styles.text}>Buổi học: {index + 1}</Text>
 
-          {/* CHỌN BUỔI HỌC - THỜI LƯỢNG BUỔI HỌC */}
           <View style={[styles.containerRow, styles.marginInput]}>
             <View style={[{ flex: 5 }, styles.inputContainer]}>
               <Text style={styles.label}>
@@ -95,26 +76,24 @@ const InfoLesson = () => {
               </Text>
               <View style={styles.pickerContainer}>
                 <Picker
-                  selectedValue={session.selectedValue}
-                  onValueChange={(itemValue) =>
-                    setSessions((prevSessions) =>
-                      prevSessions.map((s) =>
-                        s.id === session.id
-                          ? { ...s, selectedValue: itemValue }
-                          : s
+                  selectedValue={lesson.day}
+                  onValueChange={(itemValue) => {
+                    setLessons((prevLessons) =>
+                      prevLessons.map((l) =>
+                        l.id === lesson.id ? { ...l, day: itemValue } : l
                       )
-                    )
-                  }
+                    );
+                  }}
                   style={styles.picker}
                 >
-                  <Picker.Item label="Chọn lịch trình buổi học" value="" />
-                  <Picker.Item label="Chủ nhật" value="0" />
-                  <Picker.Item label="Thứ 2" value="1" />
-                  <Picker.Item label="Thứ 3" value="2" />
-                  <Picker.Item label="Thứ 4" value="3" />
-                  <Picker.Item label="Thứ 5" value="4" />
-                  <Picker.Item label="Thứ 6" value="5" />
-                  <Picker.Item label="Thứ 7" value="6" />
+                  <Picker.Item label="Chọn lịch trình buổi học" value={0} />
+                  <Picker.Item label="Chủ nhật" value={0} />
+                  <Picker.Item label="Thứ 2" value={1} />
+                  <Picker.Item label="Thứ 3" value={2} />
+                  <Picker.Item label="Thứ 4" value={3} />
+                  <Picker.Item label="Thứ 5" value={4} />
+                  <Picker.Item label="Thứ 6" value={5} />
+                  <Picker.Item label="Thứ 7" value={6} />
                 </Picker>
               </View>
             </View>
@@ -125,20 +104,21 @@ const InfoLesson = () => {
               <TextInput
                 keyboardType="numeric"
                 style={styles.input}
-                placeholder="thời lượng học... (theo phút)"
-                value={session.thoiLuongBuoiHoc}
-                onChangeText={(text) =>
-                  setSessions((prevSessions) =>
-                    prevSessions.map((s) =>
-                      s.id === session.id ? { ...s, thoiLuongBuoiHoc: text } : s
+                placeholder="Thời lượng học... (phút)"
+                value={lesson.duration.toString()}
+                onChangeText={(text) => {
+                  setLessons((prevLessons) =>
+                    prevLessons.map((l) =>
+                      l.id === lesson.id
+                        ? { ...l, duration: parseInt(text) }
+                        : l
                     )
-                  )
-                }
+                  );
+                }}
               />
             </View>
           </View>
 
-          {/* THỜI GIAN BẮT ĐẦU - HÌNH THỨC HỌC */}
           <View style={styles.containerRow}>
             <View style={[{ flex: 5 }, styles.inputContainer]}>
               <Text style={styles.label}>
@@ -147,7 +127,7 @@ const InfoLesson = () => {
               <TextInput
                 style={styles.input}
                 placeholder="Chọn thời gian"
-                value={session.timeText}
+                value={lesson.note}
                 onFocus={() => showTimepicker(index)}
               />
             </View>
@@ -163,18 +143,31 @@ const InfoLesson = () => {
                 onPress={() => toggleStatus(index)}
               >
                 <Text style={[{ color: "#0D99FF" }, styles.text]}>
-                  {session.hinhThucHoc}
+                  {lesson.is_online ? "online" : "offline"}
                 </Text>
               </TouchableOpacity>
             </View>
           </View>
-          {/* Đường gạch dưới để ngăn cách giữa các buổi học */}
-          {index < sessions.length - 1 && <View style={styles.separator} />}
+          {index < lessons.length - 1 && <View style={styles.separator} />}
         </View>
       ))}
       <TouchableOpacity style={styles.btnAdd} onPress={handleAdd}>
         <Text style={styles.txtAdd}>Thêm buổi</Text>
       </TouchableOpacity>
+      {show && (
+        <DateTimePickerAndroid
+          value={new Date(lessons[selectedLessonIndex].started_at)}
+          mode="time"
+          is24Hour={true}
+          display="default"
+          onChange={(event: any, selectedTime: Date | undefined) => {
+            setShow(false);
+            if (selectedTime) {
+              onChange(selectedTime, selectedLessonIndex);
+            }
+          }}
+        />
+      )}
     </View>
   );
 };

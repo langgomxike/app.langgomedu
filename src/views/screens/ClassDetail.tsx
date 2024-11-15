@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -19,6 +19,11 @@ import AClass from "../../apis/AClass";
 import ReactAppUrl from "../../configs/ConfigUrl";
 import Class from "../../models/Class";
 import DetailClassSkeleton from "../components/skeleton/DetailClassSkeleton";
+import { UserContext, UserType } from "../../configs/UserContext";
+import ModalJoinClass from "../components/modal/ModalJoinClass";
+import AStudent from "../../apis/AStudent";
+import Student from "../../models/Student";
+import ModalConfirmJoinClass from "../components/modal/ModalConfirmJoinClass";
 
 const URL = ReactAppUrl.PUBLIC_URL;
 export default function ClassDetail() {
@@ -26,10 +31,16 @@ export default function ClassDetail() {
   // Get class id
   const param = route.params;
 
+  //contexts
+  const { user, setUser } = useContext(UserContext);
+
   // state
   const [classDetail, setClassDetail] = useState<Class>();
   const [relatedClasses, setRelatedClasses] = useState<Class[]>([]);
   const [loading, setLoading] = useState(true);
+  const [modalVisible, setModalVisible] = useState<string | null>("");
+  const [studentList, setStudentList] = useState<Student[]>([]);
+  const [resultResponse, setResultResponse] = useState(false)
 
   // Hàm để điều hướng đến màn hình DetailClass mới
   // const navigation: NavigationProp<RootStackParamList> = useNavigation();
@@ -63,27 +74,57 @@ export default function ClassDetail() {
     // console.log(formatCurrency(price, "vi-VN", "VND")); // "123.456.789 ₫" (Việt Nam)
   }
 
+  const handleJoinClass = () => {
+    setModalVisible(
+      studentList.length > 0 ? "modalJoinClass" : "modalConfirmJoinClass"
+    );
+  };
+
+  const handleAcceptClass = () => {
+    setModalVisible("modalConfirmJoinClass");
+  };
+
   // effect
   useEffect(() => {
-    AClass.getClassById(
+    console.log("ClassDetail", resultResponse);
+    
+    //Get detail class
+    AClass.getClassDetailWithUser(
       param.classId,
+      user.ID,
       (_class, relatedClasses) => {
         setClassDetail(_class);
         setRelatedClasses(relatedClasses);
-        // console.log(">>> data find by id: ", JSON.stringify(_class, null, 2));
       },
       setLoading
     );
-  }, []);
+    if (user.TYPE === UserType.LEANER) {
+      //Get student class belongs to user for leaner
+      AStudent.getStudentBelongsToUser(
+        user.ID,
+        (data) => {
+          setStudentList(data);
+        },
+        setLoading
+      );
+    } else {
+      //Get student in class for tutor
+      AStudent.getStudentsInClass(
+        param.classId,
+        (data) => {
+          setStudentList(data);
+        },
+        setLoading
+      );
+    }
+  }, [resultResponse]);
 
   // render
   return (
     <View style={styles.container}>
       <View style={{ flex: 9 }}>
-      {loading &&
-       <DetailClassSkeleton/> }
+        {loading && <DetailClassSkeleton />}
         {!loading && classDetail && (
-         
           <ScrollView showsVerticalScrollIndicator={false}>
             <View>
               {/* Header */}
@@ -124,9 +165,7 @@ export default function ClassDetail() {
                         size={24}
                         color="black"
                       />
-                      <Text>
-                        {fomatDate(classDetail.started_at)}
-                      </Text>
+                      <Text>{fomatDate(classDetail.started_at)}</Text>
                     </View>
                   </View>
 
@@ -176,7 +215,11 @@ export default function ClassDetail() {
 
                   <View style={styles.itemInfo}>
                     <View style={styles.row}>
-                    <Ionicons name="location-outline" size={24} color="black" />
+                      <Ionicons
+                        name="location-outline"
+                        size={24}
+                        color="black"
+                      />
                       <Text>Địa chỉ</Text>
                     </View>
                     <Text style={[styles.itemContent]}>
@@ -190,7 +233,9 @@ export default function ClassDetail() {
                     <View style={styles.row}>
                       <Text>Phí nhận lớp</Text>
                     </View>
-                    <Text style={[styles.itemContentFee]}>{formatCurrency(50000)}</Text>
+                    <Text style={[styles.itemContentFee]}>
+                      {formatCurrency(50000)}
+                    </Text>
                   </View>
                 </View>
 
@@ -218,19 +263,19 @@ export default function ClassDetail() {
                   </Text>
                   <FlatList
                     data={relatedClasses}
-                    renderItem={({ item:relatedClass }) => (
+                    renderItem={({ item: relatedClass }) => (
                       <View style={styles.classItem}>
                         <Pressable>
-                        <CourseItem
-                              majorIconUrl={`${URL}${relatedClass.major?.icon?.path}`}
-                              name={relatedClass.title}
-                              level={relatedClass.class_level?.vn_name || ""}
-                              date={fomatDate(relatedClass.started_at)}
-                              time={2}
-                              type={relatedClass.type.join(",")}
-                              address={relatedClass.address_1}
-                              cost={relatedClass.price}
-                            />
+                          <CourseItem
+                            majorIconUrl={`${URL}${relatedClass.major?.icon?.path}`}
+                            name={relatedClass.title}
+                            level={relatedClass.class_level?.vn_name || ""}
+                            date={fomatDate(relatedClass.started_at)}
+                            time={2}
+                            type={relatedClass.type.join(",")}
+                            address={relatedClass.address_1}
+                            cost={relatedClass.price}
+                          />
                         </Pressable>
                       </View>
                     )}
@@ -249,11 +294,110 @@ export default function ClassDetail() {
         )}
       </View>
       {/* Nút bấn để nhập lớp */}
-      <View style={[styles.buttonContainer, styles.shadow]}>
-        <TouchableOpacity disabled={true} style={[styles.btnReceiveClass, styles.boxShadow]}>
-          <Text style={styles.btnReceiveClassText}>Nhận lớp</Text>
-        </TouchableOpacity>
-      </View>
+      {classDetail?.user_status !== "author" && (
+        <View style={[styles.buttonContainer, styles.shadow]}>
+          {user.TYPE === UserType.LEANER ? (
+            // Tham gia lớp học dành cho leaner
+            // Disable khi learner tham gia vào lớp đọc đó, learner đó là người tạo lớp, người tham gia lớp học đó
+            // Được active trạng thái không phải là membern ko phải là người tạo lớp, không phải người dạy lớp học đó
+            <TouchableOpacity
+              disabled={
+                classDetail?.user_status === "member" ||
+                classDetail?.tutor?.id === user.ID ||
+                classDetail?.author?.id === user.ID
+              }
+              onPress={handleJoinClass}
+              style={[
+                classDetail?.user_status === "member" ||
+                classDetail?.tutor?.id === user.ID ||
+                classDetail?.author?.id === user.ID
+                  ? styles.btnDiableReceiveClass
+                  : styles.btnReceiveClass,
+                styles.boxShadow,
+              ]}
+            >
+              <Text style={styles.btnReceiveClassText}>
+                {classDetail?.user_status === "member"
+                  ? "Bạn đã tham gia lớp học"
+                  : classDetail?.tutor?.id === user.ID
+                  ? "Bạn đã dạy lớp này"
+                  : classDetail?.author?.id === user.ID
+                  ? "Bạn đã tạo lớp này"
+                  : "Tham gia lớp học"}
+              </Text>
+            </TouchableOpacity>
+          ) : (
+            // Nhận lớp dành cho tutor
+            // Disable khi là gia sư của lớp học đó, người tạo lớp đó, thành viên của lớp học đó
+            // Active khi chưa là sư sư của lớp học, không phải người tạo lớp, không phải là thành viên trong lớp
+            <TouchableOpacity
+              disabled={
+                classDetail?.user_status === "tutor" ||
+                classDetail?.author?.id === user.ID ||
+                classDetail?.user_status === "member"
+              }
+              onPress={handleAcceptClass}
+              style={[
+                classDetail?.user_status === "tutor" ||
+                classDetail?.author?.id === user.ID ||
+                classDetail?.user_status === "member"
+                  ? styles.btnDiableReceiveClass
+                  : styles.btnReceiveClass,
+                styles.boxShadow,
+              ]}
+            >
+              <Text style={styles.btnReceiveClassText}>
+                {classDetail?.user_status === "tutor"
+                  ? "Đã nhập lớp"
+                  : classDetail?.author?.id === user.ID
+                  ? "Bạn đã tạo lớp này"
+                  : classDetail?.user_status === "member"
+                  ? "Bạn đã tham gia lớp này"
+                  : "Nhận dạy lớp"}
+              </Text>
+            </TouchableOpacity>
+          )}
+        </View>
+      )}
+
+      {/* Modal for leaner */}
+      {user.TYPE === UserType.LEANER && (
+        <>
+          {classDetail && studentList.length > 0 && (
+            <ModalJoinClass
+              classId={classDetail.id}
+              studentList={studentList}
+              visiable={modalVisible}
+              onRequestClose={() => setModalVisible(null)}
+              onResultValue={setResultResponse}
+            />
+          )}
+          {classDetail && studentList.length < 0 && (
+            <ModalConfirmJoinClass
+              confirmContent="Bạn chắc chắn muốn tham gia lớp học này?"
+              visiable={modalVisible}
+              onRequestClose={() => setModalVisible(null)}
+              classId={classDetail.id}
+              onResultValue={setResultResponse}
+            />
+          )}
+        </>
+      )}
+
+      {user.TYPE === UserType.TUTOR && (
+        <>
+          {classDetail && (
+            <ModalConfirmJoinClass
+              confirmContent="Bạn muốn nhận dạy lớp học này?"
+              visiable={modalVisible}
+              onRequestClose={() => setModalVisible(null)}
+              classId={classDetail.id}
+              selectedStudents={studentList}
+              onResultValue={setResultResponse}
+            />
+          )}
+        </>
+      )}
     </View>
   );
 }
@@ -399,6 +543,14 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
 
+  btnDiableReceiveClass: {
+    backgroundColor: BackgroundColor.gray_c6,
+    paddingVertical: 15,
+    paddingHorizontal: 10,
+    marginHorizontal: 50,
+    borderRadius: 10,
+  },
+
   btnReceiveClassText: {
     color: BackgroundColor.white,
     fontWeight: "bold",
@@ -416,7 +568,7 @@ const styles = StyleSheet.create({
 
   relatedClassContainer: {
     backgroundColor: BackgroundColor.white,
-    marginBottom: 20,
+    // marginBottom: 20,
     paddingBottom: 20,
   },
 

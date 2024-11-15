@@ -7,52 +7,100 @@ import {
   TouchableOpacity,
   Modal,
   FlatList,
+  Alert,
 } from "react-native";
 import MyIcon, { AppIcon } from "../../components/MyIcon";
 import Button from "../../components/Button";
 import IconReport from "../../components/ItemUserReport";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import ImageViewer from "react-native-image-zoom-viewer";
+import AUserReport from "../../../apis/AUserReport";
+import UserReport from "../../../models/UserReport";
+import { BackgroundColor } from "../../../configs/ColorConfig";
+import ReactAppUrl from "../../../configs/ConfigUrl";
+import Accordion from "../../components/Accordion";
+import AUser from "../../../apis/AUser";
+import { MaterialIcons } from "@expo/vector-icons";
+
+const reportLevels = [
+  { id: 1, label: "Cảnh báo nhẹ", points: 10 },
+  { id: 2, label: "Trung bình", points: 30 },
+  { id: 3, label: "Nghiêm trọng", points: 50 },
+  { id: 4, label: "Rất nghiêm trọng", points: 100 },
+];
+
 export default function UpdateReportedUser() {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const [userReport, setUserReport] = useState<UserReport | null>(null);
+  const [loading, setLoading] = useState(true);
+  const URL = ReactAppUrl.PUBLIC_URL;
+  const userReportId = "1"; // Thay bằng ID thực tế
+
+  const [selectedLevel, setSelectedLevel] = useState<number | null>(null);
+
+  const handleSelectLevel = (levelId: number) => {
+    setSelectedLevel(levelId);
+  };
+
+  useEffect(() => {
+    AUserReport.getUserReportById(
+      userReportId,
+      (data: UserReport) => {
+        console.log(data);
+        setUserReport(data); // Lưu dữ liệu nhận được vào state
+      },
+      (isLoading: boolean) => {
+        setLoading(isLoading); // Cập nhật trạng thái tải
+      }
+    );
+  }, [userReportId]);
   const openModal = (index: number) => {
     setSelectedIndex(index);
     setModalVisible(true);
   };
-
   interface Item {
     id: number;
     name: string;
   }
-  const data: Item[] = [
-    {
-      id: 1,
-      name: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSL63FzMpwJQvGI1Wt3WiKphfqKGtRD3OUC3w&s",
-    },
-    {
-      id: 2,
-      name: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSL63FzMpwJQvGI1Wt3WiKphfqKGtRD3OUC3w&s",
-    },
-    {
-      id: 3,
-      name: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSL63FzMpwJQvGI1Wt3WiKphfqKGtRD3OUC3w&s",
-    },
-    {
-      id: 4,
-      name: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSL63FzMpwJQvGI1Wt3WiKphfqKGtRD3OUC3w&s",
-    },
-  ];
-  const renderItem = ({ item, index }: { item: Item; index: number }) => (
-    <TouchableOpacity style={styles.imgParent} onPress={() => openModal(index)}>
-      <Image style={styles.img} source={{ uri: item.name }} />
-    </TouchableOpacity>
-  );
+  // Kiểm tra và log giá trị của đường dẫn hình ảnh trong userReport
+  if (userReport?.files) {
+    userReport.files.forEach((file, index) => {
+      console.log(`Path ${index + 1}: ${file.path}`); // Kiểm tra giá trị của path
+    });
+  }
+
+  // Tạo mảng data từ userReport.files
+  const data: Item[] =
+    userReport?.files?.map((file, index) => ({
+      id: file.id || index, // Sử dụng index làm ID dự phòng nếu id bị null
+      name: file.path || "", // Đảm bảo có giá trị chuỗi rỗng nếu path là null
+    })) || [];
+
+  // Log để kiểm tra kết quả của mảng data
+  data.forEach((item, index) => {
+    console.log(`Item ${index + 1}:`, item);
+  });
+
+  // Hàm renderItem để hiển thị hình ảnh từ `data`
+  const renderItem = ({ item, index }: { item: Item; index: number }) => {
+    // Tạo đường dẫn hình ảnh đầy đủ từ `URL` và `item.name`
+    const imageUri = item.name ? `${URL}${item.name}` : URL; // Kết hợp URL với tên ảnh nếu có
+
+    console.log("Đường dẫn đến hình:", imageUri);
+
+    return (
+      <TouchableOpacity
+        style={styles.imgParent}
+        onPress={() => openModal(index)}
+      >
+        <Image style={styles.img} source={{ uri: imageUri }} />
+      </TouchableOpacity>
+    );
+  };
 
   // Styles animated chevron
-  const text: string =
-    "Lorem ipsum dolor sit amet consectetur adipisicing elit. Facilis impedit laboriosam ullam, nulla sunt dolorum, fugiat a doloremque possimus saepe aliquam officiis facere odit totam rem cum. Obcaecati, consectetur at!.";
   return (
     <ScrollView showsVerticalScrollIndicator={false} style={styles.container}>
       {/* nút back và tên màn hình */}
@@ -65,57 +113,53 @@ export default function UpdateReportedUser() {
         </View>
         {/* tài khoản báo cáo */}
         <Text style={styles.smallTitle1}>Tài khoản báo cáo</Text>
-        <IconReport userName="Phạm Anh Quân" credibility={111}></IconReport>
+
+        <IconReport
+          userAvatar={
+            userReport?.from_user?.avatar_of_fromUser?.from_user_avatar + ""
+          }
+          userName={userReport?.from_user?.full_name + ""}
+          credibility={userReport?.from_user?.information?.point ?? 0}
+        ></IconReport>
         {/* tài khoản bị báo cáo */}
         <Text style={styles.smallTitle2}>Tài khoản bị báo cáo</Text>
         <IconReport
-          userName="Khoai Lang Thang"
-          credibility={111111}
+          userAvatar={
+            userReport?.to_user?.avatar_of_toUser?.to_user_avatar + ""
+          }
+          userName={userReport?.to_user?.full_name + ""}
+          credibility={userReport?.to_user?.information?.point ?? 0}
         ></IconReport>
         {/* lớp học bị báo cáo */}
       </View>
       <View style={styles.component1}>
-        <Text style={styles.smallTitle3}>Đã bị báo cáo 2 lần</Text>
-        <View style={styles.reportParent}>
-          <ScrollView
-            showsVerticalScrollIndicator={false}
-            nestedScrollEnabled={true}
-          >
-            <View style={styles.itemlCenter}>
-              <View style={styles.textareaContainer}>
-                <ScrollView
-                  nestedScrollEnabled={true}
-                  showsVerticalScrollIndicator={false}
-                >
-                  <Text>{text}</Text>
-                </ScrollView>
-              </View>
-              <View style={styles.textareaContainer}>
-                <ScrollView
-                  nestedScrollEnabled={true}
-                  showsVerticalScrollIndicator={false}
-                >
-                  <Text>{text}</Text>
-                </ScrollView>
-              </View>
-              <View style={styles.textareaContainer}>
-                <ScrollView
-                  nestedScrollEnabled={true}
-                  showsVerticalScrollIndicator={false}
-                >
-                  <Text>{text}</Text>
-                </ScrollView>
-              </View>
+        <Text style={styles.smallTitle3}>
+          Đã bị báo cáo {userReport?.reports_before.length} lần
+        </Text>
+        {userReport?.reports_before.map((report, index) => (
+          <View key={index} style={styles.itemlCenter}>
+            <View style={styles.textareaContainer}>
+              <ScrollView
+                nestedScrollEnabled={true}
+                showsVerticalScrollIndicator={false}
+              >
+                {report.content ? (
+                  <Accordion
+                    title={`Báo cáo ${index + 1}`}
+                    details={report.content}
+                  />
+                ) : (
+                  <Text>"Không có nội dung báo cáo trước đây"</Text>
+                )}
+              </ScrollView>
             </View>
-          </ScrollView>
-        </View>
+          </View>
+        ))}
+        {/* <View style={styles.line}></View> */}
+
         <Text style={styles.smallTitle3}>Lý do</Text>
         <Text style={styles.reportContent}>
-          {" "}
-          Lorem, ipsum dolor sit amet consectetur adipisicing elit. Tempora
-          excepturi dicta magni porro? Exercitationem consequuntur earum eaque
-          veniam adipisci quos molestiae inventore odio alias, ad, aspernatur,
-          aliquam odit saepe nesciunt!
+          {userReport?.report_content || "Không có thông tin lý do"}
         </Text>
       </View>
 
@@ -130,28 +174,175 @@ export default function UpdateReportedUser() {
             showsHorizontalScrollIndicator={false}
           ></FlatList>
         </View>
+
+        <View style={styles.reportLevelContainer}>
+          <Text style={styles.title}>Chọn mức độ báo cáo:</Text>
+          {reportLevels.map((level) => (
+            <TouchableOpacity
+              key={level.id}
+              style={[
+                styles.levelOption,
+                selectedLevel === level.id && styles.selectedOption,
+              ]}
+              onPress={() => handleSelectLevel(level.id)}
+            >
+              <Text style={styles.optionText}>{level.label}</Text>
+              {selectedLevel === level.id && (
+                <MaterialIcons name="check" size={20} color="green" />
+              )}
+            </TouchableOpacity>
+          ))}
+        </View>
+
         <View>
           <View style={styles.btns}>
-            <View>
-              <Button
-                title="Chấp nhận báo cáo"
-                textColor="#fff"
-                backgroundColor="#0D99FF"
-              />
-            </View>
-            <View>
-              <Button
-                title=" Từ chối báo cáo "
-                textColor="#fff"
-                backgroundColor="#F9CA24"
-              />
-            </View>
+            <TouchableOpacity
+              style={[styles.btn, styles.btnAccept]}
+              onPress={() => {
+                if (selectedLevel === null) {
+                  Alert.alert(
+                    "Vui lòng chọn mức độ báo cáo trước khi chấp nhận!"
+                  );
+                  return;
+                }
+
+                // Tìm số điểm tương ứng với mức độ đã chọn
+                const level = reportLevels.find(
+                  (level) => level.id === selectedLevel
+                );
+                const pointsToDeduct = level?.points || 0;
+
+                // Hiển thị alert xác nhận
+                Alert.alert(
+                  "Xác nhận",
+                  `Bạn có chắc chắn muốn chấp nhận và trừ ${pointsToDeduct} điểm uy tín không?`,
+                  [
+                    {
+                      text: "Hủy",
+                      style: "cancel",
+                    },
+                    {
+                      text: "Xác nhận",
+                      onPress: () => {
+                        // Gọi hàm trừ điểm uy tín và xử lý trạng thái
+                        AUser.minusUserPoints(
+                          userReport?.to_user?.id,
+                          pointsToDeduct,
+                          (response) => {
+                            if (response.success) {
+                              console.log("Points deducted successfully.");
+                              Alert.alert(
+                                "Điểm uy tín đã được trừ thành công!"
+                              );
+                            } else {
+                              console.log(
+                                "Failed to deduct points:",
+                                response.message
+                              );
+                              Alert.alert(
+                                "Đã xảy ra lỗi trong quá trình xử lý!"
+                              );
+                            }
+                          },
+                          (loading) => {
+                            // Xử lý trạng thái loading nếu cần
+                          }
+                        );
+                      },
+                    },
+                  ]
+                );
+              }}
+            >
+              <Text style={styles.textBtnAccept}>Chấp nhận</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.btn, styles.btnDeney]}
+              onPress={() => {
+                // Hiển thị alert xác nhận
+                Alert.alert(
+                  "Xác nhận",
+                  "Bạn có chắc chắn muốn từ chối báo cáo này không?",
+                  [
+                    {
+                      text: "Hủy",
+                      style: "cancel",
+                    },
+                    {
+                      text: "Xác nhận",
+                      onPress: () => {
+                        // Gọi hàm từ chối báo cáo và xử lý trạng thái
+                        AUserReport.deneyUserReport(
+                          userReport?.report_id,
+                          (response) => {
+                            if (response.success) {
+                              console.log("Report denied successfully.");
+                              Alert.alert("Từ chối báo cáo thành công!");
+                            } else {
+                              console.log(
+                                "Failed to deny report:",
+                                response.message
+                              );
+                              Alert.alert(
+                                "Đã xảy ra lỗi trong quá trình xử lý!"
+                              );
+                            }
+                          },
+                          (loading) => {}
+                        );
+                      },
+                    },
+                  ]
+                );
+              }}
+            >
+              <Text style={styles.textBtnDeney}>Từ chối</Text>
+            </TouchableOpacity>
           </View>
-          <Button
-            title="Chấp nhận báo cáo và xoá tài khoản"
-            textColor="#fff"
-            backgroundColor="#E10909"
-          />
+          <TouchableOpacity
+            style={[styles.btn, styles.deleteUser]}
+            onPress={() => {
+              // Hiển thị alert xác nhận
+              Alert.alert(
+                "Xác nhận",
+                "Bạn có chắc chắn muốn khóa tài khoản người dùng này không?",
+                [
+                  {
+                    text: "Hủy",
+                    style: "cancel",
+                  },
+                  {
+                    text: "Xác nhận",
+                    onPress: () => {
+                      // Gọi hàm khóa tài khoản và xử lý trạng thái
+                      AUser.lockUserAccount(
+                        userReport?.to_user?.id,
+                        (response) => {
+                          if (response.success) {
+                            console.log("User account locked successfully.");
+                            Alert.alert("Tài khoản đã được khóa thành công!");
+                          } else {
+                            console.log(
+                              "Failed to lock account:",
+                              response.message
+                            );
+                            Alert.alert(
+                              "Đã xảy ra lỗi trong quá trình khóa tài khoản!"
+                            );
+                          }
+                        },
+                        (loading) => {
+                          // Có thể cập nhật trạng thái loading tại đây nếu cần
+                        }
+                      );
+                    },
+                  },
+                ]
+              );
+            }}
+          >
+            <Text style={styles.textBtnDeleteUser}>Khóa tài khoản</Text>
+          </TouchableOpacity>
         </View>
       </View>
       {/* Modal hiển thị hình ảnh */}
@@ -159,7 +350,7 @@ export default function UpdateReportedUser() {
         <Modal
           visible={modalVisible}
           transparent={true}
-          onRequestClose={() => setModalVisible(true)}
+          onRequestClose={() => setModalVisible(false)}
         >
           <TouchableOpacity
             style={styles.closeButton}
@@ -168,7 +359,7 @@ export default function UpdateReportedUser() {
             <Ionicons name="close" size={30} color="#fff" />
           </TouchableOpacity>
           <ImageViewer
-            imageUrls={data.map((item) => ({ url: item.name }))}
+            imageUrls={data.map((item) => ({ url: `${URL}${item.name}` }))}
             index={selectedIndex}
             onSwipeDown={() => setModalVisible(false)}
             enableSwipeDown={true}
@@ -272,11 +463,11 @@ const styles = StyleSheet.create({
   component2: {
     backgroundColor: "#fff",
     paddingHorizontal: 15,
+    paddingBottom: 20,
   },
   textareaContainer: {
     width: "98%",
     borderRadius: 10,
-    height: 100,
     paddingHorizontal: 15,
     paddingVertical: 15,
     shadowColor: "#000",
@@ -292,7 +483,6 @@ const styles = StyleSheet.create({
   },
 
   reportParent: {
-    height: 350,
     marginBottom: 20,
   },
   itemlCenter: {
@@ -331,10 +521,6 @@ const styles = StyleSheet.create({
     elevation: 5,
     backgroundColor: "#fff",
   },
-  btns: {
-    flexDirection: "row",
-    marginBottom:-20,
-  },
   images: {
     marginBottom: 20,
   },
@@ -358,5 +544,71 @@ const styles = StyleSheet.create({
     justifyContent: "center", // Căn giữa nội dung theo chiều dọc
     alignItems: "center", // Căn giữa nội dung theo chiều ngang
     backgroundColor: "rgba(0, 0, 0, 0.8)", // Làm mờ nền
+  },
+  btns: {
+    flexDirection: "row",
+    gap: 15,
+    marginBottom: 15,
+  },
+  btn: {
+    padding: 15,
+    borderRadius: 10,
+    alignItems: "center",
+  },
+  btnAccept: {
+    backgroundColor: BackgroundColor.primary,
+    flex: 1,
+  },
+  textBtnAccept: {
+    color: "#fff",
+  },
+  btnDeney: {
+    backgroundColor: BackgroundColor.warning,
+    flex: 1,
+  },
+  textBtnDeney: {
+    color: "#fff",
+  },
+  deleteUser: {
+    backgroundColor: BackgroundColor.danger,
+    flex: 1,
+  },
+  textBtnDeleteUser: {
+    color: "#fff",
+  },
+
+  reportLevelContainer: {
+    flex: 1,
+    padding: 20,
+    justifyContent: "center",
+    backgroundColor: "#f5f5f5",
+    borderRadius: 8,
+    marginBottom: 20,
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 15,
+  },
+
+  levelOption: {
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    backgroundColor: "#fff",
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#ddd",
+    marginBottom: 10,
+    alignItems: "center",
+    justifyContent: "space-between",
+    flexDirection: "row",
+  },
+  selectedOption: {
+    borderColor: "#007AFF",
+    backgroundColor: "#e6f0ff",
+  },
+  optionText: {
+    fontSize: 16,
+    color: "#333",
   },
 });

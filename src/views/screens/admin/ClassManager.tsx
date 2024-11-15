@@ -5,7 +5,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ClassComponent from "../../components/admin/ClassComponent";
 import Pagination from "../../components/Pagination";
 import DetailClassBottomSheet from "../../components/bottom-sheet/DetailClassBottomSheet";
@@ -13,6 +13,8 @@ import { BackgroundColor } from "../../../configs/ColorConfig";
 import TabHeader from "../../components/admin/TabHeader";
 import SearchBar from "../../components/Inputs/SearchBar";
 import Feather from "@expo/vector-icons/Feather";
+import Class from "../../../models/Class";
+import AClassAdmin from "../../../apis/admin/AClassAdmin";
 
 const tabList = ["Tất cả", "Chờ duyệt", "Đang hoạt động", "Bị báo cáo"];
 export default function ClassManager() {
@@ -20,12 +22,25 @@ export default function ClassManager() {
   const [isVisible, setIsVisible] = useState(false);
   const [page, setPage] = useState(0);
   const [searchKey, setSearchKey] = useState("");
+  const [classes, setClasses] = useState<Class[]>([]);
+  const [loading, setLoading] = useState(false)
+  const [selectedClass, setSelectedClass] = useState<Class>()
 
   // handlers
   // Hàm để mở BottomSheet từ component con
-  const handleOpenBottomSheet = () => {
+  const handleOpenBottomSheet = (_class:Class) => {
     setIsVisible(true);
+    setSelectedClass(_class)
   };
+
+  // effects
+  useEffect(() => {
+    AClassAdmin.getAllClasses((data) => {
+      setClasses(data);
+    }, setLoading)
+   
+  }, [])
+  
 
   return (
     <View style={styles.container}>
@@ -46,14 +61,16 @@ export default function ClassManager() {
         <FlatList
           scrollEnabled={true}
           showsVerticalScrollIndicator={false}
-          data={[1, 2, 3, 4, 5]}
-          renderItem={({ item }) => (
+          data={classes}
+          renderItem={({ item }) => {
+            return (
             <View style={[styles.classItemContainer, styles.boxshadow]}>
-              <TouchableOpacity onPress={handleOpenBottomSheet}>
-                <ClassComponent />
+              <TouchableOpacity onPress={() => handleOpenBottomSheet(item)}>
+                <ClassComponent classData={item}/>
               </TouchableOpacity>
             </View>
-          )}
+            )
+          }}
           contentContainerStyle={{ paddingHorizontal: 10, paddingBottom: 90}}
         />
       </View>
@@ -71,6 +88,7 @@ export default function ClassManager() {
       <DetailClassBottomSheet
         isVisible={isVisible}
         onCloseButtonSheet={() => setIsVisible(false)}
+        classData = {selectedClass}
       />
     </View>
   );

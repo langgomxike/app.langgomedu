@@ -1,7 +1,9 @@
 
 export enum BackgroundColor {
     primary = '#0D99FF',
+    primary_op05 = "rgba(13, 153, 255, 0.5)",
     warning = '#F9CA24',
+    warning_op09 = "rgba(255, 213, 65, 0.9)",
     danger = '#E10909',
     sub_primary = '#6AC0FF',
     sub_warning = '#F9EEC7',
@@ -17,6 +19,7 @@ export enum BackgroundColor {
     gray_49 = '#494949',
     schedule_leaner = '#FFD028',
     schedule_tutor = '#CD84F1',
+    cyan_overlay = "#06b6d411"
     
 }
 
@@ -29,6 +32,8 @@ export enum TextColor {
     hint = '#CCCCCC',
     require = '#FF0000', //red star use this
     sub_primary = '#0D99FF',
+    yellow = '#FFD028',
+    purple = '#CD84F1',
 
 }
 
@@ -37,5 +42,7 @@ export enum BorderColor {
     black = "#000000",
     primary = "#85CBFF",
     gray_30 =  "#D9D9D9",
+    yellow = '#FFD028',
+    purple = '#CD84F1',
 
 }

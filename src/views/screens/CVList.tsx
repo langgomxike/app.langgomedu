@@ -96,7 +96,7 @@ export default function CVListScreen() {
                   phoneNumber={cv.user?.phone_number}
                   email={cv.user?.email}
                   dayOfBirth={cv.information?.birthday}
-                  address={cv.information?.address1}
+                  address={cv.information?.address_1}
                   skills={cv.skills}
                 />
               </View>
