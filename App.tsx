@@ -248,7 +248,7 @@ export default function App() {
                 component={ClassApprovalScreen}
               />
             </Stack.Navigator>
-          </NavigationContainer>
+          </NavigationContainer> */}
 
           {/* <LeanerAttendance></LeanerAttendance> */}
           {/* <TutorAttendance></TutorAttendance> */}

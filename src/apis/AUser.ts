@@ -158,7 +158,6 @@ export default class AUser {
   //trừ điểm uy tín
   public static minusUserPoints(
     user_id: string,
-    point:number,
     onNext: (response: any) => void,
     onLoading: (loading: boolean) => void
   ) {
@@ -167,7 +166,7 @@ export default class AUser {
 
     // Gửi request POST đến BE với user_id và số điểm cần trừ
     axios
-      .post(`${this.API_URL}/reports/minusUserPoints`, { user_id, point: point })
+      .post(`${this.API_URL}/reports/minusUserPoints`, { user_id, point: 30 })
       .then((response) => {
         // Nếu thành công, gọi callback `onNext` với kết quả từ BE
         onNext(response.data);
@@ -202,37 +201,6 @@ export default class AUser {
       .catch((error) => {
         console.error("Error locking user account:", error);
         onNext({ success: false, message: "Failed to lock user account." });
-      })
-      .finally(() => {
-        // Kết thúc loading
-        onLoading(false);
-      });
-  }
-  //tạo tài khoản admin
-  public static registerAdmin(
-    phone: string,
-    email: string,
-    password: string,
-    onNext: (response: any) => void,
-    onLoading: (loading: boolean) => void
-  ) {
-    // Bắt đầu loading
-    onLoading(true);
-  
-    // Gửi request POST đến BE với thông tin cần thiết để tạo tài khoản admin
-    axios
-      .post(`${this.API_URL}/users/register/admin`, {
-        phone,
-        email,
-        password,
-      })
-      .then((response) => {
-        // Nếu thành công, gọi callback `onNext` với kết quả từ BE
-        onNext(response.data);
-      })
-      .catch((error) => {
-        console.error("Error creating admin account:", error);
-        onNext({ success: false, message: "Failed to create admin account." });
       })
       .finally(() => {
         // Kết thúc loading

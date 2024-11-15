@@ -21,15 +21,6 @@ import { BackgroundColor } from "../../../configs/ColorConfig";
 import ReactAppUrl from "../../../configs/ConfigUrl";
 import Accordion from "../../components/Accordion";
 import AUser from "../../../apis/AUser";
-import { MaterialIcons } from "@expo/vector-icons";
-
-const reportLevels = [
-  { id: 1, label: "Cảnh báo nhẹ", points: 10 },
-  { id: 2, label: "Trung bình", points: 30 },
-  { id: 3, label: "Nghiêm trọng", points: 50 },
-  { id: 4, label: "Rất nghiêm trọng", points: 100 },
-];
-
 export default function UpdateReportedUser() {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
@@ -37,12 +28,6 @@ export default function UpdateReportedUser() {
   const [loading, setLoading] = useState(true);
   const URL = ReactAppUrl.PUBLIC_URL;
   const userReportId = "3"; // Thay bằng ID thực tế
-
-  const [selectedLevel, setSelectedLevel] = useState<number | null>(null);
-
-  const handleSelectLevel = (levelId: number) => {
-    setSelectedLevel(levelId);
-  };
 
   useEffect(() => {
     AUserReport.getUserReportById(
@@ -119,7 +104,7 @@ export default function UpdateReportedUser() {
             userReport?.from_user?.avatar_of_fromUser?.from_user_avatar + ""
           }
           userName={userReport?.from_user?.full_name + ""}
-          credibility={userReport?.from_user?.information?.point ?? 0}
+          credibility={userReport?.from_user?.information?.point}
         ></IconReport>
         {/* tài khoản bị báo cáo */}
         <Text style={styles.smallTitle2}>Tài khoản bị báo cáo</Text>
@@ -128,7 +113,7 @@ export default function UpdateReportedUser() {
             userReport?.to_user?.avatar_of_toUser?.to_user_avatar + ""
           }
           userName={userReport?.to_user?.full_name + ""}
-          credibility={userReport?.to_user?.information?.point ?? 0}
+          credibility={userReport?.to_user?.information?.point}
         ></IconReport>
         {/* lớp học bị báo cáo */}
       </View>
@@ -174,48 +159,15 @@ export default function UpdateReportedUser() {
             showsHorizontalScrollIndicator={false}
           ></FlatList>
         </View>
-
-        <View style={styles.reportLevelContainer}>
-          <Text style={styles.title}>Chọn mức độ báo cáo:</Text>
-          {reportLevels.map((level) => (
-            <TouchableOpacity
-              key={level.id}
-              style={[
-                styles.levelOption,
-                selectedLevel === level.id && styles.selectedOption,
-              ]}
-              onPress={() => handleSelectLevel(level.id)}
-            >
-              <Text style={styles.optionText}>{level.label}</Text>
-              {selectedLevel === level.id && (
-                <MaterialIcons name="check" size={20} color="green" />
-              )}
-            </TouchableOpacity>
-          ))}
-        </View>
-
         <View>
           <View style={styles.btns}>
             <TouchableOpacity
               style={[styles.btn, styles.btnAccept]}
               onPress={() => {
-                if (selectedLevel === null) {
-                  Alert.alert(
-                    "Vui lòng chọn mức độ báo cáo trước khi chấp nhận!"
-                  );
-                  return;
-                }
-
-                // Tìm số điểm tương ứng với mức độ đã chọn
-                const level = reportLevels.find(
-                  (level) => level.id === selectedLevel
-                );
-                const pointsToDeduct = level?.points || 0;
-
                 // Hiển thị alert xác nhận
                 Alert.alert(
                   "Xác nhận",
-                  `Bạn có chắc chắn muốn chấp nhận và trừ ${pointsToDeduct} điểm uy tín không?`,
+                  "Bạn có chắc chắn muốn chấp nhận và trừ điểm uy tín không?",
                   [
                     {
                       text: "Hủy",
@@ -226,8 +178,7 @@ export default function UpdateReportedUser() {
                       onPress: () => {
                         // Gọi hàm trừ điểm uy tín và xử lý trạng thái
                         AUser.minusUserPoints(
-                          userReport?.to_user?.id,
-                          pointsToDeduct,
+                          userReport?.to_user?.id, // Truyền user ID của người dùng cần trừ điểm
                           (response) => {
                             if (response.success) {
                               console.log("Points deducted successfully.");
@@ -245,7 +196,7 @@ export default function UpdateReportedUser() {
                             }
                           },
                           (loading) => {
-                            // Xử lý trạng thái loading nếu cần
+                            // Bạn có thể xử lý trạng thái loading tại đây nếu cần
                           }
                         );
                       },
@@ -300,49 +251,44 @@ export default function UpdateReportedUser() {
             </TouchableOpacity>
           </View>
           <TouchableOpacity
-            style={[styles.btn, styles.deleteUser]}
-            onPress={() => {
-              // Hiển thị alert xác nhận
-              Alert.alert(
-                "Xác nhận",
-                "Bạn có chắc chắn muốn khóa tài khoản người dùng này không?",
-                [
-                  {
-                    text: "Hủy",
-                    style: "cancel",
-                  },
-                  {
-                    text: "Xác nhận",
-                    onPress: () => {
-                      // Gọi hàm khóa tài khoản và xử lý trạng thái
-                      AUser.lockUserAccount(
-                        userReport?.to_user?.id,
-                        (response) => {
-                          if (response.success) {
-                            console.log("User account locked successfully.");
-                            Alert.alert("Tài khoản đã được khóa thành công!");
-                          } else {
-                            console.log(
-                              "Failed to lock account:",
-                              response.message
-                            );
-                            Alert.alert(
-                              "Đã xảy ra lỗi trong quá trình khóa tài khoản!"
-                            );
-                          }
-                        },
-                        (loading) => {
-                          // Có thể cập nhật trạng thái loading tại đây nếu cần
-                        }
-                      );
-                    },
-                  },
-                ]
-              );
-            }}
-          >
-            <Text style={styles.textBtnDeleteUser}>Khóa tài khoản</Text>
-          </TouchableOpacity>
+  style={[styles.btn, styles.deleteUser]}
+  onPress={() => {
+    // Hiển thị alert xác nhận
+    Alert.alert(
+      "Xác nhận",
+      "Bạn có chắc chắn muốn khóa tài khoản người dùng này không?",
+      [
+        {
+          text: "Hủy",
+          style: "cancel",
+        },
+        {
+          text: "Xác nhận",
+          onPress: () => {
+            // Gọi hàm khóa tài khoản và xử lý trạng thái
+            AUser.lockUserAccount(
+              userReport?.to_user?.id, 
+              (response) => {
+                if (response.success) {
+                  console.log("User account locked successfully.");
+                  Alert.alert("Tài khoản đã được khóa thành công!");
+                } else {
+                  console.log("Failed to lock account:", response.message);
+                  Alert.alert("Đã xảy ra lỗi trong quá trình khóa tài khoản!");
+                }
+              },
+              (loading) => {
+                // Có thể cập nhật trạng thái loading tại đây nếu cần
+              }
+            );
+          },
+        },
+      ]
+    );
+  }}
+>
+  <Text style={styles.textBtnDeleteUser}>Khóa tài khoản</Text>
+</TouchableOpacity>
         </View>
       </View>
 
@@ -578,40 +524,5 @@ const styles = StyleSheet.create({
   },
   textBtnDeleteUser: {
     color: "#fff",
-  },
-
-  reportLevelContainer: {
-    flex: 1,
-    padding: 20,
-    justifyContent: "center",
-    backgroundColor: "#f5f5f5",
-    borderRadius: 8,
-    marginBottom: 20,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 15,
-  },
-
-  levelOption: {
-    paddingVertical: 15,
-    paddingHorizontal: 20,
-    backgroundColor: "#fff",
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "#ddd",
-    marginBottom: 10,
-    alignItems: "center",
-    justifyContent: "space-between",
-    flexDirection: "row",
-  },
-  selectedOption: {
-    borderColor: "#007AFF",
-    backgroundColor: "#e6f0ff",
-  },
-  optionText: {
-    fontSize: 16,
-    color: "#333",
   },
 });
