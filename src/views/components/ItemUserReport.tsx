@@ -9,7 +9,7 @@ const URL= ReactAppUrl.PUBLIC_URL;
 type IconReport = {
   userAvatar?: string;
   userName: string;
-  credibility: number;
+  credibility?: number;
 };
 
 export default function IconRepor ({

@@ -99,6 +99,8 @@ export default function UpdateReportedClass() {
           </View>
           <Text style={styles.screenTitel}> Chi tiết báo cáo lớp học</Text>
         </View>
+
+
         {/* tài khoản báo cáo */}
         <Text style={styles.smallTitle1}>Tài khoản báo cáo</Text>
 
@@ -106,14 +108,16 @@ export default function UpdateReportedClass() {
           userAvatar={classReport?.user?.avatar?.path}
           userName={classReport?.user?.full_name + ""}
           credibility={classReport?.user?.information?.point}
-        ></IconReport>
+        />
+
         {/* tài khoản bị báo cáo */}
         <Text style={styles.smallTitle2}>Tài khoản bị báo cáo</Text>
         <IconReport
           userAvatar={classReport?.class?.author?.avatar?.path}
           userName={classReport?.class?.author?.full_name + ""}
-          credibility={classReport?.class?.author?.information?.point}
+          credibility={classReport?.class?.author?.information?.point ?? 100}
         ></IconReport>
+        
         {/* lớp học bị báo cáo */}
         <Text style={styles.smallTitle2}>Lớp học bị báo cáo</Text>
         <View style={styles.classInfor}>
@@ -197,7 +201,7 @@ export default function UpdateReportedClass() {
                       onPress: () => {
                         // Gọi hàm trừ điểm uy tín
                         AUser.minusUserPoints(
-                          classReport?.class?.author?.id, 50, // ID người dùng trừ 50 điểm do là lỗi nghiêm trọng
+                          classReport?.class?.author?.id ?? "", 50, // ID người dùng trừ 50 điểm do là lỗi nghiêm trọng
                           (pointResponse) => {
                             if (pointResponse.success) {
                               console.log("Điểm uy tín đã bị trừ thành công.");
