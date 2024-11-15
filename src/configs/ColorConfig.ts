@@ -1,8 +1,9 @@
 
 export enum BackgroundColor {
     primary = '#0D99FF',
-    primary_opacity = "rgba(13, 153, 255, 0.18)",
+    primary_op05 = "rgba(13, 153, 255, 0.5)",
     warning = '#F9CA24',
+    warning_op09 = "rgba(255, 213, 65, 0.9)",
     danger = '#E10909',
     sub_primary = '#6AC0FF',
     sub_warning = '#F9EEC7',

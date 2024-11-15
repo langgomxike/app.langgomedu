@@ -22,6 +22,9 @@ import Skill from '../../../models/Skill'
 import Information from '../../../models/Information'
 import ReactAppUrl from '../../../configs/ConfigUrl'
 import CertificateItem from '../../components/CV/CertificateItem'
+import Major from '../../../models/Major'
+import InterestedMajor from '../../../models/InterestedMajor'
+import moment from 'moment'
 
 export default function PersonalCV() {
   const {user, setUser} = useContext(UserContext);
@@ -29,7 +32,7 @@ export default function PersonalCV() {
   const [userInfo, setUserInfo] = useState<User>();
   const [information, setInformation] = useState<Information>();
   const [birthday, setBirthday] = useState<string>('');
-
+  const [interestedMajor, setInterestedMajor] = useState<Major>()
   //effect
   useEffect(()=>{
     ACV.getPersonalCV(user.ID, (cv)=>{
@@ -38,17 +41,29 @@ export default function PersonalCV() {
         // console.log('log in screen', JSON.stringify(cv?.user, null, 2));
         setUserInfo(cv.user);
         setInformation(cv.information);
-        // console.log('birthday', );
-        if(information){
-          const birthday = new Date(information?.birthday);
-          const birthdayData = birthday.getDate() + '/' + (birthday.getMonth() +1) + '/' + birthday.getFullYear()
-          setBirthday(birthdayData);
+        const priorityMajor = cv.interested_majors.find(major => major.priority === 0)
+        setInterestedMajor(priorityMajor ? priorityMajor.major :cv.interested_majors[0].major)
+        // console.log(cv.interested_majors[0].major);
+        console.log(interestedMajor);
+        
+        if(cv.information){
+          const birthday = new Date(cv.information?.birthday);
+          // const birthdayData = birthday.getDate() + '/' + (birthday.getMonth() +1) + '/' + birthday.getFullYear()
+          const birthdayData = moment(birthday)
+          setBirthday(birthdayData.format('DD/MM/yyyy'));
+          // setBirthday(birthdayData);
+          // console.log('birthday', birthdayData);
         }
         
       }
       
     })
   },[])
+
+  useEffect(()=>{
+    // console.log(interestedMajor);
+    
+  },[cv])
   
   return (
     <ScrollView showsVerticalScrollIndicator={false}
@@ -82,6 +97,13 @@ export default function PersonalCV() {
             <View style={styles.inforItemChild}>
               <Feather name="mail" size={20} color="black" />
               <Text style={styles.inforItemText}> {userInfo?.email} </Text>
+            </View>
+          </View>
+          <View style={styles.inforItem}>
+            {/* interested major */}
+            <View style={styles.inforItemChild}>
+            <Feather name="bookmark" size={24} color="black" />
+              <Text style={styles.inforItemText}> {interestedMajor?.vn_name} </Text>
             </View>
           </View>
           <View style={styles.inforItem}>
