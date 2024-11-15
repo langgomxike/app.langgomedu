@@ -1,5 +1,6 @@
 import React, {
   useCallback,
+  useContext,
   useEffect,
   useMemo,
   useRef,
@@ -20,6 +21,9 @@ import Class from "../../../models/Class";
 import AClassAdmin from "../../../apis/admin/AClassAdmin";
 import Lesson from "../../../models/Lesson";
 import User from "../../../models/User";
+import { NavigationContext, RouteProp, useRoute } from "@react-navigation/native";
+import ScreenName from "../../../constants/ScreenName";
+import { RootStackParamList } from "../../../configs/NavigationRouteTypeConfig";
 
 type DetailHistoryBottonSheetProps = {
   isVisible: boolean;
@@ -34,6 +38,7 @@ export default function ({
   onCloseButtonSheet,
   classData,
 }: DetailHistoryBottonSheetProps) {
+  const navigation = useContext(NavigationContext);
   //state
   const [report, setReport] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -70,6 +75,12 @@ export default function ({
     [isVisible]
   );
 
+  const goToReportClass = () => {
+    if(classData){
+      navigation?.navigate(ScreenName.REPORT_CLASS, { classId: classData.id });
+    }
+  }
+
   // effect
   useEffect(() => {
     if (classData) {
@@ -104,6 +115,19 @@ export default function ({
           <View style={styles.headerContainer}>
             {classData && <ClassComponent classData={classData} />}
           </View>
+
+          {classData?.is_reported &&
+          <View style={{ alignItems: "center" , paddingVertical: 20,}}>
+            <TouchableOpacity onPress={goToReportClass} style={[styles.btnReport, styles.btnShowdow]}>
+              <Text style={styles.btnReportText}>
+                Xem các báo cáo
+              </Text>
+            </TouchableOpacity>
+          </View>
+          }
+
+
+
           <View style={styles.bodyContainer}>
             {/* Danh sách học sinh của lớp */}
             <View style={styles.titleContainer}>
@@ -326,4 +350,36 @@ const styles = StyleSheet.create({
     gap: 10,
     alignItems: "center",
   },
+
+  btnReport: {
+    borderColor: "red",
+    borderWidth: 1,
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    borderRadius: 8,
+    marginTop: 20,
+    width: "80%",
+    alignItems: "center",
+    backgroundColor: BackgroundColor.white
+  },
+
+  btnShowdow: {
+    shadowColor: "red",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+
+    elevation: 5,
+  },
+
+  btnReportText: {
+    color: "red",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+
+
 });

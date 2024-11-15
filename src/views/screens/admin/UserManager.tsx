@@ -73,6 +73,7 @@ export default function () {
           scrollEnabled={true}
           showsVerticalScrollIndicator={false}
           data={users}
+          keyExtractor={(_, index) => index.toString()}
           renderItem={({ item:user }) => (
             <UserComponent userData={user} onPressOpenSheet={() => handleOpenBottomSheet(user)} />
           )}

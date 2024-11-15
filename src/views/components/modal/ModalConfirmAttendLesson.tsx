@@ -12,13 +12,13 @@ import { BackgroundColor } from "../../../configs/ColorConfig";
 import { Image } from "react-native";
 
 type ModalConfirmAttendClassProps = {
+  modalName?: string;
   confirmTitle: string;
   confirmContent: string;
   imageStatus: "success" | 'failure' | 'confirm';
   visiable: string | null;
   onRequestCloseDialog: () => void;
   loading?: boolean;
-  onAcceptAttendance?: () => void;
 };
 
 const images = [
@@ -37,13 +37,13 @@ const images = [
 ];
 
 export default function ModalConfirmAttendClass({
+  modalName,
   confirmTitle,
   confirmContent,
   imageStatus,
   visiable,
   onRequestCloseDialog,
   loading = false,
-  onAcceptAttendance
 }: ModalConfirmAttendClassProps) {
 
   // states
@@ -56,10 +56,15 @@ export default function ModalConfirmAttendClass({
 
   const source = getImageSource(imageStatus);
 
+  if(modalName){
+    console.log("in the modal", modalName);
+
+  }
+  
 
   return (
     <Modal
-      isVisible={visiable === "modalDialogForClass"}
+    isVisible={visiable === "modalDialogForClass"}
       animationIn={"slideInUp"}
       animationOut={"zoomOut"}
       onBackdropPress={() => onRequestCloseDialog()}

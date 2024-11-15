@@ -21,13 +21,21 @@ import ReactAppUrl from "../../../configs/ConfigUrl";
 import Accordion from "../../components/Accordion";
 import AUser from "../../../apis/AUser";
 import AClass from "../../../apis/AClass";
+import { RouteProp, useRoute } from "@react-navigation/native";
+import { RootStackParamList } from "../../../configs/NavigationRouteTypeConfig";
+import ScreenName from "../../../constants/ScreenName";
 
 export default function UpdateReportedClass() {
+  const route = useRoute<RouteProp<RootStackParamList, ScreenName.REPORT_CLASS>>();
+  // Get class id
+    const param = route.params;
+    console.log("Class id in report class: ", param.classId.toString());
+
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [classReport, setClassReport] = useState<ClassReport | null>(null);
   const [loading, setLoading] = useState(true);
-  const classReportId = "2";
+  const classReportId = param.classId.toString();
   const URL = ReactAppUrl.PUBLIC_URL;
   useEffect(() => {
     AClassReport.getClassReportById(
