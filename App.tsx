@@ -58,6 +58,7 @@ import Octicons from '@expo/vector-icons/Octicons';
 import LeanerAttendance from "./src/views/screens/attendance/LeanerAttendance";
 import HistoryAttendance from "./src/views/screens/attendance/HistoryAttendance";
 import TutorAttendance from "./src/views/screens/attendance/TutorAttendance";
+import AdminHome from "./src/views/screens/admin/AdminHome";
 
 
 const Stack = createNativeStackNavigator();
@@ -69,7 +70,7 @@ export default function App() {
   // states
   const [language, setLanguage] = useState<LanguageType>(languages.VN);
   const [user, setUser] = useState<UserDataType>({
-    ID: "089204010901",
+    ID: "089204010903",
     TYPE: UserType.LEANER,
   });
 
@@ -198,8 +199,26 @@ export default function App() {
             {/* ADMIN SCREENS */}
               <Stack.Screen
                 name={ScreenName.HOME_ADMIN}
-                component={HomeAdminScreen}
+                component={AdminHome}
               />
+              <Stack.Screen
+                name={ScreenName.CLASS_MANAGEMENT}
+                component={ClassManager}
+              />
+              <Stack.Screen
+                name={ScreenName.USER_MANAGEMENT}
+                component={UserManager}
+              />
+              <Stack.Screen
+                name={ScreenName.USER_REPORT_LIST}
+                component={UserReportList}
+              />
+
+              <Stack.Screen
+                name={ScreenName.REPORT_CLASS}
+                component={UpdateReportedClass}
+              />
+
               <Stack.Screen
                 name={ScreenName.CREATE_ACCOUNT_ADMIN}
                 component={CreatAcountAdmin}
@@ -217,26 +236,9 @@ export default function App() {
                 component={PermissionManagementScreen}
               />
               <Stack.Screen
-                name={ScreenName.CLASS_MANAGEMENT}
-                component={ClassManagementScreen}
-              />
-              <Stack.Screen
                 name={ScreenName.APPROVE_CLASS}
                 component={ApproveClassScreen}
               />
-              <Stack.Screen
-                name={ScreenName.USER_MANAGEMENT}
-                component={UserManagementScreen}
-              />
-              <Stack.Screen
-                name={ScreenName.USER_REPORT_LIST}
-                component={UserReportListScreen}
-              />
-              <Stack.Screen
-                name={ScreenName.USER_REPORT_DETAIL}
-                component={UserReportDetailScreen}
-              />
-
               <Stack.Screen
                 name={ScreenName.CV_APPROVAL}
                 component={CVApprovalScreen}

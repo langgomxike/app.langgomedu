@@ -38,7 +38,11 @@ import Attendance from "../../../models/Attendance";
 import ClassInForSkeleton from "../../components/skeleton/ClassInfoSkeleton";
 import Lesson from "../../../models/Lesson";
 import ScreenName from "../../../constants/ScreenName";
-import { NavigationContext, RouteProp, useRoute } from "@react-navigation/native";
+import {
+  NavigationContext,
+  RouteProp,
+  useRoute,
+} from "@react-navigation/native";
 import User from "../../../models/User";
 import ReactAppUrl from "../../../configs/ConfigUrl";
 import LeanerAttendanceSkeleton from "../../components/skeleton/LeanerAttendanceSkeleton";
@@ -47,7 +51,7 @@ import SFirebase, { FirebaseNode } from "../../../services/SFirebase";
 import { MaterialIcons } from "@expo/vector-icons";
 import DropdownParent from "../../components/dropdown/DropDownParent";
 import { RootStackParamList } from "../../../configs/NavigationRouteTypeConfig";
-
+import ModalConfirmAttendClass from "../../components/modal/ModalConfirmAttendLesson";
 const studentList = [
   {
     id: 1,
@@ -90,7 +94,8 @@ const studentList = [
 const URL = ReactAppUrl.PUBLIC_URL;
 
 export default function TutorAttendance() {
-  const route = useRoute<RouteProp<RootStackParamList, ScreenName.ATTENDED_FOR_LEARNER>>();
+  const route =
+    useRoute<RouteProp<RootStackParamList, ScreenName.ATTENDED_FOR_LEARNER>>();
   const param = route.params;
 
   //context
@@ -104,6 +109,8 @@ export default function TutorAttendance() {
   const [learners, setLearners] = useState<User[]>();
   const [attendanceResult, setAttendanceResult] = useState(false);
   const [selectedLearnerId, setSelectedLearnerId] = useState<string>("");
+  const [confirmPaidResult, setConfirmPaidResult] = useState(false);
+  const [selectedPaymentImage, setSelectedPaymentImage] = useState("");
 
   const classId = param.classId;
   const lessonId = param.lessonId;
@@ -147,6 +154,18 @@ export default function TutorAttendance() {
     }
   };
 
+  // Hàm xác nhận thanh toán cho gia sư
+  const handleConfirmPaid = useCallback((attendanceIds: number[]) => {
+    console.log("handleConfirmPaid attendanceIds", attendanceIds);
+
+    AAttendance.confirmPaidForLearner(attendanceIds, (data) => {
+      setModalVisible("modalDialogForClass");
+      if(data.result){
+        setConfirmPaidResult(data.result);
+      }
+    }, setLoading);
+  }, []);
+
   // Styles animated chevron
   const iconStyle = useAnimatedStyle(() => ({
     transform: [{ rotate: `${progress.value * -90}deg` }],
@@ -166,7 +185,7 @@ export default function TutorAttendance() {
     // SFirebase.trackOne(FirebaseNode.ATTENDANCE, 1, () => {
     //   console.log("Được gọi lại khi bấm điểm danh thành công!");
     // })
-    
+
     AAttendance.getAttendanceByTutorClassLesson(
       classId,
       lessonId,
@@ -178,7 +197,7 @@ export default function TutorAttendance() {
       },
       setLoading
     );
-  }, []);
+  }, [attendanceResult, confirmPaidResult]);
 
   return (
     <View style={{ flex: 1 }}>
@@ -209,125 +228,185 @@ export default function TutorAttendance() {
               <View style={styles.otherUserContainer}>
                 <Text style={styles.titleContainer}>Phụ huynh/ học sinh</Text>
 
-                {loading &&
-                  <LeanerAttendanceSkeleton />
-                }
-                {!loading && learners &&
+                {loading && <LeanerAttendanceSkeleton />}
+                {!loading && learners && (
                   <FlatList
                     data={learners}
-                    renderItem={({ item: learner }) => (
-                      <View style={[styles.otherUserBox, styles.boxshadow]}>
-                        <View style={styles.userTypeContainer}>
-                          <Text
-                            style={[
-                              styles.userType,
-                              learner.students
-                                ? { backgroundColor: '#4CAF50' }
-                                : { backgroundColor: BackgroundColor.warning },
-                            ]}
-                          >
-                            {learner.students ? "Phụ huynh" : "Học sinh"}
-                          </Text>
-                        </View>
-                        <Pressable
-                          style={styles.otherUserPressable}
-                          onPress={() => {
-                            open.value = !open.value;
-                          }}
-                        >
-                          <View>
-                            <View style={styles.otherUser}>
-                              <View style={[styles.otherUserAvatarContainer, {borderWidth: 2, borderColor: learner.students ? '#4CAF50' : BackgroundColor.warning}]}>
-                                <Image
-                                  source={{
-                                    uri: `${URL}${learner.avatar?.path}`,
-                                  }}
-                                  style={styles.otherUserAvatar}
-                                />
-                              </View>
-                              <Text style={styles.otherUserName}>
-                                {learner.full_name}
-                              </Text>
-                            </View>
-                          </View>
+                    renderItem={({ item: learner }) => {
+                      const attendance =
+                        attendStudents && attendStudents.length > 0
+                          ? attendStudents.find(
+                              (student) => student.user?.id === learner.id
+                            )
+                          : null;
 
-                          <TouchableOpacity
+                      // Lấy tất cả các id từ attendStudents
+                      const attendanceIds = attendStudents
+                      ? attendStudents
+                          .filter((l) => l.user?.id === learner.id)
+                          .map((l) => l.id)
+                      : [];
+
+                      const isPaid = attendance?.attendance_payment?.paid || false;
+                      const isDeferred = attendance?.attendance_payment?.deferred || false;
+                      const paymentMothod =  attendance?.attendance_payment?.type || "";
+                      const confirmPaid = attendance?.attendance_payment?.confirmed_by_tutor || false
+                      const paymentImage = attendance?.attendance_payment?.payment_path || "";
+                      
+                      return (
+                        <View style={[styles.otherUserBox, styles.boxshadow]}>
+                          <View style={styles.userTypeContainer}>
+                            <Text
+                              style={[
+                                styles.userType,
+                                learner.students
+                                  ? { backgroundColor: "#4CAF50" }
+                                  : {
+                                      backgroundColor: BackgroundColor.warning,
+                                    },
+                              ]}
+                            >
+                              {learner.students ? "Phụ huynh" : "Học sinh"}
+                            </Text>
+                          </View>
+                          <Pressable
+                            style={styles.otherUserPressable}
                             onPress={() => {
                               open.value = !open.value;
                             }}
-                            style={styles.chevronIcon}
                           >
-                            <Animated.View style={iconStyle}>
-                              <Ionicons
-                                name="chevron-down-outline"
-                                size={20}
-                                color="#666"
-                              />
-                            </Animated.View>
-                          </TouchableOpacity>
-                        </Pressable>
-
-                        <Animated.View style={heightAnimationStyle}>
-                          <Animated.View
-                            ref={listRef}
-                            style={styles.otherUserContentContainer}
-                            onLayout={(event) => {
-                              const { height } = event.nativeEvent.layout; // Lấy chiều cao từ layout
-                              heightValue.value = height;
-                              // Cập nhật heightValue
-                            }}
-                          >
-                            <View style={styles.contentBlock}>
-                              <Text style={styles.textContentTitle}>
-                                Đã chuyển khoản cho bạn!
-                              </Text>
-                              <TouchableOpacity
-                                onPress={() =>
-                                  setModalVisible("modal_paid_result")
-                                }
-                              >
-                                <Text style={styles.textSubTitle}>
-                                  Xem thông tin
+                            <View>
+                              <View style={styles.otherUser}>
+                                <View
+                                  style={[
+                                    styles.otherUserAvatarContainer,
+                                    {
+                                      borderWidth: 2,
+                                      borderColor: learner.students
+                                        ? "#4CAF50"
+                                        : BackgroundColor.warning,
+                                    },
+                                  ]}
+                                >
+                                  <Image
+                                    source={{
+                                      uri: `${URL}${learner.avatar?.path}`,
+                                    }}
+                                    style={styles.otherUserAvatar}
+                                  />
+                                </View>
+                                <Text style={styles.otherUserName}>
+                                  {learner.full_name}
                                 </Text>
-                              </TouchableOpacity>
-                              <View style={styles.btnContainer}>
-                                <TouchableOpacity
-                                  style={[
-                                    styles.btn,
-                                    styles.btnDeny,
-                                    styles.boxshadow,
-                                  ]}
-                                >
-                                  <Text style={styles.btnText}>Từ chối</Text>
-                                </TouchableOpacity>
-
-                                <TouchableOpacity
-                                  style={[
-                                    styles.btn,
-                                    styles.btnAccpet,
-                                    styles.boxshadow,
-                                  ]}
-                                >
-                                  <Text
-                                    style={[
-                                      styles.btnText,
-                                      { color: BackgroundColor.white },
-                                    ]}
-                                  >
-                                    Xác nhận
-                                  </Text>
-                                </TouchableOpacity>
                               </View>
                             </View>
+
+                            <TouchableOpacity
+                              onPress={() => {
+                                open.value = !open.value;
+                              }}
+                              style={styles.chevronIcon}
+                            >
+                              <Animated.View style={iconStyle}>
+                                <Ionicons
+                                  name="chevron-down-outline"
+                                  size={20}
+                                  color="#666"
+                                />
+                              </Animated.View>
+                            </TouchableOpacity>
+                          </Pressable>
+
+                          <Animated.View style={heightAnimationStyle}>
+                            <Animated.View
+                              ref={listRef}
+                              style={styles.otherUserContentContainer}
+                              onLayout={(event) => {
+                                const { height } = event.nativeEvent.layout; // Lấy chiều cao từ layout
+                                heightValue.value = height;
+                                // Cập nhật heightValue
+                              }}
+                            >
+                              {confirmPaid && 
+                              <View style={styles.contentBlockConfirm}>
+                              <Ionicons name="checkmark-outline" size={24} color="green" />
+                                <Text style={styles.contentBlockConfirmTitle}>
+                                   Đã được xác nhận!
+                                </Text>
+                              </View>
+                              }
+
+                              {!confirmPaid && 
+                              <View style={styles.contentBlock}>
+                                <Text style={styles.textContentTitle}>
+                                  {isPaid
+                                    ? `Đã thanh toán cho bạn bằng ${ paymentMothod === "bank" ? "ngân hàng" : "tền măt"}.\nVui lòng xác nhận!`
+                                    : isDeferred ?  "Đã hoãn thanh toán cho buổi học này.\n Vui lòng xác nhận" : "Chưa thanh toán\n Nhắc nhở thanh toán"}
+                                </Text>
+
+                                <TouchableOpacity
+                                 onPress={() => {
+                                  if (paymentMothod === "bank") {
+                                  setSelectedPaymentImage(paymentImage);
+                                  setModalVisible("modal_paid_result");
+                                  }
+                                }}
+                                >
+                                  <Text style={styles.textSubTitle}>
+                                    {paymentMothod === "bank"
+                                      ? " Xem thông tin"
+                                      : "..."}
+                                  </Text>
+                                </TouchableOpacity>
+                                {/* Nếu người học đã than toán */}
+                                {(isPaid || isDeferred) && 
+                                <View style={styles.btnContainer}>
+                                  <TouchableOpacity
+                                    style={[ styles.btn,styles.btnDeny,styles.boxshadow,]}>
+                                    <Text style={styles.btnText}>Từ chối</Text>
+                                  </TouchableOpacity>
+
+                                  <TouchableOpacity
+                                    style={[styles.btn, styles.btnAccpet, styles.boxshadow,
+                                    ]}>
+                                    <Text onPress={() => handleConfirmPaid(attendanceIds)}
+                                      style={[ styles.btnText,  { color: BackgroundColor.white },]}>
+                                      Xác nhận
+                                    </Text>
+                                  </TouchableOpacity>
+                                </View>
+                                }
+
+                                {/* Nếu người học chưa thanh toán */}
+                                {
+                                  (!isPaid || !isDeferred) && 
+                                  <View style={styles.btnContainer}>
+                                  <TouchableOpacity
+                                    style={[styles.btn, styles.btnAccpet, styles.boxshadow,]}>
+                                    <Text  
+                                      onPress={() =>  alert("Gửi thông báo") }
+                                      style={[styles.btnText, { color: BackgroundColor.white },]}>
+                                     Gửi thông báo
+                                    </Text>
+                                  </TouchableOpacity>
+                                </View>
+                                }
+                              </View>
+                              }
+
+                            </Animated.View>
                           </Animated.View>
-                        </Animated.View>
-                      </View>
-                    )}
+                        </View>
+                      );
+                    }}
                     showsHorizontalScrollIndicator={false}
                     horizontal={true}
-                    contentContainerStyle={[styles.otherUserContainerList, learners.length === 1 && styles.centeredItem,]}
+                    contentContainerStyle={[
+                      styles.otherUserContainerList,
+                      learners.length === 1 && styles.centeredItem,
+                    ]}
                   />
-                }
+                )}
               </View>
 
               <View style={styles.studentListContainer}>
@@ -388,13 +467,18 @@ export default function TutorAttendance() {
       </View>
       <View style={styles.footerContainer}>
         <TouchableOpacity
-          disabled = {attendStudents ? true : false}
+          disabled={attendStudents.length ? true : false}
           onPress={() => setModalVisible("modal_student_list")}
-          style={[styles.btnAttendce, attendStudents ? {backgroundColor: BackgroundColor.primary_op05} : {backgroundColor: BackgroundColor.primary}]}
+          style={[
+            styles.btnAttendce,
+            attendStudents.length
+              ? { backgroundColor: BackgroundColor.primary_op05 }
+              : { backgroundColor: BackgroundColor.primary },
+          ]}
         >
           <Text style={styles.btnAttendceText}>
-            { attendStudents? " Đã điểm danh" : "Điểm danh" }
-           </Text>
+            {attendStudents ? " Đã điểm danh" : "Điểm danh"}
+          </Text>
         </TouchableOpacity>
       </View>
 
@@ -402,7 +486,7 @@ export default function TutorAttendance() {
       <ModalPaidResult
         visiable={modalVisible}
         onRequestClose={() => setModalVisible(null)}
-        image_uri="https://help.senpay.vn/hc/article_attachments/16787882502041"
+        image_uri={`${ReactAppUrl.PUBLIC_URL}${selectedPaymentImage}`}
       />
 
       {/* Modal show student list */}
@@ -415,6 +499,16 @@ export default function TutorAttendance() {
           onAttendanceResult={handleAttendanceResult}
         />
       )}
+
+      <ModalConfirmAttendClass
+        confirmTitle="Xác nhận thành công"
+        confirmContent={
+          "Xác nhận thanh toán thành công!"
+        }
+        imageStatus={"success"}
+        visiable={modalVisible}
+        onRequestCloseDialog={() => setModalVisible(null)}
+      />
     </View>
   );
 }
@@ -562,9 +656,9 @@ const styles = StyleSheet.create({
   },
 
   otherUserName: {
-    fontSize: 16, 
-    fontWeight: 'bold',
-    color: '#333',
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#333",
   },
 
   otherUserBox: {
@@ -683,7 +777,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 8,
     borderRadius: 10,
-    width: "40%",
+    flex: 1,
   },
 
   btnText: {
@@ -705,4 +799,16 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+
+  contentBlockConfirm: {
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 10,
+    backgroundColor: BackgroundColor.white,
+    gap: 10
+  },
+  contentBlockConfirmTitle:{
+    textAlign: "center",
+  }
+
 });

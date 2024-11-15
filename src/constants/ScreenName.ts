@@ -32,16 +32,20 @@ enum ScreenName {
 
     CHANGE_PASSWORD = "Change Password",
 
+    // Admin
     HOME_ADMIN = "Home Admin",
+    CLASS_MANAGER = "Class Manager",
+    USER_MANAGER = "User Manager",
+    USER_REPORT_LIST = "User Report List",
+    USER_REPORT_DETAIL = "User Report Detail",
+
+    REPORT_CLASS = "ReportClass",
 
     APP_INFO_MANAGEMENT = "App Information Management",
     PERMISSION_MANAGEMENT = "Permissions Management",
     CLASS_MANAGEMENT = "Class Management",
     APPROVE_CLASS = "Approve Class",
     USER_MANAGEMENT = "User Management",
-
-    USER_REPORT_LIST = "User Report List",
-    USER_REPORT_DETAIL = "User Report Detail",
 
     CV_APPROVAL = "CV Approval",
     CLASS_APPROVAL = "Class Approval",
