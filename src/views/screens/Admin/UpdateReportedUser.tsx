@@ -36,7 +36,7 @@ export default function UpdateReportedUser() {
   const [userReport, setUserReport] = useState<UserReport | null>(null);
   const [loading, setLoading] = useState(true);
   const URL = ReactAppUrl.PUBLIC_URL;
-  const userReportId = "1"; // Thay bằng ID thực tế
+  const userReportId = "3"; // Thay bằng ID thực tế
 
   const [selectedLevel, setSelectedLevel] = useState<number | null>(null);
 
