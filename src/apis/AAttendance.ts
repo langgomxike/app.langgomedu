@@ -52,6 +52,9 @@ export default class AAttendance {
   ) {
     onLoading(true);
 
+    // console.log(`classId: ${classId}, lessonId: ${lessonId}, userId: ${userId}, attendAt: ${attendedAt}`);
+    
+
     axios
       .get(`${this.API_URL}/learner/${classId}/${lessonId}/${userId}?attended_at=${attendedAt}`)
       .then((response) => {
@@ -136,5 +139,21 @@ export default class AAttendance {
       console.log("Error: ", err);
       console.log(err.message);
     });
+  }
+
+  public static confirmPaidForLearner(
+    attendanceIds : number[],
+    onNext: (data: any) => void,
+    onLoading: (loading: boolean) => void,
+  ){
+    axios
+     .post(`${this.API_URL}/confirm_paid`, {attendance_ids: attendanceIds, confirmed_by_tutor: true})
+     .then((response) => {
+        console.log(">>> confirm paid for learner: ", response.data.data);
+        onNext(response.data.data);
+      })
+     .catch((err) => {
+        console.log("Error: ", err);
+      });
   }
 }

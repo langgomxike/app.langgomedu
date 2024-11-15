@@ -1,3 +1,5 @@
+import ScreenName from "../constants/ScreenName";
+
 import User from "../models/User";
 
 export type IdNavigationType = {
@@ -15,6 +17,7 @@ export type RootStackParamList = {
   "DetailClass": { classId: number };
   "AttendedForLearner": { lessonId: number, classId: number };
   "AttendedForTutor": { lessonId: number, classId: number };
+  [ScreenName.REPORT_CLASS]: { classId: number };
 };
 
 export type RootStackParamListFilter = {

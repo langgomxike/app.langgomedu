@@ -15,7 +15,8 @@ export type Day = {
   activeDate: number,
   currentWeek: number,
   setActiveDate: (currentDate: Date) => void,
-  setCurrentWeek: (currentWeek: number) => void
+  setCurrentWeek: (currentWeek: number) => void,
+  setSelectedDate: (date: Date) => void
 }
 
 export default function PersonalScheduleScreen() {
@@ -36,7 +37,7 @@ export default function PersonalScheduleScreen() {
   const [todayLessons, setTodayLessons] = useState<Lesson[]>([])
   const [activeDate, setActiveDate] = useState(currentDate);
   const [currentWeek, setCurrentWeek] = useState(0);
-  
+  const [selectedDate, setSelectedDate] = useState(new Date());
   /**
    * 0 = current week
    * -1 = last week , -2,-3,...
@@ -114,9 +115,9 @@ export default function PersonalScheduleScreen() {
                 paddingTop: 5,
               }
             }>
-            <WeekCalendar today={currentDay} currentDay={currentDay} currentDate={currentDate} currentWeek={currentWeek} activeDate={activeDate} setActiveDate={handlerSetActiveDate} setCurrentWeek={handlerSetWeek}/>
+            <WeekCalendar today={currentDay} currentDay={currentDay} currentDate={currentDate} currentWeek={currentWeek} activeDate={activeDate} setActiveDate={handlerSetActiveDate} setCurrentWeek={handlerSetWeek} setSelectedDate={setSelectedDate}/>
             {/* <TimeLine lessons={lessons}/> */}
-            <TimeLine user_id={user_id} student_id={student_id} lessons={todayLessons}/>
+            <TimeLine user_id={user_id} student_id={student_id} lessons={todayLessons} selectedDate={selectedDate}/>
           </ScrollView>
           {/* <RatingScreen/> */}
 

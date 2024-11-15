@@ -38,6 +38,7 @@ const WeekCalendar = ({
   currentWeek,
   setActiveDate: setActiveDate,
   setCurrentWeek: setCurrentWeek,
+  setSelectedDate
 }: Day) => {
   //prop, context
   const sunday = getSunday(today);
@@ -49,6 +50,7 @@ const WeekCalendar = ({
     onNext: (currentDate: Date) => void,
     clickedDate: Date
   ) => {
+    setSelectedDate(clickedDate)
     // console.log(clickedDate);
     // AClass.getAllClasses(()=>{});
     onNext(clickedDate);
