@@ -54,13 +54,16 @@ export default function LeanerAttendance() {
   >();
   const [paymentMethod, setPaymentMethod] = useState<"cash" | "bank">("cash");
   const [selectedImage, setSelectedImage] = useState<any>(null);
+  const [isPaid, setIsPaid] = useState(false);
+  const [isDeferred, setIsDeferred] = useState(false);
+  const [modalName, setModalName] = useState("");
 
   const classId = param.classId;
   const lessonId = param.lessonId;
   const userId = user.ID;
-  const attendedAt = new Date("2024-11-08").getTime();
+  const attendedAt = new Date("2024-11-14").getTime();
   // moment.locale('vi');
-  // console.log("attendedAt", new Date().getTime());
+  // console.log("attendedAt", param.date);
 
   // Handler
   const imageUri =
@@ -133,6 +136,7 @@ export default function LeanerAttendance() {
       true,
       (data) => {
         if (data.result) {
+          setModalName("showĐialogAttendance")
           setModalVisible("modalDialogForClass");
           setConfirmResult(true);
         }
@@ -144,10 +148,17 @@ export default function LeanerAttendance() {
   const handlePayment = useCallback(
     async (status: string) => {
       let deferred = false;
+      let paid = false;
       if (status === "pay") {
         deferred = false;
+        paid = true;
+        setModalName("showPaid");
+        setModalVisible("modalDialogForClass");
       } else {
         deferred = true;
+        paid = false;
+        setModalName("showDeffered");
+        setModalVisible("modalDialogForClass");
       }
 
       if (attendStudents) {
@@ -155,23 +166,31 @@ export default function LeanerAttendance() {
 
         const formData = new FormData();
 
-        // Chuyển đổi URI thành Blob
-        // const response = await fetch(selectedImage.uri);
-        // const blob = await response.blob();
+        // Thêm ảnh vào formData
 
-        // // Thêm ảnh vào formData
-        formData.append("file",{
+        if (selectedImage && paymentMethod === "bank") {
+          console.log("selected image", selectedImage);
+          formData.append("file", {
             uri: selectedImage.uri,
             name: selectedImage.fileName,
             type: selectedImage.mimeType,
-        } as any);
+          } as any);
 
-        console.log( "uri", selectedImage.uri,  "name:", selectedImage.fileName, "type:", selectedImage.mimeType,);
-        
+          console.log(
+            "uri",
+            selectedImage.uri,
+            "name:",
+            selectedImage.fileName,
+            "type:",
+            selectedImage.mimeType
+          );
+        }
 
         // Thêm các dữ liệu khác vào formData
+        console.log(`paid: ${paid}, deffered: ${deferred}`);
+        
         formData.append("attendance_ids", JSON.stringify(attendanceIds));
-        formData.append("paid", String(true));
+        formData.append("paid", String(paid));
         formData.append("type", paymentMethod);
         formData.append("deferred", String(deferred));
 
@@ -201,6 +220,11 @@ export default function LeanerAttendance() {
         setLessonDetail(lessonDetail);
         setAttendStudents(attendStudents);
         setConfirmAttendance(attendStudents[0].confirm_attendance);
+        if (attendStudents.length > 0 && attendStudents[0].attendance_payment) {
+          setIsPaid(attendStudents[0].attendance_payment.paid);
+          setIsDeferred(attendStudents[0].attendance_payment.deferred);
+          setPaymentMethod(attendStudents[0].attendance_payment.type as "cash" | "bank");
+        }
       },
       setLoading
     );
@@ -398,36 +422,35 @@ export default function LeanerAttendance() {
 
         {confirmAttendance && (
           <View style={styles.btnContainer}>
-            <TouchableOpacity
-              disabled={paymentResult || true ? true : false}
-              style={[
-                styles.btnDebt,
-                {
-                  backgroundColor:
-                    !paymentResult || true
+              <TouchableOpacity
+                disabled={isPaid || isDeferred}
+                style={[
+                  styles.btnDebt,
+                  {
+                    backgroundColor: isPaid || isDeferred
                       ? BackgroundColor.warning_op09
                       : BackgroundColor.warning,
-                },
-              ]}
-              onPress={() => handlePayment("deferred")}
-            >
-              <Text style={styles.btnDebtText}>Trì hoãn</Text>
-            </TouchableOpacity>
+                  },
+                ]}
+                onPress={() => handlePayment("deferred")}
+              >
+                <Text style={styles.btnDebtText}> {isDeferred ? "Đã trì hoãn" : "Trì hoãn"}</Text>
+              </TouchableOpacity>
+
             <TouchableOpacity
-              // disabled={paymentResult || true ? true : false}
+              disabled={isPaid || isDeferred}
               style={[
                 styles.btnPay,
                 {
-                  backgroundColor:
-                    paymentResult || true
-                      ? BackgroundColor.primary_op05
-                      : BackgroundColor.primary,
+                  backgroundColor: isPaid || isDeferred
+                    ? BackgroundColor.primary_op05
+                    : BackgroundColor.primary,
                 },
               ]}
               onPress={() => handlePayment("pay")}
             >
               <Text style={styles.btnPayText}>
-                {paymentResult || true ? "Đã thanh toán" : "Thanh toán"}
+                {isPaid ? "Đã thanh toán" : "Thanh toán"}
               </Text>
             </TouchableOpacity>
           </View>
@@ -435,7 +458,10 @@ export default function LeanerAttendance() {
       </View>
 
       {/* Modal xác nhận điểm danh */}
+      {
+        modalName === "showĐialogAttendance" && 
       <ModalConfirmAttendClass
+        modalName="showDeffred"
         confirmTitle="Xác nhận thành công"
         confirmContent={
           "Cảm ơn bạn đã xác nhận tham gia buổi học. Hãy cùng học tập hiệu quả nhé!"
@@ -443,8 +469,39 @@ export default function LeanerAttendance() {
         imageStatus={"success"}
         visiable={modalVisible}
         onRequestCloseDialog={() => setModalVisible(null)}
-        onAcceptAttendance={handleAcceptAttendace}
       />
+      }
+
+      {/* Modal hiển thị thanh toán thành công */}
+
+      {
+        modalName === "showDeffered" && 
+      <ModalConfirmAttendClass
+        modalName={modalName}
+        confirmTitle="Xác nhận thành công"
+        confirmContent={
+          "Trì hoãn của bạn đã ghi được nhận. Gia sư sẽ sớm ghi nhận trì hoãn của bạn!"
+        }
+        imageStatus={"success"}
+        visiable={modalVisible}
+        onRequestCloseDialog={() => setModalVisible(null)}
+      />
+      }
+
+      {
+        modalName === "showPaid" && 
+        <ModalConfirmAttendClass
+          modalName={modalName}
+          confirmTitle="Xác nhận thành công"
+          confirmContent={
+            "Thanh toán của bạn đã được ghi nhận. Gia sư sẽ sớm sác nhận thanh toán của bạn!"
+          }
+          imageStatus={"success"}
+          visiable={modalVisible}
+          onRequestCloseDialog={() => setModalVisible(null)}
+        />
+
+      }
     </View>
   );
 }

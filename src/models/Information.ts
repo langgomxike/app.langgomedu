@@ -8,7 +8,7 @@ export default class Information {
     public address_2: string;
     public address_3: string;
     public address_4: string;
-    public birthday: Date;
+    public birthday: number;
     public gender: Gender | undefined;
     public point: number;
     public banking_number: string;
@@ -21,7 +21,7 @@ export default class Information {
         this.address_2 = address_2;
         this.address_3 = address_3;
         this.address_4 = address_4;
-        this.birthday = new Date(birthday);
+        this.birthday = birthday;
         this.gender = gender;
         this.point = point;
         this.banking_number = banking_number;

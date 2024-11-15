@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useContext } from "react";
 import {
   StyleSheet,
   ScrollView,
@@ -27,16 +27,27 @@ import Animated, {
 import ModalPaidResult from "../../components/modal/ModalPaidResult";
 import ClassInfo from "../../components/ClassInfo";
 import MyIcon, { AppIcon } from "../../components/MyIcon";
+import { NavigationContext } from "@react-navigation/native";
+import ScreenName from "../../../constants/ScreenName";
 
-export default function Attendance() {
-  // Styles animated chevron
+export default function AdminHome() {
+  const navigation = useContext(NavigationContext);
+
+  // handler
+  const gotToUserManager = useCallback(() => {
+    navigation?.navigate(ScreenName.USER_MANAGEMENT);
+  }, []);
+
+  const gotToClassManager = useCallback(() => {
+    navigation?.navigate(ScreenName.CLASS_MANAGEMENT);
+  }, []);
 
   return (
     <View>
       <View style={styles.header}>
-        <View style={styles.icon_setting}>
-          <MyIcon icon={AppIcon.ic_setting}></MyIcon>
-        </View>
+        <TouchableOpacity style={styles.icon_setting}>
+        <Ionicons name="settings-outline" size={24} color="white" />
+        </TouchableOpacity>
 
         <Image
           style={styles.avatar}
@@ -45,26 +56,32 @@ export default function Attendance() {
         <Text style={styles.name}>LanggomAdmin</Text>
       </View>
       <View style={styles.container}>
-        <View style={styles.group}>
+        <TouchableOpacity style={styles.group}>
           <Image style={styles.iconInGroup} source={require('../../../../assets/icons/ic_admin_rule.png')}></Image>
           <Text style={styles.nameInGroup}>Quản lý phân quyền</Text>
-        </View>
-        <View style={styles.group}>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.group}>
           <Image style={styles.iconInGroup} source={require('../../../../assets/icons/ic_admin_rule.png')}></Image>
           <Text style={styles.nameInGroup}>Thêm quyền quản trị</Text>
-        </View>
-        <View style={styles.group}>
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+        onPress={gotToUserManager}
+        style={styles.group}>
         <Image style={styles.iconInGroup} source={require('../../../../assets/icons/ic_account_manage.png')}></Image>
           <Text style={styles.nameInGroup}>Quản lý người dùng</Text>
-        </View>
-        <View style={styles.group}>
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={gotToClassManager} style={styles.group}>
           <Image style={styles.iconInGroup} source={require('../../../../assets/icons/ic_class_pending_approval.png')}></Image>
           <Text style={styles.nameInGroup}>Quản lý lớp học</Text>
-        </View>
-        <View style={styles.group}>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.group}>
           <Image style={styles.iconInGroup} source={require('../../../../assets/icons/ic_account_manage.png')}></Image>
           <Text style={styles.nameInGroup}>Quản lý chung</Text>
-        </View>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -73,24 +90,23 @@ export default function Attendance() {
 const styles = StyleSheet.create({
   header: {
     backgroundColor: BackgroundColor.primary,
-    padding: 20,
-    height: "45%",
     marginBottom: 10,
     alignItems: "center",
+    paddingBottom: 60
   },
   container: {
     borderRadius: 30,
     backgroundColor: "white",
-    padding: 20,
-    height: "60%",
-    marginTop: -100,
-    alignItems: "center",
+    marginTop: -30,
+    paddingHorizontal: 20,
+    paddingTop: 30,
+    gap: 20,
   },
   avatar: {
-    height: 100,
-    width: 100,
+    height: 80,
+    width: 80,
     borderRadius: 500,
-    marginTop: "20%",
+    marginTop: 20,
   },
   name: {
     fontSize: 24,
@@ -99,16 +115,14 @@ const styles = StyleSheet.create({
     color: "white",
   },
   icon_setting: {
-    marginBottom: "-15%",
-    marginTop: "5%",
-    marginLeft: "90%",
+    justifyContent: "flex-end",
+    alignItems: "flex-end",
+    width: "100%",
+    paddingHorizontal: 20
   },
   group: {
-    height: "12%",
-    width: "95%",
     backgroundColor: "#fff",
-    borderRadius: 5,
-    marginTop: "7%",
+    borderRadius: 8,
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
@@ -117,20 +131,21 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
-  },
+
+    flexDirection: "row",
+    gap: 10, 
+    paddingVertical: 15,
+    paddingHorizontal: 10,
+   },
+
   iconInGroup:{
     width:30,
     height: 30,
-    marginTop: "4%",
-    marginLeft: "5%",
-    marginBottom: "3%",
     resizeMode: "contain",
   },
   nameInGroup:{
     fontSize: 18,
     fontWeight: "bold",
-    marginTop: "-12%",
-    marginLeft: "20%",
     color: "#000",
   },
 });

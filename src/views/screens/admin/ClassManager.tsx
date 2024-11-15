@@ -62,9 +62,12 @@ export default function ClassManager() {
           scrollEnabled={true}
           showsVerticalScrollIndicator={false}
           data={classes}
+          keyExtractor={(_, index) => index.toString()}
           renderItem={({ item }) => {
             return (
-            <View style={[styles.classItemContainer, styles.boxshadow]}>
+            <View style={[styles.classItemContainer, item.is_reported
+              ? [styles.boxshadowDanger, styles.borderDanger]
+              : styles.boxshadow,]}>
               <TouchableOpacity onPress={() => handleOpenBottomSheet(item)}>
                 <ClassComponent classData={item}/>
               </TouchableOpacity>
@@ -104,6 +107,11 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
 
+  borderDanger: {
+    borderColor: "#FF5050",
+    borderWidth: 1,
+  },
+
   searchHeader: {
     flexDirection: "row",
     gap: 20,
@@ -136,6 +144,18 @@ const styles = StyleSheet.create({
 
   boxshadow: {
     shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+
+    elevation: 5,
+  },
+
+  boxshadowDanger: {
+    shadowColor: "#FF5050",
     shadowOffset: {
       width: 0,
       height: 2,
