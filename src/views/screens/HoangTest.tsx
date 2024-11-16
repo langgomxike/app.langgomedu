@@ -22,7 +22,7 @@ import Home from './Home'
 import ClassDetail from './ClassDetail'
 import ClassList from './ClassList'
 import CVList from './CVList'
-import History from "./History";
+import History from "./attendance/HistoryAttendance";
 import UserManager from "./admin/UserManager";
 
 export default function HoangTestScreen() {
@@ -181,7 +181,7 @@ export default function HoangTestScreen() {
       {/* <ClassDetail></ClassDetail> */}
       {/* <CVList></CVList> */}
       {/* <History/> */}
-      <UserManager/>
+      {/* <UserManager/> */}
     </View>
   );
 }

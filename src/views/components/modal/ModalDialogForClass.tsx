@@ -4,6 +4,7 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import Modal from "react-native-modal";
@@ -13,9 +14,10 @@ import { Image } from "react-native";
 type ModalDialogForClassProps = {
   confirmTitle: string;
   confirmContent: string;
-  imageStatus: "success" | 'failure';
+  imageStatus: "success" | 'failure' | 'confirm';
   visiable: string | null;
   onRequestCloseDialog: () => void;
+  loading?: boolean;
 };
 
 const images = [
@@ -27,6 +29,10 @@ const images = [
     name: "failure",
     source: require("../../../../assets/images/ic_failure.png"),
   },
+  {
+    name: "confirm",
+    source: require("../../../../assets/images/ic_info.png"),
+  },
 ];
 
 export default function ModalDialogForClass({
@@ -35,6 +41,7 @@ export default function ModalDialogForClass({
   imageStatus,
   visiable,
   onRequestCloseDialog,
+  loading = false
 }: ModalDialogForClassProps) {
 
   const getImageSource = (iconName: string) => {
@@ -52,9 +59,13 @@ export default function ModalDialogForClass({
       animationOut={"slideOutDown"}
       onBackdropPress={() => onRequestCloseDialog()}
     >
-      <View
-        style={styles.container}
-      >
+      {loading ? (
+        <View style={styles.containerLoading} >
+          <ActivityIndicator size={50} />
+          <Text style={styles.loadingText}>Đang xử lý...</Text>
+        </View>
+      ) : (
+        <View style={styles.container} >
         <View style={styles.modalHeader}>
           <Text style={styles.headerTitle}>{confirmTitle}</Text>
           <TouchableOpacity
@@ -87,6 +98,9 @@ export default function ModalDialogForClass({
 
         </View>
       </View>
+      ) 
+      }
+      
     </Modal>
   );
 }
@@ -101,6 +115,23 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     shadowColor: "#000",
     overflow: "hidden",
+  },
+
+  containerLoading: {
+    height: "40%",
+    marginTop: 10,
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    paddingHorizontal: 15,
+    paddingVertical: 20,
+    shadowColor: "#000",
+    overflow: "hidden",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  loadingText: {
+    marginTop: 20,
   },
 
   modalHeader: {

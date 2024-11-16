@@ -26,7 +26,7 @@ export default class AClassReport {
   //từ chối báo cáo lớp học
   // từ chối báo cáo lớp học
 public static denyClassReport(
-  reportId: string,
+  reportId: number,
   onNext: (response: any) => void,
   onLoading: (loading: boolean) => void
 ) {

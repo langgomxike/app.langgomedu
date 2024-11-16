@@ -88,7 +88,8 @@ export default function ClassListScreen() {
             data={courses}
             renderItem={({ item }) => (
               <View style={styles.classItem}>
-                <CourseItem
+                <CourseItem 
+                  majorIconUrl=""
                   name={item.name}
                   level={item.level}
                   date={item.date}

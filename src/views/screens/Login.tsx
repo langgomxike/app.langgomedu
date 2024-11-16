@@ -10,6 +10,7 @@ import {BackgroundColor, TextColor} from "../../configs/ColorConfig";
 import SLog, {LogType} from "../../services/SLog";
 import SAsyncStorage, {AsyncStorageKeys} from "../../services/SAsyncStorage";
 import Toast from 'react-native-simple-toast';
+import Role from "../../models/Role";
 
 export default function LoginScreen() {
     //contexts
@@ -82,7 +83,13 @@ export default function LoginScreen() {
                 SAsyncStorage.setData(AsyncStorageKeys.TOKEN, user.token, () => {
                     //back to home
                     navigation?.goBack();
-                    navigation?.navigate(ScreenName.HOME);
+
+                    //check if admin/superadmin or not
+                    if (user.role?.id === Role.SUPER_ADMIN_ROLE_ID || user.role?.id === Role.SUPER_ADMIN_ROLE_ID) {
+                        navigation?.navigate(ScreenName.HOME_ADMIN);
+                    } else {
+                        navigation?.navigate(ScreenName.HOME);
+                    }
 
                     Toast.show("Xin chào " + user.full_name, 2000);
                 }, () => {

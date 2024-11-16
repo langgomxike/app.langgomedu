@@ -144,6 +144,9 @@ export default function HomeScreen() {
     navigation?.navigate(ScreenName.CV);
   }, []);
 
+  // Đường dẫn tạm đếm admin
+  // navigation?.navigate(ScreenName.HOME_ADMIN);
+
   const handleOpenDrawer = () => {
     // navigation
   };
@@ -154,14 +157,14 @@ export default function HomeScreen() {
       setMajors(data);
     }, setLoading);
 
-    AClass.getSuggetingClass(
-      user.ID,
-      user.TYPE,
-      (data) => {
-        setSuggettingClasses(data);
-      },
-      setLoading
-    );
+    // AClass.getSuggetingClass(
+    //   user.ID,
+    //   user.TYPE,
+    //   (data) => {
+    //     setSuggettingClasses(data);
+    //   },
+    //   setLoading
+    // );
 
     AClass.getAttedingClass(
       user.ID,
@@ -194,7 +197,7 @@ export default function HomeScreen() {
       },
       setLoading
     );
-  }, []);
+  }, [userTypeName]);
 
   // useEffect(() => {
   //   SFirebase.trackOne(FirebaseNode.CLASS, 1, () => {
@@ -298,7 +301,7 @@ export default function HomeScreen() {
           break;
       }
     });
-  }, []);
+  }, []); 
 
   //done
   // useEffect(() => {
@@ -306,6 +309,7 @@ export default function HomeScreen() {
   //         alert(fee);
   //     });
   // }, []);
+
 
   // render
   return (

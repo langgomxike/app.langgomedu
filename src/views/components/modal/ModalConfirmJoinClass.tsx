@@ -7,7 +7,6 @@ import {
   FlatList,
 } from "react-native";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import Ionicons from "@expo/vector-icons/Ionicons";
 import Modal from "react-native-modal";
 import { BackgroundColor } from "../../../configs/ColorConfig";
 import { Image } from "react-native";
@@ -22,6 +21,7 @@ type ModalJoinClassProps = {
   onRequestClose: () => void;
   selectedStudents?: Student[];
   classId: number;
+  onResultValue: (result: boolean) => void; 
 };
 
 type ModalDialog = { 
@@ -35,6 +35,7 @@ export default function ModalConfirmJoinClass({
   onRequestClose,
   selectedStudents,
   classId,
+  onResultValue
 }: ModalJoinClassProps) {
   //context 
   const {user} = useContext(UserContext);
@@ -57,7 +58,9 @@ export default function ModalConfirmJoinClass({
       (data) => {
         setIsConfirming("modalDialogForClass"); // mở modalDialogForClass
         onRequestClose();
-        if(data.status_code === 200){
+        if(data.result){
+          onResultValue(data.result)
+
           setModalDialog({
             confirmContent: "Tham gia lớp thành công",
             confirmStatus: "success"
@@ -82,7 +85,8 @@ export default function ModalConfirmJoinClass({
       (data) => {
         setIsConfirming("modalDialogForClass"); // mở modalDialogForClass
         onRequestClose();
-        if(data.status_code === 200){
+        if(data.result){
+          onResultValue(data.result)
           setModalDialog({
             confirmContent: "Nhận lớp thành công. Vui lòng chờ duyệt!",
             confirmStatus: "success"

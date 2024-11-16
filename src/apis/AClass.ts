@@ -113,7 +113,9 @@ export default class AClass {
         student_ids: studentIds,
       })
       .then((response) => {
-        onNext(response.data);
+        console.log(">>>joinClass", response.data.data);
+        onNext(response.data.data);
+
         onLoading(false);
       })
       .catch((err) => {
@@ -158,7 +160,7 @@ export default class AClass {
     
 
     axios
-      .post(`${this.API_URL}/classes/class/create`, {
+      .post(`${this.API_URL}/classes/create`, {
         title: title,
         description: description,
         major_id: majorId,
@@ -170,7 +172,7 @@ export default class AClass {
       })
       .then((response) => {
         console.log("Class created successfully:", response.data);
-        onNext(response.data.classId); // Truyền `classId` về từ response
+        onNext(response.data.data.classId); // Truyền `classId` về từ response
       })
       .catch((err) => {
         console.error("Error:", err);
@@ -192,7 +194,7 @@ export default class AClass {
         tutor_id: tutorId,
       })
       .then((response) => {
-        onNext(response.data);
+        onNext(response.data.data);
         onLoading(false);
       })
       .catch((err) => {
@@ -226,7 +228,7 @@ export default class AClass {
   //khoá lớp học
   // Hàm khoá lớp học
 public static lockClass(
-  classId: string,
+  classId: number,
   onNext: (response: any) => void,
   onLoading: (loading: boolean) => void
 ) {

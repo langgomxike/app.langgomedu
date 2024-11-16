@@ -1,10 +1,14 @@
-import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native'
-import React from 'react'
-import { BackgroundColor, TextColor } from '../../../configs/ColorConfig'
-import File from '../../../models/File'
-import ReactAppUrl from '../../../configs/ConfigUrl'
+import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import React, { useContext, useEffect } from 'react';
+import { BackgroundColor, TextColor } from '../../../configs/ColorConfig';
+import File from '../../../models/File';
+import ReactAppUrl from '../../../configs/ConfigUrl';
+import { NavigationContext } from "@react-navigation/native";
+import ScreenName from '../../../constants/ScreenName';
+import moment from 'moment';
 
 export type LessionItemProps = {
+    lessonId: number;
     classId?: number,
     classIcon?: File,
     title: string,
@@ -12,19 +16,29 @@ export type LessionItemProps = {
     tutorName: string,
     startedAt: Date,
     duration: number,
+    selectedDate: Date,
 }
 const URL = ReactAppUrl.PUBLIC_URL;
 
-const LessionItem = ({ classId, classIcon, title, classType, tutorName, startedAt, duration }: LessionItemProps) => {
+const LessionItem = ({lessonId, classId, classIcon, title, classType, tutorName, startedAt, duration, selectedDate}: LessionItemProps) => {
 
     const endedAt: Date = new Date(startedAt?.getTime() + duration * 1000);
+    const navigation = useContext(NavigationContext);
 
-    const handleClick = () => {
-
+    const handleNavigateToLeanerAttendance = () => {
+        const formattedDate = moment(selectedDate).format("YYYY-MM-DD");
+        console.log(">>> lesson id", lessonId);
+        navigation?.navigate(ScreenName.ATTENDED_FOR_LEARNER, { lessonId, classId: classId, date: formattedDate  });
     }
 
+    const handleNavigateToTutorRequestAttendance = () => {
+        navigation?.navigate(ScreenName.ATTENDED_FOR_TUTOR,  { lessonId, classId: classId  });
+    }
+
+
+
     return (
-        <TouchableOpacity onPress={handleClick} style={[lessonStyle.container, classType === 1 ? lessonStyle.learnerClass : lessonStyle.tutorClass]}>
+        <TouchableOpacity onPress={classType === 1 ? handleNavigateToLeanerAttendance : handleNavigateToTutorRequestAttendance} style={[lessonStyle.container, classType === 1 ? lessonStyle.learnerClass : lessonStyle.tutorClass]}>
             <View style={lessonStyle.itemspace} id="top">
                 <View style={lessonStyle.class}>
                     <Image

@@ -186,6 +186,16 @@ export default function ({
             </View>
           </View>
 
+          {userData.is_reported && (
+          <View style={{ alignItems: "center" }}>
+            <TouchableOpacity style={[styles.btnReport, styles.btnShowdow]}>
+              <Text style={styles.btnReportText}>
+                Xem danh sách người báo cáo
+              </Text>
+            </TouchableOpacity>
+          </View>
+          )}
+
           <View style={styles.userBodyContainer}>
             <View style={styles.classContainer}>
               <Text style={styles.titleBody}>Lớp học đã tham gia</Text>
@@ -222,8 +232,9 @@ export default function ({
                   />
                 )}
 
-                 {!loading && attendingClasses.length == 0 &&
-                <Text>Không có lớp học đang tham gia</Text>}
+                {!loading && attendingClasses.length == 0 && (
+                  <Text>Không có lớp học đang tham gia</Text>
+                )}
               </View>
             </View>
             <View style={styles.classContainer}>
@@ -304,9 +315,9 @@ export default function ({
                   />
                 )}
 
-                {!loading && createdClasses.length == 0 &&
-                <Text>Không có lớp học đã tạo</Text>
-                }
+                {!loading && createdClasses.length == 0 && (
+                  <Text>Không có lớp học đã tạo</Text>
+                )}
               </View>
             </View>
           </View>
@@ -423,5 +434,35 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+  },
+
+  btnReport: {
+    borderColor: "red",
+    borderWidth: 1,
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    borderRadius: 8,
+    marginTop: 20,
+    width: "80%",
+    alignItems: "center",
+    backgroundColor: BackgroundColor.white
+  },
+
+  btnShowdow: {
+    shadowColor: "red",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+
+    elevation: 5,
+  },
+
+  btnReportText: {
+    color: "red",
+    fontWeight: "bold",
+    fontSize: 16,
   },
 });

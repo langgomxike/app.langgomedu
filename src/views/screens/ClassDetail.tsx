@@ -40,6 +40,7 @@ export default function ClassDetail() {
   const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState<string | null>("");
   const [studentList, setStudentList] = useState<Student[]>([]);
+  const [resultResponse, setResultResponse] = useState(false)
 
   // Hàm để điều hướng đến màn hình DetailClass mới
   // const navigation: NavigationProp<RootStackParamList> = useNavigation();
@@ -85,6 +86,8 @@ export default function ClassDetail() {
 
   // effect
   useEffect(() => {
+    console.log("ClassDetail", resultResponse);
+    
     //Get detail class
     AClass.getClassDetailWithUser(
       param.classId,
@@ -114,7 +117,7 @@ export default function ClassDetail() {
         setLoading
       );
     }
-  }, []);
+  }, [resultResponse]);
 
   // render
   return (
@@ -295,11 +298,19 @@ export default function ClassDetail() {
         <View style={[styles.buttonContainer, styles.shadow]}>
           {user.TYPE === UserType.LEANER ? (
             // Tham gia lớp học dành cho leaner
+            // Disable khi learner tham gia vào lớp đọc đó, learner đó là người tạo lớp, người tham gia lớp học đó
+            // Được active trạng thái không phải là membern ko phải là người tạo lớp, không phải người dạy lớp học đó
             <TouchableOpacity
-              disabled={classDetail?.user_status === "member" ? true : false}
+              disabled={
+                classDetail?.user_status === "member" ||
+                classDetail?.tutor?.id === user.ID ||
+                classDetail?.author?.id === user.ID
+              }
               onPress={handleJoinClass}
               style={[
-                classDetail?.user_status === "member"
+                classDetail?.user_status === "member" ||
+                classDetail?.tutor?.id === user.ID ||
+                classDetail?.author?.id === user.ID
                   ? styles.btnDiableReceiveClass
                   : styles.btnReceiveClass,
                 styles.boxShadow,
@@ -307,17 +318,29 @@ export default function ClassDetail() {
             >
               <Text style={styles.btnReceiveClassText}>
                 {classDetail?.user_status === "member"
-                  ? "Đã tham gia"
+                  ? "Bạn đã tham gia lớp học"
+                  : classDetail?.tutor?.id === user.ID
+                  ? "Bạn đã dạy lớp này"
+                  : classDetail?.author?.id === user.ID
+                  ? "Bạn đã tạo lớp này"
                   : "Tham gia lớp học"}
               </Text>
             </TouchableOpacity>
           ) : (
             // Nhận lớp dành cho tutor
+            // Disable khi là gia sư của lớp học đó, người tạo lớp đó, thành viên của lớp học đó
+            // Active khi chưa là sư sư của lớp học, không phải người tạo lớp, không phải là thành viên trong lớp
             <TouchableOpacity
-              disabled={classDetail?.user_status === "tutor" ? true : false}
+              disabled={
+                classDetail?.user_status === "tutor" ||
+                classDetail?.author?.id === user.ID ||
+                classDetail?.user_status === "member"
+              }
               onPress={handleAcceptClass}
               style={[
-                classDetail?.user_status === "tutor"
+                classDetail?.user_status === "tutor" ||
+                classDetail?.author?.id === user.ID ||
+                classDetail?.user_status === "member"
                   ? styles.btnDiableReceiveClass
                   : styles.btnReceiveClass,
                 styles.boxShadow,
@@ -326,7 +349,11 @@ export default function ClassDetail() {
               <Text style={styles.btnReceiveClassText}>
                 {classDetail?.user_status === "tutor"
                   ? "Đã nhập lớp"
-                  : "Nhận lớp"}
+                  : classDetail?.author?.id === user.ID
+                  ? "Bạn đã tạo lớp này"
+                  : classDetail?.user_status === "member"
+                  ? "Bạn đã tham gia lớp này"
+                  : "Nhận dạy lớp"}
               </Text>
             </TouchableOpacity>
           )}
@@ -334,7 +361,7 @@ export default function ClassDetail() {
       )}
 
       {/* Modal for leaner */}
-      {user.TYPE ===  UserType.LEANER && (
+      {user.TYPE === UserType.LEANER && (
         <>
           {classDetail && studentList.length > 0 && (
             <ModalJoinClass
@@ -342,6 +369,7 @@ export default function ClassDetail() {
               studentList={studentList}
               visiable={modalVisible}
               onRequestClose={() => setModalVisible(null)}
+              onResultValue={setResultResponse}
             />
           )}
           {classDetail && studentList.length < 0 && (
@@ -350,22 +378,24 @@ export default function ClassDetail() {
               visiable={modalVisible}
               onRequestClose={() => setModalVisible(null)}
               classId={classDetail.id}
+              onResultValue={setResultResponse}
             />
           )}
         </>
       )}
 
-      {user.TYPE === UserType.TUTOR  && (
+      {user.TYPE === UserType.TUTOR && (
         <>
-         {classDetail && (
-        <ModalConfirmJoinClass
-          confirmContent="Bạn muốn nhận dạy lớp học này?"
-          visiable={modalVisible}
-          onRequestClose={() => setModalVisible(null)}
-          classId={classDetail.id}
-          selectedStudents={studentList}
-        />
-         )}
+          {classDetail && (
+            <ModalConfirmJoinClass
+              confirmContent="Bạn muốn nhận dạy lớp học này?"
+              visiable={modalVisible}
+              onRequestClose={() => setModalVisible(null)}
+              classId={classDetail.id}
+              selectedStudents={studentList}
+              onResultValue={setResultResponse}
+            />
+          )}
         </>
       )}
     </View>

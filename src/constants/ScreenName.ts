@@ -16,8 +16,8 @@ enum ScreenName {
     RATING = "Rating",
 
     ATTENDANCE_HISTORY = "Attendance History",
-    ATTENDED_FOR_LEARNER = "Attended For Learner",
-    ATTENDED_FOR_TUTOR = "Attended For Tutor",
+    ATTENDED_FOR_LEARNER = "AttendedForLearner",
+    ATTENDED_FOR_TUTOR = "AttendedForTutor",
 
 
     CV_LIST = "CV List",
@@ -32,16 +32,20 @@ enum ScreenName {
 
     CHANGE_PASSWORD = "Change Password",
 
+    // Admin
     HOME_ADMIN = "Home Admin",
+    CLASS_MANAGER = "Class Manager",
+    USER_MANAGER = "User Manager",
+    USER_REPORT_LIST = "User Report List",
+    USER_REPORT_DETAIL = "User Report Detail",
+
+    REPORT_CLASS = "ReportClass",
 
     APP_INFO_MANAGEMENT = "App Information Management",
     PERMISSION_MANAGEMENT = "Permissions Management",
     CLASS_MANAGEMENT = "Class Management",
     APPROVE_CLASS = "Approve Class",
     USER_MANAGEMENT = "User Management",
-
-    USER_REPORT_LIST = "User Report List",
-    USER_REPORT_DETAIL = "User Report Detail",
 
     CV_APPROVAL = "CV Approval",
     CLASS_APPROVAL = "Class Approval",
@@ -51,6 +55,8 @@ enum ScreenName {
     SETTING_PERSONAL_CV = "Setting personal CV",
     SETTING_PERSONAL_CLASSES = "Setting personal classes",
     SETTING_PERSONAL_RATINGS = "Setting personal ratings",
+
+    CREATE_ACCOUNT_ADMIN = "Create Account Admin",
 }
 
 export default ScreenName;

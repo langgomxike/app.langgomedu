@@ -9,9 +9,9 @@ import {
   FlatList,
   Image,
 } from "react-native";
-import CustomInput from "../components/Inputs/CustomInput";
-import { BackgroundColor } from "../../configs/ColorConfig";
-import DetailHistoryBottonSheet from "../components/bottom-sheet/DetailHistoryBottomSheet";
+import CustomInput from "../../components/Inputs/CustomInput";
+import { BackgroundColor } from "../../../configs/ColorConfig";
+import DetailHistoryBottonSheet from "../../components/bottom-sheet/DetailHistoryBottomSheet";
 
 const historyList = [
   {
@@ -41,7 +41,7 @@ const historyList = [
   // },
 ];
 
-export default function () {
+export default function HistoryAttendance () {
   // state
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
@@ -214,7 +214,7 @@ const styles = StyleSheet.create({
 
   btnQueryText: {
     color: BackgroundColor.white,
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: "bold",
     textAlign: "center",
   },
@@ -234,8 +234,8 @@ const styles = StyleSheet.create({
   },
 
   color: {
-    width: 10,
-    padding: 10,
+    width: 25,
+    height: 10,
     borderRadius: 999
   },
 

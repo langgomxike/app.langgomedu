@@ -33,36 +33,47 @@ export default function Attendance() {
 
   return (
     <View>
-      <View style={styles.header}>
-        <View style={styles.icon_setting}>
-          <MyIcon icon={AppIcon.ic_setting}></MyIcon>
-        </View>
-
-        <Image
-          style={styles.avatar}
-          source={require("../../../../assets/avatar/img_avatar_cat.png")}
-        ></Image>
-        <Text style={styles.name}>LanggomAdmin</Text>
+      <View >
+      <View style={styles.icon}>
+            <MyIcon icon={AppIcon.back_button}></MyIcon>
+          </View>
+        <Text style={styles.screenName} >Quản lý chung</Text>
       </View>
       <View style={styles.container}>
         <View style={styles.group}>
-          <Image style={styles.iconInGroup} source={require('../../../../assets/icons/ic_admin_rule.png')}></Image>
+          <View style={styles.iconInGroup}>
+            <MyIcon icon={AppIcon.next}></MyIcon>
+          </View>
           <Text style={styles.nameInGroup}>Quản lý phân quyền</Text>
         </View>
         <View style={styles.group}>
-          <Image style={styles.iconInGroup} source={require('../../../../assets/icons/ic_admin_rule.png')}></Image>
+          <View style={styles.iconInGroup}>
+            <MyIcon icon={AppIcon.next}></MyIcon>
+          </View>
           <Text style={styles.nameInGroup}>Thêm quyền quản trị</Text>
         </View>
         <View style={styles.group}>
-        <Image style={styles.iconInGroup} source={require('../../../../assets/icons/ic_account_manage.png')}></Image>
+          <View style={styles.iconInGroup}>
+            <MyIcon icon={AppIcon.next}></MyIcon>
+          </View>
           <Text style={styles.nameInGroup}>Quản lý người dùng</Text>
         </View>
         <View style={styles.group}>
-          <Image style={styles.iconInGroup} source={require('../../../../assets/icons/ic_class_pending_approval.png')}></Image>
+          <View style={styles.iconInGroup}>
+            <MyIcon icon={AppIcon.next}></MyIcon>
+          </View>
           <Text style={styles.nameInGroup}>Quản lý lớp học</Text>
         </View>
         <View style={styles.group}>
-          <Image style={styles.iconInGroup} source={require('../../../../assets/icons/ic_account_manage.png')}></Image>
+          <View style={styles.iconInGroup}>
+            <MyIcon icon={AppIcon.next}></MyIcon>
+          </View>
+          <Text style={styles.nameInGroup}>Quản lý chung</Text>
+        </View>
+        <View style={styles.group}>
+          <View style={styles.iconInGroup}>
+            <MyIcon icon={AppIcon.next}></MyIcon>
+          </View>
           <Text style={styles.nameInGroup}>Quản lý chung</Text>
         </View>
       </View>
@@ -71,19 +82,9 @@ export default function Attendance() {
 }
 
 const styles = StyleSheet.create({
-  header: {
-    backgroundColor: BackgroundColor.primary,
-    padding: 20,
-    height: "45%",
-    marginBottom: 10,
-    alignItems: "center",
-  },
   container: {
-    borderRadius: 30,
     backgroundColor: "white",
     padding: 20,
-    height: "60%",
-    marginTop: -100,
     alignItems: "center",
   },
   avatar: {
@@ -104,8 +105,8 @@ const styles = StyleSheet.create({
     marginLeft: "90%",
   },
   group: {
-    height: "12%",
-    width: "95%",
+    height: "10%",
+    width: "100%",
     backgroundColor: "#fff",
     borderRadius: 5,
     marginTop: "7%",
@@ -118,19 +119,31 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
     elevation: 5,
   },
-  iconInGroup:{
-    width:30,
+  iconInGroup: {
+    width: 30,
     height: 30,
     marginTop: "4%",
-    marginLeft: "5%",
+    marginLeft: "90%",
     marginBottom: "3%",
     resizeMode: "contain",
   },
-  nameInGroup:{
+  nameInGroup: {
     fontSize: 18,
     fontWeight: "bold",
     marginTop: "-12%",
-    marginLeft: "20%",
+    marginLeft: "5%",
     color: "#000",
   },
+  screenName: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginTop: "-14%",
+    marginLeft: "15%",
+    color: "#000",
+   
+  },
+  icon:{
+    marginLeft: "5%",
+    marginTop:'10%',
+  }
 });

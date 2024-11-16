@@ -34,7 +34,7 @@ type CustomInputProps = {
 
 const GRAY_DISABLE = "#EEE";
 
-export default function customInput({
+export default function CustomInput({
   label,
   required,
   value,

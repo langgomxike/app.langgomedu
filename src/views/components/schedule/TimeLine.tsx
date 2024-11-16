@@ -5,10 +5,11 @@ import Lesson from "../../../models/Lesson";
 export type timeLineProp = {
     user_id?: string
     student_id?: string
-    lessons: Lesson[]
+    lessons: Lesson[],
+    selectedDate: Date
 }
 
-export default function TimeLine({user_id, student_id, lessons}: timeLineProp) {
+export default function TimeLine({user_id, student_id, lessons, selectedDate}: timeLineProp) {
 
 
     return (
@@ -29,7 +30,7 @@ export default function TimeLine({user_id, student_id, lessons}: timeLineProp) {
                     const tutorName = item.class?.tutor?.full_name
                     const startedAt = new Date(item.started_at)
                     const duration = item.duration
-                 return (<LessionItem classId={classId} classIcon={classIcon} title={title ? title : ""} classType={classType} tutorName={tutorName ? tutorName : ""} startedAt={startedAt} duration={duration}/>)
+                 return (<LessionItem classId={classId} lessonId={item.id} classIcon={classIcon} title={title ? title : ""} classType={classType} tutorName={tutorName ? tutorName : ""} startedAt={startedAt} duration={duration} selectedDate={selectedDate}/>)
             }}
                 contentContainerStyle={{
                     paddingHorizontal: 10,
@@ -37,6 +38,7 @@ export default function TimeLine({user_id, student_id, lessons}: timeLineProp) {
                 }}
                 showsVerticalScrollIndicator={false}
                 scrollEnabled={false}
+                keyExtractor={(item, index) => (`${item.id}${index}`)}
             />)}
             
         </View>
@@ -87,7 +89,7 @@ const styles = StyleSheet.create({
     boxEmpty:{
         alignItems: 'center',
         justifyContent: 'center',
-        marginVertical: 30,
+        marginVertical: 100,
     }
     
 })
