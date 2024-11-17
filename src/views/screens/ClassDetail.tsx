@@ -24,6 +24,7 @@ import ModalJoinClass from "../components/modal/ModalJoinClass";
 import AStudent from "../../apis/AStudent";
 import Student from "../../models/Student";
 import ModalConfirmJoinClass from "../components/modal/ModalConfirmJoinClass";
+import LessonItem from "../components/LessonItem";
 import DateTimeConfig from "../../configs/DateTimeConfig";
 
 const URL = ReactAppUrl.PUBLIC_URL;
@@ -236,37 +237,21 @@ export default function ClassDetail() {
                 </View>
 
                 {/* Các lớp học liên quan */}
-                <View style={styles.relatedClassContainer}>
-                  {/* title */}
+                <View style={styles.lessonContainer}>
                   <Text style={[styles.containerTitle, { padding: 20 }]}>
-                    Các lớp liên quan
+                    Các buổi học trong tuần
                   </Text>
 
                   <FlatList
-                    data={relatedClasses}
-                    renderItem={({ item: relatedClass }) => (
-                      <View style={styles.classItem}>
-                        <Pressable>
-                          <CourseItem
-                            majorIconUrl={`${URL}${relatedClass.major?.icon?.path}`}
-                            name={relatedClass.title}
-                            level={relatedClass.class_level?.vn_name || ""}
-                            date={DateTimeConfig.getDateFormat(relatedClass.started_at)}
-                            time={2}
-                            type={relatedClass.type.join(",")}
-                            address={relatedClass.address_1}
-                            cost={relatedClass.price}
-                          />
-                        </Pressable>
-                      </View>
-                    )}
-                    keyExtractor={(item) => item.id.toString()}
-                    horizontal={true}
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={[
-                      styles.classList,
-                      relatedClasses.length === 1 && styles.centeredItem,
-                    ]}
+                   scrollEnabled={false}
+                  // horizontal={true}
+                  data={[1,2,3]}
+                  renderItem={({item}) => {
+                    return (
+                      <LessonItem/>
+                    )
+                  }}
+                  contentContainerStyle={{paddingHorizontal: 15}}
                   />
                 </View>
               </View>
@@ -548,10 +533,9 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
   },
 
-  relatedClassContainer: {
+  lessonContainer: {
     backgroundColor: BackgroundColor.white,
-    // marginBottom: 20,
-    paddingBottom: 20,
+    paddingBottom: 10,
   },
 
   classItem: {
