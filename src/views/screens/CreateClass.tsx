@@ -7,6 +7,7 @@ import InfoLesson from "../components/InfoLesson";
 import Class from "../components/Class";
 
 export default function CreateClassScreen() {
+  //states
   const [activeTab, setActiveTab] = useState("classInfo"); // State để quản lý tab đang được chọn
   const [title, setTitle] = useState("");
 

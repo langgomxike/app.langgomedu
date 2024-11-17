@@ -20,8 +20,6 @@ export type Day = {
 }
 
 export default function PersonalScheduleScreen() {
-  //{ days }: DaysOfWeek props
-
   //day
   //schedule
   const day: Date = useMemo(() => new Date(), []);
@@ -74,6 +72,7 @@ export default function PersonalScheduleScreen() {
       // console.log("todayLesson", JSON.stringify(todayLessons, null, 2));
     })
   }, []);
+
   //kiem tra ngay active de thay doi du lieu dau ra
   useEffect(()=>{
     const todayLessons :Lesson[] = [];
@@ -88,6 +87,7 @@ export default function PersonalScheduleScreen() {
       // console.log("todayLesson", JSON.stringify(todayLessons, null, 2));
       
   }, [activeDate])
+
   //kiem tra tuan de thay doi lich
   useEffect(()=>{
     
