@@ -36,6 +36,7 @@ import vn from "../../../languages/vn.json";
 import en from "../../../languages/en.json";
 import ja from "../../../languages/ja.json";
 import DateTimeConfig from "../../configs/DateTimeConfig";
+import ReactAppUrl from "../../configs/ConfigUrl";
 
 const items = [
   {id: 1, title: "Các lớp học đang tham gia"},
@@ -43,6 +44,9 @@ const items = [
   {id: 3, title: "Các lớp học đã tạo"},
   {id: 4, title: "Các lớp học gợi ý"},
 ];
+
+
+const URL = ReactAppUrl.PUBLIC_URL
 
 export default function HomeScreen() {
   //contexts, refs
