@@ -1,7 +1,6 @@
 import { ScrollView, Text, View, StyleSheet, Image } from "react-native";
 import MyIcon, { AppIcon } from "../components/MyIcon";
 import InputRegister from "../components/Inputs/InputRegister";
-import MyText from "../components/MyText";
 import Button from "../components/Button";
 import { useCallback, useContext, useState } from "react";
 import { NavigationContext } from "@react-navigation/native";
@@ -13,8 +12,9 @@ import {
 } from "expo-camera";
 import * as ImagePicker from "expo-image-picker";
 import SLog, { LogType } from "../../services/SLog";
+import MyText from "../components/MyText";
 
-export default function Register2Screen() {
+export default function RegisterStep2Screen() {
   //contexts
   const navigation = useContext(NavigationContext);
   const [permission, requestPermission] = useCameraPermissions();
@@ -29,16 +29,12 @@ export default function Register2Screen() {
   //handlers
   const goBack = useCallback(() => {
     navigation?.goBack();
-    navigation?.navigate(ScreenName.REGISTER_1);
+    navigation?.navigate(ScreenName.REGISTER_STEP_1);
   }, []);
 
   const onRegister = useCallback(() => {
     navigation?.navigate(ScreenName.HOME);
   }, []);
-
-  function myEmptyFunction(): void {
-    // Hàm này không làm gì cả
-  }
 
   function goToLogin(): void {
     navigation?.navigate(ScreenName.LOGIN);
@@ -111,9 +107,12 @@ export default function Register2Screen() {
 
   return (
     <ScrollView style={styles.container}>
+      {/* back icon*/}
       <View style={styles.icon}>
         <MyIcon onPress={goBack} icon={AppIcon.ic_back_circle} />
       </View>
+
+      {/* illustration text*/}
       <View style={styles.row}>
         <View>
           <Text style={styles.title}>Tạo tài khoản</Text>
@@ -121,91 +120,106 @@ export default function Register2Screen() {
             Hãy cho chúng tôi biết thêm thông tin về bạn
           </Text>
         </View>
-        <View></View>
       </View>
+
+      {/* pick citizen's id*/}
       <View>
         <View style={styles.row1}>
+          {/* pick citizen image to scan */}
           <View style={styles.image}>
             <MyIcon
               icon={AppIcon.icon_image}
               size="50"
               onPress={pickImage}
-            ></MyIcon>
-          </View>
-          <View style={styles.image}>
-            <MyIcon
-              icon={AppIcon.ic_camera}
-              size="50"
-              onPress={myEmptyFunction}
-            ></MyIcon>
+            />
           </View>
         </View>
-        <Text style={styles.huongdan}>
+
+        {/* hint*/}
+        <Text style={styles.hint}>
           Hãy tải minh chứng Căn cước công dân
         </Text>
       </View>
+
+      {/* view name after pick citizen's id*/}
       <View style={styles.input}>
         <InputRegister
           label="Họ và tên"
           value={name}
           required={false}
-          onChangeText={myEmptyFunction}
+          onChangeText={() => {}}
           placeholder="Họ và tên"
           type="phone"
           iconName="phone"
           editable={false}
-        ></InputRegister>
+        />
       </View>
+
+      {/* view day of birth after pick email's id*/}
       <View style={styles.input}>
         <InputRegister
           label="Ngày tháng năm sinh"
           value={dayOfBirth}
           required={false}
-          onChangeText={myEmptyFunction}
+          onChangeText={() => {}}
           placeholder="Ngày tháng năm sinh"
-          type="email"
+          type="text"
           iconName="email"
           editable={false}
-        ></InputRegister>
+        />
       </View>
+
+      {/* view gender after pick citizen's id*/}
       <View style={styles.input}>
         <InputRegister
           label="Giới tính"
           value={gender}
           required={false}
-          onChangeText={myEmptyFunction}
+          onChangeText={() => {}}
           placeholder="Giới tính"
           type="text"
           iconName="password"
           editable={false}
-        ></InputRegister>
+        />
       </View>
+
+      {/* view address after pick citizen's id*/}
       <View style={styles.input}>
         <InputRegister
-          label="Địa chỉ thường trú"
+          label="Quê quán"
           value={address}
           required={false}
-          onChangeText={myEmptyFunction}
-          placeholder="Địa chỉ thường trú"
+          onChangeText={() => {}}
+          placeholder="Quê quán"
           editable={false}
           type="text"
           iconName="password"
-        ></InputRegister>
+        />
       </View>
+
+      {/*avatar picker*/}
       <View>
         <Image
           style={styles.img}
           source={require("../../../assets/avatar/avatarTempt.png")}
-        ></Image>
+        />
         <Text style={styles.textTaiAnh}>Hãy tải ảnh đại diện của bạn</Text>
       </View>
+
+      {/*submit button*/}
       <View style={styles.button}>
         <Button
           title="Đăng ký"
           textColor="white"
           backgroundColor="blue"
           onPress={onRegister}
-        ></Button>
+        />
+
+        {/* cgo to login*/}
+        <Text>
+          Bạn đã có tài khoản?{" "}
+          <MyText text="đăng nhập" onPress={goToLogin}/>
+        </Text>
       </View>
     </ScrollView>
   );
@@ -213,8 +227,6 @@ export default function Register2Screen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // alignItems: "center",
-    // justifyContent: "center",
   },
   icon: {
     marginTop: "5%",
@@ -240,51 +252,57 @@ const styles = StyleSheet.create({
     borderRadius: 100,
     alignSelf: "center",
   },
+
   title: {
     fontSize: 20,
     fontWeight: "bold",
     marginTop: "5%",
   },
+
   content: {
     fontSize: 14,
     marginBottom: "20%",
   },
+
   test: {
     top: -10,
-    // height: 50,
-    // backgroundColor: "green",
   },
+
   text: {
     top: 5,
     left: 90,
     marginBottom: "-15%",
   },
+
   button: {
     marginTop: "10%",
     alignSelf: "center",
   },
-  dangky: {},
 
   row1: {
     flexDirection: "row", // Đặt các biểu tượng nằm trên cùng một hàng
     justifyContent: "center", // Cân đối khoảng cách giữa các biểu tượng
     marginBottom: 20, // Thêm khoảng cách dưới hàng icon
   },
+
   image: {
     marginHorizontal: 20,
     marginBottom: 10,
   },
+
   row: {
     // Đặt các biểu tượng nằm trên cùng một hàng
     marginLeft: "5%", // Cân đối khoảng cách giữa các biểu tượng
     marginBottom: " -12%", // Thêm khoảng cách dưới hàng icon
     justifyContent: "space-evenly",
   },
+
   textTaiAnh: {
     marginTop: 20,
     alignSelf: "center",
   },
-  huongdan: {
+
+  hint: {
     marginTop: "-10%",
     alignSelf: "center",
     marginBottom: "5%",

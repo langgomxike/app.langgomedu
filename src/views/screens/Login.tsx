@@ -7,7 +7,6 @@ import ScreenName from "../../constants/ScreenName";
 import AUser from "../../apis/AUser";
 import {AccountContext} from "../../configs/AccountConfig";
 import {BackgroundColor, TextColor} from "../../configs/ColorConfig";
-import SLog, {LogType} from "../../services/SLog";
 import SAsyncStorage, {AsyncStorageKeys} from "../../services/SAsyncStorage";
 import Toast from 'react-native-simple-toast';
 import Role from "../../models/Role";
@@ -30,7 +29,7 @@ export default function LoginScreen() {
 
     const goToRegister = useCallback(() => {
         navigation?.goBack();
-        navigation?.navigate(ScreenName.REGISTER_1);
+        navigation?.navigate(ScreenName.REGISTER_STEP_1);
     }, []);
 
     const handleLogin = useCallback(() => {
@@ -104,11 +103,13 @@ export default function LoginScreen() {
     return (
         <ScrollView>
             <View style={styles.container}>
+                {/* illustration image */}
                 <Image
                     style={styles.img}
                     source={require("../../../assets/images/ illustration/Mobile login-rafiki.png")}
                 />
 
+                {/* screen title */}
                 <View style={styles.row}>
                     <View>
                         <Text style={styles.title}> Đăng nhập</Text>
@@ -159,7 +160,7 @@ export default function LoginScreen() {
                     onPress={handleLogin}
                 />
 
-                {/* register */}
+                {/* hint text */}
                 <Text style={styles.link} onPress={goToRegister}>
                     Bạn chưa có tài khoản? Hãy đăng ký
                 </Text>

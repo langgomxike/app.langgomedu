@@ -39,7 +39,6 @@ yarn-error.*
 
 # firebase
 *firebase_account_service*
-*firebase_node_props*
 
 # package-lock
 package-lock.json

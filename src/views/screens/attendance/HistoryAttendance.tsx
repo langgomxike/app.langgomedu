@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, {useEffect, useState} from "react";
 import {
   Text,
   View,
@@ -13,39 +13,48 @@ import CustomInput from "../../components/Inputs/CustomInput";
 import { BackgroundColor } from "../../../configs/ColorConfig";
 import DetailHistoryBottonSheet from "../../components/bottom-sheet/DetailHistoryBottomSheet";
 
-const historyList = [
-  {
-    date: "08/10/2024",
-    data: [
-      // Thay thế "histories" bằng "data"
-      { title: "Toan", price: "200.000", status: "tutor" },
-      { title: "Sinh", price: "200.000", status: "tutor" },
-      { title: "Anh", price: "200.000", status: "learner" },
-    ],
-  },
-  {
-    date: "07/10/2024",
-    data: [
-      { title: "Toan", price: "200.000", status: "learner" },
-      { title: "Sinh", price: "200.000", status: "tutor" },
-      { title: "Anh", price: "200.000", status: "learner" },
-    ],
-  },
-  // {
-  //   date: "06/10/2024",
-  //   data: [
-  //     { title: "Toan", price: "200.000", status: "tutor" },
-  //     { title: "Sinh", price: "200.000", status: "tutor" },
-  //     { title: "Anh", price: "200.000", status: "learner" },
-  //   ],
-  // },
-];
 
 export default function HistoryAttendance () {
-  // state
+  // states
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [isVisible, setIsVisible] = useState(false);
+  const [historyList, setHistoryList] = useState<any[]>([]);
+
+  // handlers
+
+  //effects
+  useEffect(() => {
+    alert("cal api to get histories here");
+    const historyList = [
+      {
+        date: "08/10/2024",
+        data: [
+          // Thay thế "histories" bằng "data"
+          { title: "Toan", price: "200.000", status: "tutor" },
+          { title: "Sinh", price: "200.000", status: "tutor" },
+          { title: "Anh", price: "200.000", status: "learner" },
+        ],
+      },
+      {
+        date: "07/10/2024",
+        data: [
+          { title: "Toan", price: "200.000", status: "learner" },
+          { title: "Sinh", price: "200.000", status: "tutor" },
+          { title: "Anh", price: "200.000", status: "learner" },
+        ],
+      },
+      // {
+      //   date: "06/10/2024",
+      //   data: [
+      //     { title: "Toan", price: "200.000", status: "tutor" },
+      //     { title: "Sinh", price: "200.000", status: "tutor" },
+      //     { title: "Anh", price: "200.000", status: "learner" },
+      //   ],
+      // },
+    ];
+    setHistoryList(historyList);
+  }, []);
 
   // render
   return (
