@@ -120,20 +120,20 @@ export default function MessageScreen() {
 
         setUser(ids.user);
 
-        SFirebase.trackMessage(ids.me?.id ?? "", ids.user?.id ?? "", () => {
-            SFirebase.trackMessage(ids.user?.id ?? "", ids.me?.id ?? "", () => {
-                AMessage.getMessagesOfTowUsers(ids.from_user ?? "", ids.to_user ?? "", (messages: Message[]) => {
-                    messages.reverse();
-
-                    SLog.log(LogType.Warning, "Messages", "check messages", messages.map(m => ({
-                        from: m.from_user?.full_name,
-                        to: m.to_user?.full_name,
-                    })));
-
-                    setMessages(messages);
-                });
-            });
-        });
+        // SFirebase.track(ids.me?.id ?? "", ids.user?.id ?? "", () => {
+        //     SFirebase.trackMessage(ids.user?.id ?? "", ids.me?.id ?? "", () => {
+        //         AMessage.getMessagesOfTowUsers(ids.from_user ?? "", ids.to_user ?? "", (messages: Message[]) => {
+        //             messages.reverse();
+        //
+        //             SLog.log(LogType.Warning, "Messages", "check messages", messages.map(m => ({
+        //                 from: m.from_user?.full_name,
+        //                 to: m.to_user?.full_name,
+        //             })));
+        //
+        //             setMessages(messages);
+        //         });
+        //     });
+        // });
     }, []);
 
     return (

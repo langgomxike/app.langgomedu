@@ -1,7 +1,6 @@
-import {useCallback, useContext, useState} from "react";
+import {useEffect} from "react";
 // @ts-ignore
 import {SafeAreaView} from 'react-native-safe-area-context';
-import {UserContext, UserDataType, UserType} from "./src/configs/UserContext";
 import {NavigationContainer} from "@react-navigation/native";
 import {createNativeStackNavigator} from "@react-navigation/native-stack";
 import ScreenName from "./src/constants/ScreenName";
@@ -11,8 +10,6 @@ import ProfileScreen from "./src/views/screens/Profile";
 import ClassDetail from "./src/views/screens/ClassDetail";
 import {BackgroundColor, TextColor} from "./src/configs/ColorConfig";
 import CVListScreen from "./src/views/screens/CVList";
-import SLog, {LogType} from "./src/services/SLog";
-import SAsyncStorage, {AsyncStorageKeys} from "./src/services/SAsyncStorage";
 import AppContext from "./src/configs/AppContext";
 import CVScreen from "./src/views/screens/CV";
 import InputCVScreen from "./src/views/screens/InputCV";
@@ -35,20 +32,22 @@ import ClassManager from "./src/views/screens/admin/ClassManager";
 import GeneralManager from "./src/views/screens/admin/GeneralManager";
 import CreatAcountAdmin from "./src/views/screens/admin/CreatAccountAdmin";
 import PersonalCV from "./src/views/screens/settings/PersonalCV";
-import {TouchableOpacity} from "react-native";
+import {PermissionsAndroid, TouchableOpacity} from "react-native";
 import Octicons from '@expo/vector-icons/Octicons';
 import LeanerAttendance from "./src/views/screens/attendance/LeanerAttendance";
 import HistoryAttendance from "./src/views/screens/attendance/HistoryAttendance";
 import TutorAttendance from "./src/views/screens/attendance/TutorAttendance";
 import AdminHome from "./src/views/screens/admin/AdminHome";
-
-import {PermissionsAndroid} from 'react-native';
+import SFirebase, {FirebaseNode} from "./src/services/SFirebase";
 
 PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS);
 
 const Stack = createNativeStackNavigator();
 
 export default function App() {
+
+
+
   // jxs
   return (
     <AppContext>

@@ -36,12 +36,12 @@ export default function ButtonNavBar() {
     const [newMessageQuantity, setNewMessageQuantity] = useState(0);
 
     useEffect(() => {
-        SFirebase.trackMyMessages(accountContext.account?.id ?? "", () => {
-
-            AMessage.getChatsOfUser((chats: Chat[]) => {
-                setNewMessageQuantity(chats.filter(chat => !chat.message?.as_read).length);
-            });
-        });
+        // SFirebase.trackMyMessages(accountContext.account?.id ?? "", () => {
+        //
+        //     AMessage.getChatsOfUser((chats: Chat[]) => {
+        //         setNewMessageQuantity(chats.filter(chat => !chat.message?.as_read).length);
+        //     });
+        // });
     }, [accountContext.account]);
 
     return (
