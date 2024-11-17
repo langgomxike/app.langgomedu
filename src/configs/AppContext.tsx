@@ -15,7 +15,7 @@ export default function AppContext({children}: PropsWithChildren) {
   const [language, setLanguage] = useState<typeof vn>(vn);
   const [account, setAccount] = useState<User | undefined>(undefined);
   const [user, setUser] = useState<UserDataType>({
-    ID: "",
+    ID: "089204010903",
     TYPE: UserType.LEANER,
   });
 
