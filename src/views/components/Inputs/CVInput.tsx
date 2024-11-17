@@ -42,24 +42,25 @@ export default function Input({ onTextChange, label, placeholder, value="", requ
         <View style={styles.container}>
             <View style={styles.labelBox}>
                 <Text style={styles.label}> {label} </Text>
-                {require ? <Text style={styles.require}> * </Text> : <></>}
+                {require ? <Text style={styles.require}> * </Text> : <Text></Text>}
             </View>
             <View style={[styles.box, textArea ? styles.textArea : styles.textInput , editable ? styles.enable : styles.disable]}>
                 <TextInput 
-                style={ textArea ? { textAlignVertical: 'top'} : {}}
+                style={ [styles.inputContainer, textArea && styles.textAreaContainer] }
                 multiline={textArea}
                 numberOfLines={textArea ? 4 : 1}
                 placeholder={placeholder} 
                 editable={editable} 
-                value={value}/>
-                {datePicker ?
+                value={value}
+                onChangeText={onTextChange}
+                />
+                {datePicker &&
                     <TouchableOpacity
                         disabled={datePicker}
                         onPress={() => setShowDatePicker(true)}
                         style={styles.iconCalendar}>
                         <Ionicons name="calendar-outline" size={24} color="gray" />
-                    </TouchableOpacity>
-                    : <></>}
+                    </TouchableOpacity>}
 
             </View>
 
@@ -84,7 +85,8 @@ const styles = StyleSheet.create({
     },
     label: {
         fontWeight: 'bold',
-        fontSize: 16
+        fontSize: 16,
+        marginBottom: 5,
     },
     require: {
         color: 'red'
@@ -95,6 +97,7 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         borderWidth: 1,
         flexDirection: 'row',
+        gap: 10,
     },
     textInput:{
         justifyContent: 'space-between'
@@ -102,8 +105,17 @@ const styles = StyleSheet.create({
     },
     textArea:{
         alignItems: 'flex-start',
-        textAlignVertical: 'top'
     },
+
+    inputContainer: {
+        flex: 1,
+    },
+
+    textAreaContainer: {    
+        textAlignVertical: 'top',
+    }, 
+
+
     iconCalendar: {
 
     },
