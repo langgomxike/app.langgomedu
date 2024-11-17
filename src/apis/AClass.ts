@@ -228,7 +228,7 @@ export default class AClass {
   //khoá lớp học
   // Hàm khoá lớp học
 public static lockClass(
-  classId: string,
+  classId: number,
   onNext: (response: any) => void,
   onLoading: (loading: boolean) => void
 ) {

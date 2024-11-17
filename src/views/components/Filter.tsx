@@ -17,7 +17,7 @@ import ReactNativeModal from "react-native-modal";
 import { Feather, Ionicons, Octicons } from "@expo/vector-icons";
 
 type FilterProps = {
-  isVisible: string | null;
+  isVisible: boolean;
   onRequestClose: () => void;
 };
 
@@ -158,7 +158,7 @@ const Filter = ({ isVisible, onRequestClose }: FilterProps) => {
       animationIn="slideInRight"
       animationOut="slideOutRight"
       useNativeDriver={true}
-      isVisible={isVisible === "modal_fiter" ? true : false}
+      isVisible={isVisible}
       style={styles.modalContainer}
       avoidKeyboard={true}
     >

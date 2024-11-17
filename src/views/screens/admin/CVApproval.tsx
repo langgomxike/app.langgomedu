@@ -1,5 +1,5 @@
 import { Text } from "react-native";
-import BackLayout from "../layouts/Back";
+import BackLayout from "../../layouts/Back";
 
 export default function CVApprovalScreen() {
   return (

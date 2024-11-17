@@ -39,7 +39,7 @@ import ClassInForSkeleton from "../../components/skeleton/ClassInfoSkeleton";
 import Lesson from "../../../models/Lesson";
 import ScreenName from "../../../constants/ScreenName";
 import {
-  NavigationContext,
+  NavigationContext, NavigationRouteContext,
   RouteProp,
   useRoute,
 } from "@react-navigation/native";
@@ -50,53 +50,14 @@ import { ActivityIndicator } from "react-native";
 import SFirebase, { FirebaseNode } from "../../../services/SFirebase";
 import { MaterialIcons } from "@expo/vector-icons";
 import DropdownParent from "../../components/dropdown/DropDownParent";
-import { RootStackParamList } from "../../../configs/NavigationRouteTypeConfig";
+import {AttendedForLearner, RootStackParamList} from "../../../configs/NavigationRouteTypeConfig";
 import ModalConfirmAttendClass from "../../components/modal/ModalConfirmAttendLesson";
-const studentList = [
-  {
-    id: 1,
-    name: "Nguyễn Văn A",
-  },
-  {
-    id: 2,
-    name: "Nguyễn Văn B",
-  },
-  {
-    id: 3,
-    name: "Nguyễn Văn C",
-  },
-  {
-    id: 4,
-    name: "Nguyễn Văn A",
-  },
-  {
-    id: 5,
-    name: "Nguyễn Văn B",
-  },
-  {
-    id: 6,
-    name: "Nguyễn Văn C",
-  },
-  {
-    id: 7,
-    name: "Nguyễn Văn A",
-  },
-  {
-    id: 8,
-    name: "Nguyễn Văn B",
-  },
-  {
-    id: 9,
-    name: "Nguyễn Văn C",
-  },
-];
 
 const URL = ReactAppUrl.PUBLIC_URL;
 
 export default function TutorAttendance() {
-  const route =
-    useRoute<RouteProp<RootStackParamList, ScreenName.ATTENDED_FOR_LEARNER>>();
-  const param = route.params;
+  const route = useContext(NavigationRouteContext);
+  const param = route?.params as AttendedForLearner || {classId: -1, lessonId: -1};
 
   //context
   const user = useContext(UserContext).user;

@@ -1,6 +1,5 @@
 import React, { useState, useRef, useCallback, useContext } from "react";
 import { View, Text, StyleSheet, TextInput, Alert, Image } from "react-native";
-import MyIcon, { AppIcon } from "../components/MyIcon";
 import { NavigationContext } from "@react-navigation/native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import Button from "../components/Button";
@@ -19,7 +18,7 @@ export default function OTPScreen() {
     navigation?.goBack();
   }, []);
 
-  const handleChangeText = (text: string, index: number) => {
+  const handleChangeText = useCallback((text: string, index: number) => {
     const newOtp = [...otp];
 
     // Nếu ô đầu tiên chưa được nhập thì focus vào ô đầu tiên
@@ -42,9 +41,9 @@ export default function OTPScreen() {
     if (index < 5 && text) {
       otpInputs.current[index + 1]?.focus();
     }
-  };
+  }, [otp, otpInputs]);
 
-  const handleVerifyOtp = () => {
+  const handleVerifyOtp = useCallback(() => {
     const validOtp = "123456"; // Thay thế bằng OTP thực tế của bạn
     if (otp.join("") === validOtp) {
       Alert.alert("Xác Nhận Thành Công", "OTP hợp lệ!");
@@ -52,10 +51,11 @@ export default function OTPScreen() {
     } else {
       Alert.alert("Lỗi", "OTP không hợp lệ. Vui lòng thử lại.");
     }
-  };
+  }, []);
 
   return (
     <View style={styles.container}>
+      {/* back button*/}
       <Ionicons
         name="close"
         size={30}
@@ -63,12 +63,13 @@ export default function OTPScreen() {
         onPress={goBack}
       />
 
+      {/* illustration image*/}
       <Image
         style={styles.img}
         source={require("../../../assets/images/ illustration/Mobile login-rafiki.png")}
       />
 
-      {/* title */}
+      {/* screen title */}
       <Text style={styles.title}>Xác Thực OTP</Text>
 
       <Text style={styles.instructions}>

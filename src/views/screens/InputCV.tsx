@@ -63,7 +63,6 @@ export default function InputCVScreen() {
       });
   }, [permission]);
 
-
   //effect
   useEffect(()=>{
     ACV.getPersonalCV(user.ID, (cv)=>{
@@ -91,8 +90,6 @@ export default function InputCVScreen() {
 
   return (
     <>
-      {/* <FloatingBack /> */}
-
       <ScrollView style={styles.container}>
         <TouchableOpacity style={{ alignSelf: "center" }} onPress={pickImage}>
           <Image
@@ -109,16 +106,19 @@ export default function InputCVScreen() {
         require={true}
         editable={true}
         />
+
         <Input 
         label="Tên"
         onTextChange={()=>{}}
         placeholder={cv?.user?.full_name}
         />
+
         <Input 
         label="Chuyên Ngành"
         onTextChange={()=>{}}
         placeholder={interestedMajor?.vn_name}
         />
+
         <Input 
         label="Ngày Sinh"
         onTextChange={()=>{}}
@@ -156,28 +156,25 @@ export default function InputCVScreen() {
         onAddItem={()=>{}}
         typeItem="education"
         title="educations">
-          
         </CvBoxEdit>
+
         <CvBoxEdit 
         onAddItem={()=>{}}
         typeItem="experience"
         title="experiences">
-
         </CvBoxEdit>
+
         <CvBoxEdit 
         onAddItem={()=>{}}
         typeItem="skills"
         title="skills">
-
         </CvBoxEdit>
+
         <CvBoxEdit 
         onAddItem={()=>{}}
         typeItem="certificate"
         title="certificates">
-
         </CvBoxEdit>
-
-
       </ScrollView>
     </>
   );

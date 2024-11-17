@@ -1,64 +1,60 @@
 enum ScreenName {
-    NAV_BAR = "Nav Bar",
+    NAV_BAR = "NAVBAR",
 
-    HOME = "Home",
-    CHAT = "Chat",
-    CREATE_CLASS = "Create Class",
-    PERSONAL_SCHEDULE = "Personal Schedule",
-    ACCOUNT = "Account",
+    HOME = "HOME",
+    CHAT = "CHAT",
+    CREATE_CLASS = "CREATECLASS",
+    PERSONAL_SCHEDULE = "PERSONALSCHEDULE",
+    ACCOUNT = "ACCOUNT",
 
-    MESSAGE = "Message",
-    PROFILE = "Profile",
-    SCANNER = "Scanner",
+    MESSAGE = "MESSAGE",
+    PROFILE = "PROFILE",
+    SCANNER = "SCANNER",
 
-    CLASS_LIST = "Class List",
-    DETAIL_CLASS = "DetailClass",
-    RATING = "Rating",
+    CLASS_LIST = "CLASSLIST",
+    DETAIL_CLASS = "DETAILCLASS",
+    RATING = "RATING",
 
-    ATTENDANCE_HISTORY = "Attendance History",
-    ATTENDED_FOR_LEARNER = "AttendedForLearner",
-    ATTENDED_FOR_TUTOR = "AttendedForTutor",
+    ATTENDANCE_HISTORY = "ATTENDANCEHISTORY",
+    ATTENDED_FOR_LEARNER = "ATTENDEDFORLEARNER",
+    ATTENDED_FOR_TUTOR = "ATTENDEDFORTUTOR",
 
-
-    CV_LIST = "CV List",
+    CV_LIST = "CVLIST",
     CV = "CV",
-    INPUT_CV = "Input CV",
-
+    INPUT_CV = "INPUTCV",
 
     OTP = "OTP",
     LOGIN = "LOGIN",
-    REGISTER_1 = "Register 1",
-    REGISTER_2 = "Register 2",
+    REGISTER_STEP_1 = "REGISTERSTEP1",
+    REGISTER_STEP_2 = "REGISTERSTEP2",
 
-    CHANGE_PASSWORD = "Change Password",
+    CHANGE_PASSWORD = "CHANGEPASSWORD",
 
     // Admin
-    HOME_ADMIN = "Home Admin",
-    CLASS_MANAGER = "Class Manager",
-    USER_MANAGER = "User Manager",
-    USER_REPORT_LIST = "User Report List",
-    USER_REPORT_DETAIL = "User Report Detail",
+    HOME_ADMIN = "HOMEADMIN",
+    CLASS_MANAGER = "CLASSMANAGER",
+    GENERAL_MANAGER = "GENERALMANAGER",
+    USER_MANAGER = "USERMANAGER",
+    USER_REPORT_LIST = "USERREPORTLIST",
+    USER_REPORT_DETAIL = "USERREPORTDETAIL",
 
-    REPORT_CLASS = "ReportClass",
+    REPORT_CLASS = "REPORTCLASS",
 
-    APP_INFO_MANAGEMENT = "App Information Management",
-    PERMISSION_MANAGEMENT = "Permissions Management",
-    CLASS_MANAGEMENT = "Class Management",
-    APPROVE_CLASS = "Approve Class",
-    USER_MANAGEMENT = "User Management",
-    REPORT_USER = "User Reports",   
+    APP_INFO_MANAGEMENT = "APPINFOMANAGEMENT",
+    PERMISSION_MANAGEMENT = "PERMISSIONSMANAGEMENT",
+    CLASS_MANAGEMENT = "CLASSMANAGEMENT",
+    APPROVE_CLASS = "APPROVECLASS",
+    USER_MANAGEMENT = "USERMANAGEMENT",
 
-    CV_APPROVAL = "CV Approval",
-    CLASS_APPROVAL = "Class Approval",
+    CV_APPROVAL = "CVAPPROVAL",
+    CLASS_APPROVAL = "CLASSAPPROVAL",
 
+    SETTING_INFO_PERSONAL = "SETTINGINFORMATIONPERSONAL",
+    SETTING_PERSONAL_CV = "SETTINGPERSONALCV",
+    SETTING_PERSONAL_CLASSES = "SETTINGPERSONALCLASSES",
+    SETTING_PERSONAL_RATINGS = "SETTINGPERSONALRATINGS",
 
-    SETTING_INFORMATION = "Setting information personal",
-    SETTING_PERSONAL_CV = "Setting personal CV",
-    SETTING_PERSONAL_CLASSES = "Setting personal classes",
-    SETTING_PERSONAL_RATINGS = "Setting personal ratings",
-
-    CREATE_ACCOUNT_ADMIN = "Create Account Admin",
-    
+    CREATE_ACCOUNT_ADMIN = "CREATEACCOUNTADMIN",
 }
 
 export default ScreenName;

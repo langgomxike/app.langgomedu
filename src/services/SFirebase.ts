@@ -106,4 +106,57 @@ export default class SFirebase {
         );
 
     }
+
+    public static trackMessage(fromUserId: string, toUserId: string, onNext: () => void) {
+        this.init();
+        const firebaseReference = ref(this.firebaseDatabase, `MESSAGES/FROM_USER_ID:${fromUserId}/TO_USER_ID:${toUserId}`);
+
+        onValue(firebaseReference,
+            (data) => {
+                SLog.log(
+                    LogType.Info,
+                    `track messages`,
+                    `track the messages with key FROM_USER_ID:${fromUserId}|TO_USER_ID:${toUserId}`,
+                    `track successfully, last updated at: ${new Date(+(data?.val() ?? 0)).toUTCString()}`
+                );
+                onNext();
+            },
+            (error) => {
+                SLog.log(
+                    LogType.Error,
+                    `track messages`,
+                    `track the messages with key FROM_USER_ID:${fromUserId}|TO_USER_ID:${toUserId} found error`,
+                    error
+                );
+                onNext();
+            }
+        );
+    }
+
+    public static trackMyMessages(userId: string, onNext: () => void) {
+        this.init();
+        const firebaseReference = ref(this.firebaseDatabase, `MESSAGES/FROM_USER_ID:${userId}`);
+
+        onValue(firebaseReference,
+            (data) => {
+                SLog.log(
+                    LogType.Info,
+                    `track messages`,
+                    `track the messages with key FROM_USER_ID:${userId}`,
+                    `track successfully, last updated at: ${new Date(+(data?.val() ?? 0)).toUTCString()}`
+                );
+                onNext();
+            },
+            (error) => {
+                SLog.log(
+                    LogType.Error,
+                    `track messages`,
+                    `track the messages with key FROM_USER_ID:${userId} found error`,
+                    error
+                );
+                onNext();
+            }
+        );
+    }
+
 }

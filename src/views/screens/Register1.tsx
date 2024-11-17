@@ -1,13 +1,17 @@
-import { ScrollView, Text, View, StyleSheet, Image } from "react-native";
-import MyIcon, { AppIcon } from "../components/MyIcon";
+import {ScrollView, Text, View, StyleSheet, Image} from "react-native";
+import MyIcon, {AppIcon} from "../components/MyIcon";
 import InputRegister from "../components/Inputs/InputRegister";
 import Button from "../components/Button";
-import { useCallback, useContext, useState } from "react";
-import { NavigationContext } from "@react-navigation/native";
+import {useCallback, useContext, useState} from "react";
+import {NavigationContext} from "@react-navigation/native";
 import ScreenName from "../../constants/ScreenName";
 import MyText from "../components/MyText";
-export default function DuTestScreen() {
-  // tao state luu du luu
+
+export default function RegisterStep1Screen() {
+  //contexts, refs
+  const navigation = useContext(NavigationContext);
+
+  //states
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -15,7 +19,7 @@ export default function DuTestScreen() {
   const [errorMessage, setErrorMessage] = useState("");
 
   // kiem tra du lieu khi nhan nut tiep tuc
-  const handleNext = () => {
+  const handleNext = useCallback(() => {
     if (password.length < 6 || password.length > 24) {
       setErrorMessage("Mật khẩu phải từ 6 đến 24 ký tự!!!");
       return false;
@@ -27,46 +31,45 @@ export default function DuTestScreen() {
     }
 
     if (phone && email && password) {
-      console.log("Dien thoai: ", phone);
-      console.log("Email: ", email);
-      console.log("Pass: ", password);
-
       setErrorMessage("");
       return true;
     } else {
       setErrorMessage("Vui lòng nhập đầy đủ thông tin");
       return false;
     }
-  };
+  }, [password]);
 
-  function myEmptyFunction(): void {
-    // Hàm này không làm gì cả
-  }
-  const navigation = useContext(NavigationContext);
-  function goBack(): void {
+  //handlers
+  const handleGoBack = useCallback(() => {
     navigation?.goBack();
-  }
-  function goForward(): void {
-    const canProceed = handleNext();
-    if (canProceed) {
-      navigation?.navigate(ScreenName.REGISTER_2);
+  }, []);
+
+  const handleForward = useCallback(() => {
+    if (handleNext()) {
+      navigation?.navigate(ScreenName.REGISTER_STEP_2);
     }
-  }
-  function goToLogin(): void {
+  }, [handleNext]);
+
+  const goToLogin = useCallback(() => {
+    navigation?.goBack();
     navigation?.navigate(ScreenName.LOGIN);
-  }
+  }, []);
+
   return (
     <ScrollView>
       <View style={styles.container}>
+        {/* back button */}
         <View style={styles.icon}>
-          <MyIcon icon={AppIcon.ic_back_circle} onPress={goBack} />
+          <MyIcon icon={AppIcon.ic_back_circle} onPress={handleGoBack}/>
         </View>
 
+        {/* illustration image*/}
         <Image
           style={styles.img}
           source={require("../../../assets/images/ illustration/Mobile login-rafiki.png")}
-        ></Image>
+        />
 
+        {/* screen title */}
         <View style={styles.row}>
           <View>
             <Text style={styles.title}>Tạo tài khoản</Text>
@@ -75,6 +78,8 @@ export default function DuTestScreen() {
             </Text>
           </View>
         </View>
+
+        {/* phone numver */}
         <View style={styles.input}>
           <InputRegister
             label="Số điện thoại"
@@ -84,8 +89,10 @@ export default function DuTestScreen() {
             placeholder="Số điện thoại"
             type="phone"
             iconName="phone"
-          ></InputRegister>
+          />
         </View>
+
+        {/* email */}
         <View style={styles.input}>
           <InputRegister
             label="Email"
@@ -95,8 +102,10 @@ export default function DuTestScreen() {
             placeholder="Emal"
             type="email"
             iconName="email"
-          ></InputRegister>
+          />
         </View>
+
+        {/*password*/}
         <View style={styles.input}>
           <InputRegister
             label="Mật khẩu"
@@ -106,8 +115,10 @@ export default function DuTestScreen() {
             placeholder="Nhập mật khẩu của bạn"
             type="password"
             iconName="password"
-          ></InputRegister>
+          />
         </View>
+
+        {/*confirm password */}
         <View style={styles.input}>
           <InputRegister
             label="Xác nhận lại mật khẩu của bạn"
@@ -117,27 +128,31 @@ export default function DuTestScreen() {
             placeholder="Xác nhận lại mật khẩu của bạn"
             type="password"
             iconName="password"
-          ></InputRegister>
+          />
         </View>
+
+        {/* password require hint*/}
         <View style={styles.row1}>
-          <Text></Text>
           <View style={styles.text}>
             <Text>Mật khẩu phải từ 6 đến 24 kí tự</Text>
           </View>
         </View>
+
         {errorMessage ? (
-          <Text style={{ color: "red" }}>{errorMessage}</Text>
+          <Text style={{color: "red"}}>{errorMessage}</Text>
         ) : null}
         <View style={styles.button}>
           <Button
             title="Tiếp tục"
             textColor="white"
             backgroundColor="blue"
-            onPress={goForward}
-          ></Button>
+            onPress={handleForward}
+          />
+
+          {/* cgo to login*/}
           <Text>
             Bạn đã có tài khoản?{" "}
-            <MyText text="đăng nhập" onPress={goToLogin}></MyText>
+            <MyText text="đăng nhập" onPress={goToLogin}/>
           </Text>
         </View>
       </View>
@@ -148,17 +163,19 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: "center",
-    // justifyContent: "center",
   },
+
   icon: {
     marginTop: "5%",
     marginLeft: "5%",
   },
+
   iconInput: {
     left: 10,
     top: 25,
     justifyContent: "center",
   },
+
   input: {
     top: "0%",
     height: 20,
@@ -172,40 +189,44 @@ const styles = StyleSheet.create({
     height: 200,
     alignSelf: "center",
   },
+
   title: {
     fontSize: 20,
     fontWeight: "bold",
     marginTop: "-6%",
   },
+
   content: {
     fontSize: 14,
     marginBottom: "20%",
   },
+
   test: {
     marginTop: -20,
-    // height: 50,
-    // backgroundColor: "green",
   },
+
   text: {
     top: -25,
     left: 90,
     marginBottom: "-15%",
   },
+
   button: {
     marginTop: "10%",
     alignSelf: "center",
   },
-  dangky: {},
+
   row1: {
     flexDirection: "row", // Đặt các biểu tượng nằm trên cùng một hàng
     justifyContent: "center", // Cân đối khoảng cách giữa các biểu tượng
     marginBottom: 20, // Thêm khoảng cách dưới hàng icon
   },
+
   row: {
-    // Đặt các biểu tượng nằm trên cùng một hàng
     marginLeft: "5%", // Cân đối khoảng cách giữa các biểu tượng
     marginBottom: " -12%", // Thêm khoảng cách dưới hàng icon
   },
+
   lastText: {
     flexDirection: "row",
   },

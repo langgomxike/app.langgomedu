@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, {useCallback, useContext, useEffect, useState} from "react";
 import {
   View,
   Text,
@@ -24,8 +24,8 @@ import ModalJoinClass from "../components/modal/ModalJoinClass";
 import AStudent from "../../apis/AStudent";
 import Student from "../../models/Student";
 import ModalConfirmJoinClass from "../components/modal/ModalConfirmJoinClass";
-import LessionItem from "../components/schedule/LessionItem";
 import LessonItem from "../components/LessonItem";
+import DateTimeConfig from "../../configs/DateTimeConfig";
 
 const URL = ReactAppUrl.PUBLIC_URL;
 export default function ClassDetail() {
@@ -44,24 +44,7 @@ export default function ClassDetail() {
   const [studentList, setStudentList] = useState<Student[]>([]);
   const [resultResponse, setResultResponse] = useState(false)
 
-  // Hàm để điều hướng đến màn hình DetailClass mới
-  // const navigation: NavigationProp<RootStackParamList> = useNavigation();
-  // const handleNavigateToDetail = (classId: string) => {
-  // navigation.navigate(ScreenName.DETAIL_CLASS, { classId }); // Truyền classId qua route params
-  // };
-
   // handlers
-  function fomatDate(timestamp: number) {
-    if (!timestamp) return ""; // Kiểm tra nếu timestamp là undefined hoặc null
-
-    const date = new Date(timestamp);
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const year = date.getFullYear();
-
-    return `${day}/${month}/${year}`; // Trả về chuỗi theo định dạng DD/MM/YYYY
-  }
-
   function formatCurrency(amount: number, locale = "vi-VN", currency = "VND") {
     // Kiểm tra nếu không phải số, trả về chuỗi lỗi
     if (typeof amount !== "number") return "Invalid input";
@@ -70,17 +53,13 @@ export default function ClassDetail() {
       style: "currency",
       currency,
     });
-
-    // console.log(formatCurrency(price, "en-GB", "GBP")); // "£123,456,789.00" (Anh)
-    // console.log(formatCurrency(price, "ja-JP", "JPY")); // "￥123,456,789" (Nhật)
-    // console.log(formatCurrency(price, "vi-VN", "VND")); // "123.456.789 ₫" (Việt Nam)
   }
 
-  const handleJoinClass = () => {
+  const handleJoinClass = useCallback(() => {
     setModalVisible(
       studentList.length > 0 ? "modalJoinClass" : "modalConfirmJoinClass"
     );
-  };
+  }, [studentList]);
 
   const handleAcceptClass = () => {
     setModalVisible("modalConfirmJoinClass");
@@ -88,8 +67,6 @@ export default function ClassDetail() {
 
   // effect
   useEffect(() => {
-    console.log("ClassDetail", resultResponse);
-    
     //Get detail class
     AClass.getClassDetailWithUser(
       param.classId,
@@ -143,19 +120,23 @@ export default function ClassDetail() {
                   {classDetail.major?.vn_name}
                 </Text>
               </View>
+
               {/* Body */}
               <View style={styles.bodyContainer}>
                 {/* Class infomation */}
                 <View style={styles.classInfoContainer}>
+
                   {/* Tiêu đề môn học */}
                   <Text style={styles.classInfoTitle}>{classDetail.title}</Text>
 
                   <View style={styles.row}>
+                  {/* class level */}
                     <View style={styles.itemInfoTwo}>
                       <Ionicons name="book-outline" size={24} color="black" />
                       <Text>{classDetail.class_level?.vn_name}</Text>
                     </View>
 
+                    {/* start time*/}
                     <View
                       style={[
                         styles.itemInfoTwo,
@@ -167,12 +148,13 @@ export default function ClassDetail() {
                         size={24}
                         color="black"
                       />
-                      <Text>{fomatDate(classDetail.started_at)}</Text>
+                      <Text>{DateTimeConfig.getDateFormat(classDetail.started_at)}</Text>
                     </View>
                   </View>
 
-                  <View style={[styles.line, { marginTop: 10 }]}></View>
+                  <View style={[styles.line, { marginTop: 10 }]} />
 
+                  {/* max learners */}
                   <View style={styles.itemInfo}>
                     <View style={styles.row}>
                       <Ionicons name="cube-outline" size={24} color="black" />
@@ -183,6 +165,7 @@ export default function ClassDetail() {
                     </Text>
                   </View>
 
+                  {/* detail */}
                   <View style={styles.itemInfo}>
                     <View style={styles.row}>
                       <Ionicons
@@ -197,6 +180,7 @@ export default function ClassDetail() {
                     </Text>
                   </View>
 
+                  {/* time each lesson */}
                   <View style={styles.itemInfo}>
                     <View style={styles.row}>
                       <Ionicons name="timer-outline" size={24} color="black" />
@@ -205,6 +189,7 @@ export default function ClassDetail() {
                     <Text style={[styles.itemContent]}>time giờ/Buổi</Text>
                   </View>
 
+                  {/* price */}
                   <View style={styles.itemInfo}>
                     <View style={styles.row}>
                       <Ionicons name="cash-outline" size={24} color="black" />
@@ -215,6 +200,7 @@ export default function ClassDetail() {
                     </Text>
                   </View>
 
+                  {/* address */}
                   <View style={styles.itemInfo}>
                     <View style={styles.row}>
                       <Ionicons
@@ -229,8 +215,9 @@ export default function ClassDetail() {
                     </Text>
                   </View>
 
-                  <View style={[styles.line, { marginTop: 10 }]}></View>
+                  <View style={[styles.line, { marginTop: 10 }]} />
 
+                  {/* class fee */}
                   <View style={[styles.itemInfo, { marginTop: 20 }]}>
                     <View style={styles.row}>
                       <Text>Phí nhận lớp</Text>
@@ -241,7 +228,7 @@ export default function ClassDetail() {
                   </View>
                 </View>
 
-                {/* Stduent infomation */}
+                {/* Student information */}
                 <View style={styles.studentInfomationContainer}>
                   <Text style={[styles.containerTitle, { marginBottom: 10 }]}>
                     Mô tả
@@ -254,6 +241,7 @@ export default function ClassDetail() {
                   <Text style={[styles.containerTitle, { padding: 20 }]}>
                     Các buổi học trong tuần
                   </Text>
+
                   <FlatList
                    scrollEnabled={false}
                   // horizontal={true}
@@ -270,6 +258,7 @@ export default function ClassDetail() {
             </View>
           </ScrollView>
         )}
+
       </View>
       {/* Nút bấn để nhập lớp */}
       {classDetail?.user_status !== "author" && (

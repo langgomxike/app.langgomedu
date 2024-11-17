@@ -13,7 +13,7 @@ import { BackgroundColor } from "../../../configs/ColorConfig";
 import * as FileSystem from "expo-file-system";
 import * as MediaLibrary from "expo-media-library";
 import {
-  NavigationContext,
+  NavigationContext, NavigationRouteContext,
   RouteProp,
   useRoute,
 } from "@react-navigation/native";
@@ -26,7 +26,7 @@ import ClassInfoSkeleton from "../../components/skeleton/ClassInfoSkeleton";
 import ReactAppUrl from "../../../configs/ConfigUrl";
 import ModalConfirmAttendClass from "../../components/modal/ModalConfirmAttendLesson";
 import Attendance from "../../../models/Attendance";
-import { RootStackParamList } from "../../../configs/NavigationRouteTypeConfig";
+import {AttendedForLearner, RootStackParamList} from "../../../configs/NavigationRouteTypeConfig";
 import moment from "moment";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import * as ImagePicker from "expo-image-picker";
@@ -37,10 +37,10 @@ import ModalPay from "../../components/modal/ModalPay";
 const URL = ReactAppUrl.PUBLIC_URL;
 
 export default function LeanerAttendance() {
-  const route =
-    useRoute<RouteProp<RootStackParamList, ScreenName.ATTENDED_FOR_LEARNER>>();
+  // contexts
+  const route = useContext(NavigationRouteContext);
   // Get class id
-  const param = route.params;
+  const param = route?.params as AttendedForLearner || {classId: -1, lessonId: -1};
 
   //context
   const user = useContext(UserContext).user;
@@ -62,7 +62,7 @@ export default function LeanerAttendance() {
   const [isDeferred, setIsDeferred] = useState(false);
   const [modalName, setModalName] = useState("");
 
-  const classId = param.classId;
+  const classId = param?.classId ;
   const lessonId = param.lessonId;
   const userId = user.ID;
   const attendedAt = new Date("2024-11-15").getTime();
@@ -72,6 +72,7 @@ export default function LeanerAttendance() {
   // Handler
   const imageUri =
     "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/QR_code_for_mobile_English_Wikipedia.svg/800px-QR_code_for_mobile_English_Wikipedia.png";
+
   const downloadImage = async () => {
     try {
       // Kiểm tra và yêu cầu quyền truy cập vào thư viện
