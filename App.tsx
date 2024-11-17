@@ -18,7 +18,6 @@ import CVScreen from "./src/views/screens/CV";
 import InputCVScreen from "./src/views/screens/InputCV";
 import AppInfoManagementScreen from "./src/views/screens/admin/AppInfoManagement";
 import PermissionManagementScreen from "./src/views/screens/admin/PermissionManagement";
-import ApproveClassScreen from "./src/views/screens/admin/ApproveClass";
 import CVApprovalScreen from "./src/views/screens/admin/CVApproval";
 import ClassApprovalScreen from "./src/views/screens/admin/ClassApproval";
 import ClassListScreen from "./src/views/screens/ClassList";
@@ -34,7 +33,6 @@ import UserReportList from "./src/views/screens/admin/UserReportList";
 import UserManager from "./src/views/screens/admin/UserManager";
 import ClassManager from "./src/views/screens/admin/ClassManager";
 import GeneralManager from "./src/views/screens/admin/GeneralManager";
-import UpdateReportedClass from "./src/views/screens/admin/UpdateReportedClass";
 import CreatAcountAdmin from "./src/views/screens/admin/CreatAccountAdmin";
 import PersonalCV from "./src/views/screens/settings/PersonalCV";
 import {TouchableOpacity} from "react-native";
@@ -202,11 +200,6 @@ export default function App() {
               />
 
               <Stack.Screen
-                name={ScreenName.REPORT_CLASS}
-                component={UpdateReportedClass}
-              />
-
-              <Stack.Screen
                 name={ScreenName.CREATE_ACCOUNT_ADMIN}
                 component={CreatAcountAdmin}
               />
@@ -219,10 +212,7 @@ export default function App() {
                 name={ScreenName.PERMISSION_MANAGEMENT}
                 component={PermissionManagementScreen}
               />
-              <Stack.Screen
-                name={ScreenName.APPROVE_CLASS}
-                component={ApproveClassScreen}
-              />
+
               <Stack.Screen
                 name={ScreenName.CV_APPROVAL}
                 component={CVApprovalScreen}
