@@ -220,6 +220,11 @@ export default function App() {
               />
 
               <Stack.Screen
+                name={ScreenName.REPORT_USER}
+                component={UpdateReportedUser}
+              />
+
+              <Stack.Screen
                 name={ScreenName.CREATE_ACCOUNT_ADMIN}
                 component={CreatAcountAdmin}
               />

@@ -46,6 +46,7 @@ enum ScreenName {
     CLASS_MANAGEMENT = "Class Management",
     APPROVE_CLASS = "Approve Class",
     USER_MANAGEMENT = "User Management",
+    REPORT_USER = "User Reports",   
 
     CV_APPROVAL = "CV Approval",
     CLASS_APPROVAL = "Class Approval",
@@ -57,6 +58,7 @@ enum ScreenName {
     SETTING_PERSONAL_RATINGS = "Setting personal ratings",
 
     CREATE_ACCOUNT_ADMIN = "Create Account Admin",
+    
 }
 
 export default ScreenName;
