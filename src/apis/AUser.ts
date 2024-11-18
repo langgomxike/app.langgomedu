@@ -1,7 +1,7 @@
 import axios from "axios";
-import SAsyncStorage, { AsyncStorageKeys } from "../services/SAsyncStorage";
+import SAsyncStorage, {AsyncStorageKeys} from "../services/SAsyncStorage";
 import Config from "../configs/Config";
-import SLog, { LogType } from "../services/SLog";
+import SLog, {LogType} from "../services/SLog";
 import User from "../models/User";
 import Response from "../models/Response";
 import ReactAppUrl from "../configs/ConfigUrl";
@@ -13,9 +13,6 @@ export default class AUser {
   public static implicitLogin(onNext: (user: User | undefined) => void) {
     //prepare parameters
     const url = Config.API_BASE_URL + this.BASE_URL + "/login";
-
-    // done
-    // SLog.log(LogType.Warning, "login url", "", url);
 
     //get token from storage
     SAsyncStorage.getData(
@@ -155,6 +152,7 @@ export default class AUser {
         return;
       });
   }
+
   //trừ điểm uy tín
   public static minusUserPoints(
     user_id: string,
@@ -169,11 +167,10 @@ export default class AUser {
     axios
       .post(`${this.API_URL}/reports/minusUserPoints`, { user_id, point: point })
       .then((response) => {
-        // Nếu thành công, gọi callback `onNext` với kết quả từ BE
         onNext(response.data);
       })
       .catch((error) => {
-        console.error("Error subtracting points:", error);
+        SLog.log(LogType.Error, "minusUserPoints", "Cannot minus", error);
         onNext({ success: false, message: "Failed to subtract points." });
       })
       .finally(() => {
@@ -208,6 +205,7 @@ export default class AUser {
         onLoading(false);
       });
   }
+
   //tạo tài khoản admin
   public static registerAdmin(
     phone: string,

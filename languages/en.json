@@ -3,5 +3,14 @@
   "VIEW_ALL": "View All",
   "SHOWING_PAGE": "Showing page",
   "SEARCH": "Search here...",
-  "CHANGE_LANGUAGE": "Change language into English"
+  "CHANGE_LANGUAGE": "Change language into English",
+  "LOGIN": "Login",
+  "LOGIN_HINT": "Enter your information to login",
+  "EMAIL_OR_PHONE_NUMBER": "Email or Phone number",
+  "PASSWORD": "Password",
+  "FORGOT_PASSWORD": "Forgot Password?",
+  "ALREADY_HAVE_ACCOUNT": "Already have an account? Register",
+  "INVALID_EMAIL_OR_PHONE_NUMBER": "Invalid email or password. Please try again",
+  "INVALID_PASSWORD": "Invalid password. Please try again",
+  "LOGIN_FAILED": "Cannot login now. Please try again"
 }

@@ -207,7 +207,11 @@ export default function HomeScreen() {
   useEffect(() => {
     AUser.implicitLogin((user) => {
       if (!user) {
-        navigation?.navigate(ScreenName.LOGIN);
+        navigation?.reset({
+          index: 0,
+          routes: [{ name: ScreenName.LOGIN }], // Replace 'Login' with your Login screen's route name
+        });
+        // navigation?.navigate(ScreenName.LOGIN);
       } else {
         //store new token into async storage
         SAsyncStorage.setData(AsyncStorageKeys.TOKEN, user.token);
@@ -321,7 +325,7 @@ export default function HomeScreen() {
                   <View style={[styles.majorItem, styles.boxShadow]}>
                     {URL && (
                       <Image
-                        source={{uri: URL + (major.icon?.path ?? "")}}
+                        source={{uri: URL + (major.icon ?? "")}}
                         style={styles.majorIcon}
                       />
                     )}
@@ -405,13 +409,13 @@ export default function HomeScreen() {
                             }
                           >
                             <CourseItem
-                              majorIconUrl={`${URL}${suggettingClass.major?.icon?.path}`}
+                              majorIconUrl={`${URL}${suggettingClass.major?.icon}`}
                               name={suggettingClass.title}
                               level={suggettingClass.class_level?.vn_name || ""}
                               date={DateTimeConfig.getDateFormat(suggettingClass.started_at)}
                               time={2}
                               type={"Tại nhà"}
-                              address={suggettingClass.address_1}
+                              address={suggettingClass.address?.detail ?? ""}
                               cost={suggettingClass.price}
                             />
                           </Pressable>

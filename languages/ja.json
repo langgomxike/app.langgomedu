@@ -1,7 +1,16 @@
 {
-  "TYPE": 2,
-  "VIEW_ALL": "すべて見る",
+  "TYPE": 1,
+  "VIEW_ALL": "すべて表示",
   "SHOWING_PAGE": "ページを表示",
   "SEARCH": "ここで検索...",
-  "CHANGE_LANGUAGE": "言語を日本語に変更する"
+  "CHANGE_LANGUAGE": "言語を英語に変更",
+  "LOGIN": "ログイン",
+  "LOGIN_HINT": "ログインするために情報を入力してください",
+  "EMAIL_OR_PHONE_NUMBER": "メールまたは電話番号",
+  "PASSWORD": "パスワード",
+  "FORGOT_PASSWORD": "パスワードを忘れましたか?",
+  "ALREADY_HAVE_ACCOUNT": "アカウントをお持ちですか? 登録",
+  "INVALID_EMAIL_OR_PHONE_NUMBER": "無効なメールまたはパスワードです。再試行してください",
+  "INVALID_PASSWORD": "無効なパスワードです。再試行してください",
+  "LOGIN_FAILED": "現在ログインできません。再試行してください"
 }

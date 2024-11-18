@@ -66,7 +66,7 @@ export default function OTPScreen() {
       {/* illustration image*/}
       <Image
         style={styles.img}
-        source={require("../../../assets/images/ illustration/Mobile login-rafiki.png")}
+        source={require("../../../assets/images/illustrations/login.png")}
       />
 
       {/* screen title */}
