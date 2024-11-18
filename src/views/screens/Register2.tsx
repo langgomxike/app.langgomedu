@@ -13,6 +13,8 @@ import {
 import * as ImagePicker from "expo-image-picker";
 import SLog, { LogType } from "../../services/SLog";
 import MyText from "../components/MyText";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import {BackgroundColor, TextColor} from "../../configs/ColorConfig";
 
 export default function RegisterStep2Screen() {
   //contexts
@@ -29,7 +31,8 @@ export default function RegisterStep2Screen() {
   //handlers
   const goBack = useCallback(() => {
     navigation?.goBack();
-    navigation?.navigate(ScreenName.REGISTER_STEP_1);
+    navigation?.goBack();
+    navigation?.navigate(ScreenName.HOME);
   }, []);
 
   const onRegister = useCallback(() => {
@@ -107,10 +110,15 @@ export default function RegisterStep2Screen() {
 
   return (
     <ScrollView style={styles.container}>
-      {/* back icon*/}
-      <View style={styles.icon}>
-        <MyIcon onPress={goBack} icon={AppIcon.ic_back_circle} />
-      </View>
+      {/* back button */}
+      <Ionicons
+        name="close"
+        size={30}
+        style={styles.backButton}
+        onPress={goBack}
+      />
+
+      <View style={{height: 50}} />
 
       {/* illustration text*/}
       <View style={styles.row}>
@@ -208,19 +216,21 @@ export default function RegisterStep2Screen() {
 
       {/*submit button*/}
       <View style={styles.button}>
+        {/* submit button */}
         <Button
-          title="Đăng ký"
+          title="Đăng nhập"
           textColor="white"
-          backgroundColor="blue"
+          backgroundColor={BackgroundColor.primary}
           onPress={onRegister}
         />
 
-        {/* cgo to login*/}
-        <Text>
-          Bạn đã có tài khoản?{" "}
-          <MyText text="đăng nhập" onPress={goToLogin}/>
+        {/* hint text */}
+        <Text style={styles.link} onPress={goToLogin}>
+          Bạn da có tài khoản? Hãy đăng nhap
         </Text>
       </View>
+
+      <View style={{height: 50}} />
     </ScrollView>
   );
 }
@@ -228,15 +238,25 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+
+  backButton: {
+    position: "absolute",
+    top: 20,
+    left: 20,
+    zIndex: 10,
+  },
+
   icon: {
     marginTop: "5%",
     marginLeft: "5%",
   },
+
   iconInput: {
     left: 10,
     top: 25,
     justifyContent: "center",
   },
+
   input: {
     top: "0%",
     height: 20,
@@ -274,9 +294,13 @@ const styles = StyleSheet.create({
     marginBottom: "-15%",
   },
 
+  link: {
+    color: TextColor.sub_primary,
+  },
+
   button: {
     marginTop: "10%",
-    alignSelf: "center",
+    alignItems: "center",
   },
 
   row1: {

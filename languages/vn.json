@@ -1,7 +1,16 @@
 {
-  "TYPE": 0,
+  "TYPE": 1,
   "VIEW_ALL": "Xem tất cả",
   "SHOWING_PAGE": "Hiển thị trang",
-  "SEARCH": "Tìm kiếm...",
-  "CHANGE_LANGUAGE": "Đổi ngôn ngữ sang tiếng Việt"
+  "SEARCH": "Tìm kiếm ở đây...",
+  "CHANGE_LANGUAGE": "Đổi ngôn ngữ sang Tiếng Anh",
+  "LOGIN": "Đăng nhập",
+  "LOGIN_HINT": "Nhập thông tin của bạn để đăng nhập",
+  "EMAIL_OR_PHONE_NUMBER": "Email hoặc Số điện thoại",
+  "PASSWORD": "Mật khẩu",
+  "FORGOT_PASSWORD": "Quên mật khẩu?",
+  "ALREADY_HAVE_ACCOUNT": "Đã có tài khoản? Đăng ký",
+  "INVALID_EMAIL_OR_PHONE_NUMBER": "Email hoặc mật khẩu không hợp lệ. Vui lòng thử lại",
+  "INVALID_PASSWORD": "Mật khẩu không hợp lệ. Vui lòng thử lại",
+  "LOGIN_FAILED": "Không thể đăng nhập ngay bây giờ. Vui lòng thử lại"
 }

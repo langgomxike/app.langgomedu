@@ -70,7 +70,7 @@ export default function CreateAccountAdmin() {
 
         <Image
           style={styles.img}
-          source={require('../../../../assets/images/ illustration/Mobile login-rafiki.png')}
+          source={require('../../../../assets/images/illustrations/login.png')}
         />
 
         <View style={styles.row}>

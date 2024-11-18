@@ -6,6 +6,8 @@ import {useCallback, useContext, useState} from "react";
 import {NavigationContext} from "@react-navigation/native";
 import ScreenName from "../../constants/ScreenName";
 import MyText from "../components/MyText";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import {BackgroundColor, TextColor} from "../../configs/ColorConfig";
 
 export default function RegisterStep1Screen() {
   //contexts, refs
@@ -37,13 +39,9 @@ export default function RegisterStep1Screen() {
       setErrorMessage("Vui lòng nhập đầy đủ thông tin");
       return false;
     }
-  }, [password]);
+  }, [password, email, confirmPassword, phone]);
 
   //handlers
-  const handleGoBack = useCallback(() => {
-    navigation?.goBack();
-  }, []);
-
   const handleForward = useCallback(() => {
     if (handleNext()) {
       navigation?.navigate(ScreenName.REGISTER_STEP_2);
@@ -58,15 +56,10 @@ export default function RegisterStep1Screen() {
   return (
     <ScrollView>
       <View style={styles.container}>
-        {/* back button */}
-        <View style={styles.icon}>
-          <MyIcon icon={AppIcon.ic_back_circle} onPress={handleGoBack}/>
-        </View>
-
         {/* illustration image*/}
         <Image
           style={styles.img}
-          source={require("../../../assets/images/ illustration/Mobile login-rafiki.png")}
+          source={require("../../../assets/images/illustrations/login.png")}
         />
 
         {/* screen title */}
@@ -99,7 +92,7 @@ export default function RegisterStep1Screen() {
             required={true}
             onChangeText={setEmail}
             value={email}
-            placeholder="Emal"
+            placeholder="Email"
             type="email"
             iconName="email"
           />
@@ -131,30 +124,23 @@ export default function RegisterStep1Screen() {
           />
         </View>
 
-        {/* password require hint*/}
-        <View style={styles.row1}>
-          <View style={styles.text}>
-            <Text>Mật khẩu phải từ 6 đến 24 kí tự</Text>
-          </View>
-        </View>
-
         {errorMessage ? (
           <Text style={{color: "red"}}>{errorMessage}</Text>
         ) : null}
-        <View style={styles.button}>
+        <>
+          {/* submit button */}
           <Button
-            title="Tiếp tục"
+            title="Tiep tuc"
             textColor="white"
-            backgroundColor="blue"
+            backgroundColor={BackgroundColor.primary}
             onPress={handleForward}
           />
 
-          {/* cgo to login*/}
-          <Text>
-            Bạn đã có tài khoản?{" "}
-            <MyText text="đăng nhập" onPress={goToLogin}/>
+          {/* hint text */}
+          <Text style={styles.link} onPress={goToLogin}>
+            Bạn da có tài khoản? Hãy đăng nhap
           </Text>
-        </View>
+        </>
       </View>
     </ScrollView>
   );
@@ -163,6 +149,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: "center",
+  },
+
+  backButton: {
+    position: "absolute",
+    top: 20,
+    left: 20,
+    zIndex: 10,
   },
 
   icon: {
@@ -187,6 +180,7 @@ const styles = StyleSheet.create({
   img: {
     width: 200,
     height: 200,
+    marginTop: 40,
     alignSelf: "center",
   },
 
@@ -211,9 +205,13 @@ const styles = StyleSheet.create({
     marginBottom: "-15%",
   },
 
+  link: {
+    color: TextColor.sub_primary,
+  },
+
   button: {
     marginTop: "10%",
-    alignSelf: "center",
+    alignItems: "center",
   },
 
   row1: {
