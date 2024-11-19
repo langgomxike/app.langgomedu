@@ -1,4 +1,4 @@
-import {ScrollView, StyleSheet, Text, TouchableOpacity, View,} from "react-native";
+import {Image, ScrollView, StyleSheet, Text, TouchableOpacity, View,} from "react-native";
 import BackWithDetailLayout from "../layouts/BackWithDetail";
 import {ListItemVietnamese, ListItemEnglish, ListItemJapanese} from "../../configs/AccountListItemConfig";
 import AccountItem, {AccountItemProps} from "../components/AccountItem";
@@ -111,44 +111,36 @@ function FlatListItem({item, index}: FlatListItemProps) {
       {/*    language bottom sheet */}
       <RBSheet ref={refRBSheet} useNativeDriver={false} height={150}>
         <TouchableOpacity style={action.action} onPress={() => handleChangeLanguage(vn)}>
-          <Ionicons
-            name="return-down-forward-outline"
-            size={20}
-            color={BackgroundColor.black}
-          />
+          <Image source={require("../../../assets/languages/vn.png")} style={{width: 30, height: 30}}/>
           <Text style={action.item}>Tiếng Việt</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={action.action} onPress={() => handleChangeLanguage(en)}>
-          <Ionicons
-            name="return-down-forward-outline"
-            size={20}
-            color={BackgroundColor.black}
-          />
+          <Image source={require("../../../assets/languages/en.png")} style={{width: 30, height: 30}}/>
+
           <Text style={action.item}>English</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={action.action} onPress={() => handleChangeLanguage(ja)}>
-          <Ionicons
-            name="return-down-forward-outline"
-            size={20}
-            color={BackgroundColor.black}
-          />
+          <Image source={require("../../../assets/languages/ja.png")} style={{width: 30, height: 30}}/>
+
           <Text style={action.item}>日本語</Text>
         </TouchableOpacity>
       </RBSheet>
 
       {/*confirm dialog for logout*/}
-      <ConfirmDialog title={"Dang xuat"} content={"Xac nhan dang xuat"} open={showConfirmLogout}
-                     confirm={"Xac nhan"}
-                     cancel={"Huy"}
+      <ConfirmDialog title={languageContext.language.LOGOUT} content={languageContext.language.LOGOUT_HINT}
+                     open={showConfirmLogout}
+                     confirm={languageContext.language.CONFIRM}
+                     cancel={languageContext.language.CANCEL}
                      onConfirm={handleLogout}
                      onCancel={() => setShowConfirmLogout(false)}/>
 
       {/*confirm dialog for delete account*/}
-      <ConfirmDialog title={"Xoa tai khoan"} content={"Xac nhan xoa tai khoan"} open={showConfirmDeleteAccount}
-                     confirm={"Xac nhan"}
-                     cancel={"Huy"}
+      <ConfirmDialog title={languageContext.language.DELETE_ACCOUNT}
+                     content={languageContext.language.DELETE_ACCOUNT_HINT} open={showConfirmDeleteAccount}
+                     confirm={languageContext.language.CONFIRM}
+                     cancel={languageContext.language.CANCEL}
                      onConfirm={handleDeleteAccount}
                      onCancel={() => setShowConfirmDeleteAccount(false)}/>
 

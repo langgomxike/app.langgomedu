@@ -1,20 +1,29 @@
-import {ScrollView, Text, View, StyleSheet, Image} from "react-native";
+import {ScrollView, Text, View, StyleSheet, Image, Alert} from "react-native";
 import MyIcon, {AppIcon} from "../components/MyIcon";
 import InputRegister from "../components/Inputs/InputRegister";
 import MyText from "../components/MyText";
 import Button from "../components/Button";
-import {useCallback, useContext, useState} from "react";
+import React, {useCallback, useContext, useState} from "react";
 import {NavigationContext} from "@react-navigation/native";
 import ScreenName from "../../constants/ScreenName";
+import {LanguageContext} from "../../configs/LanguageConfig";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import AUser from "../../apis/AUser";
+import SAsyncStorage, {AsyncStorageKeys} from "../../services/SAsyncStorage";
+import {AuthType} from "../../configs/NavigationRouteTypeConfig";
+import Spinner from "react-native-loading-spinner-overlay";
+import {BackgroundColor, TextColor} from "../../configs/ColorConfig";
 
 export default function ChangePasswordScreen() {
   //contexts
   const navigation = useContext(NavigationContext);
+  const languageContext = useContext(LanguageContext);
 
   //states
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
   //handlers
   const goBack = useCallback(() => {
@@ -22,35 +31,73 @@ export default function ChangePasswordScreen() {
   }, []);
 
   const handleSubmit = useCallback(() => {
-    alert("call api to change password");
+    if (!currentPassword) {
+      Alert.alert(languageContext.language.OLD_PASSWORD, languageContext.language.INVALID_PASSWORD);
+      return;
+    }
 
-    navigation?.goBack();
-    navigation?.navigate(ScreenName.LOGIN);
-  }, []);
+    if (!newPassword || newPassword === currentPassword) {
+      Alert.alert(languageContext.language.NEW_PASSWORD, languageContext.language.INVALID_PASSWORD);
+      return;
+    }
+
+    if (!confirmPassword || newPassword !== confirmPassword) {
+      Alert.alert(languageContext.language.CONFIRM_PASSWORD, languageContext.language.INVALID_CONFIRM_PASSWORD);
+      return;
+    }
+
+    setLoading(true);
+    const timeId = setTimeout(() => {
+      setLoading(false);
+      Alert.alert(languageContext.language.CHANGE_PASSWORD, languageContext.language.INVALID_CHANGE_PASSWORD);
+    }, 10000);
+
+    AUser.changePassword(currentPassword, newPassword,
+      (result) => {
+        if (result) {
+          navigation?.reset({
+            index: 0,
+            routes: [{name: ScreenName.LOGIN}],
+          });
+        } else {
+          Alert.alert(languageContext.language.CHANGE_PASSWORD, languageContext.language.INVALID_CHANGE_PASSWORD);
+        }
+      },
+      () => {
+        setLoading(false);
+        clearTimeout(timeId);
+      }
+    );
+  }, [newPassword, confirmPassword, currentPassword]);
 
   return (
     <View style={styles.container}>
-      {/* babk button*/}
-      <View style={styles.icon}>
-        <MyIcon icon={AppIcon.back_button} onPress={goBack}/>
-      </View>
+      <Spinner visible={loading}/>
+
+      {/* back button*/}
+      <Ionicons
+        name="close"
+        size={30}
+        style={styles.backButton}
+        onPress={goBack}
+      />
+
+      <View style={{height: 100}}/>
 
       {/* screen title */}
-      <View style={styles.row}>
-        <View>
-          <Text style={styles.title}> Đổi mật khẩu</Text>
-          <Text style={styles.content}>Hãy ghi nhớ mật khẩu của bạn</Text>
-        </View>
+      <View>
+        <Text style={styles.title}>{languageContext.language.CHANGE_PASSWORD}</Text>
+        <Text style={styles.content}>{languageContext.language.CHANGE_PASSWORD_HINT}</Text>
       </View>
 
       {/* current password*/}
       <View style={styles.input}>
         <InputRegister
-          label="Mật khẩu hiện tại của bạn"
+          label={languageContext.language.OLD_PASSWORD}
           required={true}
           value={currentPassword}
           onChangeText={setCurrentPassword}
-          placeholder="Mật khẩu hiện tại của bạn"
+          placeholder={languageContext.language.OLD_PASSWORD}
           type="password"
           iconName="password"
         />
@@ -59,11 +106,11 @@ export default function ChangePasswordScreen() {
       {/* new password*/}
       <View style={styles.input}>
         <InputRegister
-          label="Mật khẩu mới của bạn"
+          label={languageContext.language.NEW_PASSWORD}
           required={true}
           value={newPassword}
           onChangeText={setNewPassword}
-          placeholder="Mật khẩu mới của bạn"
+          placeholder={languageContext.language.NEW_PASSWORD}
           type="password"
           iconName="password"
         />
@@ -72,27 +119,20 @@ export default function ChangePasswordScreen() {
       {/* confirm password*/}
       <View style={styles.input}>
         <InputRegister
-          label="Xác nhận mật khẩu mới của bạn"
+          label={languageContext.language.CONFIRM_PASSWORD}
           required={true}
           value={confirmPassword}
           onChangeText={setConfirmPassword}
-          placeholder="Xác nhận mật khẩu mới của bạn"
+          placeholder={languageContext.language.CONFIRM_PASSWORD}
           type="password"
           iconName="password"
         />
       </View>
 
-      {/* password requirement*/}
-      <View style={styles.row1}>
-        <Text></Text>
-        <View style={styles.testQuenMatKhau}>
-          <Text>Mật khẩu phải từ 6 đến 24 kí tự</Text>
-        </View>
-      </View>
-
       {/* submit button*/}
       <View style={styles.btn}>
-        <Button title="Xác nhận" textColor="white" backgroundColor="#0D99FF" onPress={handleSubmit}/>
+        <Button title={languageContext.language.CHANGE_PASSWORD} textColor={TextColor.white}
+                backgroundColor={BackgroundColor.primary} onPress={handleSubmit}/>
       </View>
     </View>
   );
@@ -101,6 +141,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: "center",
+  },
+
+  backButton: {
+    position: "absolute",
+    top: 20,
+    left: 20,
   },
 
   icon: {
