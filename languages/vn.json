@@ -27,6 +27,7 @@
   "WELCOME": "Welcome",
   "UPLOAD_CITIZEN_ID": "Upload citizen id",
   "INVALID_UPLOAD_CITIZEN_ID": "You need to upload your citizen id to get the information",
+  "UPLOADED_CITIZEN_ID": "Upload your citizen id successfully",
   "DATE_OF_BIRTH": "Date Of Birth",
   "GENDER": "Gender",
   "UPLOAD_AVATAR": "Upload avatar",
@@ -81,7 +82,13 @@
     "SCHEDULE": "Thời khóa biểu",
     "MONTH": "Tháng",
     "LAST_WEEK": "Tuần trước",
-    "NEXT_WEEK": "Tuần sau" 
+    "NEXT_WEEK": "Tuần sau" ,
 
 
+  "LOGOUT": "Log out",
+  "LOGOUT_HINT": "Confirm logout",
+  "CANCEL": "Cancel",
+  "CONFIRM": "Confirm",
+  "DELETE_ACCOUNT": "Delete account",
+  "DELETE_ACCOUNT_HINT" : "Confirm delete account"
 }

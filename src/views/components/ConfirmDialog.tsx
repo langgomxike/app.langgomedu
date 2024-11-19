@@ -31,7 +31,7 @@ const ConfirmDialog = ({
             >
                 <View style={styles.modalBackground}>
                     <View style={styles.dialogContainer}>
-                        <Text style={styles.dialogTitle}>{title}</Text>
+                        <Text style={styles.dialogTitle}>{title.toUpperCase()}</Text>
                         <Text style={styles.dialogMessage}>{content}</Text>
 
                         {/* Horizontal Line */}

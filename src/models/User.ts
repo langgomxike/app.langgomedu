@@ -6,8 +6,7 @@ import Gender from "./Gender";
 export default class User {
     public id: string;
     public full_name: string;
-    public user_name: string;
-    public email: string;
+    public username: string;
     public phone_number: string;
     public password: string;
     public token: string;
@@ -27,8 +26,7 @@ export default class User {
     constructor(
         id = "",
         full_name = "",
-        user_name = "",
-        email = "",
+        username = "",
         phone_number = "",
         password = "",
         token = "",
@@ -47,8 +45,7 @@ export default class User {
     ) {
         this.id = id;
         this.full_name = full_name;
-        this.user_name = user_name;
-        this.email = email;
+        this.username = username;
         this.phone_number = phone_number;
         this.password = password;
         this.token = token;

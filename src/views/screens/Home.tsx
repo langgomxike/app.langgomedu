@@ -215,37 +215,37 @@ export default function HomeScreen() {
   }, [userTypeName, accountContext]);
 
   //set up login
-  // useEffect(() => {
-  //   !accountContext.account && AUser.implicitLogin((user) => {
-  //     if (!user) {
-  //       navigation?.reset({
-  //         index: 0,
-  //         routes: [{ name: ScreenName.LOGIN }],
-  //       });
-  //     } else {
-  //       //store new token into async storage
-  //       SAsyncStorage.setData(AsyncStorageKeys.TOKEN, user.token);
+  useEffect(() => {
+    AUser.implicitLogin((user) => {
+      if (!user) {
+        navigation?.reset({
+          index: 0,
+          routes: [{ name: ScreenName.LOGIN }],
+        });
+      } else {
+        //store new token into async storage
+        SAsyncStorage.setData(AsyncStorageKeys.TOKEN, user.token);
 
-  //       if (accountContext.setAccount) {
-  //         accountContext.setAccount(user);
-  //         setUser({ID: user.id, TYPE: UserType.LEANER});
+        if (accountContext.setAccount) {
+          accountContext.setAccount(user);
+          setUser({ID: user.id, TYPE: UserType.LEANER});
 
-  //         //check if admin/superadmin or not
-  //         if (
-  //           user.role?.id === RoleList.SUPER_ADMIN ||
-  //           user.role?.id === RoleList.ADMIN
-  //         ) {
-  //           navigation?.reset({
-  //             index: 0,
-  //             routes: [{ name: ScreenName.HOME_ADMIN }],
-  //           });
-  //         }
+          //check if admin/superadmin or not
+          if (
+            user.role?.id === RoleList.SUPER_ADMIN ||
+            user.role?.id === RoleList.ADMIN
+          ) {
+            navigation?.reset({
+              index: 0,
+              routes: [{ name: ScreenName.HOME_ADMIN }],
+            });
+          }
 
-  //         Toast.show(languageContext.language.WELCOME + " " + user.full_name, 2000);
-  //       }
-  //     }
-  //   });
-  // }, [accountContext]);
+          Toast.show(languageContext.language.WELCOME + " " + user.full_name, 2000);
+        }
+      }
+    });
+  }, [accountContext.setAccount]);
 
   //set up multilanguage
   useEffect(() => {

@@ -80,5 +80,12 @@
     "SCHEDULE": "スケジュール",
     "MONTH": "月",
     "LAST_WEEK": "先週",
-    "NEXT_WEEK": "来週"
+    "NEXT_WEEK": "来週",
+
+  "LOGOUT": "Log out",
+  "LOGOUT_HINT": "Confirm logout",
+  "CANCEL": "Cancel",
+  "CONFIRM": "Confirm",
+  "DELETE_ACCOUNT": "Delete account",
+  "DELETE_ACCOUNT_HINT" : "Confirm delete account"
 }
