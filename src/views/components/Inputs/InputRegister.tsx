@@ -43,6 +43,10 @@ const images = [
     name: "password",
     source: require("../../../../assets/images/register_icon/ic_lock.png"),
   },
+  {
+    name: "user",
+    source: require("../../../../assets/icons/ic_user.png"),
+  },
 ];
 
 export default function customInput({

@@ -1,25 +1,30 @@
-import { ScrollView, Text, View, StyleSheet, Image } from "react-native";
-import MyIcon, { AppIcon } from "../components/MyIcon";
+import {Alert, ScrollView, StyleSheet, Text, View} from "react-native";
+import MyIcon, {AppIcon} from "../components/MyIcon";
 import InputRegister from "../components/Inputs/InputRegister";
 import Button from "../components/Button";
-import { useCallback, useContext, useState } from "react";
-import { NavigationContext } from "@react-navigation/native";
+import {useCallback, useContext, useState} from "react";
+import {NavigationContext, NavigationRouteContext} from "@react-navigation/native";
 import ScreenName from "../../constants/ScreenName";
-import {
-  useCameraPermissions,
-  Camera,
-  BarcodeScanningResult,
-} from "expo-camera";
+import {BarcodeScanningResult, Camera, useCameraPermissions,} from "expo-camera";
 import * as ImagePicker from "expo-image-picker";
-import SLog, { LogType } from "../../services/SLog";
-import MyText from "../components/MyText";
+import SLog, {LogType} from "../../services/SLog";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import {BackgroundColor, TextColor} from "../../configs/ColorConfig";
+import {LanguageContext} from "../../configs/LanguageConfig";
+import DateTimeConfig from "../../configs/DateTimeConfig";
+import {AuthType, RegisterType} from "../../configs/NavigationRouteTypeConfig";
+import Spinner from "react-native-loading-spinner-overlay";
+import AUser from "../../apis/AUser";
+import User from "../../models/User";
+import SAsyncStorage, {AsyncStorageKeys} from "../../services/SAsyncStorage";
+import Toast from "react-native-simple-toast";
 
 export default function RegisterStep2Screen() {
   //contexts
   const navigation = useContext(NavigationContext);
   const [permission, requestPermission] = useCameraPermissions();
+  const languageContext = useContext(LanguageContext);
+  const route = useContext(NavigationRouteContext);
 
   //states
   const [id, setId] = useState("");
@@ -27,23 +32,54 @@ export default function RegisterStep2Screen() {
   const [dayOfBirth, setDayOfBirth] = useState("");
   const [gender, setGender] = useState("");
   const [address, setAddress] = useState("");
-
+  const [loading, setLoading] = useState(false);
   //handlers
   const goBack = useCallback(() => {
     navigation?.goBack();
     navigation?.goBack();
-    navigation?.navigate(ScreenName.HOME);
   }, []);
 
   const onRegister = useCallback(() => {
-    navigation?.navigate(ScreenName.HOME);
-  }, []);
+    if (!id || !name || !dayOfBirth || !gender || !address) {
+      Alert.alert(languageContext.language.UPLOAD_CITIZEN_ID, languageContext.language.INVALID_UPLOAD_CITIZEN_ID);
+      return;
+    }
+
+    const {phone_number, username, password} = route?.params as RegisterType ?? {
+      phone_number: "",
+      username: "",
+      password: ""
+    };
+
+    if (!phone_number || !username || !password) {
+      Alert.alert(languageContext.language.REGISTER, languageContext.language.REGISTER_FAILED);
+      return;
+    }
+
+    const user = new User();
+    user.id = id;
+    user.full_name = name;
+    user.phone_number = phone_number;
+    user.password = password;
+    user.hometown = address;
+    const day = +dayOfBirth.substring(0, 2);
+    const month = +dayOfBirth.substring(2, 4);
+    const year = +dayOfBirth.substring(4, 8);
+    const date = new Date(year, month, day);
+    user.birthday = date.getTime();
+    user.user_name = username;
+    setLoading(true);
+
+    const data: AuthType = {user}
+    navigation?.navigate(ScreenName.OTP, data);
+  }, [id, name, dayOfBirth, gender, address]);
 
   function goToLogin(): void {
     navigation?.navigate(ScreenName.LOGIN);
   }
 
   const pickImage = useCallback(() => {
+    setLoading(true);
     ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
       allowsEditing: true,
@@ -66,19 +102,20 @@ export default function RegisterStep2Screen() {
         );
 
         processResult(value.length > 0 ? value[0].data : "");
-      });
+      })
+      .catch(() => {
+        setLoading(false);
+      })
   }, [permission]);
 
   const processResult = useCallback(
     (result: string) => {
-      alert(result);
-
       const data = result.split("|");
-      let id: string,
-        name: string,
-        dayOfBirth: string,
-        gender: string,
-        address: string;
+      let id: string = "",
+        name: string = "",
+        dayOfBirth: string = "",
+        gender: string = "",
+        address: string = "";
 
       if (data.length > 1) {
         id = data[0];
@@ -92,7 +129,11 @@ export default function RegisterStep2Screen() {
 
       if (data.length > 4) {
         dayOfBirth = data[3];
-        setDayOfBirth(dayOfBirth);
+        const day = +dayOfBirth.substring(0, 2);
+        const month = +dayOfBirth.substring(2, 4);
+        const year = +dayOfBirth.substring(4, 8);
+        const date = new Date(year, month, day);
+        setDayOfBirth(DateTimeConfig.getDateFormat(date.getTime(), true));
       }
 
       if (data.length > 5) {
@@ -104,12 +145,22 @@ export default function RegisterStep2Screen() {
         address = data[5];
         setAddress(address);
       }
+
+      setLoading(false);
+      if (!id || !name || !dayOfBirth || !gender || !address) {
+        Alert.alert(languageContext.language.UPLOAD_CITIZEN_ID, languageContext.language.INVALID_UPLOAD_CITIZEN_ID);
+        return;
+      } else {
+        Toast.show(languageContext.language.UPLOADED_CITIZEN_ID, 1500);
+      }
     },
     [permission]
   );
 
   return (
     <ScrollView style={styles.container}>
+      <Spinner visible={loading}/>
+
       {/* back button */}
       <Ionicons
         name="close"
@@ -118,15 +169,13 @@ export default function RegisterStep2Screen() {
         onPress={goBack}
       />
 
-      <View style={{height: 50}} />
+      <View style={{height: 50}}/>
 
       {/* illustration text*/}
       <View style={styles.row}>
         <View>
-          <Text style={styles.title}>Tạo tài khoản</Text>
-          <Text style={styles.content}>
-            Hãy cho chúng tôi biết thêm thông tin về bạn
-          </Text>
+          <Text style={styles.title}>{languageContext.language.REGISTER}</Text>
+          <Text style={styles.content}>{languageContext.language.REGISTER_HINT}</Text>
         </View>
       </View>
 
@@ -144,35 +193,50 @@ export default function RegisterStep2Screen() {
         </View>
 
         {/* hint*/}
-        <Text style={styles.hint}>
-          Hãy tải minh chứng Căn cước công dân
-        </Text>
+        <Text style={styles.hint}>{languageContext.language.UPLOAD_CITIZEN_ID}</Text>
+      </View>
+
+      {/* view id after pick citizen's id*/}
+      <View style={styles.input}>
+        <InputRegister
+          label={languageContext.language.ID}
+          value={id}
+          required={false}
+          onChangeText={() => {
+          }}
+          placeholder={languageContext.language.ID}
+          type="text"
+          iconName="user"
+          editable={false}
+        />
       </View>
 
       {/* view name after pick citizen's id*/}
       <View style={styles.input}>
         <InputRegister
-          label="Họ và tên"
+          label={languageContext.language.FULL_NAME}
           value={name}
           required={false}
-          onChangeText={() => {}}
-          placeholder="Họ và tên"
-          type="phone"
-          iconName="phone"
+          onChangeText={() => {
+          }}
+          placeholder={languageContext.language.FULL_NAME}
+          type="text"
+          iconName="user"
           editable={false}
         />
       </View>
 
-      {/* view day of birth after pick email's id*/}
+      {/* view day of birth after pick citizen's id*/}
       <View style={styles.input}>
         <InputRegister
-          label="Ngày tháng năm sinh"
+          label={languageContext.language.DATE_OF_BIRTH}
           value={dayOfBirth}
           required={false}
-          onChangeText={() => {}}
-          placeholder="Ngày tháng năm sinh"
+          onChangeText={() => {
+          }}
+          placeholder={languageContext.language.DATE_OF_BIRTH}
           type="text"
-          iconName="email"
+          iconName="user"
           editable={false}
         />
       </View>
@@ -180,13 +244,14 @@ export default function RegisterStep2Screen() {
       {/* view gender after pick citizen's id*/}
       <View style={styles.input}>
         <InputRegister
-          label="Giới tính"
+          label={languageContext.language.GENDER}
           value={gender}
           required={false}
-          onChangeText={() => {}}
-          placeholder="Giới tính"
+          onChangeText={() => {
+          }}
+          placeholder={languageContext.language.GENDER}
           type="text"
-          iconName="password"
+          iconName="user"
           editable={false}
         />
       </View>
@@ -194,43 +259,33 @@ export default function RegisterStep2Screen() {
       {/* view address after pick citizen's id*/}
       <View style={styles.input}>
         <InputRegister
-          label="Quê quán"
+          label={languageContext.language.HOMETOWN}
           value={address}
           required={false}
-          onChangeText={() => {}}
-          placeholder="Quê quán"
+          onChangeText={() => {
+          }}
+          placeholder={languageContext.language.HOMETOWN}
           editable={false}
           type="text"
-          iconName="password"
+          iconName="user"
         />
-      </View>
-
-      {/*avatar picker*/}
-      <View>
-        <Image
-          style={styles.img}
-          source={require("../../../assets/avatar/avatarTempt.png")}
-        />
-        <Text style={styles.textTaiAnh}>Hãy tải ảnh đại diện của bạn</Text>
       </View>
 
       {/*submit button*/}
       <View style={styles.button}>
         {/* submit button */}
         <Button
-          title="Đăng nhập"
+          title={languageContext.language.REGISTER}
           textColor="white"
           backgroundColor={BackgroundColor.primary}
           onPress={onRegister}
         />
 
         {/* hint text */}
-        <Text style={styles.link} onPress={goToLogin}>
-          Bạn da có tài khoản? Hãy đăng nhap
-        </Text>
+        <Text style={styles.link} onPress={goToLogin}>{languageContext.language.NOT_HAVE_ACCOUNT_YET}</Text>
       </View>
 
-      <View style={{height: 50}} />
+      <View style={{height: 50}}/>
     </ScrollView>
   );
 }

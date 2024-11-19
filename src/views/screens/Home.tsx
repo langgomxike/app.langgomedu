@@ -28,7 +28,7 @@ import ListMajorSkeleton from "../components/skeleton/ListMajorSkeleton";
 import ClassListSkeleton from "../components/skeleton/ClassListSkeleten";
 import AUser from "../../apis/AUser";
 import {AccountContext} from "../../configs/AccountConfig";
-import Role from "../../models/Role";
+import Role, {RoleList} from "../../models/Role";
 import Toast from "react-native-simple-toast";
 import SAsyncStorage, {AsyncStorageKeys} from "../../services/SAsyncStorage";
 import {LanguageContext} from "../../configs/LanguageConfig";
@@ -211,7 +211,7 @@ export default function HomeScreen() {
           index: 0,
           routes: [{ name: ScreenName.LOGIN }], // Replace 'Login' with your Login screen's route name
         });
-        // navigation?.navigate(ScreenName.LOGIN);
+        navigation?.navigate(ScreenName.LOGIN);
       } else {
         //store new token into async storage
         SAsyncStorage.setData(AsyncStorageKeys.TOKEN, user.token);
@@ -222,8 +222,8 @@ export default function HomeScreen() {
 
           //check if admin/superadmin or not
           if (
-            user.role?.id === Role.SUPER_ADMIN_ROLE_ID ||
-            user.role?.id === Role.SUPER_ADMIN_ROLE_ID
+            user.role?.id === RoleList.SUPER_ADMIN ||
+            user.role?.id === RoleList.ADMIN
           ) {
             navigation?.navigate(ScreenName.HOME_ADMIN);
           }
@@ -497,13 +497,13 @@ export default function HomeScreen() {
                             }
                           >
                             <CourseItem
-                              majorIconUrl={`${URL}${attedingClass.major?.icon?.path}`}
+                              majorIconUrl={`${URL}${attedingClass.major?.icon}`}
                               name={attedingClass.title}
                               level={attedingClass.class_level?.vn_name || ""}
                               date={DateTimeConfig.getDateFormat(attedingClass.started_at)}
                               time={2}
                               type={"Tại nhà"}
-                              address={attedingClass.address_1}
+                              address={attedingClass?.address?.detail ?? ""}
                               cost={attedingClass.price}
                             />
                           </Pressable>
@@ -590,13 +590,13 @@ export default function HomeScreen() {
                               }
                             >
                               <CourseItem
-                                majorIconUrl={`${URL}${attedingClass.major?.icon?.path}`}
+                                majorIconUrl={`${URL}${attedingClass.major?.icon}`}
                                 name={attedingClass.title}
                                 level={attedingClass.class_level?.vn_name || ""}
                                 date={DateTimeConfig.getDateFormat(attedingClass.started_at)}
                                 time={2}
                                 type={"Tại nhà"}
-                                address={attedingClass.address_1}
+                                address={attedingClass.address?.detail ?? ""}
                                 cost={attedingClass.price}
                               />
                             </Pressable>
@@ -686,13 +686,13 @@ export default function HomeScreen() {
                               }
                             >
                               <CourseItem
-                                majorIconUrl={`${URL}${createdClass.major?.icon?.path}`}
+                                majorIconUrl={`${URL}${createdClass.major?.icon}`}
                                 name={createdClass.title}
                                 level={createdClass.class_level?.vn_name || ""}
                                 date={DateTimeConfig.getDateFormat(createdClass.started_at)}
                                 time={2}
                                 type={"Tại nhà"}
-                                address={createdClass.address_1}
+                                address={createdClass.address?.detail ?? ""}
                                 cost={createdClass.price}
                               />
                             </Pressable>
@@ -754,7 +754,7 @@ export default function HomeScreen() {
                   renderItem={({item}) => (
                     <Pressable onPress={goToDetailCV} style={styles.classItem}>
                       <TutorItem
-                        avatar={item.avatar?.path ?? ""}
+                        avatar={item.avatar ?? ""}
                         userName={item.full_name}
                         phoneNumber={item.phone_number}
                         email={item.email}

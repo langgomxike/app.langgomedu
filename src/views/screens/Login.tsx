@@ -9,8 +9,9 @@ import {AccountContext} from "../../configs/AccountConfig";
 import {BackgroundColor, TextColor} from "../../configs/ColorConfig";
 import SAsyncStorage, {AsyncStorageKeys} from "../../services/SAsyncStorage";
 import Toast from 'react-native-simple-toast';
-import Role from "../../models/Role";
+import Role, {RoleList} from "../../models/Role";
 import {LanguageContext} from "../../configs/LanguageConfig";
+import Spinner from "react-native-loading-spinner-overlay";
 
 const REGEX_PHONE_NUMBER = /^\s*(?:\+?(\d{1,3}))?[-. (]*(\d{3})[-. )]*(\d{3})[-. ]*(\d{4})(?: *x(\d+))?\s*$/;
 const REGEX_PASSWORD = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
@@ -23,32 +24,22 @@ export default function LoginScreen() {
   const languageContext = useContext(LanguageContext);
 
   //states
-  const [emailOrPhoneNumber, setEmailOrPhoneNumber] = useState("");
+  const [usernameOrPhoneNumber, setUsernameOrPhoneNumber] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
   //handlers
   const handleForgettingPassword = useCallback(() => {
-    navigation?.goBack();
     navigation?.navigate(ScreenName.OTP);
   }, []);
 
   const goToRegister = useCallback(() => {
-    navigation?.goBack();
     navigation?.navigate(ScreenName.REGISTER_STEP_1);
   }, []);
 
   const handleLogin = useCallback(() => {
-    //validate
-    if (
-      !REGEX_PHONE_NUMBER.test(
-        emailOrPhoneNumber
-      ) &&
-      !REGEX_EMAIL.test(
-        emailOrPhoneNumber
-      )
-    ) {
-      Alert.alert("Email or Phone number", "Email hoặc số điện thoại không đúng định dạng.\nVui lòng thử lại.", [
+    if (!usernameOrPhoneNumber) {
+      Alert.alert(languageContext.language.USERNAME_OR_PHONE_NUMBER, languageContext.language.INVALID_USERNAME_OR_PHONE_NUMBER, [
         {
           text: "OK",
           onPress: () => {
@@ -58,35 +49,48 @@ export default function LoginScreen() {
       return;
     }
 
-    if (!REGEX_PASSWORD.test(password)) {
-      Alert.alert("Password",
-        "Mật khẩu không đúng định dạng:\n\t\t- Từ 6 đến 25 kí tự \n\t\t- Chứa ít nhất 1 số\nVui lòng thử lại.",
-        [
-          {
-            text: "OK",
-            onPress: () => {},
-          }
-        ]
-      );
+    if (!password) {
+      Alert.alert(languageContext.language.PASSWORD, languageContext.language.INVALID_PASSWORD, [
+        {
+          text: "OK",
+          onPress: () => {
+          },
+        },
+      ]);
       return;
     }
 
-    const email = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(
-      emailOrPhoneNumber
-    )
-      ? emailOrPhoneNumber
+    const username = !/^[0-9]+$/.test(usernameOrPhoneNumber)
+      ? usernameOrPhoneNumber
       : "";
 
     const phoneNumber =
-      /^\s*(?:\+?(\d{1,3}))?[-. (]*(\d{3})[-. )]*(\d{3})[-. ]*(\d{4})(?: *x(\d+))?\s*$/.test(
-        emailOrPhoneNumber
-      )
-        ? emailOrPhoneNumber
+      /^\s*(?:\+?(\d{1,3}))?[-. (]*(\d{3})[-. )]*(\d{3})[-. ]*(\d{4})(?: *x(\d+))?\s*$/
+        .test(usernameOrPhoneNumber)
+        ? usernameOrPhoneNumber
         : "";
 
-    AUser.login(email, phoneNumber, password, (user) => {
+    setLoading(true);
+
+    const timeId = setTimeout(() => {
+      setLoading(false);
+      Alert.alert(languageContext.language.LOGIN, languageContext.language.LOGIN_FAILED, [
+        {
+          text: "OK",
+          onPress: () => {},
+        },
+      ]);
+    }, 10000);
+
+    AUser.login(username, phoneNumber, password, (user) => {
       if (!user) {
-        alert("Đăng nhập thất bại");
+        Alert.alert(languageContext.language.LOGIN, languageContext.language.LOGIN_FAILED, [
+          {
+            text: "OK",
+            onPress: () => {
+            },
+          },
+        ]);
         return;
       }
 
@@ -100,25 +104,34 @@ export default function LoginScreen() {
           navigation?.goBack();
 
           //check if admin/superadmin or not
-          if (user.role?.id === Role.SUPER_ADMIN_ROLE_ID || user.role?.id === Role.SUPER_ADMIN_ROLE_ID) {
+          if (user.roles.map(role => role.id).includes(RoleList.ADMIN) || user.roles.map(role => role.id).includes(RoleList.SUPER_ADMIN)) {
             navigation?.navigate(ScreenName.HOME_ADMIN);
           } else {
             navigation?.navigate(ScreenName.HOME);
           }
-
-          Toast.show("Xin chào " + user.full_name, 2000);
+          Toast.show(`${languageContext.language.WELCOME} ${user.full_name}`, 2000);
         }, () => {
-          alert("Đăng nhập thất bại. Không thể sử dụng ứng dụng ngay lúc này. Vui lòng thử lại");
+          Alert.alert(languageContext.language.LOGIN, languageContext.language.LOGIN_FAILED, [
+            {
+              text: "OK",
+              onPress: () => {
+              },
+            },
+          ]);
           return;
         });
       }
-
+    }, () => {
+      setLoading(false);
+      clearTimeout(timeId);
     });
-  }, [emailOrPhoneNumber, password, accountContext.account]);
+  }, [usernameOrPhoneNumber, password, accountContext.account]);
 
   return (
     <ScrollView>
       <View style={styles.container}>
+        <Spinner visible={loading}/>
+
         {/* illustration image */}
         <Image
           style={styles.img}
@@ -126,32 +139,30 @@ export default function LoginScreen() {
         />
 
         {/* screen title */}
-        <View style={styles.row}>
-          <View>
-            <Text style={styles.title}>{languageContext.language.LOGIN}</Text>
-            <Text style={styles.content}>{languageContext.language.LOGIN_HINT}</Text>
-          </View>
+        <View>
+          <Text style={styles.title}>{languageContext.language.LOGIN}</Text>
+          <Text style={styles.content}>{languageContext.language.LOGIN_HINT}</Text>
         </View>
 
         {/* input email or phone number */}
         <View style={styles.input}>
           <InputRegister
-            label={languageContext.language.EMAIL_OR_PHONE_NUMBER}
+            label={languageContext.language.USERNAME_OR_PHONE_NUMBER}
             required={true}
-            placeholder={languageContext.language.EMAIL_OR_PHONE_NUMBER}
+            placeholder={languageContext.language.USERNAME_OR_PHONE_NUMBER}
             type="text"
-            onChangeText={setEmailOrPhoneNumber}
+            onChangeText={setUsernameOrPhoneNumber}
             iconName="phone"
-            value={emailOrPhoneNumber}
+            value={usernameOrPhoneNumber}
           />
         </View>
 
         {/* input password */}
         <View style={styles.input}>
           <InputRegister
-            label="Mật khẩu của bạn"
+            label={languageContext.language.PASSWORD}
             required={true}
-            placeholder="Mật khẩu của bạn"
+            placeholder={languageContext.language.PASSWORD}
             type="password"
             iconName="password"
             value={password}
@@ -164,12 +175,12 @@ export default function LoginScreen() {
           style={[styles.forgotPassword, styles.link]}
           onPress={handleForgettingPassword}
         >
-          Bạn quên mật khẩu?
+          {languageContext.language.FORGOT_PASSWORD}
         </Text>
 
         {/* submit button */}
         <Button
-          title="Đăng nhập"
+          title={languageContext.language.LOGIN}
           textColor="white"
           backgroundColor={BackgroundColor.primary}
           onPress={handleLogin}
@@ -177,7 +188,7 @@ export default function LoginScreen() {
 
         {/* hint text */}
         <Text style={styles.link} onPress={goToRegister}>
-          Bạn chưa có tài khoản? Hãy đăng ký
+          {languageContext.language.ALREADY_HAVE_ACCOUNT}
         </Text>
       </View>
     </ScrollView>

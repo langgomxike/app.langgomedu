@@ -1,50 +1,80 @@
-import {ScrollView, Text, View, StyleSheet, Image} from "react-native";
+import {ScrollView, Text, View, StyleSheet, Image, Alert} from "react-native";
 import MyIcon, {AppIcon} from "../components/MyIcon";
 import InputRegister from "../components/Inputs/InputRegister";
 import Button from "../components/Button";
 import {useCallback, useContext, useState} from "react";
 import {NavigationContext} from "@react-navigation/native";
 import ScreenName from "../../constants/ScreenName";
-import MyText from "../components/MyText";
-import Ionicons from "@expo/vector-icons/Ionicons";
 import {BackgroundColor, TextColor} from "../../configs/ColorConfig";
+import {LanguageContext} from "../../configs/LanguageConfig";
+import {RegisterType} from "../../configs/NavigationRouteTypeConfig";
 
 export default function RegisterStep1Screen() {
   //contexts, refs
   const navigation = useContext(NavigationContext);
+  const languageContext = useContext(LanguageContext);
 
   //states
   const [phone, setPhone] = useState("");
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
   // kiem tra du lieu khi nhan nut tiep tuc
   const handleNext = useCallback(() => {
-    if (password.length < 6 || password.length > 24) {
-      setErrorMessage("Mật khẩu phải từ 6 đến 24 ký tự!!!");
+    if (!phone) {
+      Alert.alert(languageContext.language.PHONE_NUMBER, languageContext.language.INVALID_PHONE_NUMBER, [
+        {
+          text: "OK",
+          onPress: () => {}
+        }
+      ]);
+      return false;
+    }
+
+    if (!username) {
+      Alert.alert(languageContext.language.USERNAME, languageContext.language.INVALID_USERNAME, [
+        {
+          text: "OK",
+          onPress: () => {}
+        }
+      ]);
+      return false;
+    }
+
+    if (!password) {
+      Alert.alert(languageContext.language.PASSWORD, languageContext.language.INVALID_PASSWORD, [
+        {
+          text: "OK",
+          onPress: () => {}
+        }
+      ]);
       return false;
     }
 
     if (password !== confirmPassword) {
-      setErrorMessage("Mật khẩu xác nhận không khớp!");
+      Alert.alert(languageContext.language.CONFIRM_PASSWORD, languageContext.language.INVALID_CONFIRM_PASSWORD, [
+        {
+          text: "OK",
+          onPress: () => {}
+        }
+      ]);
       return false;
     }
 
-    if (phone && email && password) {
-      setErrorMessage("");
-      return true;
-    } else {
-      setErrorMessage("Vui lòng nhập đầy đủ thông tin");
-      return false;
-    }
-  }, [password, email, confirmPassword, phone]);
+    return true;
+  }, [password, username, confirmPassword, phone]);
 
   //handlers
   const handleForward = useCallback(() => {
     if (handleNext()) {
-      navigation?.navigate(ScreenName.REGISTER_STEP_2);
+      const data: RegisterType = {
+        password: password,
+        phone_number: phone,
+        username: username
+      }
+      navigation?.navigate(ScreenName.REGISTER_STEP_2, data);
     }
   }, [handleNext]);
 
@@ -65,47 +95,45 @@ export default function RegisterStep1Screen() {
         {/* screen title */}
         <View style={styles.row}>
           <View>
-            <Text style={styles.title}>Tạo tài khoản</Text>
-            <Text style={styles.content}>
-              Hãy cho chúng tôi biết thêm thông tin về bạn
-            </Text>
+            <Text style={styles.title}>{languageContext.language.REGISTER}</Text>
+            <Text style={styles.content}>{languageContext.language.REGISTER_HINT}</Text>
           </View>
         </View>
 
         {/* phone numver */}
         <View style={styles.input}>
           <InputRegister
-            label="Số điện thoại"
+            label={languageContext.language.PHONE_NUMBER}
             required={true}
             onChangeText={setPhone}
             value={phone}
-            placeholder="Số điện thoại"
+            placeholder={languageContext.language.PHONE_NUMBER}
             type="phone"
             iconName="phone"
           />
         </View>
 
-        {/* email */}
+        {/* username */}
         <View style={styles.input}>
           <InputRegister
-            label="Email"
+            label={languageContext.language.USERNAME}
             required={true}
-            onChangeText={setEmail}
-            value={email}
-            placeholder="Email"
-            type="email"
-            iconName="email"
+            onChangeText={setUsername}
+            value={username}
+            placeholder={languageContext.language.USERNAME}
+            type="text"
+            iconName="user"
           />
         </View>
 
         {/*password*/}
         <View style={styles.input}>
           <InputRegister
-            label="Mật khẩu"
+            label={languageContext.language.PASSWORD}
             required={true}
             onChangeText={setPassword}
             value={password}
-            placeholder="Nhập mật khẩu của bạn"
+            placeholder={languageContext.language.PASSWORD}
             type="password"
             iconName="password"
           />
@@ -114,11 +142,11 @@ export default function RegisterStep1Screen() {
         {/*confirm password */}
         <View style={styles.input}>
           <InputRegister
-            label="Xác nhận lại mật khẩu của bạn"
+            label={languageContext.language.CONFIRM_PASSWORD}
             required={true}
             onChangeText={setConfirmPassword}
             value={confirmPassword}
-            placeholder="Xác nhận lại mật khẩu của bạn"
+            placeholder={languageContext.language.CONFIRM_PASSWORD}
             type="password"
             iconName="password"
           />
@@ -130,7 +158,7 @@ export default function RegisterStep1Screen() {
         <>
           {/* submit button */}
           <Button
-            title="Tiep tuc"
+            title={languageContext.language.REGISTER_STEP_1}
             textColor="white"
             backgroundColor={BackgroundColor.primary}
             onPress={handleForward}
@@ -138,7 +166,7 @@ export default function RegisterStep1Screen() {
 
           {/* hint text */}
           <Text style={styles.link} onPress={goToLogin}>
-            Bạn da có tài khoản? Hãy đăng nhap
+            {languageContext.language.NOT_HAVE_ACCOUNT_YET}
           </Text>
         </>
       </View>
