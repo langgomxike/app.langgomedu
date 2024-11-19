@@ -1,5 +1,4 @@
 import SAsyncStorage, {AsyncStorageKeys} from "../services/SAsyncStorage";
-import Config from "../configs/Config";
 import SLog, {LogType} from "../services/SLog";
 import User from "../models/User";
 import Response from "../models/Response";
@@ -11,7 +10,7 @@ export default class AUser {
 
   public static implicitLogin(onNext: (user: User | undefined) => void) {
     //prepare parameters
-    const url = Config.API_BASE_URL + this.BASE_URL + "/login/implicit";
+    const url = this.BASE_URL + "/login/implicit";
 
     //get token from storage
     SAsyncStorage.getData(
@@ -91,10 +90,33 @@ export default class AUser {
 
     // SLog.log(LogType.Info,"login", "check url, check params", {url, data});
 
-    //process login with parameters
+    // fetch(url, {
+    //   method: "POST",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //   },
+    //   body: JSON.stringify(data),
+    // })
+    //   .then(res => res.json())
+    //   .then(response => {
+    //     const data = response as Response;
+    //     const user: User | undefined = data.data as User || undefined;
+    //
+    //     SLog.log(LogType.Warning, "login", "Login with parameters successfully", user?.full_name);
+    //     onNext(user);
+    //   })
+    //   .catch(error => {
+    //     SLog.log(LogType.Error, "login", "Login with parameters failed", error);
+    //     onNext(undefined);
+    //   })
+    //   .finally(onComplete);
+
+    // process login with parameters
     axios.post<Response>(url, data)
       .then((response) => {
         const user: User | undefined = response.data.data as User || undefined;
+
+        SLog.log(LogType.Warning, "login", "Login with parameters successfully", user?.full_name);
         onNext(user);
       })
       .catch((error) => {

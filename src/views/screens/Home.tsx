@@ -205,13 +205,12 @@ export default function HomeScreen() {
 
   //set up login
   useEffect(() => {
-    AUser.implicitLogin((user) => {
+    !accountContext.account && AUser.implicitLogin((user) => {
       if (!user) {
         navigation?.reset({
           index: 0,
-          routes: [{ name: ScreenName.LOGIN }], // Replace 'Login' with your Login screen's route name
+          routes: [{ name: ScreenName.LOGIN }],
         });
-        navigation?.navigate(ScreenName.LOGIN);
       } else {
         //store new token into async storage
         SAsyncStorage.setData(AsyncStorageKeys.TOKEN, user.token);
@@ -225,14 +224,17 @@ export default function HomeScreen() {
             user.role?.id === RoleList.SUPER_ADMIN ||
             user.role?.id === RoleList.ADMIN
           ) {
-            navigation?.navigate(ScreenName.HOME_ADMIN);
+            navigation?.reset({
+              index: 0,
+              routes: [{ name: ScreenName.HOME_ADMIN }],
+            });
           }
 
-          Toast.show("Xin chao " + user.full_name, 2000);
+          Toast.show(languageContext.language.WELCOME + " " + user.full_name, 2000);
         }
       }
     });
-  }, []);
+  }, [accountContext]);
 
   //set up multilanguage
   useEffect(() => {

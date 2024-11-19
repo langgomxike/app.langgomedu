@@ -9,9 +9,10 @@ import {AccountContext} from "../../configs/AccountConfig";
 import {BackgroundColor, TextColor} from "../../configs/ColorConfig";
 import SAsyncStorage, {AsyncStorageKeys} from "../../services/SAsyncStorage";
 import Toast from 'react-native-simple-toast';
-import Role, {RoleList} from "../../models/Role";
+import {RoleList} from "../../models/Role";
 import {LanguageContext} from "../../configs/LanguageConfig";
 import Spinner from "react-native-loading-spinner-overlay";
+import SLog, {LogType} from "../../services/SLog";
 
 const REGEX_PHONE_NUMBER = /^\s*(?:\+?(\d{1,3}))?[-. (]*(\d{3})[-. )]*(\d{3})[-. ]*(\d{4})(?: *x(\d+))?\s*$/;
 const REGEX_PASSWORD = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
@@ -71,7 +72,6 @@ export default function LoginScreen() {
         : "";
 
     setLoading(true);
-
     const timeId = setTimeout(() => {
       setLoading(false);
       Alert.alert(languageContext.language.LOGIN, languageContext.language.LOGIN_FAILED, [
@@ -96,21 +96,27 @@ export default function LoginScreen() {
 
       if (accountContext.setAccount) {
         //save to global context
-        accountContext.setAccount(user);
+        accountContext.setAccount(user); 
 
         //save into storage
         SAsyncStorage.setData(AsyncStorageKeys.TOKEN, user.token, () => {
-          //back to home
-          navigation?.goBack();
-
           //check if admin/superadmin or not
-          if (user.roles.map(role => role.id).includes(RoleList.ADMIN) || user.roles.map(role => role.id).includes(RoleList.SUPER_ADMIN)) {
+          if (user.roles?.map(role => role.id).includes(RoleList.ADMIN) || user.roles?.map(role => role.id).includes(RoleList.SUPER_ADMIN)) {
+            navigation?.reset({
+              index: 0,
+              routes: [{ name: ScreenName.HOME_ADMIN }],
+            });
             navigation?.navigate(ScreenName.HOME_ADMIN);
           } else {
+            navigation?.reset({
+              index: 0,
+              routes: [{ name: ScreenName.NAV_BAR }],
+            });
             navigation?.navigate(ScreenName.HOME);
           }
           Toast.show(`${languageContext.language.WELCOME} ${user.full_name}`, 2000);
-        }, () => {
+        }, (error) => {
+          SLog.log(LogType.Error, "login", "cannot store token", error);
           Alert.alert(languageContext.language.LOGIN, languageContext.language.LOGIN_FAILED, [
             {
               text: "OK",
@@ -125,7 +131,7 @@ export default function LoginScreen() {
       setLoading(false);
       clearTimeout(timeId);
     });
-  }, [usernameOrPhoneNumber, password, accountContext.account]);
+  }, [usernameOrPhoneNumber, password, accountContext]);
 
   return (
     <ScrollView>
