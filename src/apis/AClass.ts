@@ -10,7 +10,7 @@ export default class AClass {
   public static getClassDetailWithUser(
     classId: number,
     userId: string,
-    onNext: (course: Class, realatedClasses: Class[]) => void,
+    onNext: (course: Class) => void,
     onLoading: (loading: boolean) => void
   ) {
     onLoading(true);
@@ -18,12 +18,12 @@ export default class AClass {
       .get(`${this.API_URL}/classes/${classId}?user_id=${userId}`)
       .then((response) => {
         const data = response.data.data;
-        onNext(data.class, data.related_classes);
+        onNext(data.class);
         onLoading(false);
       })
       .catch((err) => {
         console.log("Error: ", err);
-        onNext(new Class(), []);
+        onNext(new Class());
         onLoading(true);
       });
   }
@@ -64,6 +64,8 @@ export default class AClass {
       .get(`${this.API_URL}/classes/attending/${userId}`)
       .then((response) => {
         onNext(response.data.data);
+        
+        // console.log("User id", userId);  
         // console.log(">>>> response: ", JSON.stringify(response.data.data,  null, 2));
 
         onLoading(false);
@@ -100,8 +102,7 @@ export default class AClass {
   //
   public static joinClass(
     classId: number,
-    userId: string,
-    studentIds: number[],
+    userIds: string[],
     onNext: (data: any) => void,
     onLoading: (loading: boolean) => void
   ) {
@@ -109,8 +110,7 @@ export default class AClass {
 
     axios
       .post(`${this.API_URL}/classes/${classId}/join`, {
-        user_id: userId,
-        student_ids: studentIds,
+        user_ids: userIds,
       })
       .then((response) => {
         console.log(">>>joinClass", response.data.data);

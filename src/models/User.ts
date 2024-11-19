@@ -27,6 +27,7 @@ export default class User {
     constructor(
         id = "",
         full_name = "",
+        user_name = "",
         email = "",
         phone_number = "",
         password = "",
@@ -46,6 +47,7 @@ export default class User {
     ) {
         this.id = id;
         this.full_name = full_name;
+        this.user_name = user_name;
         this.email = email;
         this.phone_number = phone_number;
         this.password = password;

@@ -1,5 +1,5 @@
 {
-  "TYPE": 1,
+  "TYPE": "ja",
   "VIEW_ALL": "View All",
   "SHOWING_PAGE": "Showing page",
   "SEARCH": "Search here...",
@@ -27,7 +27,6 @@
   "WELCOME": "Welcome",
   "UPLOAD_CITIZEN_ID": "Upload citizen id",
   "INVALID_UPLOAD_CITIZEN_ID": "You need to upload your citizen id to get the information",
-  "UPLOADED_CITIZEN_ID": "Upload your citizen id successfully",
   "DATE_OF_BIRTH": "Date Of Birth",
   "GENDER": "Gender",
   "UPLOAD_AVATAR": "Upload avatar",
@@ -42,5 +41,44 @@
   "NEW_PASSWORD": "New password",
   "INVALID_CHANGE_PASSWORD": "Cannot change password. Please try again",
   "OTP": "OTP Authentication",
-  "OTP_HINT": "Enter the otp that sent to your phone number. Please wait for the process"
+  "OTP_HINT": "Enter the otp that sent to your phone number. Please wait for the process",
+  
+    "CLASS_DETAILS": "クラス詳細",
+    "SUNDAY": "日曜日",
+    "MONDAY": "月曜日",
+    "TUESDAY": "火曜日",
+    "WEDNESDAY": "水曜日",
+    "THURSDAY": "木曜日",
+    "FRIDAY": "金曜日",
+    "SATURDAY": "土曜日",
+
+    "SUNDAY_1": "日",
+    "MONDAY_1": "月",
+    "TUESDAY_1": "火",
+    "WEDNESDAY_1": "水",
+    "THURSDAY_1": "木",
+    "FRIDAY_1": "金",
+    "SATURDAY_1": "土",
+
+    "QUANTITY": "数量",
+    "FORM": "形式",
+    "TIME": "時間",
+    "PRICE": "料金",
+    "ADDRESS": "住所",
+    "CLASS_FEE": "クラス費用",
+    "DESCRIPTION": "説明",
+    "LESSONS": "週のレッスン",
+
+    "LESSON_DAY": "レッスン日",
+    "LESSON_DURATION": "時間",
+    "LESSON_TYPE": "形式",
+    "LESSON_NOTE": "メモ",
+    "ONLINE": "オンライン",
+    "OFFLINE": "オフライン",
+    "MINUTES": "分",
+
+    "SCHEDULE": "スケジュール",
+    "MONTH": "月",
+    "LAST_WEEK": "先週",
+    "NEXT_WEEK": "来週"
 }

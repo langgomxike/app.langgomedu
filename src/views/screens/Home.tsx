@@ -37,6 +37,7 @@ import en from "../../../languages/en.json";
 import ja from "../../../languages/ja.json";
 import DateTimeConfig from "../../configs/DateTimeConfig";
 import ReactAppUrl from "../../configs/ConfigUrl";
+import SFirebase, { FirebaseNode } from "../../services/SFirebase";
 
 const items = [
   {id: 1, title: "Các lớp học đang tham gia"},
@@ -157,84 +158,94 @@ export default function HomeScreen() {
 
   // effects
   useEffect(() => {
-    AMajor.getAllMajors((data) => {
-      setMajors(data);
-    }, setLoading);
+    if(accountContext.account || "089204000003" ) {
+      // const userId = accountContext.account.id
+      const userId = "089204000003"
 
-    AClass.getSuggetingClass(
-      user.ID,
-      user.TYPE,
-      (data) => {
-        setSuggettingClasses(data);
-      },
-      setLoading
-    );
+      AMajor.getAllMajors((data) => {
+        setMajors(data);
+      }, setLoading);
+  
+      SFirebase.track(FirebaseNode.Classes, [], () => {
+        console.log(">>> Goi lay lớp học gợi ý");
+        
+        AClass.getSuggetingClass(
+          userId,
+          user.TYPE,
+          (data) => {
+            setSuggettingClasses(data);
+          },
+          setLoading
+        );
+      });
+  
+      AClass.getAttedingClass(
+        userId,
+        (data) => {
+          setAttedingClasses(data);
+        },
+        setLoading
+      );
+  
+      AClass.getAttedingClass(
+        userId,
+        (data) => {
+          setAttedingClasses(data);
+        },
+        setLoading
+      );
+  
+      AClass.getTeachingClass(
+        userId,
+        (data) => {
+          setTeachingClasses(data);
+        },
+        setLoading
+      );
+  
+      AClass.getCreatedClass(
+        userId,
+        (data) => {
+          setCreatedClasses(data);
+        },
+        setLoading
+      );
 
-    AClass.getAttedingClass(
-      user.ID,
-      (data) => {
-        setAttedingClasses(data);
-      },
-      setLoading
-    );
-
-    AClass.getAttedingClass(
-      user.ID,
-      (data) => {
-        setAttedingClasses(data);
-      },
-      setLoading
-    );
-
-    AClass.getTeachingClass(
-      user.ID,
-      (data) => {
-        setTeachingClasses(data);
-      },
-      setLoading
-    );
-
-    AClass.getCreatedClass(
-      user.ID,
-      (data) => {
-        setCreatedClasses(data);
-      },
-      setLoading
-    );
-  }, [userTypeName]);
+    }
+  }, [userTypeName, accountContext]);
 
   //set up login
-  useEffect(() => {
-    !accountContext.account && AUser.implicitLogin((user) => {
-      if (!user) {
-        navigation?.reset({
-          index: 0,
-          routes: [{ name: ScreenName.LOGIN }],
-        });
-      } else {
-        //store new token into async storage
-        SAsyncStorage.setData(AsyncStorageKeys.TOKEN, user.token);
+  // useEffect(() => {
+  //   !accountContext.account && AUser.implicitLogin((user) => {
+  //     if (!user) {
+  //       navigation?.reset({
+  //         index: 0,
+  //         routes: [{ name: ScreenName.LOGIN }],
+  //       });
+  //     } else {
+  //       //store new token into async storage
+  //       SAsyncStorage.setData(AsyncStorageKeys.TOKEN, user.token);
 
-        if (accountContext.setAccount) {
-          accountContext.setAccount(user);
-          setUser({ID: user.id, TYPE: UserType.LEANER});
+  //       if (accountContext.setAccount) {
+  //         accountContext.setAccount(user);
+  //         setUser({ID: user.id, TYPE: UserType.LEANER});
 
-          //check if admin/superadmin or not
-          if (
-            user.role?.id === RoleList.SUPER_ADMIN ||
-            user.role?.id === RoleList.ADMIN
-          ) {
-            navigation?.reset({
-              index: 0,
-              routes: [{ name: ScreenName.HOME_ADMIN }],
-            });
-          }
+  //         //check if admin/superadmin or not
+  //         if (
+  //           user.role?.id === RoleList.SUPER_ADMIN ||
+  //           user.role?.id === RoleList.ADMIN
+  //         ) {
+  //           navigation?.reset({
+  //             index: 0,
+  //             routes: [{ name: ScreenName.HOME_ADMIN }],
+  //           });
+  //         }
 
-          Toast.show(languageContext.language.WELCOME + " " + user.full_name, 2000);
-        }
-      }
-    });
-  }, [accountContext]);
+  //         Toast.show(languageContext.language.WELCOME + " " + user.full_name, 2000);
+  //       }
+  //     }
+  //   });
+  // }, [accountContext]);
 
   //set up multilanguage
   useEffect(() => {

@@ -1,11 +1,32 @@
 import { View, Text, StyleSheet } from 'react-native'
-import React from 'react'
+import React, { useContext } from 'react'
 import { Ionicons, AntDesign } from "@expo/vector-icons";
 import { BackgroundColor } from '../../configs/ColorConfig';
+import Lesson from '../../models/Lesson';
+import moment from 'moment';
+import "moment/locale/vi"; 
+import { LanguageContext } from '../../configs/LanguageConfig';
 
 const ICON_SIZE = 20;
 
-export default function LessonItem() {
+type LessonItemProps =  {
+  lessonData: Lesson
+}
+
+export default function LessonItem({lessonData}: LessonItemProps) {
+  const languageContext = useContext(LanguageContext);
+  // Hàm lấy tên ngày từ số thứ tự
+const days = [
+  languageContext.language.SUNDAY,
+  languageContext.language.MONDAY,
+  languageContext.language.TUESDAY,
+  languageContext.language.WEDNESDAY,
+  languageContext.language.THURSDAY,
+  languageContext.language.FRIDAY,
+  languageContext.language.SATURDAY,
+]
+
+
   return (
     <View style={[styles.lessonItem, styles.boxshadow]}>
     <View style={styles.contentLessonContainer}>
@@ -15,9 +36,9 @@ export default function LessonItem() {
           size={ICON_SIZE}
           color="black"
         />
-        <Text>Buổi học</Text>
+         <Text>{languageContext.language.LESSON_DAY}</Text>
       </View>
-      <Text>Thứ 2</Text>
+      <Text>{days[lessonData.day]}</Text>
     </View>
 
     <View style={styles.contentLessonContainer}>
@@ -27,9 +48,9 @@ export default function LessonItem() {
           size={ICON_SIZE}
           color="black"
         />
-        <Text>Thời lượng</Text>
+        <Text>{languageContext.language.LESSON_DURATION}</Text>
       </View>
-      <Text>2 giờ</Text>
+      <Text>{lessonData.duration / 60000} {languageContext.language.MINUTES}</Text>
     </View>
 
     <View style={styles.contentLessonContainer}>
@@ -39,9 +60,9 @@ export default function LessonItem() {
           size={ICON_SIZE}
           color="black"
         />
-        <Text>Hình thức</Text>
+        <Text>{languageContext.language.FORM}</Text>
       </View>
-      <Text>Online</Text>
+      <Text>{lessonData.is_online === true ? languageContext.language.ONLINE : languageContext.language.OFFLINE}</Text>
     </View>
 
     <View style={styles.line}></View>
@@ -55,11 +76,10 @@ export default function LessonItem() {
           size={ICON_SIZE}
           color="black"
         />
-        <Text>Ghi chú</Text>
+        <Text>{languageContext.language.LESSON_NOTE}</Text>
       </View>
       <Text>
-        Lorem ipsum dolor sit amet, consectetur adipisicing
-        elit.
+        {lessonData.note}
       </Text>
     </View>
   </View>
