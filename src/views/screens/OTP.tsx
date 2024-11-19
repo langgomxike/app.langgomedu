@@ -82,7 +82,7 @@ export default function OTPScreen() {
           SAsyncStorage.setData(AsyncStorageKeys.TOKEN, user.token, () => {
             navigation?.reset({
               index: 0,
-              routes: [{name: ScreenName.HOME}],
+              routes: [{name: ScreenName.NAV_BAR}],
             });
           });
         } else {

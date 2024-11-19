@@ -120,7 +120,7 @@ export default class AUser {
     const url = this.BASE_URL + "/register";
     const data = {user, code: requestCode};
 
-    // SLog.log(LogType.Info,"register", "check url, check params", {url, data});
+    SLog.log(LogType.Info,"register", "check url, check params", {url, data});
 
     //process login with parameters
     axios.post<Response>(url, data)

@@ -42,5 +42,11 @@
   "NEW_PASSWORD": "New password",
   "INVALID_CHANGE_PASSWORD": "Cannot change password. Please try again",
   "OTP": "OTP Authentication",
-  "OTP_HINT": "Enter the otp that sent to your phone number. Please wait for the process"
+  "OTP_HINT": "Enter the otp that sent to your phone number. Please wait for the process",
+  "LOGOUT": "Log out",
+  "LOGOUT_HINT": "Confirm logout",
+  "CANCEL": "Cancel",
+  "CONFIRM": "Confirm",
+  "DELETE_ACCOUNT": "Delete account",
+  "DELETE_ACCOUNT_HINT" : "Confirm delete account"
 }

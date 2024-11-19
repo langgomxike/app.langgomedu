@@ -27,6 +27,7 @@
   "WELCOME": "Welcome",
   "UPLOAD_CITIZEN_ID": "Upload citizen id",
   "INVALID_UPLOAD_CITIZEN_ID": "You need to upload your citizen id to get the information",
+  "UPLOADED_CITIZEN_ID": "Upload your citizen id successfully",
   "DATE_OF_BIRTH": "Date Of Birth",
   "GENDER": "Gender",
   "UPLOAD_AVATAR": "Upload avatar",
@@ -39,5 +40,13 @@
   "CHANGE_PASSWORD_HINT": "Change into a new password. Please make sure to remember it next time",
   "OLD_PASSWORD": "Old password",
   "NEW_PASSWORD": "New password",
-  "INVALID_CHANGE_PASSWORD": "Cannot change password. Please try again"
+  "INVALID_CHANGE_PASSWORD": "Cannot change password. Please try again",
+  "OTP": "OTP Authentication",
+  "OTP_HINT": "Enter the otp that sent to your phone number. Please wait for the process",
+  "LOGOUT": "Log out",
+  "LOGOUT_HINT": "Confirm logout",
+  "CANCEL": "Cancel",
+  "CONFIRM": "Confirm",
+  "DELETE_ACCOUNT": "Delete account",
+  "DELETE_ACCOUNT_HINT" : "Confirm delete account"
 }

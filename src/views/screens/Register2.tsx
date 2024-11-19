@@ -67,7 +67,7 @@ export default function RegisterStep2Screen() {
     const year = +dayOfBirth.substring(4, 8);
     const date = new Date(year, month, day);
     user.birthday = date.getTime();
-    user.user_name = username;
+    user.username = username;
     setLoading(true);
 
     const data: AuthType = {user}
