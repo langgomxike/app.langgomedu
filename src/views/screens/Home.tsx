@@ -205,7 +205,7 @@ export default function HomeScreen() {
 
   //set up login
   useEffect(() => {
-    !accountContext.account && AUser.implicitLogin((user) => {
+    AUser.implicitLogin((user) => {
       if (!user) {
         navigation?.reset({
           index: 0,
@@ -234,7 +234,7 @@ export default function HomeScreen() {
         }
       }
     });
-  }, [accountContext]);
+  }, [accountContext.setAccount]);
 
   //set up multilanguage
   useEffect(() => {

@@ -100,6 +100,7 @@ export default function LoginScreen() {
 
         //save into storage
         SAsyncStorage.setData(AsyncStorageKeys.TOKEN, user.token, () => {
+          SLog.log(LogType.Info, "store token", "stored token", user.token);
           //check if admin/superadmin or not
           if (user.roles?.map(role => role.id).includes(RoleList.ADMIN) || user.roles?.map(role => role.id).includes(RoleList.SUPER_ADMIN)) {
             navigation?.reset({
@@ -131,7 +132,7 @@ export default function LoginScreen() {
       setLoading(false);
       clearTimeout(timeId);
     });
-  }, [usernameOrPhoneNumber, password, accountContext]);
+  }, [usernameOrPhoneNumber, password, accountContext.account, accountContext.setAccount]);
 
   return (
     <ScrollView>

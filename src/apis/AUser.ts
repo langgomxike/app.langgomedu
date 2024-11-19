@@ -26,6 +26,13 @@ export default class AUser {
           return;
         }
 
+        SLog.log(
+          LogType.Info,
+          "implicitLogin",
+          "check token",
+          token
+        );
+
         // process login with token
         axios
           .post<Response>(
@@ -87,29 +94,6 @@ export default class AUser {
       phone_number: phoneNumber,
       password: password,
     }
-
-    // SLog.log(LogType.Info,"login", "check url, check params", {url, data});
-
-    // fetch(url, {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //   },
-    //   body: JSON.stringify(data),
-    // })
-    //   .then(res => res.json())
-    //   .then(response => {
-    //     const data = response as Response;
-    //     const user: User | undefined = data.data as User || undefined;
-    //
-    //     SLog.log(LogType.Warning, "login", "Login with parameters successfully", user?.full_name);
-    //     onNext(user);
-    //   })
-    //   .catch(error => {
-    //     SLog.log(LogType.Error, "login", "Login with parameters failed", error);
-    //     onNext(undefined);
-    //   })
-    //   .finally(onComplete);
 
     // process login with parameters
     axios.post<Response>(url, data)
