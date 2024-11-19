@@ -44,7 +44,6 @@
   "OTP": "OTP Authentication",
   "OTP_HINT": "Enter the otp that sent to your phone number. Please wait for the process",
 
-
   "CLASS_DETAILS": "Chi tiết lớp học",
   "SUNDAY": "Chủ nhật",
   "MONDAY": "Thứ 2",
@@ -63,32 +62,31 @@
   "SATURDAY_1": "Thứ 7",
 
   "QUANTITY": "Số lượng",
-    "FORM": "Hình thức",
-    "TIME": "Thời gian",
-    "PRICE": "Học phí",
-    "ADDRESS": "Địa chỉ",
-   "CLASS_FEE": "Phí nhận lớp",
-    "DESCRIPTION": "Mô tả",
-    "LESSONS": "Các buổi học trong tuần",
+  "FORM": "Hình thức",
+  "TIME": "Thời gian",
+  "PRICE": "Học phí",
+  "ADDRESS": "Địa chỉ",
+  "CLASS_FEE": "Phí nhận lớp",
+  "DESCRIPTION": "Mô tả",
+  "LESSONS": "Các buổi học trong tuần",
 
-    "LESSON_DAY": "Buổi học",
-    "LESSON_DURATION": "Thời lượng",
-    "LESSON_TYPE": "Hình thức",
-    "LESSON_NOTE": "Ghi chú",
-    "ONLINE": "Online",
-    "OFFLINE": "Offline",
-    "MINUTES": "phút",
+  "LESSON_DAY": "Buổi học",
+  "LESSON_DURATION": "Thời lượng",
+  "LESSON_TYPE": "Hình thức",
+  "LESSON_NOTE": "Ghi chú",
+  "ONLINE": "Online",
+  "OFFLINE": "Offline",
+  "MINUTES": "phút",
 
-    "SCHEDULE": "Thời khóa biểu",
-    "MONTH": "Tháng",
-    "LAST_WEEK": "Tuần trước",
-    "NEXT_WEEK": "Tuần sau" ,
-
+  "SCHEDULE": "Thời khóa biểu",
+  "MONTH": "Tháng",
+  "LAST_WEEK": "Tuần trước",
+  "NEXT_WEEK": "Tuần sau",
 
   "LOGOUT": "Log out",
   "LOGOUT_HINT": "Confirm logout",
   "CANCEL": "Cancel",
   "CONFIRM": "Confirm",
   "DELETE_ACCOUNT": "Delete account",
-  "DELETE_ACCOUNT_HINT" : "Confirm delete account"
+  "DELETE_ACCOUNT_HINT": "Confirm delete account"
 }

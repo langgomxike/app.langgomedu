@@ -770,7 +770,7 @@ export default function HomeScreen() {
                         avatar={item.avatar ?? ""}
                         userName={item.full_name}
                         phoneNumber={item.phone_number}
-                        email={item.email}
+                        email={""}
                         address={item + "address"}
                       />
                     </Pressable>
