@@ -1,4 +1,4 @@
-import {useEffect} from "react";
+import {useContext, useEffect} from "react";
 // @ts-ignore
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {NavigationContainer} from "@react-navigation/native";
@@ -39,14 +39,13 @@ import HistoryAttendance from "./src/views/screens/attendance/HistoryAttendance"
 import TutorAttendance from "./src/views/screens/attendance/TutorAttendance";
 import AdminHome from "./src/views/screens/admin/AdminHome";
 import SFirebase, {FirebaseNode} from "./src/services/SFirebase";
+import { LanguageContext } from "./src/configs/LanguageConfig";
 
 PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS);
 
 const Stack = createNativeStackNavigator();
 
 export default function App() {
-
-
 
   // jxs
   return (
@@ -87,17 +86,6 @@ export default function App() {
               <Stack.Screen
                 name={ScreenName.DETAIL_CLASS}
                 component={ClassDetail}
-                options={{
-                  title: "Chi tiết lớp học",
-                  headerShown: true,
-                  contentStyle: {
-                    padding: 0,
-                  },
-                  headerStyle: {
-                    backgroundColor: BackgroundColor.primary,
-                  },
-                  headerTintColor: "#fff",
-                }}
               />
               <Stack.Screen name={ScreenName.RATING} component={RatingScreen}/>
 

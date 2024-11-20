@@ -37,6 +37,7 @@ import en from "../../../languages/en.json";
 import ja from "../../../languages/ja.json";
 import DateTimeConfig from "../../configs/DateTimeConfig";
 import ReactAppUrl from "../../configs/ConfigUrl";
+import SFirebase, { FirebaseNode } from "../../services/SFirebase";
 
 const items = [
   {id: 1, title: "Các lớp học đang tham gia"},
@@ -157,51 +158,61 @@ export default function HomeScreen() {
 
   // effects
   useEffect(() => {
-    AMajor.getAllMajors((data) => {
-      setMajors(data);
-    }, setLoading);
+    if(accountContext.account || "089204000003" ) {
+      // const userId = accountContext.account.id
+      const userId = "089204000003"
 
-    AClass.getSuggetingClass(
-      user.ID,
-      user.TYPE,
-      (data) => {
-        setSuggettingClasses(data);
-      },
-      setLoading
-    );
+      AMajor.getAllMajors((data) => {
+        setMajors(data);
+      }, setLoading);
+  
+      SFirebase.track(FirebaseNode.Classes, [], () => {
+        console.log(">>> Goi lay lớp học gợi ý");
+        
+        AClass.getSuggetingClass(
+          userId,
+          user.TYPE,
+          (data) => {
+            setSuggettingClasses(data);
+          },
+          setLoading
+        );
+      });
+  
+      AClass.getAttedingClass(
+        userId,
+        (data) => {
+          setAttedingClasses(data);
+        },
+        setLoading
+      );
+  
+      AClass.getAttedingClass(
+        userId,
+        (data) => {
+          setAttedingClasses(data);
+        },
+        setLoading
+      );
+  
+      AClass.getTeachingClass(
+        userId,
+        (data) => {
+          setTeachingClasses(data);
+        },
+        setLoading
+      );
+  
+      AClass.getCreatedClass(
+        userId,
+        (data) => {
+          setCreatedClasses(data);
+        },
+        setLoading
+      );
 
-    AClass.getAttedingClass(
-      user.ID,
-      (data) => {
-        setAttedingClasses(data);
-      },
-      setLoading
-    );
-
-    AClass.getAttedingClass(
-      user.ID,
-      (data) => {
-        setAttedingClasses(data);
-      },
-      setLoading
-    );
-
-    AClass.getTeachingClass(
-      user.ID,
-      (data) => {
-        setTeachingClasses(data);
-      },
-      setLoading
-    );
-
-    AClass.getCreatedClass(
-      user.ID,
-      (data) => {
-        setCreatedClasses(data);
-      },
-      setLoading
-    );
-  }, [userTypeName]);
+    }
+  }, [userTypeName, accountContext]);
 
   //set up login
   useEffect(() => {
@@ -759,7 +770,7 @@ export default function HomeScreen() {
                         avatar={item.avatar ?? ""}
                         userName={item.full_name}
                         phoneNumber={item.phone_number}
-                        email={item.email}
+                        email={""}
                         address={item + "address"}
                       />
                     </Pressable>

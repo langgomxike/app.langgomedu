@@ -17,7 +17,6 @@ import {
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import Education from "../../../models/Education";
 import Experience from "../../../models/Experience";
-import Skill from "../../../models/Skill";
 import Certificate from "../../../models/Certificate";
 import Modal from "react-native-modal";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -27,7 +26,7 @@ import * as ImagePicker from "expo-image-picker";
 export type CvBoxProps = {
   title: string;
   children?: ReactNode;
-  onAddItem?: (item: Education | Experience | Skill | Certificate) => void;
+  onAddItem?: (item: Education | Experience | Certificate) => void;
   typeItem: "education" | "experience" | "skills" | "certificate";
 };
 
