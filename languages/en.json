@@ -48,5 +48,9 @@
   "CANCEL": "Cancel",
   "CONFIRM": "Confirm",
   "DELETE_ACCOUNT": "Delete account",
-  "DELETE_ACCOUNT_HINT" : "Confirm delete account"
+  "DELETE_ACCOUNT_HINT" : "Confirm delete account",
+  "PERMISSION_MANAGEMENT": "Permissions management",
+  "USER_MANAGEMENT": "User management",
+  "CLASS_MANAGEMENT": "Class management",
+  "GENERAL_MANAGEMENT": "App info management"
 }

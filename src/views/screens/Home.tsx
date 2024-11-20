@@ -37,6 +37,8 @@ import en from "../../../languages/en.json";
 import ja from "../../../languages/ja.json";
 import DateTimeConfig from "../../configs/DateTimeConfig";
 import ReactAppUrl from "../../configs/ConfigUrl";
+import {AppInfoContext} from "../../configs/AppInfoContext";
+import SFirebase from "../../services/SFirebase";
 
 const items = [
   {id: 1, title: "Các lớp học đang tham gia"},
@@ -54,6 +56,7 @@ export default function HomeScreen() {
 
   const navigation = useContext(NavigationContext);
   const accountContext = useContext(AccountContext);
+  const appInfoContext = useContext(AppInfoContext);
   const languageContext = useContext(LanguageContext);
   const {user, setUser} = useContext(UserContext);
 
@@ -106,7 +109,7 @@ export default function HomeScreen() {
   // navigation?.navigate(ScreenName.HOME_ADMIN);
   // navigation?.navigate(ScreenName.REPORT_USER);
   // navigation?.navigate(ScreenName.CREATE_ACCOUNT_ADMIN);
-  
+
   const handleNavigateToCVList = useCallback(() => {
     navigation?.navigate(ScreenName.CV_LIST);
   }, []);
@@ -205,11 +208,16 @@ export default function HomeScreen() {
 
   //set up login
   useEffect(() => {
+
+    navigation?.navigate(ScreenName.HOME_ADMIN);
+
+    return;
+
     AUser.implicitLogin((user) => {
       if (!user) {
         navigation?.reset({
           index: 0,
-          routes: [{ name: ScreenName.LOGIN }],
+          routes: [{name: ScreenName.LOGIN}],
         });
       } else {
         //store new token into async storage
@@ -220,13 +228,10 @@ export default function HomeScreen() {
           setUser({ID: user.id, TYPE: UserType.LEANER});
 
           //check if admin/superadmin or not
-          if (
-            user.role?.id === RoleList.SUPER_ADMIN ||
-            user.role?.id === RoleList.ADMIN
-          ) {
+          if (user.roles?.map(role => role.id).includes(RoleList.ADMIN) || user.roles?.map(role => role.id).includes(RoleList.SUPER_ADMIN)) {
             navigation?.reset({
               index: 0,
-              routes: [{ name: ScreenName.HOME_ADMIN }],
+              routes: [{name: ScreenName.HOME_ADMIN}],
             });
           }
 
@@ -256,6 +261,13 @@ export default function HomeScreen() {
     });
   }, []);
 
+  //get all information
+  useEffect(() => {
+    SFirebase.getAppInfos((infos) => {
+      appInfoContext.setAppInfo && appInfoContext.setAppInfo(infos);
+    });
+  }, [appInfoContext.setAppInfo]);
+
   // render
   return (
     <ScrollView showsVerticalScrollIndicator={false}>
@@ -267,7 +279,7 @@ export default function HomeScreen() {
           {/* Header title */}
           <View style={styles.headerTitleContainer}>
             <View style={{flex: 1}}>
-              <Text style={[styles.headerTitle, styles.title1]}>Xin Chào!</Text>
+              <Text style={[styles.headerTitle, styles.title1]}>{languageContext.language.WELCOME}!</Text>
               <Text style={[styles.headerTitle, styles.title2]}>
                 {accountContext.account?.full_name}
               </Text>
@@ -759,7 +771,7 @@ export default function HomeScreen() {
                         avatar={item.avatar ?? ""}
                         userName={item.full_name}
                         phoneNumber={item.phone_number}
-                        email={item.email}
+                        email={item.username}
                         address={item + "address"}
                       />
                     </Pressable>

@@ -1,0 +1,14 @@
+{
+  "app_name": "Langgom",
+  "creation_fee_for_parents": 0,
+  "creation_fee_for_tutors": 0.3,
+  "report_class_level_1": 21,
+  "report_class_level_2": 41,
+  "report_class_level_3": 61,
+  "report_class_level_4": 81,
+  "report_user_level_1": 20,
+  "report_user_level_2": 40,
+  "report_user_level_3": 60,
+  "report_user_level_4": 80,
+  "webiste_link": "https://google.com"
+}

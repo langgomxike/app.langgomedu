@@ -39,6 +39,7 @@ import HistoryAttendance from "./src/views/screens/attendance/HistoryAttendance"
 import TutorAttendance from "./src/views/screens/attendance/TutorAttendance";
 import AdminHome from "./src/views/screens/admin/AdminHome";
 import SFirebase, {FirebaseNode} from "./src/services/SFirebase";
+import AccountScreen from "./src/views/screens/Account";
 
 PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS);
 
@@ -207,6 +208,7 @@ export default function App() {
                 name={ScreenName.APP_INFO_MANAGEMENT}
                 component={AppInfoManagementScreen}
               />
+
               <Stack.Screen
                 name={ScreenName.PERMISSION_MANAGEMENT}
                 component={PermissionManagementScreen}
@@ -219,6 +221,16 @@ export default function App() {
               <Stack.Screen
                 name={ScreenName.CLASS_APPROVAL}
                 component={ClassApprovalScreen}
+              />
+
+              <Stack.Screen
+                name={ScreenName.SETTING_INFO_PERSONAL}
+                component={AccountScreen}
+                options={{
+                  headerShown: true,
+                  title: "",
+                  headerStyle: {backgroundColor: BackgroundColor.primary }
+                }}
               />
               {/* END ADMIN SCREENS */}
             </Stack.Navigator>

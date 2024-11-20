@@ -1,13 +1,13 @@
-import { StyleSheet, View } from "react-native";
-import MyIcon, { AppIcon } from "../components/MyIcon";
-import React, { Children, useContext } from "react";
-import { NavigationContext } from "@react-navigation/native";
+import {ScrollView, StyleSheet, View} from "react-native";
+import React, {Children, useContext} from "react";
+import {NavigationContext} from "@react-navigation/native";
+import Ionicons from "@expo/vector-icons/Ionicons";
 
 type propsBack = {
   children: React.ReactNode;
 };
 
-const BackLayout = ({ children }: propsBack) => {
+const BackLayout = ({children}: propsBack) => {
   //contexts
   const navigation = useContext(NavigationContext);
 
@@ -16,18 +16,32 @@ const BackLayout = ({ children }: propsBack) => {
   };
 
   return (
-    <View style={styles.iconBack}>
-      <MyIcon icon={AppIcon.ic_back_circle} onPress={handleBack} />
-      <View>{children}</View>
-    </View>
+    <ScrollView showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false} style={styles.container}>
+      <View style={styles.iconBack}>
+        <Ionicons name={"close"} size={30} onPress={handleBack}/>
+      </View>
+
+      <View style={styles.body}>
+        {children}
+      </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+
+  body: {
+    flex: 1,
+    paddingHorizontal: 20,
+    paddingBottom: 20,
+  },
+
   iconBack: {
-    position: "absolute",
-    top: 60,
-    left: 20,
+    paddingLeft: 20,
+    paddingTop: 20,
   },
 });
 
