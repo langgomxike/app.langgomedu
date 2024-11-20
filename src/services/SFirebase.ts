@@ -1,9 +1,11 @@
 import {initializeApp, FirebaseApp} from 'firebase/app';
-import {getDatabase, ref, onValue, child, Database, DataSnapshot} from 'firebase/database';
+import {getDatabase, ref, onValue, child, Database, DataSnapshot, update} from 'firebase/database';
 import firebaseConfig from "../../firebase_account_service.json";
 import SLog, {LogType} from './SLog';
+import general_infors from "../constants/general_infos.json";
 
 export enum FirebaseNode {
+  AppInfos = "general_infos",
   Addresses = "addresses",
   Attendances = "attendances",
   Certificates = "certificates",
@@ -67,6 +69,7 @@ export default class SFirebase {
       SLog.log(LogType.Warning, "Initializing Firebase", "initialed database");
     }
   }
+
   /*
   Example using:
   useEffect(() => {
@@ -102,5 +105,54 @@ export default class SFirebase {
         onNext();
       }
     );
+  }
+
+  public static getAppInfos(onNext:(infos: typeof general_infors) => void) {
+    this.init();
+    const firebaseReference = ref(this.firebaseDatabase, FirebaseNode.AppInfos);
+
+    onValue(firebaseReference,
+      (data) => {
+        SLog.log(
+          LogType.Info,
+          `track ${FirebaseNode.AppInfos}`,
+          `track the ${FirebaseNode.AppInfos} successfully`,
+        );
+        onNext(data.val());
+      },
+      (error) => {
+        SLog.log(
+          LogType.Info,
+          `track ${FirebaseNode.AppInfos}`,
+          `track the ${FirebaseNode.AppInfos} successfully found error`,
+          error
+        );
+        onNext(general_infors);
+      }
+    );
+  }
+
+  public static setAppInfos(infos: typeof general_infors, onNext: () => void) {
+    this.init();
+    const node = FirebaseNode.AppInfos;
+    const firebaseReference = ref(this.firebaseDatabase, node);
+
+    update(firebaseReference, infos)
+      .then(() => {
+        SLog.log(
+          LogType.Info,
+          `push ${node}`,
+          `push the ${node} successfully`,
+        );
+      })
+      .catch((error) => {
+        SLog.log(
+          LogType.Info,
+          `push ${node}`,
+          `push the ${node} successfully found error`,
+          error
+        );
+      })
+      .finally(onNext);
   }
 }

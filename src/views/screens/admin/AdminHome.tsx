@@ -29,9 +29,11 @@ import ClassInfo from "../../components/ClassInfo";
 import MyIcon, {AppIcon} from "../../components/MyIcon";
 import {NavigationContext} from "@react-navigation/native";
 import ScreenName from "../../../constants/ScreenName";
+import {LanguageContext} from "../../../configs/LanguageConfig";
 
 export default function AdminHome() {
   const navigation = useContext(NavigationContext);
+  const language = useContext(LanguageContext).language;
 
   // handler
   const gotToUserManager = useCallback(() => {
@@ -42,13 +44,25 @@ export default function AdminHome() {
     navigation?.navigate(ScreenName.CLASS_MANAGEMENT);
   }, []);
 
+  const goToPermissionManager = useCallback(() => {
+    navigation?.navigate(ScreenName.PERMISSION_MANAGEMENT);
+  }, []);
+
+  const goToGeneralManager = useCallback(() => {
+    navigation?.navigate(ScreenName.APP_INFO_MANAGEMENT);
+  }, []);
+
+  const goToSetting = useCallback(() => {
+    navigation?.navigate(ScreenName.SETTING_INFO_PERSONAL);
+  }, []);
+
   return (
     <View>
       {/* header */}
       <View style={styles.header}>
         {/* setting account */}
         <TouchableOpacity style={styles.icon_setting}>
-          <Ionicons name="settings-outline" size={24} color="white"/>
+          <Ionicons name="settings-outline" size={24} color="white" onPress={goToSetting}/>
         </TouchableOpacity>
 
         <Image
@@ -59,32 +73,27 @@ export default function AdminHome() {
       </View>
 
       <View style={styles.container}>
-        <TouchableOpacity style={styles.group}>
+        <TouchableOpacity style={styles.group} onPress={goToPermissionManager}>
           <Image style={styles.iconInGroup} source={require('../../../../assets/icons/ic_admin_rule.png')}></Image>
-          <Text style={styles.nameInGroup}>Quản lý phân quyền</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.group}>
-          <Image style={styles.iconInGroup} source={require('../../../../assets/icons/ic_admin_rule.png')}></Image>
-          <Text style={styles.nameInGroup}>Thêm quyền quản trị</Text>
+          <Text style={styles.nameInGroup}>{language.PERMISSION_MANAGEMENT}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           onPress={gotToUserManager}
           style={styles.group}>
           <Image style={styles.iconInGroup} source={require('../../../../assets/icons/ic_account_manage.png')}></Image>
-          <Text style={styles.nameInGroup}>Quản lý người dùng</Text>
+          <Text style={styles.nameInGroup}>{language.USER_MANAGEMENT}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity onPress={gotToClassManager} style={styles.group}>
           <Image style={styles.iconInGroup}
                  source={require('../../../../assets/icons/ic_class_pending_approval.png')}></Image>
-          <Text style={styles.nameInGroup}>Quản lý lớp học</Text>
+          <Text style={styles.nameInGroup}>{language.CLASS_MANAGEMENT}</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.group}>
+        <TouchableOpacity style={styles.group} onPress={goToGeneralManager}>
           <Image style={styles.iconInGroup} source={require('../../../../assets/icons/ic_account_manage.png')}></Image>
-          <Text style={styles.nameInGroup}>Quản lý chung</Text>
+          <Text style={styles.nameInGroup}>{language.GENERAL_MANAGEMENT}</Text>
         </TouchableOpacity>
       </View>
     </View>
