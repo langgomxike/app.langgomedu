@@ -11,13 +11,13 @@ import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import Modal from "react-native-modal";
 import { BackgroundColor } from "../../../configs/ColorConfig";
-import Student from "../../../models/Student";
 import ModalConfirmJoinClass from "./ModalConfirmJoinClass";
 import { UserContext } from "../../../configs/UserContext";
+import User from "../../../models/User";
 
 type ModalJoinClassProps = {
   classId: number;
-  studentList: Student[];
+  studentList: User[];
   visiable: string | null;
   onRequestClose: () => void;
   onResultValue: (result: boolean) => void;
@@ -31,12 +31,12 @@ export default function ModalJoinClass({
   onResultValue,
 }: ModalJoinClassProps) {
   // states
-  const [selectedStudents, setSelectedStudents] = useState<Student[]>([]);
+  const [selectedStudents, setSelectedStudents] = useState<User[]>([]);
   const [isConfirmingJoin, setIsConfirmingJoin] = useState<string | null>("");
 
   // Handle
   // Hàm xử lý khi nhấn vào checkbox
-  const handleToggleCheckbox = (student: Student) => {
+  const handleToggleCheckbox = (student: User) => {
     if (selectedStudents.some((s) => s.id === student.id)) {
       // Nếu học sinh đã được chọn, loại bỏ khỏi danh sách
       setSelectedStudents(selectedStudents.filter((s) => s.id !== student.id));

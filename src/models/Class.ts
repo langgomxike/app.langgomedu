@@ -1,9 +1,9 @@
 
 import Address from "./Address";
 import ClassLevel from "./ClassLevel";
+import Lesson from "./Lesson";
 import Major from "./Major";
 import User from "./User";
-import { QueryResult, RowDataPacket } from 'mysql2';
 
 export default class Class {
     public id: number;
@@ -24,8 +24,14 @@ export default class Class {
     public admin_accepted: boolean;
     public created_at: number;
     public updated_at: number;
+    public user_status: string;
+    public type: string;
+    public lessons: Lesson[] | undefined;
 
-    constructor(id = -1, title = "", description = "", major: Major | undefined = undefined, tutor: User | undefined = undefined, author: User | undefined = undefined, price = 0, classCreationFee = 0, classLevel: ClassLevel | undefined = undefined,  maxLearners = 0, startedAt = 0, endedAt = 0, address: Address | undefined = undefined, paid = false, author_accepted = false, admin_accepted = false, createdAt = 0, updatedAt = 0,) {
+    constructor(id = -1, title = "", description = "", major: Major | undefined = undefined, tutor: User | undefined = undefined, author: User | undefined = undefined, price = 0, 
+        classCreationFee = 0, classLevel: ClassLevel | undefined = undefined,  maxLearners = 0, 
+        startedAt = 0, endedAt = 0, address: Address | undefined = undefined, paid = false, author_accepted = false, 
+        admin_accepted = false, createdAt = 0, updatedAt = 0, user_status = "", type = "", lessons: Lesson[] | undefined = undefined) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -44,5 +50,8 @@ export default class Class {
         this.admin_accepted = admin_accepted;
         this.created_at = createdAt;
         this.updated_at = updatedAt;
+        this.user_status = user_status;
+        this.type = type;
+        this.lessons = lessons;
     }
 }

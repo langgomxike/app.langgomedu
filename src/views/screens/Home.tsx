@@ -39,6 +39,7 @@ import DateTimeConfig from "../../configs/DateTimeConfig";
 import ReactAppUrl from "../../configs/ConfigUrl";
 import {AppInfoContext} from "../../configs/AppInfoContext";
 import SFirebase from "../../services/SFirebase";
+import SFirebase, { FirebaseNode } from "../../services/SFirebase";
 
 const items = [
   {id: 1, title: "Các lớp học đang tham gia"},
@@ -109,7 +110,7 @@ export default function HomeScreen() {
   // navigation?.navigate(ScreenName.HOME_ADMIN);
   // navigation?.navigate(ScreenName.REPORT_USER);
   // navigation?.navigate(ScreenName.CREATE_ACCOUNT_ADMIN);
-
+  
   const handleNavigateToCVList = useCallback(() => {
     navigation?.navigate(ScreenName.CV_LIST);
   }, []);
@@ -160,64 +161,69 @@ export default function HomeScreen() {
 
   // effects
   useEffect(() => {
-    AMajor.getAllMajors((data) => {
-      setMajors(data);
-    }, setLoading);
+    if(accountContext.account || "089204000003" ) {
+      // const userId = accountContext.account.id
+      const userId = "089204000003"
 
-    AClass.getSuggetingClass(
-      user.ID,
-      user.TYPE,
-      (data) => {
-        setSuggettingClasses(data);
-      },
-      setLoading
-    );
+      AMajor.getAllMajors((data) => {
+        setMajors(data);
+      }, setLoading);
 
-    AClass.getAttedingClass(
-      user.ID,
-      (data) => {
-        setAttedingClasses(data);
-      },
-      setLoading
-    );
+      SFirebase.track(FirebaseNode.Classes, [], () => {
+        console.log(">>> Goi lay lớp học gợi ý");
 
-    AClass.getAttedingClass(
-      user.ID,
-      (data) => {
-        setAttedingClasses(data);
-      },
-      setLoading
-    );
+        AClass.getSuggetingClass(
+          userId,
+          user.TYPE,
+          (data) => {
+            setSuggettingClasses(data);
+          },
+          setLoading
+        );
+      });
 
-    AClass.getTeachingClass(
-      user.ID,
-      (data) => {
-        setTeachingClasses(data);
-      },
-      setLoading
-    );
+      AClass.getAttedingClass(
+        userId,
+        (data) => {
+          setAttedingClasses(data);
+        },
+        setLoading
+      );
 
-    AClass.getCreatedClass(
-      user.ID,
-      (data) => {
-        setCreatedClasses(data);
-      },
-      setLoading
-    );
-  }, [userTypeName]);
+      AClass.getAttedingClass(
+        userId,
+        (data) => {
+          setAttedingClasses(data);
+        },
+        setLoading
+      );
+
+      AClass.getTeachingClass(
+        userId,
+        (data) => {
+          setTeachingClasses(data);
+        },
+        setLoading
+      );
+
+      AClass.getCreatedClass(
+        userId,
+        (data) => {
+          setCreatedClasses(data);
+        },
+        setLoading
+      );
+
+    }
+  }, [userTypeName, accountContext]);
 
   //set up login
   useEffect(() => {
-
-    navigation?.navigate(ScreenName.HOME_ADMIN);
-
-    return;
-
     AUser.implicitLogin((user) => {
       if (!user) {
         navigation?.reset({
           index: 0,
-          routes: [{name: ScreenName.LOGIN}],
+          routes: [{ name: ScreenName.LOGIN }],
         });
       } else {
         //store new token into async storage
@@ -231,7 +237,7 @@ export default function HomeScreen() {
           if (user.roles?.map(role => role.id).includes(RoleList.ADMIN) || user.roles?.map(role => role.id).includes(RoleList.SUPER_ADMIN)) {
             navigation?.reset({
               index: 0,
-              routes: [{name: ScreenName.HOME_ADMIN}],
+              routes: [{ name: ScreenName.HOME_ADMIN }],
             });
           }
 

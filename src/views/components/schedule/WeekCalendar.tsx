@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   View,
   StyleSheet,
@@ -10,16 +10,8 @@ import { BackgroundColor, TextColor } from "../../../configs/ColorConfig";
 import DayBox from "./DayBox";
 import { Day } from "../../screens/PersonalSchedule";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { LanguageContext } from "../../../configs/LanguageConfig";
 
-export enum EdayOfWeek {
-  "sun" = 0,
-  "mon" = 1,
-  "tue" = 2,
-  "wes" = 3,
-  "thi" = 4,
-  "fri" = 5,
-  "sat" = 6,
-}
 //order function
 //get Sunday
 const getSunday = (currentDate: Date) => {
@@ -41,9 +33,20 @@ const WeekCalendar = ({
   setSelectedDate
 }: Day) => {
   //prop, context
+  const language = useContext(LanguageContext).language;
   const sunday = getSunday(today);
   const daysOfWeek: Array<any> = [];
   //state
+
+  const days = [
+    language.SUNDAY_1,
+    language.MONDAY_1,
+    language.TUESDAY_1,
+    language.WEDNESDAY_1,
+    language.THURSDAY_1,
+    language.FRIDAY_1,
+    language.SATURDAY_1,
+  ]
 
   //handler
   const handleOnClickDay = (
@@ -77,7 +80,7 @@ const WeekCalendar = ({
           isActive={index === activeDate}
           isToday={isToday}
           day={currentDay.getDate()}
-          dayOfWeek={EdayOfWeek[currentDay.getDay()]}
+          dayOfWeek={days[currentDay.getDay()]}
         />
       </TouchableOpacity>
     );
@@ -86,7 +89,7 @@ const WeekCalendar = ({
   return (
     <View style={styles.container}>
       <View>
-        <Text style={styles.month}>Tháng {today.getMonth() + 1}</Text>
+        <Text style={styles.month}>{language.MONTH} {today.getMonth() + 1}</Text>
       </View>
       <View style={styles.control}>
         <TouchableOpacity
@@ -96,7 +99,7 @@ const WeekCalendar = ({
           style={styles.lastweekBox}
         >
           <Ionicons name="chevron-back" size={20} color="white" />
-          <Text style={styles.lastWeek}> Last Week </Text>
+          <Text style={styles.lastWeek}> {language.LAST_WEEK} </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -105,7 +108,7 @@ const WeekCalendar = ({
           }}
           style={styles.nextWeekBox}
         >
-          <Text style={styles.nextWeek}> Next Week </Text>
+          <Text style={styles.nextWeek}>  {language.NEXT_WEEK} </Text>
           <Ionicons name="chevron-forward" size={20} color="white" />
         </TouchableOpacity>
       </View>
@@ -124,10 +127,7 @@ const styles = StyleSheet.create({
     // width: '100%',
     height: 180,
     backgroundColor: BackgroundColor.primary,
-    borderTopLeftRadius: 10,
-    borderTopRightRadius: 30,
-    borderBottomLeftRadius: 10,
-    borderBottomRightRadius: 30,
+    borderRadius: 15,
     paddingHorizontal: 10,
     elevation: 4,
     marginHorizontal: 20,

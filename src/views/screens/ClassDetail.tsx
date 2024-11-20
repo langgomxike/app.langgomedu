@@ -7,13 +7,10 @@ import {
   Image,
   TouchableOpacity,
   FlatList,
-  Pressable,
 } from "react-native";
 import { BackgroundColor, BorderColor } from "../../configs/ColorConfig";
-import CourseItem from "../components/CourseItem";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { useNavigation, NavigationProp } from "@react-navigation/native";
-import { useRoute, RouteProp } from "@react-navigation/native";
+import { useRoute, RouteProp, NavigationContext } from "@react-navigation/native";
 import { RootStackParamList } from "../../configs/NavigationRouteTypeConfig";
 import AClass from "../../apis/AClass";
 import ReactAppUrl from "../../configs/ConfigUrl";
@@ -22,26 +19,29 @@ import DetailClassSkeleton from "../components/skeleton/DetailClassSkeleton";
 import { UserContext, UserType } from "../../configs/UserContext";
 import ModalJoinClass from "../components/modal/ModalJoinClass";
 import AStudent from "../../apis/AStudent";
-import Student from "../../models/Student";
 import ModalConfirmJoinClass from "../components/modal/ModalConfirmJoinClass";
 import LessonItem from "../components/LessonItem";
 import DateTimeConfig from "../../configs/DateTimeConfig";
+import User from "../../models/User";
+import { LanguageContext } from "../../configs/LanguageConfig";
 
 const URL = ReactAppUrl.PUBLIC_URL;
 export default function ClassDetail() {
+  const navigation = useContext(NavigationContext);
   const route: RouteProp<RootStackParamList> = useRoute();
   // Get class id
   const param = route.params;
+  const languageContext = useContext(LanguageContext);
 
   //contexts
   const { user, setUser } = useContext(UserContext);
+  const userId = "089204000003"
 
   // state
   const [classDetail, setClassDetail] = useState<Class>();
-  const [relatedClasses, setRelatedClasses] = useState<Class[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState<string | null>("");
-  const [studentList, setStudentList] = useState<Student[]>([]);
+  const [classLearners, setclassLearners] = useState<User[]>([]);
   const [resultResponse, setResultResponse] = useState(false)
 
   // handlers
@@ -57,9 +57,9 @@ export default function ClassDetail() {
 
   const handleJoinClass = useCallback(() => {
     setModalVisible(
-      studentList.length > 0 ? "modalJoinClass" : "modalConfirmJoinClass"
+      classLearners.length > 0 ? "modalJoinClass" : "modalConfirmJoinClass"
     );
-  }, [studentList]);
+  }, [classLearners]);
 
   const handleAcceptClass = () => {
     setModalVisible("modalConfirmJoinClass");
@@ -67,22 +67,24 @@ export default function ClassDetail() {
 
   // effect
   useEffect(() => {
+    
     //Get detail class
     AClass.getClassDetailWithUser(
       param.classId,
-      user.ID,
-      (_class, relatedClasses) => {
+      userId,
+      (_class) => {
         setClassDetail(_class);
-        setRelatedClasses(relatedClasses);
+        // console.log("Detail class", JSON.stringify(_class, null, 2));
+        
       },
       setLoading
     );
     if (user.TYPE === UserType.LEANER) {
       //Get student class belongs to user for leaner
       AStudent.getStudentBelongsToUser(
-        user.ID,
+        userId,
         (data) => {
-          setStudentList(data);
+          setclassLearners(data);
         },
         setLoading
       );
@@ -91,12 +93,29 @@ export default function ClassDetail() {
       AStudent.getStudentsInClass(
         param.classId,
         (data) => {
-          setStudentList(data);
+          setclassLearners(data);
         },
         setLoading
       );
     }
   }, [resultResponse]);
+
+  useEffect(() => {
+    // Đặt lại title của header khi màn hình được hiển thị
+    if(navigation) {
+      navigation.setOptions({ 
+        title: languageContext.language.CLASS_DETAILS,
+        headerShown: true,
+                  contentStyle: {
+                    padding: 0,
+                  },
+                  headerStyle: {
+                    backgroundColor: BackgroundColor.primary,
+                  },
+                  headerTintColor: "#fff",
+       });
+    }
+  }, [navigation]);
 
   // render
   return (
@@ -111,13 +130,17 @@ export default function ClassDetail() {
                 <View style={styles.imageContainer}>
                   <Image
                     source={{
-                      uri: `${URL}${classDetail?.major?.icon?.path}`,
+                      uri: `${URL}${classDetail?.major?.icon}`,
                     }}
                     style={styles.headerImage}
                   />
                 </View>
                 <Text style={styles.headerTitle}>
-                  {classDetail.major?.vn_name}
+                {languageContext.language.TYPE === "vi" 
+                  ? classDetail.major?.vn_name 
+                  : languageContext.language.TYPE === "en"
+                  ? classDetail.major?.en_name 
+                  : classDetail.major?.ja_name}
                 </Text>
               </View>
 
@@ -133,7 +156,11 @@ export default function ClassDetail() {
                   {/* class level */}
                     <View style={styles.itemInfoTwo}>
                       <Ionicons name="book-outline" size={24} color="black" />
-                      <Text>{classDetail.class_level?.vn_name}</Text>
+                      <Text>{languageContext.language.TYPE === "vi" 
+                  ? classDetail.class_level?.vn_name
+                  : languageContext.language.TYPE === "en"
+                  ? classDetail.class_level?.en_name
+                  : classDetail.class_level?.ja_name}</Text>
                     </View>
 
                     {/* start time*/}
@@ -158,7 +185,7 @@ export default function ClassDetail() {
                   <View style={styles.itemInfo}>
                     <View style={styles.row}>
                       <Ionicons name="cube-outline" size={24} color="black" />
-                      <Text>Số lượng</Text>
+                      <Text>{languageContext.language.QUANTITY}</Text>
                     </View>
                     <Text style={styles.itemContent}>
                       {classDetail.max_learners}
@@ -173,10 +200,10 @@ export default function ClassDetail() {
                         size={24}
                         color="black"
                       />
-                      <Text>Hình thức</Text>
+                      <Text>{languageContext.language.FORM}</Text>
                     </View>
                     <Text style={styles.itemContent}>
-                      {classDetail.type.join(", ")}
+                      {classDetail.type}
                     </Text>
                   </View>
 
@@ -184,7 +211,7 @@ export default function ClassDetail() {
                   <View style={styles.itemInfo}>
                     <View style={styles.row}>
                       <Ionicons name="timer-outline" size={24} color="black" />
-                      <Text>Thời gian</Text>
+                      <Text>{languageContext.language.TIME}</Text>
                     </View>
                     <Text style={[styles.itemContent]}>time giờ/Buổi</Text>
                   </View>
@@ -193,7 +220,7 @@ export default function ClassDetail() {
                   <View style={styles.itemInfo}>
                     <View style={styles.row}>
                       <Ionicons name="cash-outline" size={24} color="black" />
-                      <Text>Học phí</Text>
+                      <Text>{languageContext.language.PRICE}</Text>
                     </View>
                     <Text style={[styles.itemContent]}>
                       {formatCurrency(classDetail.price)}/Buổi
@@ -208,10 +235,10 @@ export default function ClassDetail() {
                         size={24}
                         color="black"
                       />
-                      <Text>Địa chỉ</Text>
+                      <Text>{languageContext.language.ADDRESS}</Text>
                     </View>
                     <Text style={[styles.itemContent]}>
-                      {`${classDetail.address_4}, ${classDetail.address_3}, ${classDetail.address_2}, ${classDetail.address_1}`}
+                      {/* {`${classDetail.address_4}, ${classDetail.address_3}, ${classDetail.address_2}, ${classDetail.address_1}`} */}
                     </Text>
                   </View>
 
@@ -220,7 +247,7 @@ export default function ClassDetail() {
                   {/* class fee */}
                   <View style={[styles.itemInfo, { marginTop: 20 }]}>
                     <View style={styles.row}>
-                      <Text>Phí nhận lớp</Text>
+                    <Text>{languageContext.language.CLASS_FEE}</Text>
                     </View>
                     <Text style={[styles.itemContentFee]}>
                       {formatCurrency(50000)}
@@ -231,7 +258,7 @@ export default function ClassDetail() {
                 {/* Student information */}
                 <View style={styles.studentInfomationContainer}>
                   <Text style={[styles.containerTitle, { marginBottom: 10 }]}>
-                    Mô tả
+                  {languageContext.language.DESCRIPTION}
                   </Text>
                   <Text>{classDetail.description}</Text>
                 </View>
@@ -239,16 +266,16 @@ export default function ClassDetail() {
                 {/* Các lớp học liên quan */}
                 <View style={styles.lessonContainer}>
                   <Text style={[styles.containerTitle, { padding: 20 }]}>
-                    Các buổi học trong tuần
+                   {languageContext.language.LESSONS}
                   </Text>
 
                   <FlatList
                    scrollEnabled={false}
                   // horizontal={true}
-                  data={[1,2,3]}
-                  renderItem={({item}) => {
+                  data={classDetail.lessons}
+                  renderItem={({item:lesson}) => {
                     return (
-                      <LessonItem/>
+                      <LessonItem lessonData={lesson}/>
                     )
                   }}
                   contentContainerStyle={{paddingHorizontal: 15}}
@@ -270,14 +297,14 @@ export default function ClassDetail() {
             <TouchableOpacity
               disabled={
                 classDetail?.user_status === "member" ||
-                classDetail?.tutor?.id === user.ID ||
-                classDetail?.author?.id === user.ID
+                classDetail?.tutor?.id === userId ||
+                classDetail?.author?.id === userId
               }
               onPress={handleJoinClass}
               style={[
                 classDetail?.user_status === "member" ||
-                classDetail?.tutor?.id === user.ID ||
-                classDetail?.author?.id === user.ID
+                classDetail?.tutor?.id === userId ||
+                classDetail?.author?.id === userId
                   ? styles.btnDiableReceiveClass
                   : styles.btnReceiveClass,
                 styles.boxShadow,
@@ -286,9 +313,9 @@ export default function ClassDetail() {
               <Text style={styles.btnReceiveClassText}>
                 {classDetail?.user_status === "member"
                   ? "Bạn đã tham gia lớp học"
-                  : classDetail?.tutor?.id === user.ID
+                  : classDetail?.tutor?.id === userId
                   ? "Bạn đã dạy lớp này"
-                  : classDetail?.author?.id === user.ID
+                  : classDetail?.author?.id === userId
                   ? "Bạn đã tạo lớp này"
                   : "Tham gia lớp học"}
               </Text>
@@ -300,13 +327,13 @@ export default function ClassDetail() {
             <TouchableOpacity
               disabled={
                 classDetail?.user_status === "tutor" ||
-                classDetail?.author?.id === user.ID ||
+                classDetail?.author?.id === userId ||
                 classDetail?.user_status === "member"
               }
               onPress={handleAcceptClass}
               style={[
                 classDetail?.user_status === "tutor" ||
-                classDetail?.author?.id === user.ID ||
+                classDetail?.author?.id === userId ||
                 classDetail?.user_status === "member"
                   ? styles.btnDiableReceiveClass
                   : styles.btnReceiveClass,
@@ -316,7 +343,7 @@ export default function ClassDetail() {
               <Text style={styles.btnReceiveClassText}>
                 {classDetail?.user_status === "tutor"
                   ? "Đã nhập lớp"
-                  : classDetail?.author?.id === user.ID
+                  : classDetail?.author?.id === userId
                   ? "Bạn đã tạo lớp này"
                   : classDetail?.user_status === "member"
                   ? "Bạn đã tham gia lớp này"
@@ -330,16 +357,16 @@ export default function ClassDetail() {
       {/* Modal for leaner */}
       {user.TYPE === UserType.LEANER && (
         <>
-          {classDetail && studentList.length > 0 && (
+          {classDetail && classLearners.length > 0 && (
             <ModalJoinClass
               classId={classDetail.id}
-              studentList={studentList}
+              studentList={classLearners}
               visiable={modalVisible}
               onRequestClose={() => setModalVisible(null)}
               onResultValue={setResultResponse}
             />
           )}
-          {classDetail && studentList.length < 0 && (
+          {classDetail && classLearners.length < 0 && (
             <ModalConfirmJoinClass
               confirmContent="Bạn chắc chắn muốn tham gia lớp học này?"
               visiable={modalVisible}
@@ -359,7 +386,7 @@ export default function ClassDetail() {
               visiable={modalVisible}
               onRequestClose={() => setModalVisible(null)}
               classId={classDetail.id}
-              selectedStudents={studentList}
+              selectedStudents={classLearners}
               onResultValue={setResultResponse}
             />
           )}
