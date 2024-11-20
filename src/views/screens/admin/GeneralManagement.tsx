@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import Octicons from "@expo/vector-icons/Octicons";
-import { BackgroundColor } from "../../../configs/ColorConfig";
+import {BackgroundColor} from "../../../configs/ColorConfig";
 import ModalStudentList from "../../components/modal/ModalStudentList";
 import ModalAttended from "../../components/modal/ModalAttended";
 import Animated, {
@@ -26,19 +26,21 @@ import Animated, {
 } from "react-native-reanimated";
 import ModalPaidResult from "../../components/modal/ModalPaidResult";
 import ClassInfo from "../../components/ClassInfo";
-import MyIcon, { AppIcon } from "../../components/MyIcon";
+import MyIcon, {AppIcon} from "../../components/MyIcon";
 
 export default function Attendance() {
   // Styles animated chevron
 
   return (
     <View>
-      <View >
-      <View style={styles.icon}>
-            <MyIcon icon={AppIcon.back_button}></MyIcon>
-          </View>
-        <Text style={styles.screenName} >Quản lý chung</Text>
+      {/* header*/}
+      <View>
+        <View style={styles.icon}>
+          <MyIcon icon={AppIcon.back_button}></MyIcon>
+        </View>
+        <Text style={styles.screenName}>Quản lý chung</Text>
       </View>
+
       <View style={styles.container}>
         <View style={styles.group}>
           <View style={styles.iconInGroup}>
@@ -46,30 +48,35 @@ export default function Attendance() {
           </View>
           <Text style={styles.nameInGroup}>Quản lý phân quyền</Text>
         </View>
+
         <View style={styles.group}>
           <View style={styles.iconInGroup}>
             <MyIcon icon={AppIcon.next}></MyIcon>
           </View>
           <Text style={styles.nameInGroup}>Thêm quyền quản trị</Text>
         </View>
+
         <View style={styles.group}>
           <View style={styles.iconInGroup}>
             <MyIcon icon={AppIcon.next}></MyIcon>
           </View>
           <Text style={styles.nameInGroup}>Quản lý người dùng</Text>
         </View>
+
         <View style={styles.group}>
           <View style={styles.iconInGroup}>
             <MyIcon icon={AppIcon.next}></MyIcon>
           </View>
           <Text style={styles.nameInGroup}>Quản lý lớp học</Text>
         </View>
+
         <View style={styles.group}>
           <View style={styles.iconInGroup}>
             <MyIcon icon={AppIcon.next}></MyIcon>
           </View>
           <Text style={styles.nameInGroup}>Quản lý chung</Text>
         </View>
+
         <View style={styles.group}>
           <View style={styles.iconInGroup}>
             <MyIcon icon={AppIcon.next}></MyIcon>
@@ -77,6 +84,7 @@ export default function Attendance() {
           <Text style={styles.nameInGroup}>Quản lý chung</Text>
         </View>
       </View>
+
     </View>
   );
 }
@@ -140,10 +148,10 @@ const styles = StyleSheet.create({
     marginTop: "-14%",
     marginLeft: "15%",
     color: "#000",
-   
+
   },
-  icon:{
+  icon: {
     marginLeft: "5%",
-    marginTop:'10%',
+    marginTop: '10%',
   }
 });

@@ -6,6 +6,9 @@ import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import ASchedule from "../../apis/ASchedule";
 import Lesson from "../../models/Lesson";
 import { UserContext } from "../../configs/UserContext";
+import { LanguageContext } from "../../configs/LanguageConfig";
+import DropdownParent from "../components/dropdown/DropDownParent";
+import DropdownChildren from "../components/dropdown/DropDownChildren";
 // import RatingScreen from "./Rating";
 
 export type Day = {
@@ -20,8 +23,8 @@ export type Day = {
 }
 
 export default function PersonalScheduleScreen() {
-  //{ days }: DaysOfWeek props
-
+  // context
+  const language = useContext(LanguageContext).language;
   //day
   //schedule
   const day: Date = useMemo(() => new Date(), []);
@@ -38,6 +41,9 @@ export default function PersonalScheduleScreen() {
   const [activeDate, setActiveDate] = useState(currentDate);
   const [currentWeek, setCurrentWeek] = useState(0);
   const [selectedDate, setSelectedDate] = useState(new Date());
+
+  // Người được chọn từ dropdown
+  const [selectedUserId, setSelectedUserId] = useState("");
   /**
    * 0 = current week
    * -1 = last week , -2,-3,...
@@ -74,6 +80,7 @@ export default function PersonalScheduleScreen() {
       // console.log("todayLesson", JSON.stringify(todayLessons, null, 2));
     })
   }, []);
+
   //kiem tra ngay active de thay doi du lieu dau ra
   useEffect(()=>{
     const todayLessons :Lesson[] = [];
@@ -88,6 +95,7 @@ export default function PersonalScheduleScreen() {
       // console.log("todayLesson", JSON.stringify(todayLessons, null, 2));
       
   }, [activeDate])
+
   //kiem tra tuan de thay doi lich
   useEffect(()=>{
     
@@ -104,8 +112,10 @@ export default function PersonalScheduleScreen() {
   return (
       <View style={styles.container}>
         <View style={styles.infoBox}>
-          <Text style={styles.infoText}> Lang Gom Schedule </Text>
-          <Image style={styles.avatar} source={require('../../../assets/images/img_avatar_user.png')} />
+          <Text style={styles.infoText}>{language.SCHEDULE}</Text>
+          <View style={{flex: 1}}>
+          <DropdownChildren learners={[]} onSlectedLeanerId={setSelectedUserId}/>
+          </View>
         </View>
         <View style={styles.mainview}>
           <ScrollView showsVerticalScrollIndicator={false}
@@ -129,8 +139,6 @@ export default function PersonalScheduleScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // paddingHorizontal: 10,
-    // paddingVertical: 10,
     backgroundColor: BackgroundColor.white,
   },
   mainview: {
@@ -138,16 +146,18 @@ const styles = StyleSheet.create({
   infoBox:{
     flexDirection: 'row',
     paddingHorizontal: 20,
-    height: '10%',
+    gap: 20,
+    marginTop: 10,
+    marginBottom: 15,
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'space-between',
+    // borderWidth: 1,
   },
   infoText:{
-    flex: 1,
-    fontSize: 24,
+    fontSize: 20,
     justifyContent: 'center',
     textAlignVertical: 'center',
-    fontWeight: 'semibold',
+    fontWeight: '600',
     color: TextColor.sub_primary,
   },
   avatar:{

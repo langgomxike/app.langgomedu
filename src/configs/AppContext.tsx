@@ -1,49 +1,43 @@
 import {
   PropsWithChildren,
   useCallback,
-  useContext,
-  useEffect,
   useState,
+  useEffect
 } from "react";
-import { LanguageContext, Languages, LanguageType } from "./LanguageConfig";
-import languages from "../../languages.json";
+import {LanguageContext} from "./LanguageConfig";
+import vn from "../../languages/vn.json";
 import User from "../models/User";
-import { AccountContext } from "./AccountConfig";
-import { NavigationContext } from "@react-navigation/native";
+import {AccountContext} from "./AccountConfig";
+import {UserContext, UserDataType, UserType} from "./UserContext";
 
-export default function AppContext({ children }: PropsWithChildren) {
+export default function AppContext({children}: PropsWithChildren) {
   //states
-  const navigation = useContext(NavigationContext);
-  const [language, setLanguage] = useState<LanguageType>(languages.VN);
+  const [language, setLanguage] = useState<typeof vn>(vn);
   const [account, setAccount] = useState<User | undefined>(undefined);
-  const [inboxes, setInboxes] = useState<any[]>([]);
+  const [user, setUser] = useState<UserDataType>({
+    ID: "",
+    TYPE: UserType.LEANER,
+  });
 
   //handlers
-  const setLanguageContext = useCallback((language: Languages) => {
-    switch (language) {
-      case Languages.VN:
-        setLanguage(languages.VN);
-        break;
+  const setLanguageContext = useCallback((language: typeof vn) => {
+    setLanguage(language);
+  }, []);
 
-      case Languages.EN:
-        setLanguage(languages.EN);
-        break;
-
-      //Return View
-      case Languages.JA:
-        setLanguage(languages.JA);
-        break;
-    }
+  //effects
+  useEffect(() => {
   }, []);
 
   return (
     <LanguageContext.Provider
-      value={{ language: language, setLanguage: setLanguageContext }}
+      value={{language: language, setLanguage: setLanguageContext}}
     >
       <AccountContext.Provider
-        value={{ account: account, setAccount: setAccount }}
+        value={{account: account, setAccount: setAccount}}
       >
-        {children}
+        <UserContext.Provider value={{user, setUser}}>
+          {children}
+        </UserContext.Provider>
       </AccountContext.Provider>
     </LanguageContext.Provider>
   );

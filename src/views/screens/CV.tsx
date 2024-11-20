@@ -30,8 +30,6 @@ export default function CVScreen() {
         >
           <Ionicons name="pencil" size={20} />
         </TouchableOpacity>
-
-        <Text>hehe</Text>
       </BackWithDetailLayout>
     </>
   );

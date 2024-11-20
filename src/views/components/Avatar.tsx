@@ -67,6 +67,7 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     borderWidth: 1,
     borderColor: "#000",
+    alignSelf: "center",
   },
   horizontally: {
     flexDirection: "row", // Đặt hướng là hàng

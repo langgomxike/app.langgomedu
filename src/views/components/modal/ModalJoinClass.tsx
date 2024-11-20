@@ -5,21 +5,22 @@ import {
   Text,
   TouchableOpacity,
   FlatList,
+  Image,
 } from "react-native";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import Modal from "react-native-modal";
 import { BackgroundColor } from "../../../configs/ColorConfig";
-import Student from "../../../models/Student";
 import ModalConfirmJoinClass from "./ModalConfirmJoinClass";
 import { UserContext } from "../../../configs/UserContext";
+import User from "../../../models/User";
 
 type ModalJoinClassProps = {
-  classId: number,
-  studentList: Student[];
+  classId: number;
+  studentList: User[];
   visiable: string | null;
   onRequestClose: () => void;
-  onResultValue: (result: boolean) => void; 
+  onResultValue: (result: boolean) => void;
 };
 
 export default function ModalJoinClass({
@@ -27,22 +28,20 @@ export default function ModalJoinClass({
   studentList,
   visiable,
   onRequestClose,
-  onResultValue
+  onResultValue,
 }: ModalJoinClassProps) {
-
   // states
-  const [selectedStudents, setSelectedStudents] = useState<Student[]>([]);
+  const [selectedStudents, setSelectedStudents] = useState<User[]>([]);
   const [isConfirmingJoin, setIsConfirmingJoin] = useState<string | null>("");
-  
 
   // Handle
   // Hàm xử lý khi nhấn vào checkbox
-  const handleToggleCheckbox = (student: Student) => {
-    if (selectedStudents.some((s)=> s.id === student.id)) {
-       // Nếu học sinh đã được chọn, loại bỏ khỏi danh sách
+  const handleToggleCheckbox = (student: User) => {
+    if (selectedStudents.some((s) => s.id === student.id)) {
+      // Nếu học sinh đã được chọn, loại bỏ khỏi danh sách
       setSelectedStudents(selectedStudents.filter((s) => s.id !== student.id));
     } else {
-       // Nếu học sinh chưa được chọn, thêm vào danh sách
+      // Nếu học sinh chưa được chọn, thêm vào danh sách
       setSelectedStudents([...selectedStudents, student]);
     }
   };
@@ -76,28 +75,61 @@ export default function ModalJoinClass({
                 <FlatList
                   data={studentList}
                   showsVerticalScrollIndicator={false}
-                  renderItem={({ item:student }) => {
-                    const isChecked = selectedStudents.some((s) => s.id === student.id);
+                  renderItem={({ item: student }) => {
+                    const isChecked = selectedStudents.some(
+                      (s) => s.id === student.id
+                    );
 
                     return (
-                      <TouchableOpacity
-                        onPress={() => handleToggleCheckbox(student)}
-                        style={[
-                          isChecked ? styles.activeCheckbox : styles.checkbox,
-                        ]}
-                      >
-                        <MaterialIcons
-                          name={
-                            isChecked ? "check-box" : "check-box-outline-blank"
-                          }
-                          size={20}
-                          color={isChecked ? "#06b6d4" : "#64748b"}
-                        />
-                        <Text style={styles.activeText}>{student.full_name}</Text>
-                      </TouchableOpacity>
+                      <View>
+                        <TouchableOpacity
+                          onPress={() => handleToggleCheckbox(student)}
+                          style={[
+                            isChecked ? styles.activeCheckbox : styles.checkbox,
+                            styles.boxShadow,
+                          ]}
+                        >
+                          <View style={styles.studentSelect}>
+                            <View style={styles.studentContainer}>
+                              <Image
+                                source={{
+                                  uri: `https://cdn-icons-png.flaticon.com/128/4322/4322991.png`,
+                                }}
+                                style={styles.avtarImage}
+                              />
+                              <Text style={styles.activeText}>
+                                {student.full_name}
+                              </Text>
+                            </View>
+                            <MaterialIcons
+                              name={
+                                isChecked
+                                  ? "check-box"
+                                  : "check-box-outline-blank"
+                              }
+                              size={20}
+                              color={isChecked ? "#06b6d4" : "#64748b"}
+                            />
+                          </View>
+                          <View style={styles.notificationContent}>
+                            {/* <Ionicons name="warning-outline" size={24} color={BackgroundColor.warning} />
+                            <Text style={styles.notificationText}>
+                              {`Bạn này không thể tham gia lớp học.\n Do đã có buổi học bị trùng!`}
+                            </Text> */}
+                            <Ionicons name="checkmark" size={24} color="green" />
+                            <Text style={styles.notificationText}>
+                              Bạn này có thể tham gia lớp học
+                            </Text>
+                          </View>
+                        </TouchableOpacity>
+                      </View>
                     );
                   }}
                   style={styles.listStudent}
+                  contentContainerStyle={{
+                    paddingHorizontal: 5,
+                    paddingVertical: 5,
+                  }}
                 />
               </View>
             </View>
@@ -123,14 +155,14 @@ export default function ModalJoinClass({
       </Modal>
 
       {/* Modal xác nhận các học sinh đã tham gia vào lớp học đó */}
-        <ModalConfirmJoinClass 
+      <ModalConfirmJoinClass
         confirmContent="Bạn có chắc chắn muốn tham gia lớp học với các học sinh đã chọn không?"
         visiable={isConfirmingJoin}
         onRequestClose={() => setIsConfirmingJoin(null)}
         selectedStudents={selectedStudents}
-        classId = {classId}
+        classId={classId}
         onResultValue={onResultValue}
-        />
+      />
     </View>
   );
 }
@@ -188,23 +220,19 @@ const styles = StyleSheet.create({
   studentList: { marginBottom: 20 },
 
   checkbox: {
-    backgroundColor: "#f3f4f6",
+    backgroundColor: BackgroundColor.white,
     borderRadius: 10,
-    flexDirection: "row",
     paddingHorizontal: 15,
     paddingVertical: 15,
-    alignItems: "center",
     gap: 15,
     marginBottom: 15,
   },
 
   activeCheckbox: {
-    backgroundColor: "#06b6d4" + "11",
+    backgroundColor: "white",
     borderRadius: 10,
-    flexDirection: "row",
     paddingHorizontal: 15,
     paddingVertical: 15,
-    alignItems: "center",
     gap: 15,
     marginBottom: 12,
   },
@@ -223,9 +251,44 @@ const styles = StyleSheet.create({
     height: "76%",
   },
 
+  studentSelect: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    width: "100%",
+  },
+
+  studentContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+
+  avtarImage: {
+    width: 40,
+    height: 40,
+    borderRadius: 999,
+  },
+
+  borderWarming: {
+    borderWidth: 1,
+    borderColor: BackgroundColor.warning,
+  },
+
+  notificationContent: {
+    alignItems: "center",
+  },
+  notificationText : {
+    marginTop: 5,
+    color: BackgroundColor.gray_text,
+    textAlign: "center",
+  },
+
+
   addStudentContainer: {
     alignItems: "center",
   },
+  
 
   addStudent: {
     backgroundColor: BackgroundColor.primary,

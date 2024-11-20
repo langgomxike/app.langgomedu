@@ -24,3 +24,18 @@ export type RootStackParamListFilter = {
   Home: undefined;
   Filter: undefined;
 };
+
+export type AttendedForLearner = {
+  lessonId: number;
+  classId: number;
+}
+
+export type RegisterType = {
+  phone_number: string;
+  username: string;
+  password: string;
+}
+
+export type AuthType = {
+  user: User;
+}

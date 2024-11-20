@@ -17,9 +17,11 @@ export enum BackgroundColor {
     gray_c6 = '#CCCCCC',
     gray_c9 = "#C9C9C9",
     gray_49 = '#494949',
+    gray_text = "#333",
     schedule_leaner = '#FFD028',
     schedule_tutor = '#CD84F1',
-    cyan_overlay = "#06b6d411"
+    cyan_overlay = "#06b6d411",
+    green_light = "#76E5D8"
     
 }
 

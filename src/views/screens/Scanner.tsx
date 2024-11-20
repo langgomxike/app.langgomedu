@@ -94,6 +94,7 @@ export default function ScannerScreen() {
     [permission]
   );
 
+  //effects
   useEffect(() => {
     if (!permission || !permission.granted) {
       requestPermission();

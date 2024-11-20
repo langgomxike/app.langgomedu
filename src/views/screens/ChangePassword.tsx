@@ -1,74 +1,138 @@
-import { ScrollView, Text, View, StyleSheet, Image } from "react-native";
-import MyIcon, { AppIcon } from "../components/MyIcon";
+import {ScrollView, Text, View, StyleSheet, Image, Alert} from "react-native";
+import MyIcon, {AppIcon} from "../components/MyIcon";
 import InputRegister from "../components/Inputs/InputRegister";
 import MyText from "../components/MyText";
 import Button from "../components/Button";
-import { useContext } from "react";
-import { NavigationContext } from "@react-navigation/native";
+import React, {useCallback, useContext, useState} from "react";
+import {NavigationContext} from "@react-navigation/native";
 import ScreenName from "../../constants/ScreenName";
+import {LanguageContext} from "../../configs/LanguageConfig";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import AUser from "../../apis/AUser";
+import SAsyncStorage, {AsyncStorageKeys} from "../../services/SAsyncStorage";
+import {AuthType} from "../../configs/NavigationRouteTypeConfig";
+import Spinner from "react-native-loading-spinner-overlay";
+import {BackgroundColor, TextColor} from "../../configs/ColorConfig";
+
 export default function ChangePasswordScreen() {
-  function myEmptyFunction(): void {
-    // Hàm này không làm gì cả
-  }
+  //contexts
   const navigation = useContext(NavigationContext);
-  function goBack(): void {
+  const languageContext = useContext(LanguageContext);
+
+  //states
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  //handlers
+  const goBack = useCallback(() => {
     navigation?.goBack();
-  }
-  function goToLogin(): void {
-    navigation?.navigate(ScreenName.LOGIN);
-  }
+  }, []);
+
+  const handleSubmit = useCallback(() => {
+    if (!currentPassword) {
+      Alert.alert(languageContext.language.OLD_PASSWORD, languageContext.language.INVALID_PASSWORD);
+      return;
+    }
+
+    if (!newPassword || newPassword === currentPassword) {
+      Alert.alert(languageContext.language.NEW_PASSWORD, languageContext.language.INVALID_PASSWORD);
+      return;
+    }
+
+    if (!confirmPassword || newPassword !== confirmPassword) {
+      Alert.alert(languageContext.language.CONFIRM_PASSWORD, languageContext.language.INVALID_CONFIRM_PASSWORD);
+      return;
+    }
+
+    setLoading(true);
+    const timeId = setTimeout(() => {
+      setLoading(false);
+      Alert.alert(languageContext.language.CHANGE_PASSWORD, languageContext.language.INVALID_CHANGE_PASSWORD);
+    }, 10000);
+
+    AUser.changePassword(currentPassword, newPassword,
+      (result) => {
+        if (result) {
+          navigation?.reset({
+            index: 0,
+            routes: [{name: ScreenName.LOGIN}],
+          });
+        } else {
+          Alert.alert(languageContext.language.CHANGE_PASSWORD, languageContext.language.INVALID_CHANGE_PASSWORD);
+        }
+      },
+      () => {
+        setLoading(false);
+        clearTimeout(timeId);
+      }
+    );
+  }, [newPassword, confirmPassword, currentPassword]);
+
   return (
     <View style={styles.container}>
-      <View style={styles.icon}>
-        <MyIcon icon={AppIcon.back_button} onPress={goBack}/>
-      </View>
-      <View style={styles.row}>
-        <View>
-      <Text style={styles.title}> Đổi mật khẩu</Text>
-      <Text style={styles.content}>Hãy ghi nhớ mật khẩu của bạn</Text>
-      </View>
-      <View></View>
-      </View>
-     
-      <View style={styles.input}>
-        <InputRegister
-          label="Mật khẩu hiện tại của bạn"
-          required={true}
-          onChangeText={myEmptyFunction}
-          placeholder="Mật khẩu hiện tại của bạn"
-          type="password"
-          iconName="password"
-        ></InputRegister>
-      </View>
-      <View style={styles.input}>
-        <InputRegister
-          label="Mật khẩu mới của bạn"
-          required={true}
-          onChangeText={myEmptyFunction}
-          placeholder="Mật khẩu mới của bạn"
-          type="password"
-          iconName="password"
-        ></InputRegister>
-      </View>
-      <View style={styles.input}>
-        <InputRegister
-          label="Xác nhận mật khẩu mới của bạn"
-          required={true}
-          onChangeText={myEmptyFunction}
-          placeholder="Xác nhận mật khẩu mới của bạn"
-          type="password"
-          iconName="password"
-        ></InputRegister>
-      </View>
-      <View style={styles.row1}>
-        <Text></Text>
-        <View style={styles.testQuenMatKhau}>
-        <Text>Mật khẩu phải từ 6 đến 24 kí tự</Text>
-        </View>
-      </View>
-    <View style={styles.btn}>
-      <Button  title="Xác nhận" textColor="white" backgroundColor="#0D99FF" onPress={goToLogin}></Button>
+      <Spinner visible={loading}/>
 
+      {/* back button*/}
+      <Ionicons
+        name="close"
+        size={30}
+        style={styles.backButton}
+        onPress={goBack}
+      />
+
+      <View style={{height: 100}}/>
+
+      {/* screen title */}
+      <View>
+        <Text style={styles.title}>{languageContext.language.CHANGE_PASSWORD}</Text>
+        <Text style={styles.content}>{languageContext.language.CHANGE_PASSWORD_HINT}</Text>
+      </View>
+
+      {/* current password*/}
+      <View style={styles.input}>
+        <InputRegister
+          label={languageContext.language.OLD_PASSWORD}
+          required={true}
+          value={currentPassword}
+          onChangeText={setCurrentPassword}
+          placeholder={languageContext.language.OLD_PASSWORD}
+          type="password"
+          iconName="password"
+        />
+      </View>
+
+      {/* new password*/}
+      <View style={styles.input}>
+        <InputRegister
+          label={languageContext.language.NEW_PASSWORD}
+          required={true}
+          value={newPassword}
+          onChangeText={setNewPassword}
+          placeholder={languageContext.language.NEW_PASSWORD}
+          type="password"
+          iconName="password"
+        />
+      </View>
+
+      {/* confirm password*/}
+      <View style={styles.input}>
+        <InputRegister
+          label={languageContext.language.CONFIRM_PASSWORD}
+          required={true}
+          value={confirmPassword}
+          onChangeText={setConfirmPassword}
+          placeholder={languageContext.language.CONFIRM_PASSWORD}
+          type="password"
+          iconName="password"
+        />
+      </View>
+
+      {/* submit button*/}
+      <View style={styles.btn}>
+        <Button title={languageContext.language.CHANGE_PASSWORD} textColor={TextColor.white}
+                backgroundColor={BackgroundColor.primary} onPress={handleSubmit}/>
       </View>
     </View>
   );
@@ -77,64 +141,72 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: "center",
-    // justifyContent: "center",
   },
-  icon: {
 
+  backButton: {
+    position: "absolute",
+    top: 20,
+    left: 20,
+  },
+
+  icon: {
     marginLeft: "-85%",
   },
+
   iconInput: {
     left: 10,
     top: 25,
     justifyContent: "center",
   },
+
   input: {
     top: "0%",
     height: 20,
     width: "90%",
     marginBottom: "20%",
   },
-  
+
   img: {
     top: -10,
     width: 250,
     height: 250,
     alignItems: "center",
   },
+
   title: {
     fontSize: 20,
-    fontWeight:'bold',
+    fontWeight: 'bold',
   },
+
   content: {
     fontSize: 14,
     marginBottom: "20%",
   },
+
   test: {
     top: -10,
-    // height: 50,
-    // backgroundColor: "green",
   },
+
   testQuenMatKhau: {
     top: -10,
     left: 80,
     marginBottom: "20%",
   },
 
-  dangky: {},
   row1: {
     flexDirection: "row", // Đặt các biểu tượng nằm trên cùng một hàng
     justifyContent: "space-evenly", // Cân đối khoảng cách giữa các biểu tượng
     marginBottom: 20, // Thêm khoảng cách dưới hàng icon
   },
+
   row: {
-     // Đặt các biểu tượng nằm trên cùng một hàng
-    marginLeft:'-40%', // Cân đối khoảng cách giữa các biểu tượng
-    marginBottom:' -12%', // Thêm khoảng cách dưới hàng icon
+    // Đặt các biểu tượng nằm trên cùng một hàng
+    marginLeft: '-40%', // Cân đối khoảng cách giữa các biểu tượng
+    marginBottom: ' -12%', // Thêm khoảng cách dưới hàng icon
   },
-  btn:{
-    marginTop:'40%',
-    width:'100%',
 
-
+  btn: {
+    marginTop: '40%',
+    width: '100%',
   }
 });

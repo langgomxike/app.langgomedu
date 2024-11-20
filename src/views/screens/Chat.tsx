@@ -183,7 +183,7 @@ export default function ChatScreen() {
                 {/* search bar */}
                 <SearchBar
                     value={keyword}
-                    onChangeText={(value) => setKeyword(value)}
+                    onChangeText={setKeyword}
                     style={{marginTop: 30, marginBottom: 5}}
                 />
 
