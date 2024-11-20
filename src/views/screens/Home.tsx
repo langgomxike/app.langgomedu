@@ -145,7 +145,7 @@ export default function HomeScreen() {
   }, []);
 
   // Đường dẫn tạm đếm admin
-  navigation?.navigate(ScreenName.HOME_ADMIN);
+  // navigation?.navigate(ScreenName.HOME_ADMIN);
 
   const handleOpenDrawer = () => {
     // navigation
@@ -155,7 +155,7 @@ export default function HomeScreen() {
   useEffect(() => {
     AMajor.getAllMajors((data) => {
       setMajors(data);
-    }, setLoading);
+    }, setLoading); 
 
     // AClass.getSuggetingClass(
     //   user.ID,

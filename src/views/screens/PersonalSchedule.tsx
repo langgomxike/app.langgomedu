@@ -28,7 +28,7 @@ export default function PersonalScheduleScreen() {
   
   const {user, setUser} = useContext(UserContext);
   const user_id = user.ID;
-  const student_id = "";
+  const student_id = '';
   
   //state
   const [lessons, setLessons] = useState<Lesson[]>([])
