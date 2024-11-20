@@ -38,7 +38,6 @@ import ja from "../../../languages/ja.json";
 import DateTimeConfig from "../../configs/DateTimeConfig";
 import ReactAppUrl from "../../configs/ConfigUrl";
 import {AppInfoContext} from "../../configs/AppInfoContext";
-import SFirebase from "../../services/SFirebase";
 import SFirebase, { FirebaseNode } from "../../services/SFirebase";
 
 const items = [
