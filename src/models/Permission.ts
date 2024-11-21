@@ -1,10 +1,10 @@
 
 export default class Permission {
     public id: number;
-    public permission: string;
+    public name: string;
 
-    constructor(id = -1, permission = "") {
+    constructor(id = -1, name = "") {
         this.id = id;
-        this.permission = permission;
+        this.name = name;
     }
 }

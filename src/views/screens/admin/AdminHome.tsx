@@ -30,10 +30,13 @@ import MyIcon, {AppIcon} from "../../components/MyIcon";
 import {NavigationContext} from "@react-navigation/native";
 import ScreenName from "../../../constants/ScreenName";
 import {LanguageContext} from "../../../configs/LanguageConfig";
+import {AccountContext} from "../../../configs/AccountConfig";
+import {RoleList} from "../../../models/Role";
 
 export default function AdminHome() {
   const navigation = useContext(NavigationContext);
   const language = useContext(LanguageContext).language;
+  const accountContext = useContext(AccountContext);
 
   // handler
   const gotToUserManager = useCallback(() => {
@@ -73,10 +76,12 @@ export default function AdminHome() {
       </View>
 
       <View style={styles.container}>
-        <TouchableOpacity style={styles.group} onPress={goToPermissionManager}>
-          <Image style={styles.iconInGroup} source={require('../../../../assets/icons/ic_admin_rule.png')}></Image>
-          <Text style={styles.nameInGroup}>{language.PERMISSION_MANAGEMENT}</Text>
-        </TouchableOpacity>
+        {accountContext.account?.roles.map(r => r.id).includes(RoleList.SUPER_ADMIN) && (
+          <TouchableOpacity style={styles.group} onPress={goToPermissionManager}>
+            <Image style={styles.iconInGroup} source={require('../../../../assets/icons/ic_admin_rule.png')}></Image>
+            <Text style={styles.nameInGroup}>{language.PERMISSION_MANAGEMENT}</Text>
+          </TouchableOpacity>
+        )}
 
         <TouchableOpacity
           onPress={gotToUserManager}

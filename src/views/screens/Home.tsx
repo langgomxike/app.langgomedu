@@ -218,6 +218,8 @@ export default function HomeScreen() {
 
   //set up login
   useEffect(() => {
+    navigation?.navigate(ScreenName.HOME_ADMIN);
+    return;
     AUser.implicitLogin((user) => {
       if (!user) {
         navigation?.reset({
