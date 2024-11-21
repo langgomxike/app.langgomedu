@@ -9,6 +9,9 @@ import vn from "../../languages/vn.json";
 import User from "../models/User";
 import {AccountContext} from "./AccountConfig";
 import {UserContext, UserDataType, UserType} from "./UserContext";
+import Major from "../models/Major";
+import { MajorsLevelsContext } from "./MajorsLevelsContext";
+import ClassLevel from "../models/ClassLevel";
 
 export default function AppContext({children}: PropsWithChildren) {
   //states
@@ -18,6 +21,9 @@ export default function AppContext({children}: PropsWithChildren) {
     ID: "",
     TYPE: UserType.LEANER,
   });
+
+  const [majors, setMajors] = useState<Major[]>([]);
+  const [classLevels, setClassLevels] = useState<ClassLevel[]>([]);
 
   //handlers
   const setLanguageContext = useCallback((language: typeof vn) => {
@@ -36,7 +42,9 @@ export default function AppContext({children}: PropsWithChildren) {
         value={{account: account, setAccount: setAccount}}
       >
         <UserContext.Provider value={{user, setUser}}>
-          {children}
+          <MajorsLevelsContext.Provider value={{majors, setMajors, classLevels, setClassLevels}}>
+            {children}
+          </MajorsLevelsContext.Provider>
         </UserContext.Provider>
       </AccountContext.Provider>
     </LanguageContext.Provider>

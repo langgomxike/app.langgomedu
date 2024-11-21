@@ -2,6 +2,8 @@ import axios from "axios";
 import Class from "../models/Class";
 import ReactAppUrl from "../configs/ConfigUrl";
 import Lesson from "../models/Lesson";
+import Values from "../constants/Values";
+import Pagination from "../models/Pagination";
 
 export default class AClass {
   private static API_URL = ReactAppUrl.API_BASE_URL;
@@ -32,22 +34,23 @@ export default class AClass {
   public static getSuggetingClass(
     userId: string,
     userType: number,
-    onNext: (classes: Class[]) => void,
+    page: number,
+    onNext: (classes: Class[], pagination:Pagination) => void,
     onLoading: (loading: boolean) => void
   ) {
-    // console.log(">>> url: ", this.API_URL);
+    const perPage = Values.PERPAGE;
     onLoading(true);
     axios
-      .get(`${this.API_URL}/classes/suggests/${userId}?user_type=${userType}`)
+      .get(`${this.API_URL}/classes/suggests/${userId}?user_type=${userType}&page=${page}&perPage=${perPage}`)
       .then((response) => {
-        onNext(response.data.data);
-        // console.log(">>>> response suggests: ", JSON.stringify(response.data.data,  null, 2));
+        const data = response.data.data
+        onNext(data.classes, data.pagination );
 
         onLoading(false);
       })
       .catch((err) => {
         console.log("Error: ", err);
-        onNext([]);
+        onNext([], new Pagination);
         onLoading(true);
       });
   }

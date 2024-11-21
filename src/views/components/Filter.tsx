@@ -15,6 +15,9 @@ import { BackgroundColor } from "../../configs/ColorConfig";
 import RadioButton from "./Inputs/CustomRadioButton";
 import ReactNativeModal from "react-native-modal";
 import { Feather, Ionicons, Octicons } from "@expo/vector-icons";
+import DropDownAddress from "./dropdown/DropDownAddress";
+import DropDownMajors from "./dropdown/DropDownMajors";
+import { TextInput } from "react-native-gesture-handler";
 
 type FilterProps = {
   isVisible: boolean;
@@ -27,21 +30,21 @@ const optionForms = [
 ];
 
 const customPadding = 30;
-const customPaddingHorizontal = 20;
+const customPaddingHorizontal = 10;
 const customPaddingVertical = 30;
 const customBorderTopLeftRadius = 30;
 const customBorderBottomLeftRadius = 30;
 const customOverlayHeight = "100%";
 
 const Filter = ({ isVisible, onRequestClose }: FilterProps) => {
-
   // USESTATE
   // CHECK BOX
   const [selectedValues, setSelectedValues] = useState<string[]>([]);
 
   // SET VALUE "GIA NHO NHAT, GIA LON NHAT"
-  const [minPrice, setMinPrice] = useState<number>(0);
-  const [maxPrice, setMaxPrice] = useState<number>(0);
+  const [minPrice, setMinPrice] = useState<string>(""); // Giá trị tối thiểu
+  const [maxPrice, setMaxPrice] = useState<string>(""); // Giá trị tối đa
+  const [error, setError] = useState<string | null>(null); // Thông báo lỗi
 
   // SET VALUE INPUT
   const [location, setLocation] = useState("");
@@ -97,40 +100,36 @@ const Filter = ({ isVisible, onRequestClose }: FilterProps) => {
     });
   };
 
-  // MIN PRICE
-  const handleMinPriceChange = (value: string) => {
+  // PRICE
+  // Kiểm tra điều kiện giá
+  const validatePrice = (min: string, max: string) => {
+    const minVal = parseFloat(min);
+    const maxVal = parseFloat(max);
 
-    if (value === "") {
-      setMinPrice(0);
+    if (!isNaN(minVal) && !isNaN(maxVal) && minVal > maxVal) {
+      setError("Giá tối thiểu không được lớn hơn giá tối đa.");
     } else {
-      const min = parseFloat(value);
-      if (min < 0) {
-        setMinPrice(0);
-      } else {
-        setMinPrice(min);
-        setMaxPrice(0); // Reset giá lớn nhất khi giá nhỏ nhất thay đổi
-      }
+      setError(null);
     }
   };
 
-  // MAX PRICE
-  const handleMaxPriceChange = (value: string) => {
-
-    if (value === "") {
-      setMaxPrice(0);
-    } else {
-      const max = parseFloat(value);
-      if (max < 0) {
-        setMaxPrice(0);
-      } else {
-        setMaxPrice(max);
-      } 
+  // Hàm xử lý khi giá trị thay đổi
+  const handleMinPriceChange = (value: string) => {
+    if (/^\d*$/.test(value)) {
+      setMinPrice(value);
     }
+    validatePrice(value, maxPrice);
+  };
+
+  const handleMaxPriceChange = (value: string) => {
+    if (/^\d*$/.test(value)) {
+    setMaxPrice(value);
+    }
+    validatePrice(minPrice, value);
   };
 
   // SO LUONG
   const handleQuantity = (value: string) => {
-
     // chuyen doi chuoi thanh so
     const quantitys = parseFloat(value);
     if (quantitys < 0) {
@@ -161,6 +160,7 @@ const Filter = ({ isVisible, onRequestClose }: FilterProps) => {
       isVisible={isVisible}
       style={styles.modalContainer}
       avoidKeyboard={true}
+      onBackdropPress={() => onRequestClose()}
     >
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -174,73 +174,12 @@ const Filter = ({ isVisible, onRequestClose }: FilterProps) => {
             >
               {/* DIA DIEM */}
               <View style={styles.paddingCustom}>
-                <CustomInput
-                  label="Địa điểm:"
-                  placeholder="Nhập địa điểm"
-                  required={false}
-                  onChangeText={setLocation}
-                  type={"text"}
-                  value={location}
-                  onSubmitEditing={handleInputLocation}
-                  style={{ paddingHorizontal: 5 }}
-                />
-
-                <ScrollView
-                  style={styles.list}
-                  contentContainerStyle={styles.listContent}
-                  showsVerticalScrollIndicator={false}
-                  nestedScrollEnabled={true}
-                >
-                  {itemLocations.map((item, index) => (
-                    <View key={index.toString()} style={styles.listItem}>
-                      <Text>{item}</Text>
-                      <TouchableOpacity
-                        onPress={() => removeItemLocation(index)}
-                      >
-                        <Ionicons
-                          name="close-outline"
-                          size={24}
-                          color="black"
-                        />
-                      </TouchableOpacity>
-                    </View>
-                  ))}
-                </ScrollView>
+                <DropDownAddress />
               </View>
 
               {/* MON HOC */}
-              <View style={styles.paddingCustom}>
-                <CustomInput
-                  label="Môn học:"
-                  placeholder="Nhập môn học"
-                  required={false}
-                  onChangeText={setSubject}
-                  type={"text"}
-                  onSubmitEditing={handleInputSubject}
-                  value={subject}
-                  style={{ paddingHorizontal: 5 }}
-                />
-                <ScrollView
-                  style={styles.list}
-                  contentContainerStyle={styles.listContent}
-                  showsVerticalScrollIndicator={false}
-                  nestedScrollEnabled={true}
-                >
-                  {itemSubjects.map((item, index) => (
-                    <View key={index.toString()} style={styles.listItem}>
-                      <Text>{item}</Text>
-                      <TouchableOpacity
-                        onPress={() => removeItemSubject(index)}
-                      >
-                        <Ionicons
-                          name="close-outline"
-                          size={24}
-                          color="black"
-                        />
-                      </TouchableOpacity>
-                    </View>
-                  ))}
-                </ScrollView>
+              <View style={{ paddingBottom: 20 }}>
+                <DropDownMajors />
               </View>
               {/* HINH THUC */}
               <Text style={styles.textSection}>Hình thức:</Text>
@@ -260,58 +199,39 @@ const Filter = ({ isVisible, onRequestClose }: FilterProps) => {
                 </TouchableOpacity>
               </View>
 
-              {/* SAP XEP DANH GIA */}
-              <View style={[styles.section, styles.paddingCustom]}>
-                <Text style={styles.textSection}>Sắp xếp theo đánh giá:</Text>
-                <TouchableOpacity style={styles.iconDESC} onPress={handleDesc}>
-                  <Octicons name="sort-desc" size={24} color="black" />
-                </TouchableOpacity>
-
-                <TouchableOpacity style={styles.iconASC} onPress={handleAsc}>
-                  <Octicons name="sort-asc" size={24} color="black" />
-                </TouchableOpacity>
-              </View>
-
               {/* GIA NHO NHAT */}
               <View style={styles.paddingCustom}>
-                <CustomInput
-                  label="Giá nhỏ nhất:"
-                  placeholder="Nhập giá nhỏ nhất"
-                  required={false}
-                  onChangeText={handleMinPriceChange}
-                  type={"number"}
-                  value={minPrice + ""}
-                  key="numeric"
-                  style={{ paddingHorizontal: 5 }}
-                />
-              </View>
+                <Text style={styles.textSection}>Giá</Text>
+                <View style={styles.inputPriceContainer}>
+                  <TextInput
+                    style={[
+                      styles.inputPrice, styles.boxShadow,
+                      error &&  parseFloat(minPrice) > parseFloat(maxPrice) ? styles.errorBorder: null,
+                    ]}
+                    placeholder="Tối thiểu"
+                    keyboardType="numeric"
+                    value={minPrice}
+                    onChangeText={handleMinPriceChange}
+                  />
+                  <View style={styles.inputPriceContainerLine}></View>
 
-              {/* GIA LON NHAT */}
-              <View style={styles.paddingCustom}>
-                <CustomInput
-                  label="Giá lớn nhất:"
-                  placeholder="Nhập giá lớn nhất"
-                  required={false}
-                  value={maxPrice + ""}
-                  onChangeText={handleMaxPriceChange}
-                  key="numeric"
-                  editable={minPrice !== 0}
-                  type={"number"}
-                  style={{ paddingHorizontal: 5 }}
-                />
-
-                <View style={styles.iconASC_DESC}>
-                  <TouchableOpacity
-                    style={styles.iconDESC}
-                    onPress={handleDesc}
-                  >
-                    <Octicons name="sort-desc" size={24} color="black" />
-                  </TouchableOpacity>
-
-                  <TouchableOpacity style={styles.iconASC} onPress={handleAsc}>
-                    <Octicons name="sort-asc" size={24} color="black" />
-                  </TouchableOpacity>
+                  {/* Input giá tối đa */}
+                  <TextInput
+                    style={[
+                      styles.inputPrice,  styles.boxShadow,
+                      error &&
+                      parseFloat(maxPrice) < parseFloat(minPrice) 
+                        ? styles.errorBorder
+                        : null,
+                    ]}
+                    placeholder="Tối đa"
+                    keyboardType="numeric"
+                    value={maxPrice}
+                    onChangeText={handleMaxPriceChange}
+                  />
                 </View>
+                   {/* Hiển thị thông báo lỗi */}
+                  {error && <Text style={styles.errorText}>{error}</Text>}
               </View>
 
               {/* SO LUONG */}
@@ -326,19 +246,21 @@ const Filter = ({ isVisible, onRequestClose }: FilterProps) => {
                   value={quantitys + ""}
                 />
               </View>
-
-              {/* BUTTON AP DUNG */}
-              <View style={[styles.paddingCustom, styles.btnContainer]}>
-                <TouchableOpacity style={styles.btnApply} onPress={handleApply}>
-                  <Text style={styles.textApply}>Áp dụng</Text>
-                </TouchableOpacity>
-              </View>
-
-              {/* BUTTON QUAY LAI */}
-              <TouchableOpacity onPress={handleCloseModel}>
-                <Feather name="chevrons-right" size={30} color="black" />
-              </TouchableOpacity>
             </ScrollView>
+
+            {/* BUTTON AP DUNG */}
+            <View style={[styles.btnContainer]}>
+              {/* BUTTON QUAY LAI */}
+              <TouchableOpacity style={styles.btnApply} onPress={handleApply}>
+                <Text style={styles.textApply}>Áp dụng</Text>
+              </TouchableOpacity>
+            </View>
+            <TouchableOpacity
+              style={{ marginTop: -20 }}
+              onPress={handleCloseModel}
+            >
+              <Feather name="chevrons-right" size={30} color="black" />
+            </TouchableOpacity>
           </View>
         </View>
       </KeyboardAvoidingView>
@@ -354,20 +276,12 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     borderTopLeftRadius: customBorderTopLeftRadius,
     borderBottomLeftRadius: customBorderBottomLeftRadius,
-    shadowColor: BackgroundColor.primary,
-    shadowOffset: {
-      width: 0,
-      height: 7,
-    },
-    shadowOpacity: 0.43,
-    shadowRadius: 9.51,
-    elevation: 15,
   },
 
   modalContainer: {
     padding: 0,
     margin: 0,
-    marginLeft: "8%",
+    marginLeft: "7%",
   },
 
   overlay: {
@@ -397,8 +311,8 @@ const styles = StyleSheet.create({
   },
 
   textSection: {
-    fontWeight: "bold",
-    fontSize: 16,
+    fontWeight: "500",
+    fontSize: 15,
     paddingLeft: 5,
   },
 
@@ -436,7 +350,64 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   keyboardAvoidingView: {
-    flex: 1,  
-  }
+    flex: 1,
+  },
+
+  inputPriceContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 10,
+    paddingHorizontal: 5,
+    marginTop: 10,
+    alignItems: "center",
+    gap: 20,
+  },
+
+  inputPriceContainerLine: {
+    height: 2,
+    width: 15,
+    backgroundColor: "#ccc",
+  },
+
+  inputPrice: {
+    flex: 1,
+    paddingVertical: 10,
+    paddingHorizontal: 10,
+    borderRadius: 8,
+    backgroundColor: BackgroundColor.white,
+    borderWidth: 1,
+    borderColor: "#fff"
+  },
+
+  boxShadow: {
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 1.41,
+
+    elevation: 2,
+  },
+
+  errorText: {
+    color: "red",
+    fontSize: 12,
+    marginTop: 4,
+    paddingLeft: 5,
+  },
+  errorBorder: {
+    borderColor: "rgba(255, 0, 0, 0.5)",
+    shadowColor: "red",
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 1.41,
+
+    elevation: 2,
+  },
 });
 export default Filter;

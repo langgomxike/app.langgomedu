@@ -8,26 +8,15 @@ import {
   View,
 } from "react-native";
 import { BackgroundColor } from "../../configs/ColorConfig";
-import Skill from "../../models/Skill";
+import CV from "../../models/CV";
+import ReactAppUrl from "../../configs/ConfigUrl";
 
 type TutorItemProps = {
-  avatar?: string;
-  userName?: string;
-  phoneNumber?: string;
-  email?: string;
-  dayOfBirth?: Date;
-  address?: string;
-  skills?: Skill[];
+  tutorData: CV
 };
-
-export default function tutorItem({
-  avatar,
-  userName,
-  phoneNumber,
-  email,
-  dayOfBirth,
-  address,
-  skills,
+const URL = ReactAppUrl.PUBLIC_URL;
+export default function CvItem({
+  tutorData
 }: TutorItemProps) {
   // Render
   return (
@@ -35,11 +24,11 @@ export default function tutorItem({
       <View style={styles.headerContainer}>
         <View style={styles.boxShadow}>
           <Image
-            source={require("../../../assets/images/img_avatar_user.png")}
+            source={{uri: (`${URL}${tutorData.user?.avatar}`)}}
             style={[styles.avatar]}
           />
         </View>
-        <Text style={styles.tutorName}>{userName}</Text>
+        <Text style={styles.tutorName}>{tutorData.user?.full_name}</Text>
       </View>
 
       <View style={styles.bodyContainer}>
@@ -51,7 +40,7 @@ export default function tutorItem({
                 source={require("../../../assets/images/register_icon/ic_phone (1).png")}
                 style={styles.contentImage}
               />
-              <Text style={styles.contentText}>{phoneNumber}</Text>
+              <Text style={styles.contentText}>{tutorData.user?.phone_number}</Text>
             </View>
 
             <View style={[styles.infoContent, { flex: 1 }]}>
@@ -60,11 +49,7 @@ export default function tutorItem({
                 style={styles.contentImage}
               />
               <Text style={styles.contentText}>
-                {dayOfBirth?.getDate() +
-                  "/" +
-                  dayOfBirth?.getMonth +
-                  "/" +
-                  dayOfBirth?.getFullYear}
+                {tutorData.user?.birthday}
               </Text>
             </View>
           </View>
@@ -76,7 +61,7 @@ export default function tutorItem({
               style={styles.contentImage}
             />
 
-            <Text style={styles.contentText}>{email}</Text>
+            <Text style={styles.contentText}>{""}</Text>
           </View>
 
           <View style={styles.infoContent}>
@@ -85,13 +70,13 @@ export default function tutorItem({
               style={styles.contentImage}
             />
 
-            <Text>{address}</Text>
+<Text style={styles.contentText}>{`${tutorData.user?.address?.ward}, ${tutorData.user?.address?.district}\n${tutorData.user?.address?.province}`}</Text>
           </View>
         </View>
 
         <View style={styles.line}></View>
 
-        <View style={styles.awardsContainer}>
+        {/* <View style={styles.awardsContainer}>
           <ScrollView
             horizontal={true}
             showsHorizontalScrollIndicator={false}
@@ -107,7 +92,7 @@ export default function tutorItem({
               </Text>
             ))}
           </ScrollView>
-        </View>
+        </View> */}
       </View>
     </View>
   );
@@ -158,6 +143,7 @@ const styles = StyleSheet.create({
     width: 70,
     height: 70,
     marginBottom: 10,
+    borderRadius: 999
   },
   tutorName: {
     fontSize: 18,
