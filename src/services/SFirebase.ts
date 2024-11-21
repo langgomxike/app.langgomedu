@@ -1,108 +1,158 @@
-import { initializeApp, FirebaseApp } from 'firebase/app';
-import { getDatabase, ref, onValue, child, Database, DataSnapshot } from 'firebase/database';
+import {initializeApp, FirebaseApp} from 'firebase/app';
+import {getDatabase, ref, onValue, child, Database, DataSnapshot, update} from 'firebase/database';
 import firebaseConfig from "../../firebase_account_service.json";
-import SLog, { LogType } from './SLog';
-import firebaseNodeProps from "../../firebase_node_props.json";
+import SLog, {LogType} from './SLog';
+import general_infors from "../constants/general_infos.json";
 
 export enum FirebaseNode {
-    MAJOR = 0,
-    CLASS = 1,
-    CV = 2,
-    USER = 3,
+  AppInfos = "general_infos",
+  Addresses = "addresses",
+  Attendances = "attendances",
+  Certificates = "certificates",
+  ClassLevels = "class_levels",
+  ClassMembers = "class_members",
+  Classes = "classes",
+  CVs = "cvs",
+  Educations = "educations",
+  Experiences = "experiences",
+  Files = "files",
+  Genders = "genders",
+  InterestedClassLevels = "interested_class_levels",
+  InterestedMajors = "interested_majors",
+  Lessons = "lessons",
+  Majors = "majors",
+  Messages = "messages",
+  OTPs = "otps",
+  Permissions = "permissions",
+  Ratings = "ratings",
+  ReportFiles = "report_files",
+  Reports = "reports",
+  RolePermission = "role_permission",
+  Roles = "roles",
+  Statuses = "statuses",
+  UserRole = "user_role",
+  Users = "users",
+  Id = "id",
+  ClassId = "class_id",
+  LessonId = "lesson_id",
+  UserId = "user_id",
+  FromUserId = "from_user_id",
+  ToUserId = "to_user_id",
+  MessageId = "message_id",
+  ClassLevelId = "class_level_id",
+  MajorId = "major_id",
+  GenderId = "gender_id",
+  CertificateId = "certificate_id",
+  EducationId = "education_id",
+  ExperienceId = "experience_id",
+  ReportId = "report_id",
+  RoleId = "role_id",
+  PermissionId = "permission_id",
+  StatusId = "status_id",
+  ReportFileId = "report_file_id",
+  FileId = "file_id",
+  OTPId = "otp_id",
 }
 
 export default class SFirebase {
-    private static app: FirebaseApp;
-    private static firebaseDatabase: Database;
+  private static app: FirebaseApp;
+  private static firebaseDatabase: Database;
 
-    private static init() {
-        if (!this.app) {
-            this.app = initializeApp(firebaseConfig);
-            SLog.log(LogType.Warning, "Initializing Firebase", "initialed app");
-        }
-
-        if (!this.firebaseDatabase) {
-            this.firebaseDatabase = getDatabase(this.app);
-            SLog.log(LogType.Warning, "Initializing Firebase", "initialed database");
-        }
+  private static init() {
+    if (!this.app) {
+      this.app = initializeApp(firebaseConfig);
+      SLog.log(LogType.Warning, "Initializing Firebase", "initialed app");
     }
 
-    public static trackAll(firebaseNode: FirebaseNode, onNext: () => void) {
-        this.init();
-        const firebaseReference = ref(this.firebaseDatabase, firebaseNodeProps[firebaseNode].node);
+    if (!this.firebaseDatabase) {
+      this.firebaseDatabase = getDatabase(this.app);
+      SLog.log(LogType.Warning, "Initializing Firebase", "initialed database");
+    }
+  }
 
-        onValue(firebaseReference,
-            () => {
-                SLog.log(
-                    LogType.Info,
-                    "trackAll " + firebaseNodeProps[firebaseNode].plural_name,
-                    "track all " + firebaseNodeProps[firebaseNode].plural_name,
-                    "track successfully"
-                );
-                onNext();
-            },
-            (error) => {
-                SLog.log(
-                    LogType.Error,
-                    "trackAll " + firebaseNodeProps[firebaseNode].plural_name,
-                    "track all " + firebaseNodeProps[firebaseNode].plural_name + " found error",
-                    error
-                );
-                onNext();
-            }
+  /*
+  Example using:
+  useEffect(() => {
+    SFirebase.track(FirebaseNode.ReportFiles, [{key: FirebaseNode.Id, value: 123}], () => {
+      api here
+    });
+  }, []);
+   */
+  public static track(parentNode: FirebaseNode, keyNodes: {
+    key: FirebaseNode,
+    value: string | number
+  }[], onNext: () => void) {
+    this.init();
+    let node = `${parentNode}/${keyNodes.map((keyNode) => `${keyNode.key}:${keyNode.value}`).join("|")}`;
+    const firebaseReference = ref(this.firebaseDatabase, node);
+
+    onValue(firebaseReference,
+      (data) => {
+        SLog.log(
+          LogType.Info,
+          `track ${parentNode}`,
+          `track the ${parentNode} with key ${node} successfully`,
         );
-    }
-
-    public static trackOne(firebaseNode: FirebaseNode, key: number | string, onNext: () => void) {
-        this.init();
-        const firebaseReference = ref(this.firebaseDatabase, `${firebaseNodeProps[firebaseNode].node}/${firebaseNodeProps[firebaseNode].key}:${key}`);
-
-        onValue(firebaseReference,
-            (data) => {
-                SLog.log(
-                    LogType.Info,
-                    `trackOne ${firebaseNodeProps[firebaseNode].singular_name}`,
-                    `track the ${firebaseNodeProps[firebaseNode].singular_name} with key ${firebaseNodeProps[firebaseNode].key} = ${key}`,
-                    `track successfully, last updated at: ${new Date(+(data?.val() ?? 0)).toUTCString()}`
-                );
-                onNext();
-            },
-            (error) => {
-                SLog.log(
-                    LogType.Error,
-                    "trackOne " + firebaseNodeProps[firebaseNode].singular_name,
-                    `track the ${firebaseNodeProps[firebaseNode].singular_name} with key ${firebaseNodeProps[firebaseNode].key} = ${key} found error`,
-                    error
-                );
-                onNext();
-            }
+        onNext();
+      },
+      (error) => {
+        SLog.log(
+          LogType.Info,
+          `track ${parentNode}`,
+          `track the ${parentNode} with key ${node} successfully found error`,
+          error
         );
-    }
+        onNext();
+      }
+    );
+  }
 
-    public static getClassCreationFee(onNext: (fee: number | undefined) => void) {
-        this.init();
-        const firebaseReference = ref(this.firebaseDatabase, `CLASSES/CLASS_CREATION_FEE`);
+  public static getAppInfos(onNext:(infos: typeof general_infors) => void) {
+    this.init();
+    const firebaseReference = ref(this.firebaseDatabase, FirebaseNode.AppInfos);
 
-        onValue(firebaseReference,
-            (data) => {
-                SLog.log(
-                    LogType.Info,
-                    `getCreationClassFee`,
-                    `get successfully`,
-                    data
-                );
-                onNext(data.val() as number ?? undefined);
-            },
-            (error) => {
-                SLog.log(
-                    LogType.Info,
-                    `getCreationClassFee`,
-                    `get unsuccessfully`,
-                    error
-                );
-                onNext(undefined);
-            }
+    onValue(firebaseReference,
+      (data) => {
+        SLog.log(
+          LogType.Info,
+          `track ${FirebaseNode.AppInfos}`,
+          `track the ${FirebaseNode.AppInfos} successfully`,
         );
+        onNext(data.val());
+      },
+      (error) => {
+        SLog.log(
+          LogType.Info,
+          `track ${FirebaseNode.AppInfos}`,
+          `track the ${FirebaseNode.AppInfos} successfully found error`,
+          error
+        );
+        onNext(general_infors);
+      }
+    );
+  }
 
-    }
+  public static setAppInfos(infos: typeof general_infors, onNext: () => void) {
+    this.init();
+    const node = FirebaseNode.AppInfos;
+    const firebaseReference = ref(this.firebaseDatabase, node);
+
+    update(firebaseReference, infos)
+      .then(() => {
+        SLog.log(
+          LogType.Info,
+          `push ${node}`,
+          `push the ${node} successfully`,
+        );
+      })
+      .catch((error) => {
+        SLog.log(
+          LogType.Info,
+          `push ${node}`,
+          `push the ${node} successfully found error`,
+          error
+        );
+      })
+      .finally(onNext);
+  }
 }

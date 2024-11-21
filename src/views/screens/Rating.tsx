@@ -12,13 +12,10 @@ const RatingScreen = () => {
 
     //set State
     const [rating, setRating] = useState(0);
-
     const [activeTag, setActiveTag] = useState(-1);
-
     const [text, setText] = useState('');
 
     //set Handle
-
     const handleRatingChange = (newRating: number) => {
         setRating(newRating)
         console.log(rating);
@@ -27,7 +24,6 @@ const RatingScreen = () => {
     const handleTagPress = (index: number) => {
         setActiveTag(index);
         console.log(activeTag);
-
     };
 
     return (

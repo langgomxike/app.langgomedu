@@ -1,26 +1,12 @@
 import { createContext } from "react";
-import languages from "../../languages.json";
-
-export enum Languages {
-    "VN",
-    "EN",
-    "JA"
-}
-
-export type LanguageType = {
-    TYPE: number;
-    VIEW_ALL: string;
-    SHOWING_PAGE: string;
-    SEARCH: string,
-    CHANGE_LANGUAGE: string;
-}
+import vn from "../../languages/vn.json";
 
 type LanguageConfigType = {
-    language: LanguageType,
-    setLanguage: (language: Languages) => void,
+    language: typeof vn,
+    setLanguage: (language: typeof vn) => void,
 }
 
 export const LanguageContext = createContext<LanguageConfigType>({
-    language: languages.VN,
+    language: vn,
     setLanguage: () => { }
 });

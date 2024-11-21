@@ -6,6 +6,7 @@ import LearnerClass from "../components/LearnerClass";
 import TurtorClass from "../components/TurtorClass";
 
 export default function CreateClassScreen() {
+  //states
   const [activeTab, setActiveTab] = useState("classInfo"); // State để quản lý tab đang được chọn
   const [title, setTitle] = useState("");
 

@@ -7,21 +7,21 @@ import {
   FlatList,
 } from "react-native";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import Ionicons from "@expo/vector-icons/Ionicons";
 import Modal from "react-native-modal";
 import { BackgroundColor } from "../../../configs/ColorConfig";
 import { Image } from "react-native";
-import Student from "../../../models/Student";
 import AClass from "../../../apis/AClass";
 import { UserContext, UserType } from "../../../configs/UserContext";
 import ModalDialogForClass from "./ModalDialogForClass";
+import User from "../../../models/User";
 
 type ModalJoinClassProps = {
   confirmContent: string;
   visiable: string | null;
   onRequestClose: () => void;
-  selectedStudents?: Student[];
+  selectedStudents?: User[];
   classId: number;
+  onResultValue: (result: boolean) => void; 
 };
 
 type ModalDialog = { 
@@ -35,6 +35,7 @@ export default function ModalConfirmJoinClass({
   onRequestClose,
   selectedStudents,
   classId,
+  onResultValue
 }: ModalJoinClassProps) {
   //context 
   const {user} = useContext(UserContext);
@@ -42,22 +43,24 @@ export default function ModalConfirmJoinClass({
   // states 
   const [isConfirming, setIsConfirming] = useState<string | null>("");
   const [loading, setLoading] = useState(false);
+  const [userIds, setUserIds] = useState<string[]>([]);
   const [modalDialog, setModalDialog] = useState<ModalDialog>({
     confirmContent: "",
     confirmStatus: "failure"
   });
-  const [studentIds, setStudentIds] = useState<number[]>([]);
+
   
   // Handles
   const handleJoinClass = useCallback(() => {
     AClass.joinClass(
       classId, 
-      user.ID, 
-      studentIds,
+      userIds ,
       (data) => {
         setIsConfirming("modalDialogForClass"); // mở modalDialogForClass
         onRequestClose();
-        if(data.status_code === 200){
+        if(data.result){
+          onResultValue(data.result)
+
           setModalDialog({
             confirmContent: "Tham gia lớp thành công",
             confirmStatus: "success"
@@ -73,7 +76,7 @@ export default function ModalConfirmJoinClass({
       setLoading
      )
 
-  }, [studentIds, classId,]);
+  }, [userIds, classId,]);
 
   const handleAcceptClassToTeach = useCallback(() => {
     AClass.acceptClassToTeach(
@@ -82,7 +85,8 @@ export default function ModalConfirmJoinClass({
       (data) => {
         setIsConfirming("modalDialogForClass"); // mở modalDialogForClass
         onRequestClose();
-        if(data.status_code === 200){
+        if(data.result){
+          onResultValue(data.result)
           setModalDialog({
             confirmContent: "Nhận lớp thành công. Vui lòng chờ duyệt!",
             confirmStatus: "success"
@@ -102,9 +106,9 @@ export default function ModalConfirmJoinClass({
   // effects 
   useEffect(() => {
       if (selectedStudents) {
-        setStudentIds(selectedStudents.map((student) => student.id))
+        setUserIds(selectedStudents.map((student) => student.id))
       } else {
-        setStudentIds([]);
+        setUserIds([]);
       }
   }, [selectedStudents]);
 

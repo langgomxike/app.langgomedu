@@ -1,8 +1,9 @@
 
 export enum BackgroundColor {
     primary = '#0D99FF',
-    primary_opacity = "rgba(13, 153, 255, 0.18)",
+    primary_op05 = "rgba(13, 153, 255, 0.5)",
     warning = '#F9CA24',
+    warning_op09 = "rgba(255, 213, 65, 0.9)",
     danger = '#E10909',
     sub_primary = '#6AC0FF',
     sub_warning = '#F9EEC7',
@@ -16,9 +17,11 @@ export enum BackgroundColor {
     gray_c6 = '#CCCCCC',
     gray_c9 = "#C9C9C9",
     gray_49 = '#494949',
+    gray_text = "#333",
     schedule_leaner = '#FFD028',
     schedule_tutor = '#CD84F1',
-    cyan_overlay = "#06b6d411"
+    cyan_overlay = "#06b6d411",
+    green_light = "#76E5D8"
     
 }
 

@@ -1,25 +1,36 @@
-import React, { useState, useRef, useCallback, useContext } from "react";
-import { View, Text, StyleSheet, TextInput, Alert, Image } from "react-native";
-import MyIcon, { AppIcon } from "../components/MyIcon";
-import { NavigationContext } from "@react-navigation/native";
+import React, {useState, useRef, useCallback, useContext} from "react";
+import {View, Text, StyleSheet, TextInput, Alert, Image} from "react-native";
+import {NavigationContext, NavigationRouteContext} from "@react-navigation/native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import Button from "../components/Button";
-import { BackgroundColor } from "../../configs/ColorConfig";
+import {BackgroundColor} from "../../configs/ColorConfig";
+import {LanguageContext} from "../../configs/LanguageConfig";
+import AOTP from "../../apis/AOTP";
+import AUser from "../../apis/AUser";
+import SAsyncStorage, {AsyncStorageKeys} from "../../services/SAsyncStorage";
+import {AuthType} from "../../configs/NavigationRouteTypeConfig";
+import ScreenName from "../../constants/ScreenName";
+import Spinner from "react-native-loading-spinner-overlay";
 
 export default function OTPScreen() {
   //context
   const navigation = useContext(NavigationContext);
-  const [otp, setOtp] = useState<string[]>(["", "", "", "", "", ""]);
+  const route = useContext(NavigationRouteContext);
+  const languageContext = useContext(LanguageContext);
+  const [loading, setLoading] = useState(false);
 
-  // Tạo ref cho từng ô nhập OTP
+  //refs
   const otpInputs = useRef<TextInput[]>([]);
+
+  //states
+  const [otp, setOtp] = useState<string[]>(["", "", "", "", "", ""]);
 
   //handlers
   const goBack = useCallback(() => {
     navigation?.goBack();
   }, []);
 
-  const handleChangeText = (text: string, index: number) => {
+  const handleChangeText = useCallback((text: string, index: number) => {
     const newOtp = [...otp];
 
     // Nếu ô đầu tiên chưa được nhập thì focus vào ô đầu tiên
@@ -42,20 +53,54 @@ export default function OTPScreen() {
     if (index < 5 && text) {
       otpInputs.current[index + 1]?.focus();
     }
-  };
+  }, [otp, otpInputs]);
 
-  const handleVerifyOtp = () => {
-    const validOtp = "123456"; // Thay thế bằng OTP thực tế của bạn
-    if (otp.join("") === validOtp) {
-      Alert.alert("Xác Nhận Thành Công", "OTP hợp lệ!");
-      // Chuyển hướng đến màn hình tiếp theo (Home, Dashboard, v.v.)
-    } else {
-      Alert.alert("Lỗi", "OTP không hợp lệ. Vui lòng thử lại.");
+  const handleVerifyOtp = useCallback(() => {
+    const requestCode = +otp.join("");
+    const {user} = route?.params as AuthType ?? {user: undefined};
+
+    if (!user) {
+      Alert.alert(languageContext.language.REGISTER, languageContext.language.REGISTER_FAILED);
+      return;
     }
-  };
+
+    setLoading(true);
+    const timeId = setTimeout(() => {
+      setLoading(false);
+      Alert.alert(languageContext.language.REGISTER, languageContext.language.REGISTER_FAILED, [
+        {
+          text: "OK",
+          onPress: () => {
+          },
+        },
+      ]);
+    }, 10000);
+
+    AUser.register(user, requestCode,
+      (user) => {
+        if (user) {
+          SAsyncStorage.setData(AsyncStorageKeys.TOKEN, user.token, () => {
+            navigation?.reset({
+              index: 0,
+              routes: [{name: ScreenName.NAV_BAR}],
+            });
+          });
+        } else {
+          Alert.alert(languageContext.language.REGISTER, languageContext.language.REGISTER_FAILED);
+        }
+      },
+      () => {
+        setLoading(false);
+        clearTimeout(timeId);
+      }
+    );
+  }, [otp]);
 
   return (
     <View style={styles.container}>
+      <Spinner visible={loading} />
+
+      {/* back button*/}
       <Ionicons
         name="close"
         size={30}
@@ -63,12 +108,13 @@ export default function OTPScreen() {
         onPress={goBack}
       />
 
+      {/* illustration image*/}
       <Image
         style={styles.img}
-        source={require("../../../assets/images/ illustration/Mobile login-rafiki.png")}
+        source={require("../../../assets/images/illustrations/login.png")}
       />
 
-      {/* title */}
+      {/* screen title */}
       <Text style={styles.title}>Xác Thực OTP</Text>
 
       <Text style={styles.instructions}>
@@ -99,7 +145,8 @@ export default function OTPScreen() {
             ? BackgroundColor.primary
             : BackgroundColor.sub_primary
         }
-        onPress={otp.join("").length == 6 ? handleVerifyOtp : () => {}}
+        onPress={otp.join("").length == 6 ? handleVerifyOtp : () => {
+        }}
       />
     </View>
   );

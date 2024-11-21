@@ -3,6 +3,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { LanguageContext } from "./../../configs/LanguageConfig";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { BackgroundColor, TextColor } from "../../configs/ColorConfig";
+import Feather from '@expo/vector-icons/Feather';
 
 type PaginationProp = {
   totalPage: number;
@@ -28,6 +29,12 @@ export default function Pagination({
     currentPage > totalPage || currentPage <= 0 ? 1 : currentPage
   );
 
+    // Handlers for setting active page
+    const goToFirstPage = () => setActive(1);
+    const goToLastPage = () => setActive(totalPage);
+    const goToPreviousPage = () => setActive((prev) => Math.max(1, prev - 1));
+    const goToNextPage = () => setActive((prev) => Math.min(totalPage, prev + 1));
+
   //effects
   useEffect(() => {
     onChange(active);
@@ -44,17 +51,18 @@ export default function Pagination({
       <View style={styles.buttonContainer}>
         {/* back */}
         <View style={styles.button}>
-          {active > 2 && (
-            <TouchableOpacity onPress={() => setActive(1)}>
-              <Ionicons name="arrow-back" />
+          <TouchableOpacity
+              disabled={active === 1}
+              onPress={goToFirstPage}
+            >
+             <Feather name="chevrons-left" size={18} color={active === 1 ? "gray" : "black"} />
             </TouchableOpacity>
-          )}
         </View>
 
         {/* prev offset pages */}
         <View style={styles.button}>
           {active > 1 && (
-            <TouchableOpacity onPress={() => setActive(active - 1)}>
+             <TouchableOpacity onPress={goToPreviousPage}>
               <Text style={{ fontWeight: "700" }}>{active - 1}</Text>
             </TouchableOpacity>
           )}
@@ -68,7 +76,7 @@ export default function Pagination({
         {/* next offset pages */}
         <View style={styles.button}>
           {active < totalPage && (
-            <TouchableOpacity onPress={() => setActive(active + 1)}>
+           <TouchableOpacity onPress={goToNextPage}>
               <Text style={{ fontWeight: "700" }}>{active + 1}</Text>
             </TouchableOpacity>
           )}
@@ -76,11 +84,12 @@ export default function Pagination({
 
         {/* next */}
         <View style={styles.button}>
-          {active < totalPage - 1 && (
-            <TouchableOpacity onPress={() => setActive(totalPage)}>
-              <Ionicons name="arrow-forward" />
+        <TouchableOpacity
+            disabled={active === totalPage}
+            onPress={goToLastPage}
+          >
+             <Feather name="chevrons-right" size={18} color={active === totalPage ? "gray" : "black"} />
             </TouchableOpacity>
-          )}
         </View>
       </View>
     </View>
@@ -95,8 +104,9 @@ const styles = StyleSheet.create({
 
   title: {
     fontSize: 12,
-    color: TextColor.hint,
-    fontStyle: "italic",
+    color: "gray",
+    alignItems: "center",
+    textAlign: "center",
   },
 
   buttonContainer: {

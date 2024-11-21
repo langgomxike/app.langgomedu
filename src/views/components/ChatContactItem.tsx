@@ -25,7 +25,7 @@ export default function ChatContactItem({
     <TouchableOpacity onPress={onPress} style={styles.container}>
       {/* avatar */}
       {user.avatar ? (
-        <Image src={user?.avatar} style={styles.avatar} />
+        <Image src={user?.avatar?.path} style={styles.avatar} />
       ) : (
         <Image
           source={require("../../../assets/avatar/avatarTempt.png")}
@@ -36,12 +36,12 @@ export default function ChatContactItem({
       {/* name */}
       <View style={{ flex: 1 }}>
         {/* name */}
-        <Text style={styles.name}>{user.fullName?.toLocaleUpperCase()}</Text>
+        <Text style={styles.name}>{user.full_name?.toLocaleUpperCase()}</Text>
 
         <View style={{ flexDirection: "row" }}>
           {/* phone number */}
           <Text style={styles.subName}>
-            {user.phoneNumber.toLocaleLowerCase() || "No phone number"}
+            {user.phone_number.toLocaleLowerCase() || "No phone number"}
           </Text>
 
           {/* email */}

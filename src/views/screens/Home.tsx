@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useRef, useState } from "react";
+import {useCallback, useContext, useEffect, useRef, useState} from "react";
 import {
   Animated,
   FlatList,
@@ -10,9 +10,8 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { NavigationContext } from "@react-navigation/native";
-
-import { BackgroundColor } from "../../configs/ColorConfig";
+import {NavigationContext} from "@react-navigation/native";
+import {BackgroundColor} from "../../configs/ColorConfig";
 import Search from "../components/Inputs/SearchBar";
 import CourseItem from "../components/CourseItem";
 import TutorItem from "../components/CvItem";
@@ -21,88 +20,62 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import ScreenName from "../../constants/ScreenName";
 import AMajor from "../../apis/AMajor";
 import Major from "../../models/Major";
-import { UserContext, UserType } from "../../configs/UserContext";
-import ReactAppUrl from "../../configs/ConfigUrl";
+import User from "../../models/User";
+import {UserContext, UserType} from "../../configs/UserContext";
 import AClass from "../../apis/AClass";
 import Class from "../../models/Class";
 import ListMajorSkeleton from "../components/skeleton/ListMajorSkeleton";
 import ClassListSkeleton from "../components/skeleton/ClassListSkeleten";
 import AUser from "../../apis/AUser";
-import { AccountContext } from "../../configs/AccountConfig";
-import Role from "../../models/Role";
+import {AccountContext} from "../../configs/AccountConfig";
+import Role, {RoleList} from "../../models/Role";
 import Toast from "react-native-simple-toast";
-import SAsyncStorage, { AsyncStorageKeys } from "../../services/SAsyncStorage";
-import { LanguageContext, Languages } from "../../configs/LanguageConfig";
-import SLog, { LogType } from "../../services/SLog";
-
-const tutors = [
-  {
-    id: 1,
-    avatar: "hinh1.png",
-    userName: "Nguyen Văn A",
-    phoneNumber: "0987654321",
-    email: "nguyenvana@gmail.com",
-    dayOfBirth: "29/9/2004",
-    address: "228, đường số 6, Linh Chiểu, Thủ Đức",
-    skills: ["Math", "Physics", "Chemistry", "Math", "Physics", "Chemistry"],
-  },
-  {
-    id: 2,
-    avatar: "hinh2.png",
-    userName: "Le Thi B",
-    phoneNumber: "0123456789",
-    email: "lethib@gmail.com",
-    dayOfBirth: "15/8/2003",
-    address: "12, đường số 10, Bình Thạnh",
-    skills: ["English", "Biology"],
-  },
-  {
-    id: 3,
-    avatar: "hinh3.png",
-    userName: "Tran Van C",
-    phoneNumber: "0912345678",
-    email: "tranvanc@gmail.com",
-    dayOfBirth: "1/1/2002",
-    address: "45, đường số 8, Quận 1",
-    skills: ["History", "Geography"],
-  },
-];
+import SAsyncStorage, {AsyncStorageKeys} from "../../services/SAsyncStorage";
+import {LanguageContext} from "../../configs/LanguageConfig";
+import vn from "../../../languages/vn.json";
+import en from "../../../languages/en.json";
+import ja from "../../../languages/ja.json";
+import DateTimeConfig from "../../configs/DateTimeConfig";
+import ReactAppUrl from "../../configs/ConfigUrl";
+import {AppInfoContext} from "../../configs/AppInfoContext";
+import SFirebase, { FirebaseNode } from "../../services/SFirebase";
 
 const items = [
-  { id: 1, title: "Các lớp học đang tham gia" },
-  { id: 2, title: "Các lớp học đang dạy" },
-  { id: 3, title: "Các lớp học đã tạo" },
-  { id: 4, title: "Các lớp học gợi ý" },
+  {id: 1, title: "Các lớp học đang tham gia"},
+  {id: 2, title: "Các lớp học đang dạy"},
+  {id: 3, title: "Các lớp học đã tạo"},
+  {id: 4, title: "Các lớp học gợi ý"},
 ];
 
-const URL = ReactAppUrl.PUBLIC_URL;
+
+const URL = ReactAppUrl.PUBLIC_URL
 
 export default function HomeScreen() {
   //contexts, refs
+  const animation = useRef(items.map(() => new Animated.Value(1))).current;
+
   const navigation = useContext(NavigationContext);
   const accountContext = useContext(AccountContext);
+  const appInfoContext = useContext(AppInfoContext);
   const languageContext = useContext(LanguageContext);
+  const {user, setUser} = useContext(UserContext);
 
   //states
-  const [visibleModal, setVisibleModal] = useState<string | null>("");
+  const [showingFilter, setShowingFilter] = useState(false);
   const [searchKey, setSearchKey] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [expandedItems, setExpandedItems] = useState<number[]>(
     items.map((item) => item.id)
   );
   const [userTypeName, setUserTypeName] = useState("Leaner");
-  // const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-
   const [majors, setMajors] = useState<Major[]>([]);
   const [suggettingClasses, setSuggettingClasses] = useState<Class[]>([]);
   const [attedingClasses, setAttedingClasses] = useState<Class[]>([]);
   const [teachingClasses, setTeachingClasses] = useState<Class[]>([]);
   const [createdClasses, setCreatedClasses] = useState<Class[]>([]);
+  const [suggessingTutors, setSuggessingTutors] = useState<User[]>([]);
 
-  // context
-  const { user, setUser } = useContext(UserContext);
-
-  // handle
+  // handlers
   const handleChangeUserType = () => {
     setUser({
       ...user, // Giữ nguyên các thông tin cũ
@@ -112,25 +85,13 @@ export default function HomeScreen() {
     setUserTypeName(user.TYPE === UserType.LEANER ? "Tutor" : "Leaner");
   };
 
-  function fomatDate(timestamp: number) {
-    if (!timestamp) return ""; // Kiểm tra nếu timestamp là undefined hoặc null
-
-    const date = new Date(timestamp);
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const year = date.getFullYear();
-
-    return `${day}/${month}/${year}`; // Trả về chuỗi theo định dạng DD/MM/YYYY
-  }
-
-  //handlers
   const goToScan = useCallback(() => {
     navigation?.navigate(ScreenName.SCANNER);
   }, []);
 
-  const handleNavigateToDetail = (classId: number) => {
-    navigation?.navigate(ScreenName.DETAIL_CLASS, { classId });
-  };
+  const handleNavigateToDetail = useCallback((classId: number) => {
+    navigation?.navigate(ScreenName.DETAIL_CLASS, {classId});
+  }, []);
 
   const goToClassList = useCallback(() => {
     navigation?.navigate(ScreenName.CLASS_LIST);
@@ -144,74 +105,21 @@ export default function HomeScreen() {
     navigation?.navigate(ScreenName.CV);
   }, []);
 
-  const handleOpenDrawer = () => {
-    // navigation
-  };
-
-  // effect
-  useEffect(() => {
-    AMajor.getAllMajors((data) => {
-      setMajors(data);
-    }, setLoading);
-
-    AClass.getSuggetingClass(
-      user.ID,
-      user.TYPE,
-      (data) => {
-        setSuggettingClasses(data);
-      },
-      setLoading
-    );
-
-    AClass.getAttedingClass(
-      user.ID,
-      (data) => {
-        setAttedingClasses(data);
-      },
-      setLoading
-    );
-
-    AClass.getAttedingClass(
-      user.ID,
-      (data) => {
-        setAttedingClasses(data);
-      },
-      setLoading
-    );
-
-    AClass.getTeachingClass(
-      user.ID,
-      (data) => {
-        setTeachingClasses(data);
-      },
-      setLoading
-    );
-
-    AClass.getCreatedClass(
-      user.ID,
-      (data) => {
-        setCreatedClasses(data);
-      },
-      setLoading
-    );
+  // Đường dẫn tạm đếm admin
+  // navigation?.navigate(ScreenName.HOME_ADMIN);
+  // navigation?.navigate(ScreenName.REPORT_USER);
+  // navigation?.navigate(ScreenName.CREATE_ACCOUNT_ADMIN);
+  
+  const handleNavigateToCVList = useCallback(() => {
+    navigation?.navigate(ScreenName.CV_LIST);
   }, []);
 
-  // useEffect(() => {
-  //   SFirebase.trackOne(FirebaseNode.CLASS, 1, () => {
-  //     SLog.log(LogType.Info, "track one", "done tracking");
-  //     //give api to get one by id here...
-  //   });
+  //open filter
+  const handleOpenFilter = useCallback(() => {
+    // navigation
+  }, []);
 
-  //   SFirebase.trackAll(FirebaseNode.CLASS, () => {
-  //     SLog.log(LogType.Info, "track all", "done tracking");
-  //     //give api to get all here...
-  //   });
-  // }, []);
-
-  // animations
-  const animation = useRef(items.map(() => new Animated.Value(1))).current;
-
-  const toggleExpand = (id: number) => {
+  const toggleExpand = useCallback((id: number) => {
     const isExplaned = expandedItems.includes(id);
 
     let index = id - 1;
@@ -224,105 +132,165 @@ export default function HomeScreen() {
     setExpandedItems((prev) =>
       isExplaned ? prev.filter((item) => item !== id) : [...prev, id]
     );
-  };
+  }, [animation]);
 
   // Hàm lấy height interpolation cho từng item
-  const getHeightInterpolation = (index: number) => {
+  const getHeightInterpolation = useCallback((index: number) => {
     return animation[index].interpolate({
       inputRange: [0, 1],
       outputRange: [0, 380], // Thu hẹp là 0, mở rộng là 450
     });
-  };
+  }, [animation]);
 
   // Hàm lấy opacity interpolation cho từng item
-  const getOpacityInterpolation = (index: number) => {
+  const getOpacityInterpolation = useCallback((index: number) => {
     return animation[index].interpolate({
       inputRange: [0, 1],
       outputRange: [0.5, 1], // Mờ là 0.5, rõ là 1
     });
-  };
+  }, [animation]);
 
   // Hàm lấy rotation interpolation cho từng item
-  const getRotationInterpolation = (index: number) => {
+  const getRotationInterpolation = useCallback((index: number) => {
     return animation[index].interpolate({
       inputRange: [0, 1],
       outputRange: ["0deg", "90deg"], // Xoay từ 0 đến 90 độ
     });
-  };
+  }, [animation]);
 
-  const handleNavigateToCVList = useCallback(() => {
-    navigation?.navigate(ScreenName.CV_LIST);
-  }, []);
+  // effects
+  useEffect(() => {
+    if(accountContext.account || "089204000003" ) {
+      // const userId = accountContext.account.id
+      const userId = "089204000003"
+
+      AMajor.getAllMajors((data) => {
+        setMajors(data);
+      }, setLoading);
+
+      SFirebase.track(FirebaseNode.Classes, [], () => {
+        console.log(">>> Goi lay lớp học gợi ý");
+
+        AClass.getSuggetingClass(
+          userId,
+          user.TYPE,
+          (data) => {
+            setSuggettingClasses(data);
+          },
+          setLoading
+        );
+      });
+
+      AClass.getAttedingClass(
+        userId,
+        (data) => {
+          setAttedingClasses(data);
+        },
+        setLoading
+      );
+
+      AClass.getAttedingClass(
+        userId,
+        (data) => {
+          setAttedingClasses(data);
+        },
+        setLoading
+      );
+
+      AClass.getTeachingClass(
+        userId,
+        (data) => {
+          setTeachingClasses(data);
+        },
+        setLoading
+      );
+
+      AClass.getCreatedClass(
+        userId,
+        (data) => {
+          setCreatedClasses(data);
+        },
+        setLoading
+      );
+
+    }
+  }, [userTypeName, accountContext]);
 
   //set up login
   useEffect(() => {
     AUser.implicitLogin((user) => {
       if (!user) {
-        navigation?.navigate(ScreenName.LOGIN);
+        navigation?.reset({
+          index: 0,
+          routes: [{ name: ScreenName.LOGIN }],
+        });
       } else {
         //store new token into async storage
         SAsyncStorage.setData(AsyncStorageKeys.TOKEN, user.token);
 
         if (accountContext.setAccount) {
           accountContext.setAccount(user);
+          setUser({ID: user.id, TYPE: UserType.LEANER});
 
           //check if admin/superadmin or not
-          if (
-            user.role?.id === Role.SUPER_ADMIN_ROLE_ID ||
-            user.role?.id === Role.SUPER_ADMIN_ROLE_ID
-          ) {
-            navigation?.navigate(ScreenName.HOME_ADMIN);
+          if (user.roles?.map(role => role.id).includes(RoleList.ADMIN) || user.roles?.map(role => role.id).includes(RoleList.SUPER_ADMIN)) {
+            navigation?.reset({
+              index: 0,
+              routes: [{ name: ScreenName.HOME_ADMIN }],
+            });
           }
 
-          Toast.show("Xin chao " + user.full_name, 2000);
+          Toast.show(languageContext.language.WELCOME + " " + user.full_name, 2000);
         }
       }
     });
-  }, []);
+  }, [accountContext.setAccount]);
 
   //set up multilanguage
   useEffect(() => {
     SAsyncStorage.getData(AsyncStorageKeys.LANGUAGE, (language) => {
       switch (+language) {
-        case Languages.VN:
+        case 0: // vn
           languageContext.setLanguage &&
-            languageContext.setLanguage(Languages.VN);
+          languageContext.setLanguage(vn);
           break;
-        case Languages.EN:
+        case 1: // en
           languageContext.setLanguage &&
-            languageContext.setLanguage(Languages.EN);
+          languageContext.setLanguage(en);
           break;
-        case Languages.JA:
+        case 2: //ja
           languageContext.setLanguage &&
-            languageContext.setLanguage(Languages.JA);
+          languageContext.setLanguage(ja);
           break;
       }
     });
   }, []);
 
-  //done
-  // useEffect(() => {
-  //     SFirebase.getClassCreationFee((fee) => {
-  //         alert(fee);
-  //     });
-  // }, []);
+  //get all information
+  useEffect(() => {
+    SFirebase.getAppInfos((infos) => {
+      appInfoContext.setAppInfo && appInfoContext.setAppInfo(infos);
+    });
+  }, [appInfoContext.setAppInfo]);
 
   // render
   return (
     <ScrollView showsVerticalScrollIndicator={false}>
       <View style={styles.container}>
+
         {/* Header */}
         <View style={styles.headerContainer}>
+
           {/* Header title */}
           <View style={styles.headerTitleContainer}>
-            <View style={{ flex: 1 }}>
-              <Text style={[styles.headerTitle, styles.title1]}>Xin Chào!</Text>
+            <View style={{flex: 1}}>
+              <Text style={[styles.headerTitle, styles.title1]}>{languageContext.language.WELCOME}!</Text>
               <Text style={[styles.headerTitle, styles.title2]}>
                 {accountContext.account?.full_name}
               </Text>
             </View>
 
-            <View style={{ flex: 1, alignItems: "flex-end" }}>
+            <View style={{flex: 1, alignItems: "flex-end"}}>
               <TouchableOpacity
                 onPress={handleChangeUserType}
                 style={[styles.btnSwitchRole, styles.boxShadow]}
@@ -334,8 +302,8 @@ export default function HomeScreen() {
 
           {/* Header search */}
           <View style={styles.headerSearch}>
-            <View style={{ flex: 1 }}>
-              <Search value={searchKey} onChangeText={setSearchKey} />
+            <View style={{flex: 1}}>
+              <Search value={searchKey} onChangeText={setSearchKey}/>
             </View>
 
             <View>
@@ -350,9 +318,12 @@ export default function HomeScreen() {
             </View>
           </View>
         </View>
+        {/*end header*/}
 
         {/* Body */}
         <View style={styles.bodyContainer}>
+
+          {/* Major list header*/}
           <View style={styles.majorContainer}>
             <View style={styles.titleContainer}>
               <Text style={styles.title}>Danh sách môn học</Text>
@@ -362,20 +333,18 @@ export default function HomeScreen() {
             </View>
           </View>
 
-          {/* Majors list */}
-          {loading && <ListMajorSkeleton />}
-
-          {!loading && (
+          {/* Majors list body */}
+          {loading && <ListMajorSkeleton/> || (
             <FlatList
               horizontal={true}
               showsHorizontalScrollIndicator={false}
               data={majors}
-              renderItem={({ item: major }) => (
+              renderItem={({item: major}) => (
                 <View style={styles.listMajorContainer}>
                   <View style={[styles.majorItem, styles.boxShadow]}>
                     {URL && (
                       <Image
-                        source={{ uri: URL + major.icon?.path }}
+                        source={{uri: URL + (major.icon ?? "")}}
                         style={styles.majorIcon}
                       />
                     )}
@@ -391,27 +360,27 @@ export default function HomeScreen() {
                   </View>
                 </View>
               )}
-              contentContainerStyle={{ paddingHorizontal: 10 }}
+              contentContainerStyle={{paddingHorizontal: 10}}
             />
           )}
 
-          {/* Class */}
+          {/* Class lists */}
           <View>
-            {/* Suggetting class */}
+            {/* Suggesting class */}
             <View style={styles.classContainer}>
-              <View style={[styles.titleContainer, { paddingHorizontal: 20 }]}>
+              <View style={[styles.titleContainer, {paddingHorizontal: 20}]}>
                 <TouchableOpacity
                   onPress={() => toggleExpand(items[3].id)}
-                  style={{ flexDirection: "row", gap: 10 }}
+                  style={{flexDirection: "row", gap: 10}}
                 >
                   <Animated.View
                     style={{
                       transform: [
-                        { rotate: getRotationInterpolation(items[3].id - 1) },
+                        {rotate: getRotationInterpolation(items[3].id - 1)},
                       ],
                     }}
                   >
-                    <Ionicons name="chevron-forward" size={20} color="black" />
+                    <Ionicons name="chevron-forward" size={20} color="black"/>
                   </Animated.View>
                   <Text style={styles.title}>{items[3].title}</Text>
                 </TouchableOpacity>
@@ -428,11 +397,11 @@ export default function HomeScreen() {
                     </Text>
                   </TouchableOpacity>
                   <TouchableOpacity
-                    onPress={() => setVisibleModal("modal_fiter")}
+                    onPress={() => setShowingFilter(true)}
                   >
                     <Image
                       source={require("../../../assets/images/ic_filter.png")}
-                      style={{ width: 20, height: 20 }}
+                      style={{width: 20, height: 20}}
                     />
                   </TouchableOpacity>
                 </View>
@@ -447,12 +416,10 @@ export default function HomeScreen() {
                   },
                 ]}
               >
-                {loading && <ClassListSkeleton />}
-
-                {!loading && (
+                {loading && <ClassListSkeleton/> || (
                   <FlatList
                     data={suggettingClasses}
-                    renderItem={({ item: suggettingClass }) => {
+                    renderItem={({item: suggettingClass}) => {
                       return (
                         <View style={styles.classItem}>
                           <Pressable
@@ -461,13 +428,13 @@ export default function HomeScreen() {
                             }
                           >
                             <CourseItem
-                              majorIconUrl={`${URL}${suggettingClass.major?.icon?.path}`}
+                              majorIconUrl={`${URL}${suggettingClass.major?.icon}`}
                               name={suggettingClass.title}
                               level={suggettingClass.class_level?.vn_name || ""}
-                              date={fomatDate(suggettingClass.started_at)}
+                              date={DateTimeConfig.getDateFormat(suggettingClass.started_at)}
                               time={2}
                               type={"Tại nhà"}
-                              address={suggettingClass.address_1}
+                              address={suggettingClass.address?.detail ?? ""}
                               cost={suggettingClass.price}
                             />
                           </Pressable>
@@ -485,22 +452,23 @@ export default function HomeScreen() {
                 )}
               </Animated.View>
             </View>
+            {/* End suggesting class*/}
 
             {/* Attending class */}
             <View style={styles.classContainer}>
-              <View style={[styles.titleContainer, { paddingHorizontal: 20 }]}>
+              <View style={[styles.titleContainer, {paddingHorizontal: 20}]}>
                 <TouchableOpacity
                   onPress={() => toggleExpand(items[0].id)}
-                  style={{ flexDirection: "row", gap: 10 }}
+                  style={{flexDirection: "row", gap: 10}}
                 >
                   <Animated.View
                     style={{
                       transform: [
-                        { rotate: getRotationInterpolation(items[0].id - 1) },
+                        {rotate: getRotationInterpolation(items[0].id - 1)},
                       ],
                     }}
                   >
-                    <Ionicons name="chevron-forward" size={20} color="black" />
+                    <Ionicons name="chevron-forward" size={20} color="black"/>
                   </Animated.View>
                   <Text style={styles.title}>{items[0].title}</Text>
                 </TouchableOpacity>
@@ -517,11 +485,11 @@ export default function HomeScreen() {
                     </Text>
                   </TouchableOpacity>
                   <TouchableOpacity
-                    onPress={() => setVisibleModal("modal_fiter")}
+                    onPress={() => setShowingFilter(true)}
                   >
                     <Image
                       source={require("../../../assets/images/ic_filter.png")}
-                      style={{ width: 20, height: 20 }}
+                      style={{width: 20, height: 20}}
                     />
                   </TouchableOpacity>
                 </View>
@@ -536,12 +504,10 @@ export default function HomeScreen() {
                   },
                 ]}
               >
-                {loading && <ClassListSkeleton />}
-
-                {!loading && (
+                {loading && <ClassListSkeleton/> || (
                   <FlatList
                     data={attedingClasses}
-                    renderItem={({ item: attedingClass }) => {
+                    renderItem={({item: attedingClass}) => {
                       return (
                         <View style={styles.classItem}>
                           <Pressable
@@ -550,13 +516,13 @@ export default function HomeScreen() {
                             }
                           >
                             <CourseItem
-                              majorIconUrl={`${URL}${attedingClass.major?.icon?.path}`}
+                              majorIconUrl={`${URL}${attedingClass.major?.icon}`}
                               name={attedingClass.title}
                               level={attedingClass.class_level?.vn_name || ""}
-                              date={fomatDate(attedingClass.started_at)}
+                              date={DateTimeConfig.getDateFormat(attedingClass.started_at)}
                               time={2}
                               type={"Tại nhà"}
-                              address={attedingClass.address_1}
+                              address={attedingClass?.address?.detail ?? ""}
                               cost={attedingClass.price}
                             />
                           </Pressable>
@@ -574,21 +540,22 @@ export default function HomeScreen() {
                 )}
               </Animated.View>
             </View>
+            {/* End Attending class*/}
 
             {/* Teaching class */}
             {teachingClasses.length > 0 && (
               <View style={styles.classContainer}>
                 <View
-                  style={[styles.titleContainer, { paddingHorizontal: 20 }]}
+                  style={[styles.titleContainer, {paddingHorizontal: 20}]}
                 >
                   <TouchableOpacity
                     onPress={() => toggleExpand(items[1].id)}
-                    style={{ flexDirection: "row", gap: 10 }}
+                    style={{flexDirection: "row", gap: 10}}
                   >
                     <Animated.View
                       style={{
                         transform: [
-                          { rotate: getRotationInterpolation(items[1].id - 1) },
+                          {rotate: getRotationInterpolation(items[1].id - 1)},
                         ],
                       }}
                     >
@@ -611,11 +578,11 @@ export default function HomeScreen() {
                       <Text style={styles.showAllText}>Xem tất cả</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
-                      onPress={() => setVisibleModal("modal_fiter")}
+                      onPress={() => setShowingFilter(true)}
                     >
                       <Image
                         source={require("../../../assets/images/ic_filter.png")}
-                        style={{ width: 20, height: 20 }}
+                        style={{width: 20, height: 20}}
                       />
                     </TouchableOpacity>
                   </View>
@@ -630,12 +597,10 @@ export default function HomeScreen() {
                     },
                   ]}
                 >
-                  {loading && <ClassListSkeleton />}
-
-                  {!loading && (
+                  {loading && <ClassListSkeleton/> || (
                     <FlatList
                       data={teachingClasses}
-                      renderItem={({ item: attedingClass }) => {
+                      renderItem={({item: attedingClass}) => {
                         return (
                           <View style={styles.classItem}>
                             <Pressable
@@ -644,13 +609,13 @@ export default function HomeScreen() {
                               }
                             >
                               <CourseItem
-                                majorIconUrl={`${URL}${attedingClass.major?.icon?.path}`}
+                                majorIconUrl={`${URL}${attedingClass.major?.icon}`}
                                 name={attedingClass.title}
                                 level={attedingClass.class_level?.vn_name || ""}
-                                date={fomatDate(attedingClass.started_at)}
+                                date={DateTimeConfig.getDateFormat(attedingClass.started_at)}
                                 time={2}
                                 type={"Tại nhà"}
-                                address={attedingClass.address_1}
+                                address={attedingClass.address?.detail ?? ""}
                                 cost={attedingClass.price}
                               />
                             </Pressable>
@@ -669,21 +634,22 @@ export default function HomeScreen() {
                 </Animated.View>
               </View>
             )}
+            {/* End Teaching class*/}
 
             {/* Created classes */}
             {createdClasses.length > 0 && (
               <View style={styles.classContainer}>
                 <View
-                  style={[styles.titleContainer, { paddingHorizontal: 20 }]}
+                  style={[styles.titleContainer, {paddingHorizontal: 20}]}
                 >
                   <TouchableOpacity
                     onPress={() => toggleExpand(items[2].id)}
-                    style={{ flexDirection: "row", gap: 10 }}
+                    style={{flexDirection: "row", gap: 10}}
                   >
                     <Animated.View
                       style={{
                         transform: [
-                          { rotate: getRotationInterpolation(items[2].id - 1) },
+                          {rotate: getRotationInterpolation(items[2].id - 1)},
                         ],
                       }}
                     >
@@ -706,11 +672,11 @@ export default function HomeScreen() {
                       <Text style={styles.showAllText}>Xem tất cả</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
-                      onPress={() => setVisibleModal("modal_fiter")}
+                      onPress={() => setShowingFilter(true)}
                     >
                       <Image
                         source={require("../../../assets/images/ic_filter.png")}
-                        style={{ width: 20, height: 20 }}
+                        style={{width: 20, height: 20}}
                       />
                     </TouchableOpacity>
                   </View>
@@ -725,12 +691,12 @@ export default function HomeScreen() {
                     },
                   ]}
                 >
-                  {loading && <ClassListSkeleton />}
+                  {loading && <ClassListSkeleton/>}
 
                   {!loading && (
                     <FlatList
                       data={createdClasses}
-                      renderItem={({ item: createdClass }) => {
+                      renderItem={({item: createdClass}) => {
                         return (
                           <View style={styles.classItem}>
                             <Pressable
@@ -739,13 +705,13 @@ export default function HomeScreen() {
                               }
                             >
                               <CourseItem
-                                majorIconUrl={`${URL}${createdClass.major?.icon?.path}`}
+                                majorIconUrl={`${URL}${createdClass.major?.icon}`}
                                 name={createdClass.title}
                                 level={createdClass.class_level?.vn_name || ""}
-                                date={fomatDate(createdClass.started_at)}
+                                date={DateTimeConfig.getDateFormat(createdClass.started_at)}
                                 time={2}
                                 type={"Tại nhà"}
-                                address={createdClass.address_1}
+                                address={createdClass.address?.detail ?? ""}
                                 cost={createdClass.price}
                               />
                             </Pressable>
@@ -764,12 +730,12 @@ export default function HomeScreen() {
                 </Animated.View>
               </View>
             )}
+            {/* End Created classes */}
 
-            {/* <View style={styles.line}></View> */}
-
+            {/* Suggessing Tutor list*/}
             <View style={styles.classContainer}>
-              <View style={[styles.titleContainer, { paddingHorizontal: 20 }]}>
-                <View style={{ flexDirection: "row", gap: 10 }}>
+              <View style={[styles.titleContainer, {paddingHorizontal: 20}]}>
+                <View style={{flexDirection: "row", gap: 10}}>
                   <Ionicons
                     name="chevron-down-outline"
                     size={20}
@@ -791,11 +757,11 @@ export default function HomeScreen() {
                     </Text>
                   </TouchableOpacity>
                   <TouchableOpacity
-                    onPress={() => setVisibleModal("modal_fiter")}
+                    onPress={() => setShowingFilter(true)}
                   >
                     <Image
                       source={require("../../../assets/images/ic_filter.png")}
-                      style={{ width: 20, height: 20 }}
+                      style={{width: 20, height: 20}}
                     />
                   </TouchableOpacity>
                 </View>
@@ -803,17 +769,15 @@ export default function HomeScreen() {
 
               <View>
                 <FlatList
-                  data={tutors}
-                  renderItem={({ item }) => (
+                  data={suggessingTutors}
+                  renderItem={({item}) => (
                     <Pressable onPress={goToDetailCV} style={styles.classItem}>
                       <TutorItem
-                        avatar={item.avatar}
-                        userName={item.userName}
-                        phoneNumber={item.phoneNumber}
-                        email={item.email}
-                        // dayOfBirth={item.dayOfBirth}
-                        address={item.address}
-                        // skills={item.skills}
+                        avatar={item.avatar ?? ""}
+                        userName={item.full_name}
+                        phoneNumber={item.phone_number}
+                        email={item.username}
+                        address={item + "address"}
                       />
                     </Pressable>
                   )}
@@ -824,16 +788,13 @@ export default function HomeScreen() {
                 />
               </View>
             </View>
+            {/* End Suggessing Tutor list*/}
           </View>
         </View>
 
         <Filter
-          isVisible={visibleModal}
-          onRequestClose={() => setVisibleModal(null)}
-        />
-        <Filter
-          isVisible={visibleModal}
-          onRequestClose={() => setVisibleModal(null)}
+          isVisible={showingFilter}
+          onRequestClose={() => setShowingFilter(false)}
         />
       </View>
     </ScrollView>

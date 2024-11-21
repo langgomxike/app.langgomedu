@@ -1,12 +1,11 @@
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Picker } from "@react-native-picker/picker";
-import { useState } from "react";
+import {useCallback, useState} from "react";
 import {
   Image,
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -14,8 +13,9 @@ import CustomInput from "../components/Inputs/CustomInput";
 import GenderInput from "../components/Inputs/GenderInput";
 
 export default function ProfileScreen() {
+  //states
   const [name, setName] = useState("");
-  const [phone, setPhone] = useState("037XXXXXXX");
+  const [phone, setPhone] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [gender, setGender] = useState("");
@@ -24,20 +24,24 @@ export default function ProfileScreen() {
   const [vehicle, setVehicle] = useState("");
   const [interestedField, setInterestedField] = useState("");
 
-  const onChangeDate = () => {};
-  const handleNext = () => {
-    alert("Tiep tuc");
-  };
-
+  //handlers
+  const handleSubmit = useCallback(() => {
+    alert("Call api to save profile here");
+  }, []);
   return (
     <ScrollView>
       <View style={styles.container}>
+        {/* screen title */}
         <Text style={styles.title}>Cập nhật thông tin cá nhân</Text>
+
+        {/* avatar*/}
         <View style={styles.avatarContainer}>
           <Image
             source={require("../../../assets/avatar/img_avatar_cat.png")}
             style={styles.avatar}
           />
+
+          {/* pick avatar*/}
           <TouchableOpacity
             style={styles.button}
             onPress={() => alert("Chọn ảnh!")}
@@ -48,9 +52,12 @@ export default function ProfileScreen() {
             />
           </TouchableOpacity>
         </View>
+
+        {/* hint text */}
         <Text style={{ marginBottom: 20 }}>Vui long chon anh</Text>
+
         <View style={styles.form}>
-          {/* Họ và Tên */}
+          {/* Full name*/}
           <View style={styles.label}>
             <CustomInput
               label="Họ & tên *"
@@ -61,6 +68,7 @@ export default function ProfileScreen() {
             />
           </View>
 
+          {/* Phone number */}
           <View style={styles.label}>
             <CustomInput
               label="Số điện thoại *"
@@ -72,24 +80,25 @@ export default function ProfileScreen() {
             />
           </View>
 
-          {/* Ngày sinh */}
+          {/* Day of birth */}
           <View style={styles.label}>
             <CustomInput
               label="Ngày sinh"
               placeholder="..."
               type="date"
-              onChangeText={onChangeDate}
+              onChangeText={() => {}}
+              editable={false}
               required={true}
             />
           </View>
 
-          {/* Giới tính */}
+          {/* Gender */}
           <Text style={styles.label}>Giới tính *</Text>
           <View style={styles.label}>
-            <GenderInput onChange={onChangeDate} value={1} />
+            <GenderInput onChange={() => setGender("")} value={1} />
           </View>
 
-          {/* Địa chỉ */}
+          {/* Address */}
           <Text style={styles.label}>Địa chỉ *</Text>
           <View style={styles.pickerWrapper}>
             <Picker
@@ -147,7 +156,7 @@ export default function ProfileScreen() {
           </View>
 
           {/* Nút tiếp tục */}
-          <TouchableOpacity style={styles.buttonNext} onPress={handleNext}>
+          <TouchableOpacity style={styles.buttonNext} onPress={handleSubmit}>
             <Text style={styles.buttonText}>Tiếp tục</Text>
           </TouchableOpacity>
         </View>
