@@ -158,7 +158,7 @@ export default class AClass {
     
 
     axios
-      .post(`${this.API_URL}/classes/class/create`, {
+      .post(`${this.API_URL}/classes/create`, {
         title: title,
         description: description,
         major_id: majorId,

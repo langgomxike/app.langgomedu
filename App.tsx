@@ -42,13 +42,6 @@ import Register2Screen from "./src/views/screens/Register2";
 import OTPScreen from "./src/views/screens/OTP";
 import ChangePasswordScreen from "./src/views/screens/ChangePassword";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import UserReportList from "./src/views/screens/admin/UserReportList";
-import UserManager from "./src/views/screens/admin/UserManager";
-import ClassManager from "./src/views/screens/admin/ClassManager";
-import History from "./src/views/screens/History";
-import GeneralManager from "./src/views/screens/admin/GeneralManager";
-import UpdateReportedClass from "./src/views/screens/admin/UpdateReportedClass";
-import UpdateReportedUser from "./src/views/screens/admin/UpdateReportedUser";
 
 // import UserReportList from "./src/views/screens/admin/UserReportList";
 // import UserManager from "./src/views/screens/admin/UserManager";
@@ -81,9 +74,8 @@ export default function App() {
     <AppContext>
       <UserContext.Provider value={{ user, setUser }}>
         <GestureHandlerRootView>
-<UpdateReportedClass></UpdateReportedClass>
 {/* <UpdateReportedUser></UpdateReportedUser> */}
-          {/* <NavigationContainer>
+          <NavigationContainer>
             <Stack.Navigator
               screenOptions={{
                 headerShown: false,
@@ -233,7 +225,7 @@ export default function App() {
                 component={ClassApprovalScreen}
               />
             </Stack.Navigator>
-          </NavigationContainer> */}
+          </NavigationContainer>
 
           {/* <LeanerAttendance></LeanerAttendance> */}
           {/* <TutorAttendance></TutorAttendance> */}

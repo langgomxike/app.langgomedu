@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { Button, StyleSheet, Text, TextInput, View } from "react-native";
-import CustomInput from "./Inputs/CustomInput";
+import CustomInput from "../Inputs/CustomInput";
 import { Picker } from "@react-native-picker/picker";
-import AClassLevel from "../../apis/AClassLevel";
-import ClassLevel from "../../models/ClassLevel";
-import Major from "../../models/Major";
-import AMajor from "../../apis/AMajor";
+import AClassLevel from "../../../apis/AClassLevel";
+import ClassLevel from "../../../models/ClassLevel";
+import Major from "../../../models/Major";
+import AMajor from "../../../apis/AMajor";
 
 type props = {
   // dataTitle: string;
@@ -138,8 +138,8 @@ const InfoClass = ({ onNext }: props) => {
           value={desc}
         />
       </View>
-      <View style={[styles.containerRow, styles.marginInput]}>
-        <View style={[styles.inputContainer, { flex: 6 }]}>
+      <View style={[styles.marginInput]}>
+        <View style={[styles.inputContainer]}>
           <Text style={styles.label}>
             Chọn môn học cho lớp <Text style={styles.required}>*</Text>
           </Text>
@@ -176,7 +176,7 @@ const InfoClass = ({ onNext }: props) => {
         </View>
 
         {/* CẤP HOC */}
-        <View style={[styles.inputContainer, { flex: 6 }]}>
+        <View style={[styles.inputContainer]}>
           <Text style={styles.label}>
             Cấp học <Text style={styles.required}>*</Text>
           </Text>
@@ -209,9 +209,6 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: "#FFFF",
   },
-  containerRow: {
-    flexDirection: "row",
-  },
   pickerContainer: {
     borderWidth: 1,
     borderColor: "#ddd",
@@ -237,8 +234,13 @@ const styles = StyleSheet.create({
     color: "red",
   },
   picker: {
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 10,
+    backgroundColor: "#fff",
     height: 50,
-    width: 150,
+    width: "100%", // Đảm bảo chiều ngang đầy đủ
+    paddingHorizontal: 10, // Tăng khoảng cách giữa nội dung và cạnh
   },
   input: {
     height: 40,

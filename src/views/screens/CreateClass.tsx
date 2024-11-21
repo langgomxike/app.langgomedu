@@ -1,10 +1,9 @@
 import { StyleSheet, TouchableOpacity } from "react-native";
 import { Text, View } from "react-native";
-import ProfileScreen from "./Profile";
 import { useState } from "react";
-import InfoClass from "../components/InfoClass";
-import InfoLesson from "../components/InfoLesson";
-import Class from "../components/Class";
+import Class from "../components/LearnerClass";
+import LearnerClass from "../components/LearnerClass";
+import TurtorClass from "../components/TurtorClass";
 
 export default function CreateClassScreen() {
   const [activeTab, setActiveTab] = useState("classInfo"); // State để quản lý tab đang được chọn
@@ -12,7 +11,7 @@ export default function CreateClassScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Tạo lớp học tuyển gia sư</Text>
+      <Text style={styles.header}>Tạo lớp học tuyển sinh</Text>
       <View style={styles.tabContainer}>
         {/* Tab Thông tin lớp */}
         <TouchableOpacity
@@ -25,7 +24,7 @@ export default function CreateClassScreen() {
               activeTab === "classInfo" && styles.activeTabText,
             ]}
           >
-            Thông tin lớp
+            PHỤ HUYNH TẠO LỚP
           </Text>
           {activeTab === "classInfo" && <View style={styles.activeTabLine} />}
         </TouchableOpacity>
@@ -41,7 +40,7 @@ export default function CreateClassScreen() {
               activeTab === "studentInfo" && styles.activeTabText,
             ]}
           >
-            Thông tin học sinh
+            GIA SƯ TẠO LỚP
           </Text>
           {activeTab === "studentInfo" && <View style={styles.activeTabLine} />}
         </TouchableOpacity>
@@ -50,9 +49,9 @@ export default function CreateClassScreen() {
       {/* Nội dung của từng tab */}
       <View>
         {activeTab === "classInfo" ? (
-          <Class />
+          <LearnerClass />
         ) : (
-          <Text>Nội dung Thông tin học sinh</Text>
+          <TurtorClass />
         )}
       </View>
     </View>
