@@ -207,7 +207,7 @@ export default function RegisterStep2Screen() {
           placeholder={languageContext.language.ID}
           type="text"
           iconName="user"
-          editable={false}
+          editable={true}
         />
       </View>
 
@@ -222,7 +222,7 @@ export default function RegisterStep2Screen() {
           placeholder={languageContext.language.FULL_NAME}
           type="text"
           iconName="user"
-          editable={false}
+          editable={true}
         />
       </View>
 
@@ -237,7 +237,7 @@ export default function RegisterStep2Screen() {
           placeholder={languageContext.language.DATE_OF_BIRTH}
           type="text"
           iconName="user"
-          editable={false}
+          editable={true}
         />
       </View>
 
@@ -252,7 +252,7 @@ export default function RegisterStep2Screen() {
           placeholder={languageContext.language.GENDER}
           type="text"
           iconName="user"
-          editable={false}
+          editable={true}
         />
       </View>
 
@@ -265,7 +265,7 @@ export default function RegisterStep2Screen() {
           onChangeText={() => {
           }}
           placeholder={languageContext.language.HOMETOWN}
-          editable={false}
+          editable={true}
           type="text"
           iconName="user"
         />

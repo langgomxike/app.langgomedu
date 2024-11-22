@@ -12,10 +12,10 @@ const Rating = ({style,onRatingChange} : ratingProps) => {
     const star_active = require('../../../assets/icons/ic_star.png')
     const maxStar: number = 5
 
-    const [activeStars, setActiveStars] = useState(0)
+    const [activeStars, setActiveStars] = useState(5);
 
     const handleStarClick = (index: number) => {
-        var stars :number = activeStars === (index + 1) ? 0 : (index + 1)
+        var stars :number = activeStars === (index + 1) ? activeStars : (index + 1)
         setActiveStars(stars)
         onRatingChange(stars)
     }
@@ -38,6 +38,7 @@ const styles = StyleSheet.create({
         height: 50,
         flexDirection: "row",
         alignItems: "center",
+        alignSelf: "center",
         justifyContent: 'center'
     },
     star: {
