@@ -9,6 +9,7 @@ import {
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { useState } from "react";
 import BoxWhite from "../BoxWhite";
+import DropDownLocation from "../dropdown/DropDownLocation";
 
 type props = {
   onNext: (tuition?: string, dateStart?: string, dateEnd?: string) => void;
@@ -151,6 +152,11 @@ const InfoTuition = ({ onNext }: props) => {
         <Text style={styles.label}>
           Địa chỉ <Text style={styles.required}>*</Text>
         </Text>
+        {/* <TextInput style={styles.input} placeholder="Thêm địa chỉ của bạn" /> */}
+        <DropDownLocation />
+        <Text style={[styles.label, {marginTop: 25}]}>
+          Địa chỉ cụ thể <Text style={styles.required}>*</Text>
+        </Text>
         <TextInput style={styles.input} placeholder="Thêm địa chỉ của bạn" />
       </View>
       <View style={styles.marginInput}>
@@ -158,18 +164,16 @@ const InfoTuition = ({ onNext }: props) => {
           Phí tạo lớp <Text style={styles.required}>*</Text>
         </Text>
         {/* LẤY MÃ QR NGÂN HÀNG CỦA TURTOR  */}
-        <BoxWhite>
-          <View style={{ alignItems: "center" }}>
-            <Image
-              style={{ width: 200, height: 200 }}
-              source={{
-                uri: "https://qrcode-gen.com/images/qrcode-default.png",
-              }}
-            />
-          </View>
-          <Text style={styles.label}>HỌ TÊN: </Text>
-          <Text style={styles.label}>SỐ TÀI KHOẢN: </Text>
-        </BoxWhite>
+        <View style={{ alignItems: "center" }}>
+          <Image
+            style={{ width: 400, height: 400 }}
+            source={{
+              uri: "https://img.vietqr.io/image/mbbank-0376961547-compact2.jpg?amount=10000&addInfo=dong%20phi%20tao%20lop&accountName=Phi%20Tao%20Lop",
+            }}
+          />
+        </View>
+        {/* <Text style={styles.label}>HỌ TÊN: </Text>
+          <Text style={styles.label}>SỐ TÀI KHOẢN: </Text> */}
       </View>
     </View>
   );
