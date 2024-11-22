@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { TextInput, StyleSheet, View, Image } from 'react-native';
-import { LanguageContext, Languages } from "../../../configs/LanguageConfig";
+import { LanguageContext } from "../../../configs/LanguageConfig";
 type InputProps = {
     value: string,
     onChangeText: (text:string) => void;

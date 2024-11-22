@@ -9,21 +9,22 @@ import {
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import DateTimePickerAndroid from "@react-native-community/datetimepicker";
-import Lesson from "../../models/Lesson";
+import Feather from "@expo/vector-icons/Feather";
+import Lesson from "../../../models/Lesson";
 
 type props = {
   handleGetLesson: (lessons: Lesson[]) => void;
 };
 
 const InfoLesson = ({ handleGetLesson }: props) => {
-  const [lessons, setLessons] = useState<Lesson[]>([]);
-  // Khai báo state để xác định khi nào DateTimePicker hiển thị
-  const [show, setShow] = useState(false);
-  // Khai báo state lưu chỉ số bài học hiện tại khi chọn thời gian
+  const [lessons, setLessons] = useState<Lesson[]>([
+    new Lesson(1, undefined, 0, 0, 0, true, ""),
+  ]);
+  const [startedAt, setStartedAt] = useState(false);
   const [selectedLessonIndex, setSelectedLessonIndex] = useState<number>(0);
 
   const onChange = (selectedTime: Date, lessonIndex: number) => {
-    const currentTime = selectedTime || lessons[lessonIndex].started_at;
+    const currentTime = selectedTime || new Date();
     const updatedLessons = [...lessons];
     updatedLessons[lessonIndex].started_at = currentTime.getTime();
 
@@ -36,11 +37,11 @@ const InfoLesson = ({ handleGetLesson }: props) => {
 
     setLessons(updatedLessons);
   };
-  
+
   const showTimepicker = (lessonIndex: number) => {
     if (Platform.OS === "android") {
-      setShow(true); // Biến show xác định hiển thị `DateTimePicker`
-      setSelectedLessonIndex(lessonIndex); // Để nhận biết bài học nào đang được cập nhật
+      setSelectedLessonIndex(lessonIndex);
+      setStartedAt(true);
     }
   };
 
@@ -58,8 +59,12 @@ const InfoLesson = ({ handleGetLesson }: props) => {
     ]);
   };
 
+  const handleDelete = (lessonIndex: number) => {
+    const updatedLessons = lessons.filter((_, index) => index !== lessonIndex);
+    setLessons(updatedLessons);
+  };
+
   useEffect(() => {
-    console.log("lesson: ", lessons);
     handleGetLesson(lessons);
   }, [lessons]);
 
@@ -67,7 +72,14 @@ const InfoLesson = ({ handleGetLesson }: props) => {
     <View style={styles.container}>
       {lessons.map((lesson, index) => (
         <View key={lesson.id} style={{ marginBottom: 20 }}>
-          <Text style={styles.text}>Buổi học: {index + 1}</Text>
+          <View style={[styles.rowContainer, { marginBottom: 25 }]}>
+            <Text style={styles.text}>Buổi học: {index + 1}</Text>
+            <TouchableOpacity onPress={() => handleDelete(index)}>
+              <Feather name="x" size={30} color="black" />
+            </TouchableOpacity>
+          </View>
+
+          {index < lessons.length - 1 && <View style={styles.separator} />}
 
           <View style={[styles.containerRow, styles.marginInput]}>
             <View style={[{ flex: 5 }, styles.inputContainer]}>
@@ -105,12 +117,13 @@ const InfoLesson = ({ handleGetLesson }: props) => {
                 keyboardType="numeric"
                 style={styles.input}
                 placeholder="Thời lượng học... (phút)"
-                value={lesson.duration.toString()}
+                value={lesson.duration ? lesson.duration.toString() : ""}
                 onChangeText={(text) => {
+                  const parsed = parseInt(text);
                   setLessons((prevLessons) =>
                     prevLessons.map((l) =>
                       l.id === lesson.id
-                        ? { ...l, duration: parseInt(text) }
+                        ? { ...l, duration: isNaN(parsed) ? 0 : parsed }
                         : l
                     )
                   );
@@ -120,6 +133,7 @@ const InfoLesson = ({ handleGetLesson }: props) => {
           </View>
 
           <View style={styles.containerRow}>
+            {/* Thời gian bắt đầu */}
             <View style={[{ flex: 5 }, styles.inputContainer]}>
               <Text style={styles.label}>
                 Thời gian bắt đầu <Text style={styles.required}>*</Text>
@@ -127,41 +141,70 @@ const InfoLesson = ({ handleGetLesson }: props) => {
               <TextInput
                 style={styles.input}
                 placeholder="Chọn thời gian"
-                value={lesson.note}
+                value={lesson.note} // Hiển thị thời gian bắt đầu dưới dạng hh:mm
                 onFocus={() => showTimepicker(index)}
               />
             </View>
+
+            {/* Thời gian kết thúc */}
             <View style={{ flex: 5 }}>
               <Text style={styles.label}>
-                Hình thức học <Text style={styles.required}>*</Text>
+                Thời gian kết thúc <Text style={styles.required}>*</Text>
               </Text>
-              <TouchableOpacity
-                style={[
-                  { justifyContent: "center", alignItems: "center" },
-                  styles.input,
-                ]}
-                onPress={() => toggleStatus(index)}
-              >
-                <Text style={[{ color: "#0D99FF" }, styles.text]}>
-                  {lesson.is_online ? "online" : "offline"}
-                </Text>
-              </TouchableOpacity>
+              <TextInput
+                style={styles.input}
+                placeholder="Thời gian kết thúc tự động"
+                value={
+                  lesson.started_at && lesson.duration
+                    ? new Date(
+                        lesson.started_at + lesson.duration * 60 * 1000
+                      ).toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })
+                    : ""
+                }
+                editable={false} // Không cho phép chỉnh sửa
+              />
             </View>
           </View>
-          {index < lessons.length - 1 && <View style={styles.separator} />}
+
+          <View style={{ marginTop: 25 }}>
+            <Text style={styles.label}>
+              Hình thức học <Text style={styles.required}>*</Text>
+            </Text>
+            <TouchableOpacity
+              style={[{ justifyContent: "center" }, styles.input]}
+              onPress={() => toggleStatus(index)}
+            >
+              <Text style={[{ color: "#0D99FF" }, styles.text]}>
+                {lesson.is_online ? "online" : "offline"}
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={{ marginTop: 25 }}>
+            <Text style={styles.label}>Ghi chú</Text>
+            <TextInput style={styles.input} placeholder="Thêm ghi chú ..." />
+          </View>
+
+          <TouchableOpacity style={styles.btnAdd} onPress={handleAdd}>
+            <Text style={styles.txtAdd}>Thêm buổi</Text>
+          </TouchableOpacity>
         </View>
       ))}
-      <TouchableOpacity style={styles.btnAdd} onPress={handleAdd}>
-        <Text style={styles.txtAdd}>Thêm buổi</Text>
-      </TouchableOpacity>
-      {show && (
+      {startedAt && (
         <DateTimePickerAndroid
-          value={new Date(lessons[selectedLessonIndex].started_at)}
+          value={
+            lessons[selectedLessonIndex].started_at
+              ? new Date(lessons[selectedLessonIndex].started_at)
+              : new Date()
+          }
           mode="time"
           is24Hour={true}
           display="default"
           onChange={(event: any, selectedTime: Date | undefined) => {
-            setShow(false);
+            setStartedAt(false);
             if (selectedTime) {
               onChange(selectedTime, selectedLessonIndex);
             }
@@ -173,16 +216,13 @@ const InfoLesson = ({ handleGetLesson }: props) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    marginTop: 10,
-    padding: 15,
-    backgroundColor: "#fff",
-  },
-  containerRow: {
+  container: { marginTop: 10, padding: 15, backgroundColor: "#fff" },
+  containerRow: { flexDirection: "row" },
+  inputContainer: { marginRight: 15 },
+  buttonRow: {
     flexDirection: "row",
-  },
-  inputContainer: {
-    marginRight: 15,
+    justifyContent: "space-between",
+    marginTop: 20,
   },
   btnAdd: {
     borderRadius: 10,
@@ -191,42 +231,22 @@ const styles = StyleSheet.create({
     backgroundColor: "#0D99FF",
     alignItems: "center",
     justifyContent: "center",
-    marginTop: 20,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    alignSelf: "center",
+    marginTop: 25,
+    marginLeft: 120
   },
-  txtAdd: {
-    fontSize: 16,
-    color: "#FFFFFF",
-    fontWeight: "bold",
-  },
-  text: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 10,
-  },
-  marginInput: {
-    marginBottom: 20,
-  },
-  label: {
-    fontWeight: "bold",
-    fontSize: 16,
-    marginBottom: 8,
-  },
-  required: {
-    color: "red",
-  },
+  txtAdd: { fontSize: 16, color: "#FFFFFF", fontWeight: "bold" },
+  txtDelete: { fontSize: 16, color: "#FFFFFF", fontWeight: "bold" },
+  text: { fontSize: 20, fontWeight: "bold" },
+  marginInput: { marginBottom: 25 },
+  label: { fontWeight: "bold", fontSize: 16, marginBottom: 8 },
+  required: { color: "red" },
   pickerContainer: {
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: 10,
     overflow: "hidden",
   },
-  picker: {
-    height: 50,
-    width: "100%",
-  },
+  picker: { height: 50, width: "100%" },
   input: {
     height: 50,
     borderColor: "#ccc",
@@ -234,10 +254,11 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingLeft: 10,
   },
-  separator: {
-    height: 1,
-    backgroundColor: "#000",
-    marginVertical: 20,
+  separator: { height: 1, backgroundColor: "#ccc", marginVertical: 15 },
+  rowContainer: {
+    flexDirection: "row", // Sắp xếp theo chiều ngang
+    justifyContent: "space-between", // Giãn cách hai phần tử ra hai đầu
+    alignItems: "center", // Căn giữa theo trục dọc
   },
 });
 

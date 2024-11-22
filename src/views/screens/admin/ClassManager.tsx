@@ -64,7 +64,7 @@ export default function ClassManager() {
           keyExtractor={(_, index) => index.toString()}
           renderItem={({ item }) => {
             return (
-            <View style={[styles.classItemContainer, item.is_reported
+            <View style={[styles.classItemContainer, item
               ? [styles.boxshadowDanger, styles.borderDanger]
               : styles.boxshadow,]}>
               <TouchableOpacity onPress={() => handleOpenBottomSheet(item)}>

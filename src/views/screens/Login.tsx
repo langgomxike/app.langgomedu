@@ -1,4 +1,4 @@
-import {Alert, Image, ScrollView, StyleSheet, Text, View} from "react-native";
+import {Alert, Image, Linking, ScrollView, StyleSheet, Text, View} from "react-native";
 import InputRegister from "../components/Inputs/InputRegister";
 import Button from "../components/Button";
 import {useCallback, useContext, useState} from "react";

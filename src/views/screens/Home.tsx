@@ -37,6 +37,7 @@ import en from "../../../languages/en.json";
 import ja from "../../../languages/ja.json";
 import DateTimeConfig from "../../configs/DateTimeConfig";
 import ReactAppUrl from "../../configs/ConfigUrl";
+import {AppInfoContext} from "../../configs/AppInfoContext";
 import SFirebase, { FirebaseNode } from "../../services/SFirebase";
 
 const items = [
@@ -55,6 +56,7 @@ export default function HomeScreen() {
 
   const navigation = useContext(NavigationContext);
   const accountContext = useContext(AccountContext);
+  const appInfoContext = useContext(AppInfoContext);
   const languageContext = useContext(LanguageContext);
   const {user, setUser} = useContext(UserContext);
 
@@ -165,10 +167,10 @@ export default function HomeScreen() {
       AMajor.getAllMajors((data) => {
         setMajors(data);
       }, setLoading);
-  
+
       SFirebase.track(FirebaseNode.Classes, [], () => {
         console.log(">>> Goi lay lớp học gợi ý");
-        
+
         AClass.getSuggetingClass(
           userId,
           user.TYPE,
@@ -178,7 +180,7 @@ export default function HomeScreen() {
           setLoading
         );
       });
-  
+
       AClass.getAttedingClass(
         userId,
         (data) => {
@@ -186,7 +188,7 @@ export default function HomeScreen() {
         },
         setLoading
       );
-  
+
       AClass.getAttedingClass(
         userId,
         (data) => {
@@ -194,7 +196,7 @@ export default function HomeScreen() {
         },
         setLoading
       );
-  
+
       AClass.getTeachingClass(
         userId,
         (data) => {
@@ -202,7 +204,7 @@ export default function HomeScreen() {
         },
         setLoading
       );
-  
+
       AClass.getCreatedClass(
         userId,
         (data) => {
@@ -213,59 +215,6 @@ export default function HomeScreen() {
 
     }
   }, [userTypeName, accountContext]);
-
-  //set up login
-  useEffect(() => {
-    AUser.implicitLogin((user) => {
-      if (!user) {
-        navigation?.reset({
-          index: 0,
-          routes: [{ name: ScreenName.LOGIN }],
-        });
-      } else {
-        //store new token into async storage
-        SAsyncStorage.setData(AsyncStorageKeys.TOKEN, user.token);
-
-        if (accountContext.setAccount) {
-          accountContext.setAccount(user);
-          setUser({ID: user.id, TYPE: UserType.LEANER});
-
-          //check if admin/superadmin or not
-          if (
-            user.role?.id === RoleList.SUPER_ADMIN ||
-            user.role?.id === RoleList.ADMIN
-          ) {
-            navigation?.reset({
-              index: 0,
-              routes: [{ name: ScreenName.HOME_ADMIN }],
-            });
-          }
-
-          Toast.show(languageContext.language.WELCOME + " " + user.full_name, 2000);
-        }
-      }
-    });
-  }, [accountContext.setAccount]);
-
-  //set up multilanguage
-  useEffect(() => {
-    SAsyncStorage.getData(AsyncStorageKeys.LANGUAGE, (language) => {
-      switch (+language) {
-        case 0: // vn
-          languageContext.setLanguage &&
-          languageContext.setLanguage(vn);
-          break;
-        case 1: // en
-          languageContext.setLanguage &&
-          languageContext.setLanguage(en);
-          break;
-        case 2: //ja
-          languageContext.setLanguage &&
-          languageContext.setLanguage(ja);
-          break;
-      }
-    });
-  }, []);
 
   // render
   return (
@@ -278,7 +227,7 @@ export default function HomeScreen() {
           {/* Header title */}
           <View style={styles.headerTitleContainer}>
             <View style={{flex: 1}}>
-              <Text style={[styles.headerTitle, styles.title1]}>Xin Chào!</Text>
+              <Text style={[styles.headerTitle, styles.title1]}>{languageContext.language.WELCOME}!</Text>
               <Text style={[styles.headerTitle, styles.title2]}>
                 {accountContext.account?.full_name}
               </Text>
@@ -770,7 +719,7 @@ export default function HomeScreen() {
                         avatar={item.avatar ?? ""}
                         userName={item.full_name}
                         phoneNumber={item.phone_number}
-                        email={""}
+                        email={item.username}
                         address={item + "address"}
                       />
                     </Pressable>
