@@ -27,6 +27,10 @@ export const ListItemVietnamese: Array<AccountItemProps> = [
         iconName: require("../../assets/settings/delete.png")
     },
     {
+        title: 'Sử dụng bản website',
+        iconName: require("../../assets/settings/website.png")
+    },
+    {
         title: 'Ngôn ngữ',
         iconName: require("../../assets/settings/language.png")
     },
@@ -62,6 +66,10 @@ export const ListItemEnglish: Array<AccountItemProps> = [
         iconName: require("../../assets/settings/delete.png")
     },
     {
+        title: 'Using website version',
+        iconName: require("../../assets/settings/website.png")
+    },
+    {
         title: 'Language',
         iconName: require("../../assets/settings/language.png")
     },
@@ -95,6 +103,10 @@ export const ListItemJapanese: Array<AccountItemProps> = [
     {
         title: 'アカウントを削除', // Japanese for 'Delete Account'
         iconName: require("../../assets/settings/delete.png")
+    },
+    {
+        title: 'Website',
+        iconName: require("../../assets/settings/website.png")
     },
     {
         title: '言語', // Japanese for 'Language'

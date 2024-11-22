@@ -19,6 +19,8 @@ export default function AppInfoManagementScreen() {
   const [appName, setAppName] = useState("");
   const [appLogo, setAppLogo] = useState("");
   const [appWebLink, setAppWebLink] = useState("https://");
+  const [bankingCode, setBankingCode] = useState("");
+  const [bankingNumber, setBankingNumber] = useState("");
   const [creationFeeForTutors, setCreationFeeForTutors] = useState(0);
   const [creationFeeForParents, setCreationFeeForParents] = useState(0);
   const [urNotSerious, setURNotSerious] = useState(0);
@@ -83,6 +85,28 @@ export default function AppInfoManagementScreen() {
             <TextValueInput value={appWebLink} setValue={setAppWebLink} isLink={true}/>
           )}
           onSubmit={() => handlerChangeAppInfo("webiste_link", appWebLink, setAppWebLink)}
+        />
+
+        <AppInfoContainer
+          title={languageContext.WEBSITE_LINK}
+          oldValue={(
+            <TextValue value={appInfoContext.banking_code} isLink={true}/>
+          )}
+          newValue={(
+            <TextValueInput value={bankingCode} setValue={setAppWebLink} isLink={false}/>
+          )}
+          onSubmit={() => handlerChangeAppInfo("banking_code", bankingCode, setBankingCode)}
+        />
+
+        <AppInfoContainer
+          title={languageContext.WEBSITE_LINK}
+          oldValue={(
+            <TextValue value={appInfoContext.banking_number + ""} isLink={true}/>
+          )}
+          newValue={(
+            <TextValueInput value={bankingNumber} setValue={setAppWebLink} isLink={false}/>
+          )}
+          onSubmit={() => handlerChangeAppInfo("banking_number", bankingNumber, setBankingNumber)}
         />
 
         {/*/!*  creation fee for tutor *!/*/}
