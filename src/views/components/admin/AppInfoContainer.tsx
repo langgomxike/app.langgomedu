@@ -1,14 +1,17 @@
 import {StyleSheet, Text, View} from "react-native";
-import {PropsWithChildren, useState} from "react";
+import {PropsWithChildren, useCallback, useContext, useState} from "react";
 import {BackgroundColor} from "../../../configs/ColorConfig";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import Button from "../Button";
+import {LanguageContext} from "../../../configs/LanguageConfig";
+import ConfirmDialog from "../ConfirmDialog";
 
 type AppInfoContainerProps = {
   title: string,
   oldValue?: React.JSX.Element,
   newValue?: React.JSX.Element,
-  onSubmit?: () => void
+  onSubmit?: () => void,
+  onLongPress?: () => void,
 }
 
 export default function AppInfoContainer({
@@ -16,18 +19,36 @@ export default function AppInfoContainer({
                                            oldValue,
                                            newValue,
                                            onSubmit,
+                                           onLongPress,
                                            children
                                          }: AppInfoContainerProps & PropsWithChildren) {
 
+  const language = useContext(LanguageContext).language;
+
   //states
   const [open, setOpen] = useState(false);
+  const [confirm, setConfirm] = useState(false);
+
+  //handlers
+  const onConfirm = useCallback(() => {
+    onLongPress && onLongPress();
+    setConfirm(false);
+  }, []);
 
   return (
     <View style={styles.container}>
+
+      <ConfirmDialog title={"DELETE ITEM"}
+                     content={"Do you want to delete this item"}
+                     open={confirm}
+                     onConfirm={onConfirm}
+                     onCancel={() => setConfirm(false)}/>
+
       {/* header */}
       <View style={{flexDirection: 'row'}}>
         {/* title */}
-        <Text onPress={() => setOpen(prev => !prev)} style={styles.title}>{title?.toUpperCase()}</Text>
+        <Text onLongPress={() => setConfirm(true)} onPress={() => setOpen(prev => !prev)}
+              style={styles.title}>{title?.toUpperCase()}</Text>
 
         {/* show body button*/}
         <View style={styles.showing}>
@@ -45,9 +66,9 @@ export default function AppInfoContainer({
           <View style={[styles.body]}>
             {children || (
               <>
-                <Text style={styles.title}>Old Value</Text>
+                <Text style={styles.title}>{language.OLD_VALUE}</Text>
                 {oldValue}
-                <Text style={[styles.title, {marginTop: 5}]}>New Value</Text>
+                <Text style={[styles.title, {marginTop: 5}]}>{language.NEW_VALUE}</Text>
                 {newValue}
               </>
             )}
@@ -56,7 +77,7 @@ export default function AppInfoContainer({
           {/* submit button */}
           {!children && (
             <Button
-              title={"Submit"}
+              title={language.SUBMIT}
               textColor="white"
               backgroundColor={BackgroundColor.primary}
               onPress={onSubmit}
