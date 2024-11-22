@@ -158,13 +158,13 @@ export default function AccountScreen() {
   //effects
   useEffect(() => {
     switch (languageContext.language.TYPE) {
-      case 0: //vn
+      case "vi": //vn
         setListItem(ListItemVietnamese);
         break;
-      case 1: //en
+      case "en": //en
         setListItem(ListItemEnglish);
         break;
-      case 2: //ja
+      case "ja": //ja
         setListItem(ListItemJapanese);
         break;
     }

@@ -33,6 +33,9 @@ export default function AppInfoManagementScreen() {
 
   //handlers
   const handlerChangeAppInfo = useCallback((key: string, value: string | number, setState? : Dispatch<any>) => {
+
+    if (!value) return;
+
     setLoading(true);
 
     const infors = {...appInfoContext, [key]: value};
@@ -40,7 +43,7 @@ export default function AppInfoManagementScreen() {
     SFirebase.setAppInfos(infors, () => {
       setState && setState(typeof value == typeof 0 ? 0: "");
       setLoading(false);
-      Toast.show("Updated!", 1000);
+      Toast.show(languageContext.UPDATED, 1000);
     });
   }, [appName, appInfoContext]);
 
@@ -60,7 +63,7 @@ export default function AppInfoManagementScreen() {
 
         {/* App name */}
         <AppInfoContainer
-          title={"App name"}
+          title={languageContext.APP_NAME}
           oldValue={(
             <TextValue value={appInfoContext.app_name}/>
           )}
@@ -72,7 +75,7 @@ export default function AppInfoManagementScreen() {
 
         {/*/!*  web link*!/*/}
         <AppInfoContainer
-          title={"Website link"}
+          title={languageContext.WEBSITE_LINK}
           oldValue={(
             <TextValue value={appInfoContext.webiste_link} isLink={true}/>
           )}
@@ -84,7 +87,7 @@ export default function AppInfoManagementScreen() {
 
         {/*/!*  creation fee for tutor *!/*/}
         <AppInfoContainer
-          title={"Creation fee for tutors"}
+          title={languageContext.CREATION_FEE_FOR_TUTORS}
           oldValue={(
             <TextValue value={appInfoContext.creation_fee_for_tutors * 100 + "%"} isNum={true}/>
           )}
@@ -97,7 +100,7 @@ export default function AppInfoManagementScreen() {
 
         {/*/!* creation fee for parent *!/*/}
         <AppInfoContainer
-          title={"Creation fee for parents"}
+          title={languageContext.CREATION_FEE_FOR_PARENTS}
           oldValue={(
             <TextValue value={appInfoContext.creation_fee_for_parents * 100 + "%"} isNum={true}/>
           )}
@@ -110,11 +113,11 @@ export default function AppInfoManagementScreen() {
 
         {/*/!*   report user levels *!/*/}
         <AppInfoContainer
-          title={"Report user levels"}
+          title={languageContext.REPORT_USER_LEVELS}
         >
           <>
             <AppInfoContainer
-              title={"Not serious"}
+              title={languageContext.NOT_SERIOUS}
               oldValue={(
                 <TextValue value={appInfoContext.report_user_level_1 + ""} isNum={true}/>
               )}
@@ -126,7 +129,7 @@ export default function AppInfoManagementScreen() {
             />
 
             <AppInfoContainer
-              title={"Quite serious"}
+              title={languageContext.QUITE_SERIOUS}
               oldValue={(
                 <TextValue value={appInfoContext.report_user_level_2 + ""} isNum={true}/>
               )}
@@ -138,7 +141,7 @@ export default function AppInfoManagementScreen() {
             />
 
             <AppInfoContainer
-              title={"Serious"}
+              title={languageContext.SERIOUS}
               oldValue={(
                 <TextValue value={appInfoContext.report_user_level_3 + ""} isNum={true}/>
               )}
@@ -150,7 +153,7 @@ export default function AppInfoManagementScreen() {
             />
 
             <AppInfoContainer
-              title={"Extremely serious"}
+              title={languageContext.EXTREMELY_SERIOUS}
               oldValue={(
                 <TextValue value={appInfoContext.report_user_level_4 + ""} isNum={true}/>
               )}
@@ -164,11 +167,11 @@ export default function AppInfoManagementScreen() {
         </AppInfoContainer>
 
         <AppInfoContainer
-          title={"Report class levels"}
+          title={languageContext.REPORT_CLASS_LEVELS}
         >
           <>
             <AppInfoContainer
-              title={"Not serious"}
+              title={languageContext.NOT_SERIOUS}
               oldValue={(
                 <TextValue value={appInfoContext.report_class_level_1 + ""} isNum={true}/>
               )}
@@ -180,7 +183,7 @@ export default function AppInfoManagementScreen() {
             />
 
             <AppInfoContainer
-              title={"Quite serious"}
+              title={languageContext.QUITE_SERIOUS}
               oldValue={(
                 <TextValue value={appInfoContext.report_class_level_2 + ""} isNum={true}/>
               )}
@@ -192,7 +195,7 @@ export default function AppInfoManagementScreen() {
             />
 
             <AppInfoContainer
-              title={"Serious"}
+              title={languageContext.SERIOUS}
               oldValue={(
                 <TextValue value={appInfoContext.report_class_level_3 + ""} isNum={true}/>
               )}
@@ -204,7 +207,7 @@ export default function AppInfoManagementScreen() {
             />
 
             <AppInfoContainer
-              title={"Extremely serious"}
+              title={languageContext.EXTREMELY_SERIOUS}
               oldValue={(
                 <TextValue value={appInfoContext.report_class_level_4 + ""} isNum={true}/>
               )}
@@ -234,10 +237,13 @@ function TextValueInput({value, setValue, isLink, isNum}: {
   isLink?: boolean,
   isNum?: boolean
 }) {
+
+  const language = useContext(LanguageContext).language;
+
   return (
     <TextInput inputMode={isNum ? "numeric" : "text"} value={value + ""} onChangeText={setValue}
                style={[textValueStyles.container, isLink && textValueStyles.isLink, isNum && textValueStyles.isNum]}
-               placeholder={"Edit here"}/>
+               placeholder={language.EDIT_HERE}/>
   )
 }
 

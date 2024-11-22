@@ -1,3 +1,5 @@
+import Permission from "./Permission";
+
 export enum RoleList {
     SUPER_ADMIN = 1,
     ADMIN = 2,
@@ -10,10 +12,12 @@ export enum RoleList {
 
 export default class Role {
     public id: number;
-    public role: string;
+    public name: string;
+    public permissions: Permission[];
 
-    constructor(id = -1, role = "") {
+    constructor(id = -1, name = "") {
         this.id = id;
-        this.role = role;
+        this.name = name;
+        this.permissions = [];
     }
 }
