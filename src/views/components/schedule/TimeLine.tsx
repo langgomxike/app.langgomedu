@@ -2,45 +2,57 @@ import { Text, View, StyleSheet, FlatList, Image } from "react-native";
 import { BackgroundColor, TextColor } from "../../../configs/ColorConfig";
 import LessionItem, { LessionItemProps } from "./LessionItem";
 import Lesson from "../../../models/Lesson";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { TouchableOpacity } from "react-native-gesture-handler";
 export type timeLineProp = {
   user_id?: string;
-  student_id?: string;
   lessons: Lesson[];
   selectedDate: Date;
+  type: number;
+  onChangeType: (type: number) => void;
 };
 
-export default function TimeLine({
-  user_id,
-  student_id,
-  lessons,
-  selectedDate,
-}: timeLineProp) {
-  const [activeTab, setActiveTab] = useState("learning");
+/**
+ * tyoe 0 => learner
+ * type 1 => tutor
+ */
+
+export default function TimeLine({ user_id, lessons, selectedDate, type, onChangeType }: timeLineProp) {
+  //State >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+  const [activeTab, setActiveTab] = useState(type);
+
+  //HANDLER >>>>>>>>>>>>>>>>>>>>>>>>>>
+  const handleChangeType = useCallback((type: number) => {
+    setActiveTab(type);
+    onChangeType(type);
+  }, [])
+
+  useEffect(()=>{
+    setActiveTab(type);
+  }, [type])
 
   return (
     <View style={[styles.container]}>
       <View style={styles.headerNav}>
-        <View style={[styles.headerItem]}>
-        <TouchableOpacity onPress={() => setActiveTab("learning")}>
+        <View style={[styles.headerItem, activeTab === 0 &&  styles.headerItemActive]}>
+          <TouchableOpacity onPress={() => handleChangeType(0)}>
             <Text
               style={[
                 styles.headerText,
-                activeTab === "learning" && styles.headerTextActive,
+                activeTab === 0 && styles.headerTextActive,
               ]}
             >
               Lớp đang học
             </Text>
-        </TouchableOpacity>
+          </TouchableOpacity>
         </View>
 
-        <View style={[styles.headerItem]}>
-          <TouchableOpacity onPress={() => setActiveTab("teaching")}>
+        <View style={[styles.headerItem, activeTab === 1 &&  styles.headerItemActive]}>
+          <TouchableOpacity onPress={() => handleChangeType(1)}>
             <Text
               style={[
                 styles.headerText,
-                activeTab === "teaching" && styles.headerTextActive,
+                activeTab === 1 && styles.headerTextActive,
               ]}
             >
               Lớp đang dạy
@@ -137,7 +149,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginVertical: 100,
   },
-
   headerNav: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -145,7 +156,6 @@ const styles = StyleSheet.create({
     borderBottomColor: BackgroundColor.gray_c9,
     borderBottomWidth: 1,
   },
-
   headerItem: {
     flex: 1,
     alignItems: "center",
@@ -155,6 +165,14 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#888",
     padding: 10,
+  },
+  headerItemActive: {
+    backgroundColor: BackgroundColor.cyan_overlay,
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
+    borderWidth: 1,
+    borderColor: BackgroundColor.primary,
+    borderBottomWidth: 0,
   },
 
   headerTextActive: {

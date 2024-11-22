@@ -19,10 +19,10 @@ import ACV from "../../apis/ACV";
 import { UserContext } from "../../configs/UserContext";
 import CV from "../../models/CV";
 import User from "../../models/User";
-import Information from "../../models/Information";
 import Major from "../../models/Major";
 import moment from 'moment';
 import { BackgroundColor } from "../../configs/ColorConfig";
+import Address from "../../models/Address";
 
 const AVATAR_SIZE = 100;
 
@@ -34,7 +34,7 @@ export default function InputCVScreen() {
   const [permission, requestPermission] = useCameraPermissions();
   const [cv, setCV] = useState<CV>();
   const [userInfo, setUserInfo] = useState<User>();
-  const [information, setInformation] = useState<Information>();
+  const [address, setAddress] = useState<Address>();
   const [birthday, setBirthday] = useState<string>('');
   const [interestedMajor, setInterestedMajor] = useState<Major>()
 
@@ -70,15 +70,15 @@ export default function InputCVScreen() {
       if(cv){
         setCV(cv);
         // console.log('log in screen', JSON.stringify(cv?.user, null, 2));
-        setUserInfo(cv.user);
-        setInformation(cv.information);
-        const priorityMajor = cv.interested_majors.find(major => major.priority === 0)
-        setInterestedMajor(priorityMajor ? priorityMajor.major :cv.interested_majors[0].major)
+        setUserInfo(cv.user); 
+        setAddress(cv.user?.address);
+        // const priorityMajor = cv.interested_majors.find(major => major.priority === 0)
+        // setInterestedMajor(priorityMajor ? priorityMajor.major :cv.interested_majors[0].major)
         // console.log(cv.interested_majors[0].major);
         console.log(interestedMajor);
         
-        if(cv.information){
-          const birthday = new Date(cv.information?.birthday);
+        if(cv.user){
+          const birthday = new Date(cv.user?.birthday);
           // const birthdayData = birthday.getDate() + '/' + (birthday.getMonth() +1) + '/' + birthday.getFullYear()
           const birthdayData = moment(birthday)
           setBirthday(birthdayData.format('DD/MM/yyyy'));
@@ -135,14 +135,14 @@ export default function InputCVScreen() {
         <Input
         label="Địa Chỉ"
         onTextChange={()=>{}}
-        placeholder={`${information?.address_4}, ${information?.address_3}, ${information?.address_2}, ${information?.address_1}`}
+        placeholder={`${address?.province}, ${address?.district}, ${address?.ward}, ${address?.detail}`}
         />
 
-        <Input
+        {/* <Input
         label="Email"
         onTextChange={()=>{}}
         placeholder={userInfo?.email}
-        />
+        /> */}
 
         <Input 
         label="Mo ta ban than"

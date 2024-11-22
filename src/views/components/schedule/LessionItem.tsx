@@ -10,7 +10,7 @@ import moment from 'moment';
 export type LessionItemProps = {
     lessonId: number;
     classId?: number,
-    classIcon?: File,
+    classIcon?: string,
     title: string,
     classType: number,
     tutorName: string,
@@ -43,7 +43,7 @@ const LessionItem = ({lessonId, classId, classIcon, title, classType, tutorName,
                 <View style={lessonStyle.class}>
                     <Image
                         // source={{ uri: "https://cdn-icons-png.flaticon.com/128/11418/11418651.png" }}
-                        source={{ uri: URL + classIcon?.path }}
+                        source={{ uri: URL + classIcon }}
                         style={lessonStyle.classIcon} />
 
                     <Text style={[lessonStyle.textStyle, lessonStyle.title]} id="title">
