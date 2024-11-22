@@ -216,65 +216,6 @@ export default function HomeScreen() {
     }
   }, [userTypeName, accountContext]);
 
-  //set up login
-  useEffect(() => {
-    navigation?.navigate(ScreenName.HOME_ADMIN);
-    return;
-    AUser.implicitLogin((user) => {
-      if (!user) {
-        navigation?.reset({
-          index: 0,
-          routes: [{ name: ScreenName.LOGIN }],
-        });
-      } else {
-        //store new token into async storage
-        SAsyncStorage.setData(AsyncStorageKeys.TOKEN, user.token);
-
-        if (accountContext.setAccount) {
-          accountContext.setAccount(user);
-          setUser({ID: user.id, TYPE: UserType.LEANER});
-
-          //check if admin/superadmin or not
-          if (user.roles?.map(role => role.id).includes(RoleList.ADMIN) || user.roles?.map(role => role.id).includes(RoleList.SUPER_ADMIN)) {
-            navigation?.reset({
-              index: 0,
-              routes: [{ name: ScreenName.HOME_ADMIN }],
-            });
-          }
-
-          Toast.show(languageContext.language.WELCOME + " " + user.full_name, 2000);
-        }
-      }
-    });
-  }, [accountContext.setAccount]);
-
-  //set up multilanguage
-  useEffect(() => {
-    SAsyncStorage.getData(AsyncStorageKeys.LANGUAGE, (language) => {
-      switch (+language) {
-        case 0: // vn
-          languageContext.setLanguage &&
-          languageContext.setLanguage(vn);
-          break;
-        case 1: // en
-          languageContext.setLanguage &&
-          languageContext.setLanguage(en);
-          break;
-        case 2: //ja
-          languageContext.setLanguage &&
-          languageContext.setLanguage(ja);
-          break;
-      }
-    });
-  }, []);
-
-  //get all information
-  useEffect(() => {
-    SFirebase.getAppInfos((infos) => {
-      appInfoContext.setAppInfo && appInfoContext.setAppInfo(infos);
-    });
-  }, [appInfoContext.setAppInfo]);
-
   // render
   return (
     <ScrollView showsVerticalScrollIndicator={false}>

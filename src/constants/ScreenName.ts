@@ -1,4 +1,5 @@
 enum ScreenName {
+    WELCOME = 'WELCOME',
     NAV_BAR = "NAVBAR",
 
     HOME = "HOME",

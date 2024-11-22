@@ -41,6 +41,7 @@ import AdminHome from "./src/views/screens/admin/AdminHome";
 import SFirebase, {FirebaseNode} from "./src/services/SFirebase";
 import { LanguageContext } from "./src/configs/LanguageConfig";
 import AccountScreen from "./src/views/screens/Account";
+import WelcomeScreen from "./src/views/screens/Welcome";
 
 PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS);
 
@@ -64,9 +65,15 @@ export default function App() {
               }}
             >
               <Stack.Screen
+                name={ScreenName.WELCOME}
+                component={WelcomeScreen}
+              />
+
+              <Stack.Screen
                 name={ScreenName.NAV_BAR}
                 component={ButtonNavBar}
               />
+
               <Stack.Screen
                 name={ScreenName.MESSAGE}
                 component={MessageScreen}
