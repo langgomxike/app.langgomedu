@@ -8,9 +8,10 @@ import {
   Modal,
   FlatList,
   Alert,
+  TextInput,
 } from "react-native";
 import MyIcon, { AppIcon } from "../../components/MyIcon";
-import Button from "../../components/Button";
+import RadioButtonGroup from "react-native-radio-buttons-group";
 import IconReport from "../../components/ItemUserReport";
 import React, { useState, useEffect } from "react";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -21,14 +22,30 @@ import { BackgroundColor } from "../../../configs/ColorConfig";
 import ReactAppUrl from "../../../configs/ConfigUrl";
 import Accordion from "../../components/Accordion";
 import AUser from "../../../apis/AUser";
+import { MaterialIcons } from "@expo/vector-icons";
+import AClass from "../../../apis/AClass";
+
+const reportLevels = [
+  { id: 1, label: "Cảnh báo nhẹ", points: 10 },
+  { id: 2, label: "Trung bình", points: 30 },
+  { id: 3, label: "Nghiêm trọng", points: 50 },
+  { id: 4, label: "Rất nghiêm trọng", points: 100 },
+];
+
 export default function UpdateReportedUser() {
   const [modalVisible, setModalVisible] = useState(false);
+  const [modalLockUserVisible, setModalLockUserVisible] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [userReport, setUserReport] = useState<UserReport | null>(null);
+  const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
+  const [reason, setReason] = useState("");
   const [loading, setLoading] = useState(true);
   const URL = ReactAppUrl.PUBLIC_URL;
-  const userReportId = "3"; // Thay bằng ID thực tế
-
+  const userReportId = "1"; // Thay bằng ID thực tế
+  const [selectedLevel, setSelectedLevel] = useState<number | null>(null);
+  const handleSelectLevel = (levelId: number) => {
+    setSelectedLevel(levelId);
+  };
   useEffect(() => {
     AUserReport.getUserReportById(
       userReportId,
@@ -85,6 +102,160 @@ export default function UpdateReportedUser() {
     );
   };
 
+  const denyReport = (reportId) => {
+    if (!reason.trim()) {
+      Alert.alert("Lỗi", "Vui lòng nhập lý do từ chối!");
+      return;
+    }
+
+    // Gọi API để từ chối báo cáo
+    AUserReport.lockReport(
+      reportId,
+      reason,
+      (response) => {
+        setModalVisible(false);
+        if (response.success) {
+          Alert.alert("Từ chối báo cáo thành công!");
+          console.log("Report denied successfully.");
+        } else {
+          Alert.alert("Đã xảy ra lỗi trong quá trình xử lý!", response.message);
+          console.log("Failed to deny report:", response.message);
+        }
+      },
+      (loading) => {
+        console.log("Loading state:", loading);
+      }
+    );
+  };
+
+  // Xử lý sự kiện khi người dùng chọn một radio button
+  const handleRoleSelect = (roleId: string) => {
+    if (selectedRoles.includes(roleId)) {
+      // Nếu vai trò đã được chọn, bỏ chọn nó
+      setSelectedRoles(selectedRoles.filter((id) => id !== roleId));
+    } else {
+      // Nếu vai trò chưa được chọn, thêm nó vào danh sách đã chọn
+      setSelectedRoles([...selectedRoles, roleId]);
+    }
+  };
+
+  const handleLockAccount = () => {
+    // Hiển thị alert xác nhận
+    Alert.alert(
+      "Xác nhận",
+      "Bạn có chắc chắn muốn khóa tài khoản người dùng này không?",
+      [
+        {
+          text: "Hủy",
+          style: "cancel",
+        },
+        {
+          text: "Xác nhận",
+          onPress: () => {
+            // Gọi hàm khóa tài khoản và xử lý trạng thái
+            AUser.lockUserAccount(
+              userReport?.reportee?.id,
+              userReportId, // user_id
+              selectedRoles, // Gửi danh sách các permissionIds (có thể là các vai trò đã chọn)
+              (response) => {
+                if (response.success) {
+                  console.log("User account locked successfully.");
+                  Alert.alert("Tài khoản đã được khóa thành công!");
+
+                  // Sau khi khóa tài khoản thành công, kiểm tra điều kiện khóa lớp
+                  if (
+                    userReport?.class?.id !== 0 &&
+                    userReport?.reportee?.id === userReport?.class?.author_id
+                  ) {
+                    // Gọi hàm khóa lớp
+                    AClass.lockClass(
+                      userReport?.class?.id, // classId
+                      (classResponse) => {
+                        if (classResponse.success) {
+                          console.log("Class locked successfully.");
+                          Alert.alert(
+                            "Quyền của người dùng đã bị giới hạn và lớp học đã được khóa thành công!"
+                          );
+                        } else {
+                          console.error(
+                            "Failed to lock class:",
+                            classResponse.message
+                          );
+                          Alert.alert(
+                            "Đã xảy ra lỗi trong quá trình khóa lớp!"
+                          );
+                        }
+                      },
+                      (loading) => {
+                        // Cập nhật trạng thái loading nếu cần
+                        console.log("Locking class loading state:", loading);
+                      }
+                    );
+                  }
+                  setModalLockUserVisible(false); // Đóng modal sau khi thành công
+                } else {
+                  console.log("Failed to lock account:", response.message);
+                  Alert.alert("Đã xảy ra lỗi trong quá trình khóa tài khoản!");
+                }
+              },
+              (loading) => {
+                // Có thể cập nhật trạng thái loading tại đây nếu cần
+                if (loading) {
+                  console.log("Loading...");
+                } else {
+                  console.log("Not loading");
+                }
+              }
+            );
+          },
+        },
+      ]
+    );
+  };
+
+  // Hàm khóa tài khoản người dùng
+  const lockUserAccount = () => {
+    // Hiển thị alert xác nhận
+    Alert.alert(
+      "Xác nhận",
+      "Bạn có chắc chắn muốn khóa tài khoản người dùng này không?",
+      [
+        {
+          text: "Hủy",
+          style: "cancel",
+        },
+        {
+          text: "Xác nhận",
+          onPress: () => {
+            // Gọi hàm khóa tài khoản và xử lý trạng thái
+            AUser.lockUserAccount(
+              userReport?.reportee?.id, // user_id
+              selectedRoles, // Gửi danh sách các permissionIds (có thể là các vai trò đã chọn)
+              (response) => {
+                if (response.success) {
+                  console.log("User account locked successfully.");
+                  Alert.alert("Tài khoản đã được khóa thành công!");
+                  setModalLockUserVisible(false); // Đóng modal sau khi thành công
+                } else {
+                  console.log("Failed to lock account:", response.message);
+                  Alert.alert("Đã xảy ra lỗi trong quá trình khóa tài khoản!");
+                }
+              },
+              (loading) => {
+                // Có thể cập nhật trạng thái loading tại đây nếu cần
+                if (loading) {
+                  console.log("Loading...");
+                } else {
+                  console.log("Not loading");
+                }
+              }
+            );
+          },
+        },
+      ]
+    );
+  };
+
   // Styles animated chevron
   return (
     <ScrollView showsVerticalScrollIndicator={false} style={styles.container}>
@@ -94,32 +265,55 @@ export default function UpdateReportedUser() {
           <View style={styles.backBtn}>
             <MyIcon icon={AppIcon.back_button} size="20"></MyIcon>
           </View>
-          <Text style={styles.screenTitel}> Chi tiết báo cáo lớp học</Text>
+          <Text style={styles.screenTitel}> Chi tiết báo cáo </Text>
         </View>
-        {/* tài khoản báo cáo */}
-        <Text style={styles.smallTitle1}>Tài khoản báo cáo</Text>
+        <View style={styles.infor}>
+          <Text style={styles.smallTitle1}>Tài khoản báo cáo </Text>
+          <Text style={styles.smallTitle1}>
+            {userReport?.class?.id !== 0 &&
+            userReport?.reporter?.id === userReport?.class?.tutor_id
+              ? "Gia sư"
+              : "Học sinh"}
+          </Text>
+        </View>
 
         <IconReport
-          userAvatar={
-            userReport?.from_user?.avatar_of_fromUser?.from_user_avatar + ""
-          }
-          userName={userReport?.from_user?.full_name + ""}
-          credibility={userReport?.from_user?.information?.point}
+          userAvatar={userReport?.reporter?.avatar + ""}
+          userName={userReport?.reporter?.full_name + ""}
+          credibility={userReport?.reporter?.point ?? 0}
         ></IconReport>
         {/* tài khoản bị báo cáo */}
-        <Text style={styles.smallTitle2}>Tài khoản bị báo cáo</Text>
+        <View style={styles.infor}>
+          <Text style={styles.smallTitle2}>Tài khoản báo cáo </Text>
+          <Text style={styles.smallTitle2}>
+            {userReport?.class?.id !== 0 &&
+            userReport?.reportee?.id === userReport?.class?.tutor_id
+              ? "Gia sư"
+              : "Học sinh"}
+          </Text>
+        </View>
+
         <IconReport
-          userAvatar={
-            userReport?.to_user?.avatar_of_toUser?.to_user_avatar + ""
-          }
-          userName={userReport?.to_user?.full_name + ""}
-          credibility={userReport?.to_user?.information?.point}
+          userAvatar={userReport?.reportee?.avatar + ""}
+          userName={userReport?.reportee?.full_name + ""}
+          credibility={userReport?.reportee?.point ?? 0}
         ></IconReport>
         {/* lớp học bị báo cáo */}
+        {/* lớp học bị báo cáo */}
+        {userReport?.class?.id !== 0 &&
+        userReport?.reportee?.id === userReport?.class?.author_id ? (
+          <View>
+            <Text style={styles.smallTitle2}>Lớp học bị báo cáo</Text>
+            <View style={styles.classInfor}>
+              <Text>{userReport?.class?.title}</Text>
+              <Ionicons name="chevron-forward" size={20} color="black" />
+            </View>
+          </View>
+        ) : null}
       </View>
       <View style={styles.component1}>
         <Text style={styles.smallTitle3}>
-          Đã bị báo cáo {userReport?.reports_before.length} lần
+          Đã bị báo cáo {userReport?.reports_before?.filter(report => report.content).length || 0} lần
         </Text>
         {userReport?.reports_before.map((report, index) => (
           <View key={index} style={styles.itemlCenter}>
@@ -144,7 +338,7 @@ export default function UpdateReportedUser() {
 
         <Text style={styles.smallTitle3}>Lý do</Text>
         <Text style={styles.reportContent}>
-          {userReport?.report_content || "Không có thông tin lý do"}
+          {userReport?.content || "Không có thông tin lý do"}
         </Text>
       </View>
 
@@ -159,136 +353,139 @@ export default function UpdateReportedUser() {
             showsHorizontalScrollIndicator={false}
           ></FlatList>
         </View>
+
+        <View style={styles.reportLevelContainer}>
+          <Text style={styles.title}>Chọn mức độ báo cáo:</Text>
+          {reportLevels.map((level) => (
+            <TouchableOpacity
+              key={level.id}
+              style={[
+                styles.levelOption,
+                selectedLevel === level.id && styles.selectedOption,
+              ]}
+              onPress={() => handleSelectLevel(level.id)}
+            >
+              <Text style={styles.optionText}>{level.label}</Text>
+              {selectedLevel === level.id && (
+                <MaterialIcons name="check" size={20} color="green" />
+              )}
+            </TouchableOpacity>
+          ))}
+        </View>
+
         <View>
           <View style={styles.btns}>
             <TouchableOpacity
               style={[styles.btn, styles.btnAccept]}
               onPress={() => {
-                // Hiển thị alert xác nhận
-                Alert.alert(
-                  "Xác nhận",
-                  "Bạn có chắc chắn muốn chấp nhận và trừ điểm uy tín không?",
-                  [
-                    {
-                      text: "Hủy",
-                      style: "cancel",
-                    },
-                    {
-                      text: "Xác nhận",
-                      onPress: () => {
-                        // Gọi hàm trừ điểm uy tín và xử lý trạng thái
-                        AUser.minusUserPoints(
-                          userReport?.to_user?.id, // Truyền user ID của người dùng cần trừ điểm
-                          (response) => {
-                            if (response.success) {
-                              console.log("Points deducted successfully.");
-                              Alert.alert(
-                                "Điểm uy tín đã được trừ thành công!"
-                              );
-                            } else {
-                              console.log(
-                                "Failed to deduct points:",
-                                response.message
-                              );
-                              Alert.alert(
-                                "Đã xảy ra lỗi trong quá trình xử lý!"
-                              );
-                            }
-                          },
-                          (loading) => {
-                            // Bạn có thể xử lý trạng thái loading tại đây nếu cần
-                          }
-                        );
-                      },
-                    },
-                  ]
+                if (selectedLevel === null) {
+                  Alert.alert(
+                    "Vui lòng chọn mức độ báo cáo trước khi chấp nhận!"
+                  );
+                  return;
+                }
+
+                // Tìm số điểm tương ứng với mức độ đã chọn
+                const level = reportLevels.find(
+                  (level) => level.id === selectedLevel
                 );
+                const pointsToDeduct = level?.points || 0;
+
+                // Kiểm tra điều kiện khóa lớp
+                if (
+                  userReport?.class?.id !== 0 &&
+                  userReport?.reportee?.id === userReport?.class?.author_id
+                ) {
+                  // Gọi hàm khóa lớp
+                  AClass.lockClass(
+                    userReport?.class?.id, // classId
+                    (response) => {
+                      if (response.success) {
+                        console.log("Class locked successfully.");
+                        Alert.alert("Lớp học đã được khóa thành công!");
+                        // Sau khi khóa lớp thành công, tiếp tục trừ điểm uy tín
+                        deductPoints();
+                      } else {
+                        console.error(
+                          "Failed to lock class:",
+                          response.message
+                        );
+                        Alert.alert("Đã xảy ra lỗi trong quá trình khóa lớp!");
+                      }
+                    },
+                    (loading) => {
+                      // Cập nhật trạng thái loading nếu cần
+                      console.log("Locking class loading state:", loading);
+                    }
+                  );
+                } else {
+                  // Nếu không cần khóa lớp, trực tiếp trừ điểm uy tín
+                  deductPoints();
+                }
+
+                // Hàm trừ điểm uy tín
+                function deductPoints() {
+                  // Hiển thị alert xác nhận
+                  Alert.alert(
+                    "Xác nhận",
+                    `Bạn có chắc chắn muốn chấp nhận và trừ ${pointsToDeduct} điểm uy tín không?`,
+                    [
+                      {
+                        text: "Hủy",
+                        style: "cancel",
+                      },
+                      {
+                        text: "Xác nhận",
+                        onPress: () => {
+                          // Gọi hàm trừ điểm uy tín và xử lý trạng thái
+                          AUser.minusUserPoints(
+                            userReport?.reportee?.id,
+                            pointsToDeduct,
+                            userReportId,
+                            (response) => {
+                              if (response.success) {
+                                console.log("Points deducted successfully.");
+                                Alert.alert(
+                                  "Điểm uy tín đã được trừ thành công!"
+                                );
+                              } else {
+                                console.error(
+                                  "Failed to deduct points:",
+                                  response.message
+                                );
+                                Alert.alert(
+                                  "Đã xảy ra lỗi trong quá trình xử lý!"
+                                );
+                              }
+                            },
+                            (loading) => {
+                              // Cập nhật trạng thái loading nếu cần
+                              console.log("Loading state:", loading);
+                            }
+                          );
+                        },
+                      },
+                    ]
+                  );
+                }
               }}
             >
               <Text style={styles.textBtnAccept}>Chấp nhận</Text>
             </TouchableOpacity>
+
             <TouchableOpacity
               style={[styles.btn, styles.btnDeney]}
-              onPress={() => {
-                // Hiển thị alert xác nhận
-                Alert.alert(
-                  "Xác nhận",
-                  "Bạn có chắc chắn muốn từ chối báo cáo này không?",
-                  [
-                    {
-                      text: "Hủy",
-                      style: "cancel",
-                    },
-                    {
-                      text: "Xác nhận",
-                      onPress: () => {
-                        // Gọi hàm từ chối báo cáo và xử lý trạng thái
-                        AUserReport.deneyUserReport(
-                          userReport?.report_id,
-                          (response) => {
-                            if (response.success) {
-                              console.log("Report denied successfully.");
-                              Alert.alert("Từ chối báo cáo thành công!");
-                            } else {
-                              console.log(
-                                "Failed to deny report:",
-                                response.message
-                              );
-                              Alert.alert(
-                                "Đã xảy ra lỗi trong quá trình xử lý!"
-                              );
-                            }
-                          },
-                          (loading) => {}
-                        );
-                      },
-                    },
-                  ]
-                );
-              }}
+              onPress={() => setModalVisible(true)}
             >
               <Text style={styles.textBtnDeney}>Từ chối</Text>
             </TouchableOpacity>
           </View>
           <TouchableOpacity
-  style={[styles.btn, styles.deleteUser]}
-  onPress={() => {
-    // Hiển thị alert xác nhận
-    Alert.alert(
-      "Xác nhận",
-      "Bạn có chắc chắn muốn khóa tài khoản người dùng này không?",
-      [
-        {
-          text: "Hủy",
-          style: "cancel",
-        },
-        {
-          text: "Xác nhận",
-          onPress: () => {
-            // Gọi hàm khóa tài khoản và xử lý trạng thái
-            AUser.lockUserAccount(
-              userReport?.to_user?.id, 
-              (response) => {
-                if (response.success) {
-                  console.log("User account locked successfully.");
-                  Alert.alert("Tài khoản đã được khóa thành công!");
-                } else {
-                  console.log("Failed to lock account:", response.message);
-                  Alert.alert("Đã xảy ra lỗi trong quá trình khóa tài khoản!");
-                }
-              },
-              (loading) => {
-                // Có thể cập nhật trạng thái loading tại đây nếu cần
-              }
-            );
-          },
-        },
-      ]
-    );
-  }}
->
-  <Text style={styles.textBtnDeleteUser}>Khóa tài khoản</Text>
-</TouchableOpacity>
+            style={[styles.btn, styles.deleteUser]}
+            onPress={() => setModalLockUserVisible(true)}
+          >
+            <Text style={styles.textBtnDeleteUser}>Khóa tài khoản</Text>
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -313,6 +510,100 @@ export default function UpdateReportedUser() {
           />
         </Modal>
       )}
+
+      {/* //modal từ chối báo cáo */}
+      {/* Modal */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Nhập lý do từ chối</Text>
+            <TextInput
+              style={styles.textInput}
+              placeholder="Lý do từ chối báo cáo"
+              value={reason}
+              onChangeText={(text) => setReason(text)}
+            />
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                style={[styles.btn, styles.btnCancel]}
+                onPress={() => setModalVisible(false)}
+              >
+                <Text style={styles.textBtnCancel}>Hủy</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.btnD, styles.btnConfirm]}
+                onPress={() => denyReport(userReport?.report_id)}
+              >
+                <Text style={styles.textBtnConfirm}>Xác nhận</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* modal khoá tài khoản */}
+      <Modal
+        visible={modalLockUserVisible}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setModalLockUserVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Khóa tài khoản</Text>
+
+            {/* Hiển thị các vai trò dưới dạng các TouchableOpacity */}
+            <ScrollView>
+              {userReport?.reportee?.roles?.length > 0 ? (
+                userReport.reportee.roles.map((role, index) => (
+                  <TouchableOpacity
+                    key={index}
+                    style={[
+                      styles.roleButton,
+                      selectedRoles.includes(role.role_id.toString()) &&
+                        styles.selectedRoleButton, // Thêm style khi role được chọn
+                    ]}
+                    onPress={() => handleRoleSelect(role.role_id.toString())} // Cập nhật vai trò đã chọn khi nhấn
+                  >
+                    <Text
+                      style={[
+                        styles.roleText,
+                        selectedRoles.includes(role.role_id.toString()) &&
+                          styles.selectedRoleText, // Thêm style cho văn bản khi role được chọn
+                      ]}
+                    >
+                      {role.role_name}
+                    </Text>
+                  </TouchableOpacity>
+                ))
+              ) : (
+                <Text>Không có vai trò nào.</Text>
+              )}
+            </ScrollView>
+
+            {/* Nút xác nhận */}
+            <TouchableOpacity
+              style={styles.confirmButton}
+              onPress={handleLockAccount} // Gọi hàm khóa tài khoản
+            >
+              <Text style={styles.buttonText}>Xác nhận</Text>
+            </TouchableOpacity>
+
+            {/* Nút hủy */}
+            <TouchableOpacity
+              style={styles.cancelButton}
+              onPress={() => setModalLockUserVisible(false)}
+            >
+              <Text style={styles.buttonText}>Hủy bỏ</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </ScrollView>
   );
 }
@@ -524,5 +815,151 @@ const styles = StyleSheet.create({
   },
   textBtnDeleteUser: {
     color: "#fff",
+  },
+
+  reportLevelContainer: {
+    flex: 1,
+    padding: 20,
+    justifyContent: "center",
+    backgroundColor: "#f5f5f5",
+    borderRadius: 8,
+    marginBottom: 20,
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 15,
+  },
+
+  levelOption: {
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    backgroundColor: "#fff",
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#ddd",
+    marginBottom: 10,
+    alignItems: "center",
+    justifyContent: "space-between",
+    flexDirection: "row",
+  },
+  selectedOption: {
+    borderColor: "#007AFF",
+    backgroundColor: "#e6f0ff",
+  },
+  optionText: {
+    fontSize: 16,
+    color: "#333",
+  },
+  role: {
+    left: 90,
+  },
+  infor: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  btnD: {
+    padding: 10,
+    borderRadius: 5,
+    margin: 5,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalContent: {
+    backgroundColor: "#fff",
+    padding: 20,
+    borderRadius: 10,
+    width: "80%",
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
+  textInput: {
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 5,
+    padding: 10,
+    marginBottom: 15,
+  },
+  modalButtons: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  btnCancel: {
+    backgroundColor: "#ccc",
+    flex: 1,
+    marginRight: 5,
+  },
+  btnConfirm: {
+    backgroundColor: "#4caf50",
+    flex: 1,
+    marginLeft: 5,
+  },
+  textBtnCancel: {
+    color: "#000",
+    textAlign: "center",
+  },
+  textBtnConfirm: {
+    color: "#fff",
+    textAlign: "center",
+  },
+  modalText: {
+    fontSize: 18,
+    marginBottom: 20,
+    textAlign: "center",
+  },
+  textBtn: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+  button: {
+    backgroundColor: "#007bff",
+    padding: 10,
+    borderRadius: 5,
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 16,
+  },
+  confirmButton: {
+    backgroundColor: "green",
+    padding: 10,
+    borderRadius: 5,
+    marginBottom: 10,
+    width: "100%",
+    alignItems: "center",
+  },
+  cancelButton: {
+    backgroundColor: "red",
+    padding: 10,
+    borderRadius: 5,
+    width: "100%",
+    alignItems: "center",
+  },
+  roleButton: {
+    padding: 10,
+    marginVertical: 5,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 5,
+    marginBottom: 10,
+  },
+  selectedRoleButton: {
+    backgroundColor: "#cce5ff", // Màu nền khi role được chọn
+    borderColor: "#007bff", // Đổi màu viền khi role được chọn
+  },
+  roleText: {
+    fontSize: 16,
+  },
+  selectedRoleText: {
+    fontWeight: "bold",
+    color: "#007bff", // Màu chữ khi role được chọn
   },
 });

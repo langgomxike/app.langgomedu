@@ -158,22 +158,30 @@ export default class AUser {
   //trừ điểm uy tín
   public static minusUserPoints(
     user_id: string,
+    point: number,
+    report_id: string,  // Thêm tham số report_id
     onNext: (response: any) => void,
     onLoading: (loading: boolean) => void
   ) {
     // Bắt đầu loading
     onLoading(true);
-
-    // Gửi request POST đến BE với user_id và số điểm cần trừ
+    
+    // Gửi request POST đến BE với user_id, số điểm cần trừ và report_id
+    console.log("Sending request to subtract points:", { user_id, point, report_id });
+  
     axios
-      .post(`${this.API_URL}/reports/minusUserPoints`, { user_id, point: 30 })
+      .post(`${this.API_URL}/reports/minusUserPoints`, { user_id, point, report_id })
       .then((response) => {
-        // Nếu thành công, gọi callback `onNext` với kết quả từ BE
-        onNext(response.data);
+        // Nếu thành công, gọi callback onNext với kết quả từ BE
+        if (response.data.success) {
+          onNext({ success: true, message: "Points subtracted successfully." });
+        } else {
+          onNext({ success: false, message: response.data.message || "Failed to subtract points." });
+        }
       })
       .catch((error) => {
         console.error("Error subtracting points:", error);
-        onNext({ success: false, message: "Failed to subtract points." });
+        onNext({ success: false, message: "Failed to subtract points due to server error." });
       })
       .finally(() => {
         // Kết thúc loading
@@ -185,15 +193,23 @@ export default class AUser {
   // Khóa tài khoản người dùng
   public static lockUserAccount(
     user_id: string,
+    report_id: string, // Thêm tham số report_id
+    permissionIds: string[], // Mảng quyền
     onNext: (response: any) => void,
     onLoading: (loading: boolean) => void
   ) {
     // Bắt đầu loading
     onLoading(true);
-
-    // Gửi request POST đến BE với user_id
+    console.log(`Gửi request để khóa tài khoản cho user_id: ${user_id} và report_id: ${report_id}`);
+    console.log(`${this.API_URL}/reports/lockUserAccount`);
+  
+    // Gửi request POST đến BE với user_id, report_id và permissionIds
     axios
-      .post(`${this.API_URL}/reports/lockUserAccount`, { user_id })
+      .post(`${this.API_URL}/reports/lockUserAccount`, {
+        user_id,
+        report_id, // Truyền thêm report_id
+        permission_ids: permissionIds,
+      })
       .then((response) => {
         // Nếu thành công, gọi callback `onNext` với kết quả từ BE
         onNext(response.data);

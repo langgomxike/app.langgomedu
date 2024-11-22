@@ -45,7 +45,6 @@ import UserReportList from "./src/views/screens/admin/UserReportList";
 import UserManager from "./src/views/screens/admin/UserManager";
 import ClassManager from "./src/views/screens/admin/ClassManager";
 import GeneralManager from "./src/views/screens/admin/GeneralManager";
-import UpdateReportedClass from "./src/views/screens/admin/UpdateReportedClass";
 import UpdateReportedUser from "./src/views/screens/admin/UpdateReportedUser";
 import CreatAcountAdmin from "./src/views/screens/admin/CreatAccountAdmin";
 
@@ -59,6 +58,7 @@ import LeanerAttendance from "./src/views/screens/attendance/LeanerAttendance";
 import HistoryAttendance from "./src/views/screens/attendance/HistoryAttendance";
 import TutorAttendance from "./src/views/screens/attendance/TutorAttendance";
 import AdminHome from "./src/views/screens/admin/AdminHome";
+import CreateReport from "./src/views/screens/CreateReport";
 
 
 const Stack = createNativeStackNavigator();
@@ -214,11 +214,7 @@ export default function App() {
                 component={UserReportList}
               />
 
-              <Stack.Screen
-                name={ScreenName.REPORT_CLASS}
-                component={UpdateReportedClass}
-              />
-
+          
               <Stack.Screen
                 name={ScreenName.CREATE_ACCOUNT_ADMIN}
                 component={CreatAcountAdmin}
@@ -247,8 +243,16 @@ export default function App() {
                 name={ScreenName.CLASS_APPROVAL}
                 component={ClassApprovalScreen}
               />
+               <Stack.Screen
+                name={ScreenName.CREATE_REPORT}
+                component={CreateReport}
+              />
+                <Stack.Screen
+                name={ScreenName.UPDATE_REPORT_USER}
+                component={UpdateReportedUser}
+              />
             </Stack.Navigator>
-          </NavigationContainer> */}
+          </NavigationContainer> 
 
           {/* <LeanerAttendance></LeanerAttendance> */}
           {/* <TutorAttendance></TutorAttendance> */}
