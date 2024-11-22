@@ -166,14 +166,12 @@ const InfoTuition = ({ onNext }: props) => {
         {/* LẤY MÃ QR NGÂN HÀNG CỦA TURTOR  */}
         <View style={{ alignItems: "center" }}>
           <Image
-            style={{ width: 400, height: 400 }}
+            style={{ width: 400, height: 500 }}
             source={{
               uri: "https://img.vietqr.io/image/mbbank-0376961547-compact2.jpg?amount=10000&addInfo=dong%20phi%20tao%20lop&accountName=Phi%20Tao%20Lop",
             }}
           />
         </View>
-        {/* <Text style={styles.label}>HỌ TÊN: </Text>
-          <Text style={styles.label}>SỐ TÀI KHOẢN: </Text> */}
       </View>
     </View>
   );
