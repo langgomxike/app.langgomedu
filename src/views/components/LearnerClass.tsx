@@ -1,13 +1,14 @@
 import { ScrollView, StyleSheet, Text } from "react-native";
-import InfoClass from "./InfoClass";
-import InfoLesson from "./InfoLesson";
-import InfoTuition from "./InfoTuition";
+import InfoClass from "./LearnerClass/InfoClass";
+import InfoLesson from "./LearnerClass/InfoLesson";
+import InfoTuition from "./LearnerClass/InfoTuition";
 import { TouchableOpacity } from "react-native-gesture-handler";
-import { useCallback, useEffect, useState } from "react";
-import ClassLevel from "../../models/ClassLevel";
+import { useCallback, useContext, useState } from "react";
 import AClass from "../../apis/AClass";
-import { startAfter } from "firebase/database";
 import Lesson from "../../models/Lesson";
+import Dialog from "react-native-dialog";
+import { NavigationContext } from "@react-navigation/native";
+import ScreenName from "../../constants/ScreenName";
 
 type Session = {
   id: number;
@@ -18,23 +19,28 @@ type Session = {
   hinhThucHoc: string;
 };
 
-const Class = () => {
-  // gia tri
+const LearnerClass = () => {
+  // state
   const [dataTitle, setDataTitle] = useState<string>("");
   const [dataDesc, setDataDesc] = useState<string>("");
   const [dataMajorId, setDataMajorId] = useState<number>(-1);
   const [dataClassLevel, setDataClassLevel] = useState<number>(-1);
 
+  // thêm state để báo lỗi khi các trường để trống
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  // chuyen sang mang hinh detail class
+  const navigation = useContext(NavigationContext);
+
   // lesson
   const [lessons, setLessons] = useState<Lesson[]>([]);
-  const [dataDayLesson, setDataDayLesson] = useState<number>(0);
-  const [dataDuration, setDataDuration] = useState<number>(0);
-  const [dataStartedAt, setDataStartedAt] = useState<number>(0);
-  const [dataLessonType, setDataLessonType] = useState<boolean>(false);
 
-  const [dataPrice, setDataPrice] = useState<number>(0);
+  const [dataPrice, setDataPrice] = useState<number | null>(null);
   const [dataDateStart, setDataDateStart] = useState("");
   const [dataDateEnd, setDataDateEnd] = useState("");
+
+  // Dialog state
+  const [isDialogVisible, setIsDialogVisible] = useState(false);
 
   const handleDataChangeClass = (
     title?: string,
@@ -61,7 +67,7 @@ const Class = () => {
 
   const handleDataChangeLesson = (lessons: Lesson[]) => {
     console.log("class session", lessons);
-    
+
     setLessons(lessons);
   };
 
@@ -110,9 +116,40 @@ const Class = () => {
     console.log("endedAt: ", dataDateEnd);
     console.log("Type of endedAt: ", typeof dataDateEnd);
 
-    if (dataDateStart && dataDateEnd) {
-      console.log("huhu");
+    if (!dataTitle.trim()) {
+      setErrorMessage("Vui lòng nhập tiêu đề.");
+      return;
+    }
 
+    if (!dataDesc.trim()) {
+      setErrorMessage("Vui lòng nhập mô tả.");
+      return;
+    }
+
+    if (dataMajorId === -1) {
+      setErrorMessage("Vui lòng chọn môn học.");
+      return;
+    }
+
+    if (dataClassLevel === -1) {
+      setErrorMessage("Vui lòng chọn cấp học.");
+      return;
+    }
+    
+    if (dataPrice === null || dataPrice === 0 || isNaN(dataPrice)) {
+      setErrorMessage("Vui lòng nhập học phí hợp lệ.");
+      return;
+    }
+
+    if (!dataDateStart.trim() || !dataDateEnd.trim()) {
+      setErrorMessage("Vui lòng chọn ngày bắt đầu và ngày kết thúc.");
+      return;
+    }
+
+    // Reset lỗi trước khi tiếp tục
+    setErrorMessage(null);
+
+    if (dataDateStart && dataDateEnd) {
       AClass.createClass(
         dataTitle,
         dataDesc,
@@ -122,9 +159,13 @@ const Class = () => {
         convertStringToTimestamp(dataDateStart),
         convertStringToTimestamp(dataDateEnd),
         lessons,
-        () => {}
+        () => {
+          // Hiển thị dialog khi lớp học được tạo thành công
+          setIsDialogVisible(true);
+        }
       );
     }
+    // navigation?.navigate(ScreenName.DETAIL_CLASS);
   }, [
     dataTitle,
     dataDesc,
@@ -133,19 +174,32 @@ const Class = () => {
     dataPrice,
     dataDateStart,
     dataDateEnd,
-    dataDayLesson,
-    dataStartedAt,
-    dataDuration,
-    dataLessonType,
+    lessons,
   ]);
+
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
       <InfoClass onNext={handleDataChangeClass} />
       <InfoLesson handleGetLesson={handleDataChangeLesson} />
       <InfoTuition onNext={handleDataChangeTuition} />
+
       <TouchableOpacity style={styles.btnNext} onPress={handleSaveClass}>
         <Text style={styles.txtNext}>Tạo Lớp</Text>
       </TouchableOpacity>
+
+      {errorMessage && <Text style={styles.errorText}>{errorMessage}</Text>}
+
+      {/* Dialog thông báo thành công */}
+      <Dialog.Container visible={isDialogVisible}>
+        <Dialog.Title>Thành Công!</Dialog.Title>
+        <Dialog.Description>
+          Lớp học của bạn đã được tạo thành công.
+        </Dialog.Description>
+        <Dialog.Button
+          label="OK"
+          onPress={() => setIsDialogVisible(false)} // Đóng dialog khi nhấn "OK"
+        />
+      </Dialog.Container>
     </ScrollView>
   );
 };
@@ -170,6 +224,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
   },
+  errorText: {
+    color: "red",
+    textAlign: "center",
+    marginTop: 10,
+    fontWeight: "bold",
+  },
 });
 
-export default Class;
+export default LearnerClass;
