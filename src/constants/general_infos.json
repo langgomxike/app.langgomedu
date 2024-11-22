@@ -1,5 +1,7 @@
 {
-  "app_name": "Langgom",
+  "app_name": "LanggomEdu",
+  "banking_code": "MB",
+  "banking_number": "0376961547",
   "creation_fee_for_parents": 0,
   "creation_fee_for_tutors": 0.3,
   "report_class_level_1": 21,
@@ -10,5 +12,5 @@
   "report_user_level_2": 40,
   "report_user_level_3": 60,
   "report_user_level_4": 80,
-  "webiste_link": "https://google.com"
+  "webiste_link": "https://langgomedu.com"
 }
