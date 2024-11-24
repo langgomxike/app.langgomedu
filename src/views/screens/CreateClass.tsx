@@ -1,60 +1,71 @@
-import { StyleSheet, TouchableOpacity } from "react-native";
+import { Alert, StyleSheet, TouchableOpacity } from "react-native";
 import { Text, View } from "react-native";
-import ProfileScreen from "./Profile";
-import { useState } from "react";
-import InfoClass from "../components/InfoClass";
-import InfoLesson from "../components/InfoLesson";
-import Class from "../components/Class";
+import { useContext, useState } from "react";
+import LearnerClass from "../components/LearnerClass"; // Phụ huynh tạo lớp
+import TurtorClass from "../components/TurtorClass"; // Gia sư tạo lớp
+import { AccountContext } from "../../configs/AccountConfig";
+import { RoleList } from "../../models/Role";
 
 export default function CreateClassScreen() {
-  //states
-  const [activeTab, setActiveTab] = useState("classInfo"); // State để quản lý tab đang được chọn
-  const [title, setTitle] = useState("");
+
+  // Giả lập vai trò (role)
+  const accountContext = useContext(AccountContext); // lay duoc acount
+
+  // State quản lý tab đang được chọn
+  const [activeTab, setActiveTab] = useState<number | null>(null);
+
+  // Xử lý nhấn tab
+  const handleTabPress = (tabIndex: number) => {
+
+    const roleIds = accountContext.account?.roles?.map(role => role.id)
+
+    // Kiểm tra quyền truy cập tab
+    if ((tabIndex === 0 && roleIds?.includes(RoleList.TUTOR)) || (tabIndex === 1 && roleIds?.includes(RoleList.PARENT))) {
+      Alert.alert("Thông báo", "Bạn không có quyền truy cập tab này!");
+      return;
+    }
+    setActiveTab(tabIndex); // Đặt tab đang được chọn
+  };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Tạo lớp học tuyển gia sư</Text>
+      <Text style={styles.header}>Tạo lớp học tuyển sinh</Text>
       <View style={styles.tabContainer}>
-        {/* Tab Thông tin lớp */}
+        {/* Tab Phụ huynh tạo lớp */}
         <TouchableOpacity
-          style={styles.tab}
-          onPress={() => setActiveTab("classInfo")}
+          style={[styles.tab, activeTab === 0 && styles.activeTab]} // Tab đang được chọn
+          onPress={() => handleTabPress(0)} // Xử lý nhấn tab
         >
           <Text
             style={[
               styles.tabText,
-              activeTab === "classInfo" && styles.activeTabText,
+              activeTab === 0 && styles.activeTabText, // Text tab đang được chọn
             ]}
           >
-            Thông tin lớp
+            PHỤ HUYNH TẠO LỚP
           </Text>
-          {activeTab === "classInfo" && <View style={styles.activeTabLine} />}
         </TouchableOpacity>
 
-        {/* Tab Thông tin học sinh */}
+        {/* Tab Gia sư tạo lớp */}
         <TouchableOpacity
-          style={styles.tab}
-          onPress={() => setActiveTab("studentInfo")}
+          style={[styles.tab, activeTab === 1 && styles.activeTab]} // Tab đang được chọn
+          onPress={() => handleTabPress(1)} // Xử lý nhấn tab
         >
           <Text
             style={[
               styles.tabText,
-              activeTab === "studentInfo" && styles.activeTabText,
+              activeTab === 1 && styles.activeTabText, // Text tab đang được chọn
             ]}
           >
-            Thông tin học sinh
+            GIA SƯ TẠO LỚP
           </Text>
-          {activeTab === "studentInfo" && <View style={styles.activeTabLine} />}
         </TouchableOpacity>
       </View>
 
       {/* Nội dung của từng tab */}
       <View>
-        {activeTab === "classInfo" ? (
-          <Class />
-        ) : (
-          <Text>Nội dung Thông tin học sinh</Text>
-        )}
+        {activeTab === 0 && <LearnerClass />}
+        {activeTab === 1 && <TurtorClass />}
       </View>
     </View>
   );
@@ -62,14 +73,15 @@ export default function CreateClassScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    // padding: 10,
+    flex: 1,
+    backgroundColor: "#f9f9f9",
   },
   header: {
     fontSize: 24,
     textAlign: "center",
     fontWeight: "bold",
-    paddingBottom: 20,
-    backgroundColor: "#fff"
+    padding: 20,
+    backgroundColor: "#fff",
   },
   tabContainer: {
     flexDirection: "row",
@@ -81,19 +93,18 @@ const styles = StyleSheet.create({
   tab: {
     alignItems: "center",
     flex: 1,
+    paddingVertical: 10,
   },
   tabText: {
     fontSize: 16,
     color: "gray",
   },
-  activeTabText: {
-    color: "#4da6ff", // Màu của tab đang hoạt động
-    fontWeight: "bold",
+  activeTab: {
+    borderBottomWidth: 2,
+    borderBottomColor: "#4da6ff", // Đường gạch dưới tab được chọn
   },
-  activeTabLine: {
-    width: "100%",
-    height: 2,
-    backgroundColor: "#4da6ff", // Màu của đường gạch dưới tab đang hoạt động
-    marginTop: 5,
+  activeTabText: {
+    color: "#4da6ff", // Màu chữ tab được chọn
+    fontWeight: "bold",
   },
 });

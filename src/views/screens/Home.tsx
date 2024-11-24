@@ -33,6 +33,7 @@ import vn from "../../../languages/vn.json";
 import en from "../../../languages/en.json";
 import ja from "../../../languages/ja.json";
 import ReactAppUrl from "../../configs/ConfigUrl";
+import {AppInfoContext} from "../../configs/AppInfoContext";
 import SFirebase, { FirebaseNode } from "../../services/SFirebase";
 import SuggestList from "../components/SuggestList";
 import UserClassManager from "../components/UserClassManager";
@@ -58,6 +59,7 @@ export default function HomeScreen() {
 
   const navigation = useContext(NavigationContext);
   const accountContext = useContext(AccountContext);
+  const appInfoContext = useContext(AppInfoContext);
   const languageContext = useContext(LanguageContext);
   const {user, setUser} = useContext(UserContext);
   const majorsLevelsContext = useContext(MajorsLevelsContext);
@@ -168,59 +170,6 @@ export default function HomeScreen() {
 
   }, [ accountContext.setAccount]);
 
-  //set up login
-  useEffect(() => {
-    AUser.implicitLogin((user) => {
-      if (!user) {
-        navigation?.reset({
-          index: 0,
-          routes: [{ name: ScreenName.LOGIN }],
-        });
-      } else {
-        //store new token into async storage
-        SAsyncStorage.setData(AsyncStorageKeys.TOKEN, user.token);
-
-        if (accountContext.setAccount) {
-          accountContext.setAccount(user);
-          setUser({ID: user.id, TYPE: UserType.LEANER});
-
-          //check if admin/superadmin or not
-          if (
-            user.role?.id === RoleList.SUPER_ADMIN ||
-            user.role?.id === RoleList.ADMIN
-          ) {
-            navigation?.reset({
-              index: 0,
-              routes: [{ name: ScreenName.HOME_ADMIN }],
-            });
-          }
-
-          Toast.show(languageContext.language.WELCOME + " " + user.full_name, 2000);
-        }
-      }
-    });
-  }, [accountContext.setAccount]);
-
-  //set up multilanguage
-  useEffect(() => {
-    SAsyncStorage.getData(AsyncStorageKeys.LANGUAGE, (language) => {
-      switch (+language) {
-        case 0: // vn
-          languageContext.setLanguage &&
-          languageContext.setLanguage(vn);
-          break;
-        case 1: // en
-          languageContext.setLanguage &&
-          languageContext.setLanguage(en);
-          break;
-        case 2: //ja
-          languageContext.setLanguage &&
-          languageContext.setLanguage(ja);
-          break;
-      }
-    });
-  }, []);
-
   // render
   return (
     <ScrollView showsVerticalScrollIndicator={false}>
@@ -232,7 +181,7 @@ export default function HomeScreen() {
           {/* Header title */}
           <View style={styles.headerTitleContainer}>
             <View style={{flex: 1}}>
-              <Text style={[styles.headerTitle, styles.title1]}>Xin Chào!</Text>
+              <Text style={[styles.headerTitle, styles.title1]}>{languageContext.language.WELCOME}!</Text>
               <Text style={[styles.headerTitle, styles.title2]}>
                 {accountContext.account?.full_name}
               </Text>

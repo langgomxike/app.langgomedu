@@ -1,4 +1,4 @@
-import {Image, ScrollView, StyleSheet, Text, TouchableOpacity, View,} from "react-native";
+import {Image, Linking, ScrollView, StyleSheet, Text, TouchableOpacity, View,} from "react-native";
 import BackWithDetailLayout from "../layouts/BackWithDetail";
 import {ListItemVietnamese, ListItemEnglish, ListItemJapanese} from "../../configs/AccountListItemConfig";
 import AccountItem, {AccountItemProps} from "../components/AccountItem";
@@ -18,6 +18,7 @@ import RBSheet from "react-native-raw-bottom-sheet";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import {BackgroundColor, TextColor} from "../../configs/ColorConfig";
 import ConfirmDialog from "../components/ConfirmDialog";
+import {AppInfoContext} from "../../configs/AppInfoContext";
 
 type FlatListItemProps = {
   item: AccountItemProps;
@@ -29,6 +30,7 @@ function FlatListItem({item, index}: FlatListItemProps) {
   const navigation = useContext(NavigationContext);
   const accountContext = useContext(AccountContext);
   const languageContext = useContext(LanguageContext);
+  const appInfos = useContext(AppInfoContext).infos;
 
   //refs
   const refRBSheet = useRef<ElementRef<typeof RBSheet>>(null);
@@ -64,6 +66,10 @@ function FlatListItem({item, index}: FlatListItemProps) {
     alert("handleDeleteAccount");
   }, []);
 
+  const handleOpenWebsite = useCallback(() => {
+    Linking.openURL(appInfos.webiste_link);
+  }, []);
+
   const handleChangeLanguage = useCallback((language: typeof vn) => {
     languageContext.setLanguage && languageContext.setLanguage(language);
 
@@ -93,6 +99,7 @@ function FlatListItem({item, index}: FlatListItemProps) {
       goToRatingScreen,
       goToChangePasswordScreen,
       () => setShowConfirmDeleteAccount(true),
+      handleOpenWebsite,
       refRBSheet.current?.open,
       () => setShowConfirmLogout(true),
     ];
@@ -158,13 +165,13 @@ export default function AccountScreen() {
   //effects
   useEffect(() => {
     switch (languageContext.language.TYPE) {
-      case 0: //vn
+      case "vi": //vn
         setListItem(ListItemVietnamese);
         break;
-      case 1: //en
+      case "en": //en
         setListItem(ListItemEnglish);
         break;
-      case 2: //ja
+      case "ja": //ja
         setListItem(ListItemJapanese);
         break;
     }
