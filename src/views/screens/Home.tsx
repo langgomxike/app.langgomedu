@@ -157,10 +157,6 @@ export default function HomeScreen() {
 
   // effects
   useEffect(() => {
-    if(accountContext.account || "089204000003" ) {
-      // const userId = accountContext.account.id
-      const userId = "089204000003"
-
       AMajor.getAllMajors((data) => {
         setMajors(data);
         majorsLevelsContext?.setMajors(data);
@@ -169,10 +165,8 @@ export default function HomeScreen() {
       AClassLevel.getAllClassLevels((data) => {
         majorsLevelsContext?.setClassLevels(data);
       });
-  
 
-    }
-  }, [userTypeName, accountContext.setAccount]);
+  }, [ accountContext.setAccount]);
 
   //set up login
   useEffect(() => {
@@ -326,11 +320,6 @@ export default function HomeScreen() {
             <UserClassManager/>
           </View>
         </View>
-
-        <Filter
-          isVisible={showingFilter}
-          onRequestClose={() => setShowingFilter(false)}
-        />
       </View>
     </ScrollView>
   );

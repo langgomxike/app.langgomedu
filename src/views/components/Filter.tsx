@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   Alert,
   KeyboardAvoidingView,
@@ -14,20 +14,28 @@ import CustomInput from "./Inputs/CustomInput";
 import { BackgroundColor } from "../../configs/ColorConfig";
 import RadioButton from "./Inputs/CustomRadioButton";
 import ReactNativeModal from "react-native-modal";
-import { Feather, Ionicons, Octicons } from "@expo/vector-icons";
+import { Octicons } from "@expo/vector-icons";
 import DropDownAddress from "./dropdown/DropDownAddress";
 import DropDownMajors from "./dropdown/DropDownMajors";
 import { TextInput } from "react-native-gesture-handler";
+import Filters from "../../models/Filters";
+import { startAt } from "firebase/database";
 
 type FilterProps = {
   isVisible: boolean;
   onRequestClose: () => void;
+  onSetFilterValues: (filterValues: Filters) => void;
 };
 
 const optionForms = [
   { label: "Online", value: "online" },
   { label: "Offline", value: "offline" },
 ];
+
+const SORT = {
+  priceASC : "priceASC",
+  priceDESC : "priceDESC",
+}
 
 const customPadding = 30;
 const customPaddingHorizontal = 10;
@@ -36,26 +44,36 @@ const customBorderTopLeftRadius = 30;
 const customBorderBottomLeftRadius = 30;
 const customOverlayHeight = "100%";
 
-const Filter = ({ isVisible, onRequestClose }: FilterProps) => {
+const Filter = ({ isVisible, onRequestClose, onSetFilterValues }: FilterProps) => {
   // USESTATE
   // CHECK BOX
-  const [selectedValues, setSelectedValues] = useState<string[]>([]);
+  const [selectedType, setSelectedType] = useState<string[]>([]);
+  const [sortValues, setSortValues] = useState<string>("");
+
+  // ADDRESS 
+  const [selectedCities, setSelectedCities] = useState<string[]>([]);
+  const [selectedDistricts, setSelectedDistricts] = useState<string[]>([]);
+  const [selectedWards, setSelectedWards] = useState<string[]>([]);
+
+  // MAJORS AND CLASS LEVEL
+  const [selectedMajors, setSelectedMajors] = useState<string[]>([]);
+  const [selectedClassLevels, setSelectedClassLevels] = useState<string[]>([]);
 
   // SET VALUE "GIA NHO NHAT, GIA LON NHAT"
-  const [minPrice, setMinPrice] = useState<string>(""); // Giá trị tối thiểu
-  const [maxPrice, setMaxPrice] = useState<string>(""); // Giá trị tối đa
-  const [error, setError] = useState<string | null>(null); // Thông báo lỗi
+  const [minPrice, setMinPrice] = useState<string>("");
+  const [maxPrice, setMaxPrice] = useState<string>("");
+  const [error, setError] = useState<string | null>(null);
 
   // SET VALUE INPUT
-  const [location, setLocation] = useState("");
-  const [subject, setSubject] = useState("");
-  const [itemLocations, setItemLocations] = useState<string[]>([]);
-  const [itemSubjects, setItemSubjects] = useState<string[]>([]);
-  const [quantitys, setQuantitys] = useState<number>(0);
+  const [quantitys, setQuantitys] = useState<string>("");
+
+  // STARTED AND ENDED
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
 
   // HANDLE USECALLBACK
   const handleSelect = useCallback((selected: string[]) => {
-    setSelectedValues(selected);
+    setSelectedType(selected);
   }, []);
 
   const handleCloseModel = useCallback(() => {
@@ -63,42 +81,8 @@ const Filter = ({ isVisible, onRequestClose }: FilterProps) => {
   }, [onRequestClose]);
 
   // LOCATON
-  const handleInputLocation = () => {
-    if (location.trim() === "") {
-      return;
-    }
-
-    setItemLocations((prevLocations) => {
-      const updatedList = [location, ...prevLocations]; // Thêm địa điểm mới vào đầu danh sách
-      return updatedList.slice(0, 5); // Giới hạn chỉ tối đa 5 địa điểm
-    });
-    setLocation("");
-  };
-
-  const removeItemLocation = (index: number) => {
-    setItemLocations((prevLocations) => {
-      return prevLocations.filter((_, i) => i !== index);
-    });
-  };
 
   // SUBJECT
-  const handleInputSubject = () => {
-    if (subject.trim() === "") {
-      return;
-    }
-
-    setItemSubjects((prevSubjects) => {
-      const updatedList = [subject, ...prevSubjects];
-      return updatedList.slice(0, 5); // Giới hạn chỉ tối đa 5 địa điểm
-    });
-    setSubject("");
-  };
-
-  const removeItemSubject = (index: number) => {
-    setItemSubjects((prevSubjects) => {
-      return prevSubjects.filter((_, i) => i !== index);
-    });
-  };
 
   // PRICE
   // Kiểm tra điều kiện giá
@@ -130,27 +114,78 @@ const Filter = ({ isVisible, onRequestClose }: FilterProps) => {
 
   // SO LUONG
   const handleQuantity = (value: string) => {
-    // chuyen doi chuoi thanh so
-    const quantitys = parseFloat(value);
-    if (quantitys < 0) {
-      setQuantitys(0);
-    } else {
-      setQuantitys(quantitys);
-    }
+    if (/^\d*$/.test(value)) {
+      setQuantitys(value);
+      }
   };
 
-  const handleAsc = useCallback(() => {
-    Alert.alert("ASC", "asc");
-  }, []);
+  function convertStringArrayToNumberArray(stringArray: string[]): number[] {
+    return stringArray.map((str) => {
+      const num = Number(str);
+      return isNaN(num) ? 0 : num;
+    });
+  }
 
-  const handleDesc = useCallback(() => {
-    Alert.alert("DESC", "desc");
-  }, []);
+  function convertDateStringToMilliseconds(dateString: string) {
+    if (!dateString) {
+      return null;
+    }
+    const [day, month, year] = dateString.split("/").map(Number);
+    return new Date(year, month - 1, day).getTime();
+  }
 
   const handleApply = useCallback(() => {
-    Alert.alert("APPLY", "apply");
+    const filterValues: Filters = {
+      minPrice: minPrice == "" ? undefined : Number(minPrice),
+      maxPrice: maxPrice == "" ? undefined : Number(maxPrice),
+      province: selectedCities.length == 0 ? undefined : selectedCities,
+      district: selectedDistricts.length == 0 ? undefined : selectedDistricts,
+      ward: selectedWards.length == 0 ? undefined : selectedWards,
+      classLevelId: selectedClassLevels.length === 0 ? undefined :convertStringArrayToNumberArray(selectedClassLevels),
+      major: selectedMajors.length == 0 ? undefined : convertStringArrayToNumberArray(selectedMajors),
+      maxLearners: quantitys == "" ? undefined :  Number(quantitys),
+      startedAt: convertDateStringToMilliseconds(fromDate),
+      endedAt: convertDateStringToMilliseconds(toDate),
+      sort: sortValues == "" ? undefined : sortValues
+    }
+
+    onSetFilterValues(filterValues)
+    
     onRequestClose();
-  }, [onRequestClose]);
+  }, [selectedCities, selectedDistricts, selectedWards,selectedMajors, selectedClassLevels ,sortValues, minPrice, maxPrice, quantitys, fromDate]);
+
+  const handleResetFilter =  useCallback(() => {
+    setSelectedType([]);
+    setSortValues("");
+    setSelectedCities([]);
+    setSelectedDistricts([]);
+    setSelectedWards([]);
+    setSelectedMajors([]);
+    setSelectedClassLevels([]);
+    setMinPrice("");
+    setMaxPrice("");
+    setQuantitys("");
+    setFromDate("");
+    setToDate("");
+  }, []);
+
+  // effects
+  useEffect(() => {
+    // console.log(">> selectedCities: ", selectedCities);
+    // console.log(">> selectedDistricts: ", selectedDistricts);
+    // console.log(">> selectedWards: ", selectedWards);
+    // console.log(">> sort", sortValues)
+    // console.log(">> min price: ", minPrice);
+    // console.log(">> max price: ", maxPrice);
+    // console.log(">> quantity: ", quantitys);
+    // console.log(">> from date: ", fromDate);
+    // console.log(">> from date: ", convertDateStringToMilliseconds(fromDate));
+    // console.log(">> morjors: ", selectedMajors);
+    // console.log(">> class levels: ", selectedClassLevels);
+    
+  }, [selectedCities, selectedDistricts, selectedWards,selectedMajors, selectedClassLevels ,sortValues, minPrice, maxPrice, quantitys, fromDate]);
+
+  
 
   return (
     <ReactNativeModal
@@ -174,13 +209,25 @@ const Filter = ({ isVisible, onRequestClose }: FilterProps) => {
             >
               {/* DIA DIEM */}
               <View style={styles.paddingCustom}>
-                <DropDownAddress />
+                <DropDownAddress 
+                  selectedCities={selectedCities}
+                  selectedDistricts={selectedDistricts}
+                  selectedWards={selectedWards}
+                  onSetSelectedCities={setSelectedCities} 
+                  onSetSelectedDistricts={setSelectedDistricts}
+                  onSetSelectedWards={setSelectedWards}
+                 />
               </View>
 
               {/* MON HOC */}
               <View style={{ paddingBottom: 20 }}>
-                <DropDownMajors />
+                <DropDownMajors 
+                selectedMajors={selectedMajors}
+                selectedClassLevels={selectedClassLevels}
+                onSetSelectedMajors={setSelectedMajors} 
+                onSetSelectedClassLevels={setSelectedClassLevels}/>
               </View>
+
               {/* HINH THUC */}
               <Text style={styles.textSection}>Hình thức:</Text>
               <View style={{ paddingLeft: 20 }}>
@@ -190,12 +237,12 @@ const Filter = ({ isVisible, onRequestClose }: FilterProps) => {
               {/* SAP XEP THEO GIA */}
               <View style={[styles.section, styles.paddingCustom]}>
                 <Text style={styles.textSection}>Sắp xếp theo giá:</Text>
-                <TouchableOpacity style={styles.iconDESC} onPress={handleDesc}>
-                  <Octicons name="sort-desc" size={24} color="black" />
+                <TouchableOpacity style={styles.iconDESC} onPress={() => setSortValues(SORT.priceDESC)}>
+                  <Octicons name="sort-desc" size={24} color={sortValues === SORT.priceDESC ? BackgroundColor.primary : "black"} />
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.iconASC} onPress={handleAsc}>
-                  <Octicons name="sort-asc" size={24} color="black" />
+                <TouchableOpacity style={styles.iconASC} onPress={() => setSortValues(SORT.priceASC)}>
+                  <Octicons name="sort-asc" size={24} color={sortValues === SORT.priceASC ? BackgroundColor.primary : "black"} />
                 </TouchableOpacity>
               </View>
 
@@ -237,7 +284,7 @@ const Filter = ({ isVisible, onRequestClose }: FilterProps) => {
               {/* SO LUONG */}
               <View style={styles.paddingCustom}>
                 <CustomInput
-                  label="Số lượng:"
+                  label="Số lượng học sinh:"
                   placeholder="Nhập số lượng"
                   required={false}
                   onChangeText={handleQuantity}
@@ -246,21 +293,47 @@ const Filter = ({ isVisible, onRequestClose }: FilterProps) => {
                   value={quantitys + ""}
                 />
               </View>
+
+              <View style={[styles.queryDateBlock]}>
+            <View style={{ flex: 1 }}>
+              <CustomInput
+                label="Từ ngày"
+                placeholder="Chọn ngày..."
+                required={false}
+                value={fromDate}
+                onChangeText={setFromDate}
+                type="date"
+              />
+            </View>
+            <View style={{ flex: 1 }}>
+              <CustomInput
+                label="Đến ngày"
+                placeholder="Chọn ngày..."
+                required={false}
+                value={toDate}
+                onChangeText={setToDate}
+                type="date"
+              />
+            </View>
+          </View>
             </ScrollView>
 
             {/* BUTTON AP DUNG */}
             <View style={[styles.btnContainer]}>
               {/* BUTTON QUAY LAI */}
+              <TouchableOpacity style={styles.btnReset} onPress={handleResetFilter}>
+                <Text style={styles.textReset}>Thiết lập lại</Text>
+              </TouchableOpacity>
               <TouchableOpacity style={styles.btnApply} onPress={handleApply}>
                 <Text style={styles.textApply}>Áp dụng</Text>
               </TouchableOpacity>
             </View>
-            <TouchableOpacity
+            {/* <TouchableOpacity
               style={{ marginTop: -20 }}
               onPress={handleCloseModel}
             >
               <Feather name="chevrons-right" size={30} color="black" />
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </View>
         </View>
       </KeyboardAvoidingView>
@@ -272,7 +345,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: customPaddingHorizontal,
-    paddingVertical: customPaddingVertical,
+    paddingTop: customPaddingVertical,
     backgroundColor: "#fff",
     borderTopLeftRadius: customBorderTopLeftRadius,
     borderBottomLeftRadius: customBorderBottomLeftRadius,
@@ -323,9 +396,11 @@ const styles = StyleSheet.create({
   list: {
     maxHeight: 200, // Limit list height (adjust as needed)
   },
+
   listContent: {
     flexGrow: 1,
   },
+
   listItem: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -333,22 +408,48 @@ const styles = StyleSheet.create({
     paddingLeft: 15,
     paddingRight: 23,
   },
+
   btnContainer: {
+    flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
+    gap: 10,
+    paddingHorizontal: 5,
+    paddingTop: 20,
+    paddingBottom: 25,
   },
+
   btnApply: {
+    flex: 1,
     borderRadius: 10,
     backgroundColor: BackgroundColor.primary,
     paddingVertical: 13,
-    width: "50%",
   },
+
   textApply: {
     fontWeight: "bold",
     color: "#fff",
     fontSize: 15,
     textAlign: "center",
   },
+
+  btnReset: {
+    flex: 1,
+    borderRadius: 10,
+    backgroundColor: BackgroundColor.white,
+    paddingVertical: 13,
+    borderWidth: 1,
+    borderColor: BackgroundColor.sub_danger
+  },
+
+  textReset: {
+    fontWeight: "500",
+    color: "#ff0000",
+    fontSize: 15,
+    textAlign: "center",
+  },
+
+
   keyboardAvoidingView: {
     flex: 1,
   },
@@ -376,7 +477,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     backgroundColor: BackgroundColor.white,
     borderWidth: 1,
-    borderColor: "#fff"
+    borderColor: "#eee",
   },
 
   boxShadow: {
@@ -408,6 +509,13 @@ const styles = StyleSheet.create({
     shadowRadius: 1.41,
 
     elevation: 2,
+  },
+
+  queryDateBlock: {
+    flexDirection: "row",
+    gap: 20,
+    marginBottom: "15%",
+    paddingHorizontal: 5,
   },
 });
 export default Filter;

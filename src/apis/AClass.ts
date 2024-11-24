@@ -4,6 +4,7 @@ import ReactAppUrl from "../configs/ConfigUrl";
 import Lesson from "../models/Lesson";
 import Values from "../constants/Values";
 import Pagination from "../models/Pagination";
+import Filters from "../models/Filters";
 
 export default class AClass {
   private static API_URL = ReactAppUrl.API_BASE_URL;
@@ -35,13 +36,34 @@ export default class AClass {
     userId: string,
     userType: number,
     page: number,
+    filters: Filters | undefined,
     onNext: (classes: Class[], pagination:Pagination) => void,
     onLoading: (loading: boolean) => void
   ) {
     const perPage = Values.PERPAGE;
     onLoading(true);
+
+     // Chuyển `filters` thành query string
+     let filterParams = ""
+     if(filters) {
+      filterParams = Object.entries(filters)
+      // Bỏ qua giá trị null/undefined/rỗng/NAN
+      .filter(([, value]) => value !== undefined && value !== null && value !== "")
+      .map(([key, value]) => {
+        if(Array.isArray(value)) {
+          return `${key}=${value.join(",")}`;
+        }
+        return `${key}=${value}`;
+      }).join("&");
+     }
+
+     
+     
+     const url = `${this.API_URL}/classes/suggests/${userId}?user_type=${userType}&page=${page}&perPage=${perPage}${filterParams ? `&${filterParams}` : ""}`
+     console.log(">>> suggest class url: ", url);
+
     axios
-      .get(`${this.API_URL}/classes/suggests/${userId}?user_type=${userType}&page=${page}&perPage=${perPage}`)
+      .get(url)
       .then((response) => {
         const data = response.data.data
         onNext(data.classes, data.pagination );

@@ -6,16 +6,31 @@ import vietnamData from "../../../data/vietnam.json";
 import Feather from '@expo/vector-icons/Feather';
 
 // Định nghĩa kiểu dữ liệu cho JSON
-interface Dropdown {
+type Dropdown  = {
   label: string;
   value: string;
 }
 
-export default function DropDownAddress() {
+type DropDownAddressProps = {
+  selectedCities: string[];
+  selectedDistricts: string[];
+  selectedWards: string[];
+  onSetSelectedCities: (cities: string[]) => void;
+  onSetSelectedDistricts: (districts: string[]) => void;
+  onSetSelectedWards: (wards: string[]) => void;
+}
+
+
+
+export default function DropDownAddress({
+  selectedCities,
+  selectedDistricts,
+  selectedWards,
+  onSetSelectedCities,
+  onSetSelectedDistricts,
+  onSetSelectedWards,
+}: DropDownAddressProps) {
   // states //////////////////////////////////////////////
-  const [selectedCities, setSelectedCities] = useState<string[]>([]);
-  const [selectedDistricts, setSelectedDistricts] = useState<string[]>([]);
-  const [selectedWards, setSelectedWards] = useState<string[]>([]);
   const [districts, setDistricts] = useState<Dropdown[]>([]);
   const [wards, setWards] = useState<Dropdown[]>([]);
 
@@ -38,7 +53,6 @@ export default function DropDownAddress() {
       }
     });
     setDistricts(updatedDistricts);
-    setDistricts([]);
   }, [selectedCities]);
 
   // Lấy danh sách quận/huyện khi thay đổi danh sách thành phố
@@ -74,7 +88,6 @@ export default function DropDownAddress() {
     });
 
     setWards(updatedWards);
-    setSelectedWards([]);
   }, [selectedDistricts]);
 
   useEffect(() => {
@@ -89,7 +102,6 @@ export default function DropDownAddress() {
           }
       });
       setWards(updatedWards);
-      setSelectedWards([]);
   }, []);
 
   const renderItem = (item: any) => {
@@ -122,7 +134,7 @@ export default function DropDownAddress() {
           search
           searchPlaceholder="Search..."
           onChange={(item) => {
-            setSelectedCities(item);
+            onSetSelectedCities(item);
           }}
           renderLeftIcon={() => (
             <AntDesign
@@ -137,7 +149,7 @@ export default function DropDownAddress() {
             <View style={styles.selectedStyle}>
               <TouchableOpacity style={styles.selectedStyleButton} onPress={() => unSelect && unSelect(item)}>
                 <Text style={styles.textSelectedStyle}>{item.label}</Text>
-               <Feather name="trash-2" size={17} color="black" />
+               <Feather name="trash-2" size={15} color="gray" />
               </TouchableOpacity>
             </View>
           )}
@@ -160,7 +172,8 @@ export default function DropDownAddress() {
           search
           searchPlaceholder="Search..."
           onChange={(items) => {
-            setSelectedDistricts(items); // Cập nhật danh sách quận/huyện đã chọn
+             // Cập nhật danh sách quận/huyện đã chọn
+            onSetSelectedDistricts(items);
           }}
           renderLeftIcon={() => (
             <AntDesign
@@ -175,7 +188,7 @@ export default function DropDownAddress() {
             <View style={styles.selectedStyle}>
               <TouchableOpacity  style={styles.selectedStyleButton} onPress={() => unSelect && unSelect(item)}>
                 <Text style={styles.textSelectedStyle}>{item.label}</Text>
-               <Feather name="trash-2" size={17} color="black" />
+               <Feather name="trash-2" size={15} color="gray" />
               </TouchableOpacity>
             </View>
           )}
@@ -198,7 +211,7 @@ export default function DropDownAddress() {
           search
           searchPlaceholder="Search..."
           onChange={(item) => {
-            setSelectedWards(item);
+            onSetSelectedWards(item);
           }}
           renderLeftIcon={() => (
             <AntDesign
@@ -213,7 +226,7 @@ export default function DropDownAddress() {
             <View style={styles.selectedStyle}>
               <TouchableOpacity  style={styles.selectedStyleButton} onPress={() => unSelect && unSelect(item)}>
                 <Text style={styles.textSelectedStyle}>{item.label}</Text>
-               <Feather name="trash-2" size={17} color="black" />
+               <Feather name="trash-2" size={15} color="gray" />
               </TouchableOpacity>
             </View>
           )}
@@ -244,7 +257,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   placeholderStyle: {
-    fontSize: 16,
+    fontSize: 14,
   },
   selectedTextStyle: {
     fontSize: 14,

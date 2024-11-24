@@ -8,12 +8,24 @@ import ReactAppUrl from "../../../configs/ConfigUrl";
 import ClassLevel from "../../../models/ClassLevel";
 import { Feather } from "@expo/vector-icons";
 
-export default function DropDownMajors() {
+type DropdownMajorProps = {
+  selectedMajors: string[],
+  selectedClassLevels: string[],
+  onSetSelectedMajors: (major: string[]) => void;
+  onSetSelectedClassLevels: (classLevel: string[]) => void;
+}
+
+export default function DropDownMajors({
+  selectedMajors,
+  selectedClassLevels,
+  onSetSelectedMajors,
+   onSetSelectedClassLevels}: DropdownMajorProps) {
   //context
   const majorsLevelsContext = useContext(MajorsLevelsContext);
 
   // states
-  const [selected, setSelected] = useState<string[]>([]);
+  // const [selectedMajors, setSelectedMajors] = useState<string[]>([]);
+  // const [selectedClassLevels, setSelectedClassLevels] = useState<string[]>([]);
   const [majors, setMajors] = useState<Major[]>([]);
   const [classLevels, setClassLevels] = useState<ClassLevel[]>([]);
 
@@ -56,13 +68,14 @@ export default function DropDownMajors() {
         iconStyle={styles.iconStyle}
         data={majors}
         labelField="vn_name"
-        valueField="vn_name"
+        valueField="id"
         placeholder="Chọn môn học..."
-        value={selected}
+        value={selectedMajors}
         search
         searchPlaceholder="Search..."
         onChange={(item) => {
-          setSelected(item);
+          // setSelectedMajors(item);
+          onSetSelectedMajors(item);
         }}
         renderLeftIcon={() => (
           <AntDesign
@@ -76,7 +89,7 @@ export default function DropDownMajors() {
         renderSelectedItem={(item, unSelect) => (
           <TouchableOpacity style={styles.selectedStyle} onPress={() => unSelect && unSelect(item)}>
               <Text style={styles.textSelectedStyle}>{item.vn_name}</Text>
-               <Feather name="trash-2" size={17} color="black" />
+              <Feather name="trash-2" size={15} color="gray" />
           </TouchableOpacity>
         )}
       />
@@ -92,13 +105,13 @@ export default function DropDownMajors() {
             iconStyle={styles.iconStyle}
             data={classLevels}
             labelField="vn_name"
-            valueField="vn_name"
-            placeholder="Chọn môn học..."
-            value={selected}
+            valueField="id"
+            placeholder="Chọn cấp học..."
+            value={selectedClassLevels}
             search
             searchPlaceholder="Search..."
             onChange={(item) => {
-            setSelected(item);
+            onSetSelectedClassLevels(item);
             }}
             renderLeftIcon={() => (
             <AntDesign
@@ -112,7 +125,7 @@ export default function DropDownMajors() {
             renderSelectedItem={(item, unSelect) => (
             <TouchableOpacity style={styles.selectedStyle} onPress={() => unSelect && unSelect(item)}>
                 <Text style={styles.textSelectedStyle}>{item.vn_name}</Text>
-                 <Feather name="trash-2" size={17} color="black" />
+                <Feather name="trash-2" size={15} color="gray" />
             </TouchableOpacity>
             )}
         />

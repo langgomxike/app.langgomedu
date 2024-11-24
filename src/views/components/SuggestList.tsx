@@ -27,6 +27,7 @@ import Filter from "./Filter";
 import Feather from '@expo/vector-icons/Feather';
 import Values from "../../constants/Values";
 import Pagination from "../../models/Pagination";
+import Filters from "../../models/Filters";
 
 const TAB = {
   SUGGEST_CLASS: "suggestClass",
@@ -40,9 +41,10 @@ export default function SuggestList() {
   //contexts, refs
   const navigation = useContext(NavigationContext);
   const { user, setUser } = useContext(UserContext);
-  const userId = "089204000003";
+  
 
   // states ////////////////////////////////////////////////////////////////////////
+  const [userId, setUserId] = useState<string | undefined>(undefined);
   const [activeTab, setActiveTab] = useState(TAB.SUGGEST_CLASS);
   const [loading, setLoading] = useState(false);
   const [isFetchingMore, setIsFetchingMore] = useState(false);
@@ -51,21 +53,27 @@ export default function SuggestList() {
   const [showingFilter, setShowingFilter] = useState(false);
   const [page, setPage] = useState(1);
   const [paginations, setPaginations] = useState(new Pagination);
+  const [filterValues, setFilterValues] = useState<Filters>();
 
   // handle /////////////////////////////////////////////////////////////////////////
 
   // Hàm gọi get danh sách lớp học gợi ý từ api
-  const fetchSuggestedClasses = (currentPage: number, loading: (isloading: boolean) => void ) => {
-    AClass.getSuggetingClass(
-      userId,
-      user.TYPE,
-      page,
-      (newClasses, pagination ) => {
-        setSuggettingClasses((prevClasses) => [...prevClasses, ...newClasses]);
-        setPaginations(pagination);
-      },
-      loading
-    );
+  const fetchSuggestedClasses = (currentPage: number, loading: (isloading: boolean) => void, reset = false, filterValues?: Filters ) => {
+    if(userId) {
+      AClass.getSuggetingClass(
+        userId,
+        user.TYPE,
+        currentPage,
+        filterValues,
+        (newClasses, pagination ) => {
+          setSuggettingClasses((prevClasses) => {
+            return reset ? newClasses : [...prevClasses, ...newClasses];
+          });
+          setPaginations(pagination);
+        },
+        loading
+      );
+    }
   }
 
   //  Hàm xử lý để navigate sang detail class
@@ -80,7 +88,7 @@ export default function SuggestList() {
     if (selectedTab === TAB.SUGGEST_CLASS) {
       // Lấy lớp học gợi ý
       // SFirebase.track(FirebaseNode.Classes, [], () => {
-        fetchSuggestedClasses(page, setLoading)
+        fetchSuggestedClasses(page,setLoading)
       // });
     } else if (selectedTab === TAB.SUGGEST_CV) {
       // Lấy cvy gợi ý
@@ -102,17 +110,29 @@ export default function SuggestList() {
 
   // Lấy danh sách lớp học gợi ý lần đầu tiên
   useEffect(() => {
-    fetchSuggestedClasses(page, setLoading)
-  }, []);
+    fetchSuggestedClasses(page,setLoading)
+  }, [userId]);
 
-  // Lấy danh schs lớp học khi page thay đổi
+  // Lấy danh sách lớp học khi page thay đổi
   useEffect(() => {
-    if (page > 1) {
-      fetchSuggestedClasses(page, setIsFetchingMore)
-
-    console.log(`page: ${page}`);
-  }
+    if(page > 1) {
+      fetchSuggestedClasses(page, setIsFetchingMore, false ,filterValues)
+      console.log(`page: ${page}`);
+    }
   }, [page]);
+
+  // Khi filter thay đổi, reset danh sách và page
+  useEffect(() => {
+    setPage(1);
+    console.log("Filter thay đổi");
+    
+    fetchSuggestedClasses(1, setLoading, true ,filterValues); // Reset danh sách khi filter thay đổi
+  }, [filterValues]);
+
+  useEffect(() => {
+    setUserId(user.ID);
+    console.log(">>> user id: ", user.ID);
+  }, [user]);
 
 
   // render ////////////////////////////////////////////////////////////
@@ -149,6 +169,13 @@ export default function SuggestList() {
       </View>
 
       <View style={styles.btnFilterContainer}>
+      { activeTab === TAB.SUGGEST_CLASS && filterValues &&
+        <Text style={styles.totalTitle}>Tổng số lớp học: {paginations.total_items}</Text>
+      }
+      { activeTab === TAB.SUGGEST_CV && 
+        <Text style={styles.totalTitle}>Tổng số gia sư: {paginations.total_items}</Text>
+      }
+      <Text></Text>
         <TouchableOpacity onPress={() => setShowingFilter(true)} style={[styles.btnFilter, styles.boxShadow]}>
         <Feather name="filter" size={18} color="gray" />
         <Text style={styles.btnFilterText}>Lọc</Text>
@@ -213,6 +240,7 @@ export default function SuggestList() {
       <Filter
           isVisible={showingFilter}
           onRequestClose={() => setShowingFilter(false)}
+          onSetFilterValues = {setFilterValues}
         />
     </View>
   );
@@ -221,6 +249,7 @@ export default function SuggestList() {
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 20,
+    paddingBottom: 30
   },
 
   headerNav: {
@@ -272,8 +301,14 @@ const styles = StyleSheet.create({
   },
 
   btnFilterContainer: {
-    alignItems: "flex-end",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     marginBottom: 10,
+  },
+
+  totalTitle: {
+    fontWeight: "500",
   },
 
   btnFilter: {

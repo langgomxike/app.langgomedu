@@ -5,13 +5,14 @@ import { BackgroundColor } from "../../configs/ColorConfig";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import Class from '../../models/Class';
 import ReactAppUrl from '../../configs/ConfigUrl';
-import DateTimeConfig from '../../configs/DateTimeConfig';
+import moment from "moment";
 
 
 type CourseItemProps = {
   classData: Class
 }
-const URL = ReactAppUrl.PUBLIC_URL
+const URL = ReactAppUrl.PUBLIC_URL;
+const colorItem = "#666"
 export default function CourseItem({
   classData
 }:CourseItemProps){
@@ -54,35 +55,40 @@ export default function CourseItem({
       <View style={styles.content}>
         <View style={styles.contentHorizontal}>
           <View style={[styles.contentItem, styles.twoSection, {paddingVertical: 5}]}>
-          <Ionicons name="book-outline" size={20} color="black" />
+          <Ionicons name="book-outline" size={20} color={colorItem} />
             <Text style={styles.contentText}>{classData.class_level?.vn_name}</Text>
           </View>
 
           <View style={[styles.contentItem, styles.twoSection, {justifyContent: "flex-end"}]}>
-            <Ionicons name="calendar-outline" size={20} color="black" />
-            <Text style={styles.contentText}>{22/11/2024}</Text>
+            <Ionicons name="calendar-outline" size={20} color={colorItem} />
+            <Text style={styles.contentText}>{moment(classData.started_at).format("DD/MM/YYYY")}</Text>
           </View>
         </View>
 
         <View style={styles.line} />
 
-        <View style={[styles.contentItem, styles.marginButtom, {paddingTop: 10}]}>
-          <Ionicons name="time-outline" size={20} color="black" />
+        <View style={[styles.contentItemContainer, styles.marginButtom, {paddingTop: 10}]}>
+            <View style={styles.item}>
+              <Ionicons name="time-outline" size={20} color={colorItem} />
+              <Text style={{color: colorItem}}>Thời lượng</Text>
+            </View>
           <Text style={styles.contentText}>11 giờ/Buổi</Text>
         </View>
     
-        <View style={[styles.contentItem, styles.marginButtom]}>
-          <Ionicons name="home-outline" size={20} color="black" />
+        <View style={[styles.contentItemContainer, styles.marginButtom]}>
+          <View style={styles.item}>
+          <Ionicons name="git-commit-outline" size={20} color={colorItem} />
+            <Text style={{color: colorItem}}>Hình thức</Text>
+          </View>
           <Text style={styles.contentText}>{classData.type}</Text>
         </View>
 
-        <View style={[styles.contentItem, styles.marginButtom]}>
-          {/* <Image
-            source={require("../../../assets/images/ic_location.png")}
-            style={styles.contentIcon}
-          /> */}
-          <Ionicons name="location-outline" size={20} color="black" />
-          <Text style={styles.contentText}>{`${classData.address?.ward}, ${classData.address?.district}\n${classData.address?.province}`}</Text>
+        <View style={[{flexDirection: "column", justifyContent: "space-between"}, styles.marginButtom]}>
+          <View style={styles.item}>
+            <Ionicons name="location-outline" size={20} color={colorItem} />
+            <Text style={{color: colorItem}}>Địa chỉ</Text>
+          </View>
+          <Text style={[styles.contentAddress]}>{`${classData.address?.ward}, ${classData.address?.district}\n${classData.address?.province}`}</Text>
         </View>
         <View style={styles.line} />
 
@@ -110,6 +116,9 @@ const styles = StyleSheet.create({
   },
   contentText: {
     fontSize: 14,
+    textAlign: "right",
+    fontWeight: "500",
+    color: "#4D5267",
   },
   contentIcon: {
     width: 23,
@@ -168,4 +177,26 @@ const styles = StyleSheet.create({
     color: "white",
     height: 45
   },
+
+  contentItemContainer: {
+    flexDirection: "row",
+    gap: 10,
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+
+  item:{
+    flexDirection: "row",
+     gap: 8,
+  },
+
+  contentAddress: {
+    fontSize: 14,
+    textAlign: "left",
+    fontWeight: "500",
+    color: "#4D5267",
+    marginLeft: 5,
+    marginTop: 5,
+  },
+
 });

@@ -147,7 +147,6 @@ export default function LeanerAttendance() {
         const formData = new FormData();
 
         // Thêm ảnh vào formData
-
         if (selectedImage && paymentMethod === "bank") {
           console.log("selected image", selectedImage);
           formData.append("file", {
