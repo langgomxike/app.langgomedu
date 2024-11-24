@@ -8,6 +8,25 @@ import axios from "axios";
 export default class AUser {
   private static BASE_URL = ReactAppUrl.API_BASE_URL + "/users";
 
+  public static getUserById(id: string, onNext: (user: User | undefined) => void) {
+    const url = this.BASE_URL + "/" + id;
+
+    axios.get<Response>(url)
+      .then(response => {
+        if (response.data.status_code === 200) {
+          SLog.log(LogType.Error, "getUserById", "get user successfully", response.data.status);
+          onNext(response.data.data as User ?? undefined);
+        } else {
+          SLog.log(LogType.Error, "getUserById", "cannot get user", response.data.message);
+          onNext(undefined);
+        }
+      })
+      .catch(error => {
+        SLog.log(LogType.Error, "getUserById", "cannot get user", error);
+        onNext(undefined);
+      });
+  }
+
   public static implicitLogin(onNext: (user: User | undefined) => void) {
     //prepare parameters
     const url = this.BASE_URL + "/login/implicit";
