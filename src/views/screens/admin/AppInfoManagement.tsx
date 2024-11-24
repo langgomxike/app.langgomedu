@@ -93,7 +93,7 @@ export default function AppInfoManagementScreen() {
             <TextValue value={appInfoContext.banking_code} isLink={true}/>
           )}
           newValue={(
-            <TextValueInput value={bankingCode} setValue={setAppWebLink} isLink={false}/>
+            <TextValueInput value={bankingCode} setValue={setBankingCode} isLink={false}/>
           )}
           onSubmit={() => handlerChangeAppInfo("banking_code", bankingCode, setBankingCode)}
         />
@@ -104,7 +104,7 @@ export default function AppInfoManagementScreen() {
             <TextValue value={appInfoContext.banking_number + ""} isLink={true}/>
           )}
           newValue={(
-            <TextValueInput value={bankingNumber} setValue={setAppWebLink} isLink={false}/>
+            <TextValueInput value={bankingNumber} setValue={setBankingNumber} isLink={false}/>
           )}
           onSubmit={() => handlerChangeAppInfo("banking_number", bankingNumber, setBankingNumber)}
         />

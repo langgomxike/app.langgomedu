@@ -139,5 +139,11 @@
     "Thấu hiểu",
     "Hấp dẫn",
     "Hữu ích"
-  ]
+  ],
+  "RATING_TITLE_1": "What do you feel about your tutor",
+  "RATING_TITLE_2": "Leave your feelings for your tutor here",
+  "RATING_TITLE": "Rating",
+  "RATING_SUCCESS": "Rating successfully",
+  "RATING_FAILURE": "Rating failed",
+  "INVALID_RATING_TUTOR": "Invalid rating tutor"
 }
