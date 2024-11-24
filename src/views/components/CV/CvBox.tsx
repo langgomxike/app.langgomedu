@@ -1,6 +1,6 @@
 import { View, StyleSheet, Text, Image } from "react-native";
 import HLine, { HLineType } from "../HLine";
-import { Children, ReactNode } from "react";
+import { ReactNode } from "react";
 import { BackgroundColor, BorderColor } from "../../../configs/ColorConfig";
 export type CvBoxProps = {
     title: string,

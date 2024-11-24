@@ -23,11 +23,11 @@ const EducationItem = ({education}: EducationItemProp) => {
         <View style={styles.iconBox}>
             <Image
                 style={styles.icon}
-                source={{uri: ReactAppUrl.PUBLIC_URL + education?.iconPath}} />
+                source={require('../../../../assets/icons/ic_book.png')} />
         </View>
         <View style={styles.textBox}>
-            <Text style={styles.title}> {education?.title}</Text>
-            <Text style={styles.description}> {education?.description} </Text>
+            <Text style={styles.title}> {education?.name}</Text>
+            <Text style={styles.description}> {education?.note} </Text>
             <Text> {`${startedAt.getFullYear()} - ${endedAt.getFullYear()}`} </Text>
         </View>
     </View>

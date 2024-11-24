@@ -2,6 +2,7 @@ import axios from "axios";
 import Lesson from "../models/Lesson";
 import ReactAppUrl from "../configs/ConfigUrl";
 import User from "../models/User";
+import SLog, { LogType } from "../services/SLog";
 
 
 const BASE_URL = ReactAppUrl.API_BASE_URL + '/lessons';
@@ -52,7 +53,7 @@ export default class ASchedule {
             onNext(users)
         })
         .catch((err)=> {
-            console.log(err);
+            SLog.log(LogType.Error, "getUserParentAndChild", '', err)
             onNext([])
         })
     }

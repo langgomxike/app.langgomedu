@@ -128,9 +128,9 @@ export default function PersonalScheduleScreen() {
 
   //lay danh sach cac nguoi dung trong thoi khoa bieu
   useEffect(() => {
+    console.log(user.ID);
+    
     ASchedule.getUserParentAndChild(user.ID, (users) => {
-      setUsers(users);
-
       //lấy người dùng mặc định trên dropdown
       users.forEach(item => {
         if (item.id === user.ID) {
@@ -139,6 +139,7 @@ export default function PersonalScheduleScreen() {
             setType(1);
           }
         }
+        setUsers(users)
       });
     })
   }, [user])

@@ -2,6 +2,8 @@ import File from "./File";
 import Role from "./Role";
 import Address from "./Address";
 import Gender from "./Gender";
+import ClassLevel from "./ClassLevel";
+import Major from "./Major";
 
 export default class User {
     public id: string;
@@ -22,6 +24,8 @@ export default class User {
     public created_at: number;
     public updated_at: number;
     public roles: Role[];
+    public interested_class_levels: ClassLevel[];
+    public interested_majors: Major[];
 
     constructor(
         id = "",
@@ -41,7 +45,9 @@ export default class User {
         bankingCode: string = "",
         created_at = 0,
         updated_at = 0,
-        roles = []
+        roles = [],
+        interested_class_levels = [],
+        interested_majors = []
     ) {
         this.id = id;
         this.full_name = full_name;
@@ -61,5 +67,7 @@ export default class User {
         this.created_at = created_at;
         this.updated_at = updated_at;
         this.roles = roles;
+        this.interested_class_levels = interested_class_levels;
+        this.interested_majors = interested_majors;
     }
 }
