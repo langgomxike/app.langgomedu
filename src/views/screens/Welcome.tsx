@@ -84,7 +84,8 @@ export default function WelcomeScreen() {
             } else {
               navigation?.reset({
                 index: 0,
-                routes: [{ name: ScreenName.NAV_BAR }],
+                // routes: [{ name: ScreenName.NAV_BAR }],
+                routes: [{ name: ScreenName.RATING }],
               });
             }
 
@@ -108,7 +109,7 @@ export default function WelcomeScreen() {
       <Text onPress={() => openLink(appInfoContext.infos.webiste_link)} style={[styles.text, styles.link]}>👉 Explore us at {appInfoContext.infos.webiste_link}</Text>
 
       <Image source={require("../../../assets/loading_animation.gif")}/>
-      <Text style={{color: TextColor.white, opacity: 0.8}}>Loading...</Text> 
+      <Text style={{color: TextColor.white, opacity: 0.8}}>Loading...</Text>
     </View>
   )
 }

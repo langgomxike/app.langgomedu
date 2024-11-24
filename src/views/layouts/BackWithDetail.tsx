@@ -5,26 +5,25 @@ import React, { useCallback, useContext } from "react";
 import { NavigationContext } from "@react-navigation/native";
 import {AccountContext} from "../../configs/AccountConfig";
 import {BackgroundColor} from "../../configs/ColorConfig";
+import User from "../../models/User";
 
 type propsBackDetail = {
   icName: string;
   subIcon?: React.ReactNode;
   children: React.ReactNode;
   hiddenBackButton? :boolean;
+  user?: User;
+  handleUploadAvatar? :() => void;
 };
 
 const BackWithDetailLayout = ({
-  icName,
-  subIcon,
   children,
+  user,
+  handleUploadAvatar = () => {}
 }: propsBackDetail) => {
   //contexts
   const navigation = useContext(NavigationContext);
   const accountContext = useContext(AccountContext);
-
-  const handleAvatar = () => {
-    alert("Avatar");
-  };
 
   return (
     <View style={styles.container}>
@@ -33,9 +32,9 @@ const BackWithDetailLayout = ({
         <View style={[styles.avatar]}>
           <Avatar
             canEdit={true}
-            userName={accountContext.account?.full_name?.toUpperCase() || ""}
+            userName={user ? user.full_name?.toUpperCase(): accountContext.account?.full_name?.toUpperCase() || ""}
             orientation={Orientation.vertically}
-            onPress={handleAvatar}
+            onPress={handleUploadAvatar}
           />
         </View>
       </View>

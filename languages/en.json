@@ -117,8 +117,35 @@
   "LOADING": "Loading...",
   "DELETED": "Deleted",
   "DELETE_FAILED": "Delete failed",
-  "LONG_PRESS_TO_DELETE_ROLE": "Long press to delete role"
-  
+  "LONG_PRESS_TO_DELETE_ROLE": "Long press to delete role",
+  "RATING": [
+    "Enthusiastic",
+    "Interesting",
+    "Gentle",
+    "Patient",
+    "Knowledgeable",
+    "Professional",
+    "Encouraging",
+    "Friendly",
+    "Clear explanations",
+    "Supportive",
+    "Inspiring",
+    "Organized",
+    "Flexible",
+    "Punctual",
+    "Approachable",
+    "Creative",
+    "Motivating",
+    "Understanding",
+    "Engaging",
+    "Helpful"
+  ],
+  "RATING_TITLE_1": "What do you feel about your tutor",
+  "RATING_TITLE_2": "Leave your feelings for your tutor here",
+  "RATING_TITLE": "Rating",
+  "RATING_SUCCESS": "Rating successfully",
+  "RATING_FAILURE": "Rating failed",
+  "INVALID_RATING_TUTOR": "Invalid rating tutor"
 
 
 }
