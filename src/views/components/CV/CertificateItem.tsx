@@ -19,11 +19,11 @@ const CertificateItem = ({certificate}: CertificateItemProp) => {
         <View style={styles.iconBox}>
             <Image
                 style={styles.icon}
-                source={{uri: ReactAppUrl.PUBLIC_URL + certificate?.icon?.path}} />
+                source={require('../../../../assets/icons/ic_gradute_and_scroll.png')} />
         </View>
         <View style={styles.textBox}>
             <Text style={styles.title}> {certificate?.name}</Text>
-            <Text style={styles.description}> {certificate?.vn_desc} </Text>
+            <Text style={styles.description}> {certificate?.note} , {certificate?.score}</Text>
         </View>
     </View>
     )

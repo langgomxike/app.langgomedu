@@ -125,7 +125,7 @@ const styles = StyleSheet.create({
     },
     disable: {
         borderColor: BackgroundColor.gray_50,
-        backgroundColor: BackgroundColor.gray_e6
+        backgroundColor: "#f0f0f0"
     },
 
 })
