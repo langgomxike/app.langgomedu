@@ -1,97 +1,69 @@
 import React from "react";
-import {
-  FlatList,
-  Image,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { Image, StyleSheet, Text, View } from "react-native";
 import { BackgroundColor } from "../../configs/ColorConfig";
-import Skill from "../../models/Skill";
+import CV from "../../models/CV";
+import ReactAppUrl from "../../configs/ConfigUrl";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import moment from "moment";
 
 type TutorItemProps = {
-  avatar?: string;
-  userName?: string;
-  phoneNumber?: string;
-  email?: string;
-  dayOfBirth?: Date;
-  address?: string;
-  skills?: Skill[];
+  tutorData: CV;
 };
+const URL = ReactAppUrl.PUBLIC_URL;
 
-export default function tutorItem({
-  avatar,
-  userName,
-  phoneNumber,
-  email,
-  dayOfBirth,
-  address,
-  skills,
-}: TutorItemProps) {
+const colorItem = "#666"
+export default function CvItem({ tutorData }: TutorItemProps) {
   // Render
   return (
     <View style={[styles.container, styles.boxShadow]}>
       <View style={styles.headerContainer}>
         <View style={styles.boxShadow}>
           <Image
-            source={require("../../../assets/images/img_avatar_user.png")}
+            source={{ uri: `${URL}${tutorData.user?.avatar}` }}
             style={[styles.avatar]}
           />
+          <Text style={styles.point}>100</Text>
         </View>
-        <Text style={styles.tutorName}>{userName}</Text>
+        <Text style={styles.tutorName}>{tutorData.user?.full_name}</Text>
       </View>
 
       <View style={styles.bodyContainer}>
         <View style={styles.personalInfomation}>
-          <View style={styles.col2}>
-            {/* Phone */}
-            <View style={[styles.infoContent, { flex: 1 }]}>
-              <Image
-                source={require("../../../assets/images/register_icon/ic_phone (1).png")}
-                style={styles.contentImage}
-              />
-              <Text style={styles.contentText}>{phoneNumber}</Text>
+          {/* <View style={styles.col2}> */}
+          {/* Phone */}
+          <View style={[styles.infoContent]}>
+            <View style={styles.item}>
+              <Ionicons name="call-outline" size={20} color={colorItem} />
+              <Text style={styles.subTitle}>Số điện thoại</Text>
             </View>
-
-            <View style={[styles.infoContent, { flex: 1 }]}>
-              <Image
-                source={require("../../../assets/images/register_icon/ic_calendar.png")}
-                style={styles.contentImage}
-              />
-              <Text style={styles.contentText}>
-                {dayOfBirth?.getDate() +
-                  "/" +
-                  dayOfBirth?.getMonth +
-                  "/" +
-                  dayOfBirth?.getFullYear}
-              </Text>
-            </View>
+            <Text style={styles.contentText}>
+              {tutorData.user?.phone_number}
+            </Text>
           </View>
 
-          {/* Email */}
-          <View style={styles.infoContent}>
-            <Image
-              source={require("../../../assets/images/register_icon/ic_mail.png")}
-              style={styles.contentImage}
-            />
-
-            <Text style={styles.contentText}>{email}</Text>
+          <View style={[styles.infoContent]}>
+            <View style={styles.item}>
+              <Ionicons name="calendar-outline" size={20} color={colorItem} />
+             <Text style={styles.subTitle}>Ngày sinh</Text>
+            </View>
+            <Text style={styles.contentText}>{moment(tutorData.user?.birthday).format("DD/MM/YYYY")}</Text>
           </View>
+          {/* </View> */}
 
-          <View style={styles.infoContent}>
-            <Image
-              source={require("../../../assets/images/register_icon/ic_home.png")}
-              style={styles.contentImage}
-            />
-
-            <Text>{address}</Text>
+          <View style={{ flexDirection: "column", gap: 5, justifyContent: "space-between"}}>
+            <View style={[styles.item]}>
+              <Ionicons name="location-outline" size={20} color={colorItem} />
+             <Text style={styles.subTitle}>Địa chỉ</Text>
+            </View>
+            <Text
+              style={styles.contentAddress}
+            >{`${tutorData.user?.address?.ward}, ${tutorData.user?.address?.district}\n${tutorData.user?.address?.province}`}</Text>
           </View>
         </View>
 
-        <View style={styles.line}></View>
+        {/* <View style={styles.line}></View> */}
 
-        <View style={styles.awardsContainer}>
+        {/* <View style={styles.awardsContainer}>
           <ScrollView
             horizontal={true}
             showsHorizontalScrollIndicator={false}
@@ -107,7 +79,7 @@ export default function tutorItem({
               </Text>
             ))}
           </ScrollView>
-        </View>
+        </View> */}
       </View>
     </View>
   );
@@ -157,12 +129,13 @@ const styles = StyleSheet.create({
   avatar: {
     width: 70,
     height: 70,
-    marginBottom: 10,
+    borderRadius: 999,
   },
   tutorName: {
     fontSize: 18,
     fontWeight: "bold",
     marginBottom: 10,
+    marginTop: 10,
     color: BackgroundColor.white,
   },
 
@@ -197,25 +170,63 @@ const styles = StyleSheet.create({
 
   personalInfomation: {
     paddingHorizontal: 20,
+    paddingBottom: 30,
     marginVertical: 25,
-    gap: 18,
+    gap: 15,
   },
 
   infoContent: {
     flexDirection: "row",
     gap: 10,
     alignItems: "center",
+    justifyContent: "space-between",
   },
+
   contentImage: {
     width: 25,
     height: 25,
   },
   contentText: {
     fontSize: 14,
+    textAlign: "right",
+    fontWeight: "600",
+    color: "#4D5267",
   },
 
   col2: {
     flexDirection: "row",
     gap: 10,
   },
+
+  point: {
+    paddingHorizontal: 10,
+    paddingVertical: 2,
+    backgroundColor: BackgroundColor.warning,
+    fontWeight: "bold",
+    color: "#fff",
+    borderRadius: 20,
+    textAlign: "center",
+    marginTop: -15,
+  },
+
+  item: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 5,
+    gap: 5,
+    fontSize: 14,
+    color: "black",
+  },
+
+  contentAddress: {
+    fontSize: 14,
+    textAlign: "left",
+    marginLeft: 5,
+    fontWeight: "600",
+    color: "#4D5267",
+  },
+
+  subTitle: {
+    color: colorItem
+  }
 });
