@@ -84,8 +84,8 @@ export default function WelcomeScreen() {
             } else {
               navigation?.reset({
                 index: 0,
-                // routes: [{ name: ScreenName.NAV_BAR }],
-                routes: [{ name: ScreenName.RATING }],
+                routes: [{ name: ScreenName.NAV_BAR }],
+                // routes: [{ name: ScreenName.RATING }],
               });
             }
 
