@@ -7,21 +7,41 @@ import {
   TouchableOpacity,
 } from "react-native";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
-import { useState } from "react";
-import BoxWhite from "../BoxWhite";
+import { useContext, useState, useEffect } from "react";
 import DropDownLocation from "../dropdown/DropDownLocation";
+import { AppInfoContext } from "../../../configs/AppInfoContext";
 
 type props = {
-  onNext: (tuition?: string, dateStart?: string, dateEnd?: string) => void;
+  onNext: (
+    tuition?: string,
+    dateStart?: string,
+    dateEnd?: string,
+    province?: string[],
+    district?: string[],
+    ward?: string[],
+    detail?: string
+  ) => void;
 };
 
 const InfoTuition = ({ onNext }: props) => {
+  // context
+  const appInfos = useContext(AppInfoContext);
+  console.log("code: ", appInfos.infos.banking_code);
+  console.log("number: ", appInfos.infos.banking_number);
+
+  // state
   const [tuition, setTuition] = useState("");
   const [dateStart, setDateStart] = useState("");
   const [dateEnd, setDateEnd] = useState("");
   const [error, setError] = useState("");
   const [isDatePickerVisible, setDatePickerVisible] = useState(false);
   const [datePickerType, setDatePickerType] = useState<"start" | "end">();
+
+  // state address
+  const [selectedProvince, setSelectedProvince] = useState<string[]>([]);
+  const [selectedDistrict, setSelectedDistrict] = useState<string[]>([]);
+  const [selectedWard, setSelectedWard] = useState<string[]>([]);
+  const [detail, setDetail] = useState("");
 
   // Kiểm tra logic ngày bắt đầu và ngày kết thúc
   const validateDates = (start: string, end: string) => {
@@ -56,45 +76,66 @@ const InfoTuition = ({ onNext }: props) => {
       if (dateEnd) {
         validateDates(formattedDate, dateEnd);
       }
-      onNext(tuition, formattedDate, dateEnd);
     } else if (datePickerType === "end") {
       if (dateStart && !validateDates(dateStart, formattedDate)) {
-        onNext(tuition, dateStart, ""); // Reset ngày kết thúc nếu không hợp lệ
+        setDateEnd(""); // Reset ngày kết thúc nếu không hợp lệ
       } else {
         setDateEnd(formattedDate);
-        onNext(tuition, dateStart, formattedDate);
       }
     }
 
+    onNext(
+      tuition,
+      dateStart,
+      dateEnd,
+      selectedProvince,
+      selectedDistrict,
+      selectedWard
+    );
     hideDatePicker();
   };
 
-  const handleChangeTuition = (value: any) => {
+  const handleChangeTuition = (value: string) => {
     setTuition(value); // Lưu lại giá trị người dùng nhập vào
 
     // Kiểm tra khi người dùng nhập xong
     if (value !== "") {
       const numericValue = Number(value);
 
-      // Kiểm tra nếu giá trị là số và không phải là số âm
       if (isNaN(numericValue) || numericValue < 0) {
         setError("Mức học phí phải là số dương và không được âm.");
-        onNext("", dateStart, dateEnd); // Không gửi học phí nếu không hợp lệ
-      }
-      // Kiểm tra nếu học phí dưới 10 nghìn
-      else if (numericValue < 10000) {
+      } else if (numericValue < 10000) {
         setError("Mức học phí phải từ 10,000 trở lên.");
-        onNext("", dateStart, dateEnd); // Không gửi học phí nếu không hợp lệ
       } else {
         setError(""); // Reset lỗi nếu hợp lệ
-        onNext(value, dateStart, dateEnd); // Gửi học phí nếu hợp lệ
       }
     } else {
-      // Nếu giá trị rỗng, không có lỗi
       setError("");
-      onNext(value, dateStart, dateEnd); // Gửi giá trị rỗng nếu người dùng chưa nhập gì
     }
+
+    onNext(
+      value,
+      dateStart,
+      dateEnd,
+      selectedProvince,
+      selectedDistrict,
+      selectedWard,
+      detail
+    );
   };
+
+  useEffect(() => {
+    // Gửi dữ liệu địa chỉ khi có sự thay đổi
+    onNext(
+      tuition,
+      dateStart,
+      dateEnd,
+      selectedProvince,
+      selectedDistrict,
+      selectedWard,
+      detail
+    );
+  }, [selectedProvince, selectedDistrict, selectedWard, detail]);
 
   return (
     <View style={styles.container}>
@@ -148,30 +189,35 @@ const InfoTuition = ({ onNext }: props) => {
         onCancel={hideDatePicker}
       />
 
+      {/* Địa chỉ */}
       <View style={styles.marginInput}>
         <Text style={styles.label}>
           Địa chỉ <Text style={styles.required}>*</Text>
         </Text>
-        {/* <TextInput style={styles.input} placeholder="Thêm địa chỉ của bạn" /> */}
-        <DropDownLocation />
-        <Text style={[styles.label, {marginTop: 25}]}>
-          Địa chỉ cụ thể <Text style={styles.required}>*</Text>
-        </Text>
-        <TextInput style={styles.input} placeholder="Thêm địa chỉ của bạn" />
+        <DropDownLocation
+          selectedCities={selectedProvince}
+          selectedDistricts={selectedDistrict}
+          selectedWards={selectedWard}
+          onSetSelectedCities={setSelectedProvince}
+          onSetSelectedDistricts={setSelectedDistrict}
+          onSetSelectedWards={setSelectedWard}
+        />
       </View>
-      <View style={styles.marginInput}>
-        <Text style={styles.label}>
-          Phí tạo lớp <Text style={styles.required}>*</Text>
-        </Text>
-        {/* LẤY MÃ QR NGÂN HÀNG CỦA TURTOR  */}
-        <View style={{ alignItems: "center" }}>
-          <Image
-            style={{ width: 400, height: 500 }}
-            source={{
-              uri: "https://img.vietqr.io/image/mbbank-0376961547-compact2.jpg?amount=10000&addInfo=dong%20phi%20tao%20lop&accountName=Phi%20Tao%20Lop",
-            }}
-          />
-        </View>
+      <Text style={[styles.label]}>
+        Địa chỉ cụ thể <Text style={styles.required}>*</Text>
+      </Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Thêm địa chỉ của bạn"
+        value={detail}
+      />
+      <Text style={[styles.label, { marginTop: 25 }]}>
+        Phí tạo lớp <Text style={styles.required}>*</Text>
+      </Text>
+      <View style={{width: 400, height: 500}}>
+        <Image
+          src={`https://img.vietqr.io/image/${appInfos.infos.banking_code}-${appInfos.infos.banking_number}-compact2.jpg?amount=79000&addInfo=dong%20tien%20phi%20tao%20lop&accountName=Phi%20Tao%20Lop`}
+        />
       </View>
     </View>
   );
@@ -198,78 +244,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingLeft: 10,
     justifyContent: "center",
-  },
-
-  // ITEM DANH SÁCH CON
-  flatListContainer: {
-    paddingHorizontal: 10,
-  },
-  boxWhite: {
-    width: 300, // Đặt chiều rộng của mỗi phần tử
-    marginRight: 15,
-    padding: 15,
-    backgroundColor: "#fff",
-    borderRadius: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-    alignItems: "center", // Căn giữa nội dung
-    borderWidth: 2,
-    borderColor: "gray",
-  },
-  userInfo: {
-    flexDirection: "row", // Sắp xếp avatar và tên ngang hàng
-    alignItems: "center",
-    marginBottom: 15,
-  },
-  avatar: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    marginRight: 10,
-  },
-  userName: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#333",
-  },
-  details: {
-    alignItems: "center", // Căn giữa nội dung trong chi tiết
-  },
-  checkIcon: {
-    fontSize: 24,
-    color: "green",
-    marginBottom: 5,
-  },
-  description: {
-    fontSize: 14,
-    color: "#555",
-    marginBottom: 15,
-    textAlign: "center",
-  },
-  button: {
-    width: 100,
-    paddingVertical: 10,
-    borderRadius: 8,
-    alignItems: "center",
-  },
-  primaryButton: {
-    backgroundColor: "#007BFF", // Nền xanh
-  },
-  primaryButtonText: {
-    color: "#fff",
-    fontWeight: "bold",
-  },
-  secondaryButton: {
-    backgroundColor: "#fff", // Nền trắng
-    borderColor: "red", // Viền đỏ
-    borderWidth: 1,
-  },
-  secondaryButtonText: {
-    color: "red",
-    fontWeight: "bold",
   },
   required: {
     color: "red",

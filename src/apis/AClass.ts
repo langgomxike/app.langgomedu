@@ -64,8 +64,8 @@ export default class AClass {
       .get(`${this.API_URL}/classes/attending/${userId}`)
       .then((response) => {
         onNext(response.data.data);
-        
-        // console.log("User id", userId);  
+
+        // console.log("User id", userId);
         // console.log(">>>> response: ", JSON.stringify(response.data.data,  null, 2));
 
         onLoading(false);
@@ -134,19 +134,13 @@ export default class AClass {
     price: number,
     startedAt: number | null,
     endedAt: number | null,
+    province: string[],
+    district: string[],
+    ward: string[],
+    detail: string,
     lessons: Lesson[],
     onNext: (result: boolean, insertId?: number) => void
   ) {
-    
-    console.log("title: ", title);
-    console.log("description: ", description);
-    console.log("majorId: ", majorId);
-    console.log("classLevelId: ", classLevelId);
-    console.log("startedAt: ", startedAt);
-    console.log("endedAt: ", endedAt);
-    console.log("lessons: ", lessons);
-    
-
     console.log({
       title: title,
       description: description,
@@ -155,29 +149,36 @@ export default class AClass {
       price: price,
       started_at: startedAt,
       ended_at: endedAt,
+      province,
+      district,
+      ward,
+      detail,
       lessons: lessons,
     });
-    
 
     axios
       .post(`${this.API_URL}/classes/create`, {
-        title: title,
-        description: description,
+        title,
+        description,
         major_id: majorId,
         class_level_id: classLevelId,
-        price: price,
+        price,
         started_at: startedAt,
         ended_at: endedAt,
-        lessons: lessons,
+        province,
+        district,
+        ward,
+        detail,
+        lessons,
       })
       .then((response) => {
         console.log("Class created successfully:", response.data);
-        onNext(response.data.data.classId); // Truyền `classId` về từ response
+        onNext(true, response.data.data.classId); // Truyền `classId` về từ response
       })
       .catch((err) => {
         console.error("Error:", err);
         console.log(">>> title", "Tạo lớp không thành công");
-        onNext(err);
+        onNext(false);
       });
   }
 
@@ -227,46 +228,44 @@ export default class AClass {
   }
   //khoá lớp học
   // Hàm khoá lớp học
-public static lockClass(
-  classId: number,
-  onNext: (response: any) => void,
-  onLoading: (loading: boolean) => void
-) {
-  // Bắt đầu loading
-  onLoading(true);
+  public static lockClass(
+    classId: number,
+    onNext: (response: any) => void,
+    onLoading: (loading: boolean) => void
+  ) {
+    // Bắt đầu loading
+    onLoading(true);
 
-  // Gửi request POST đến BE với classId
-  axios.post(`${this.API_URL}/reports/lockClass`, { classId })
+    // Gửi request POST đến BE với classId
+    axios
+      .post(`${this.API_URL}/reports/lockClass`, { classId })
       .then((response) => {
-          // Nếu thành công, gọi callback `onNext` với kết quả từ BE
-          onNext(response.data);
+        // Nếu thành công, gọi callback `onNext` với kết quả từ BE
+        onNext(response.data);
       })
       .catch((error) => {
-          console.error("Error locking class:", error);
-          onNext({ success: false, message: "Failed to lock class." });
+        console.error("Error locking class:", error);
+        onNext({ success: false, message: "Failed to lock class." });
       })
       .finally(() => {
-          // Kết thúc loading
-          onLoading(false);
+        // Kết thúc loading
+        onLoading(false);
       });
-}
+  }
 
-  public static getAllClasses(onNext: ()=> void){
+  public static getAllClasses(onNext: () => void) {
     // console.log("clicked");
-    
-    axios({method: 'get', baseURL: this.API_URL +'/classes'})
-    .then(
-        (result)=> {
-            // console.log("port", this.API_URL)
-            // console.log("data", result.data);
-            onNext();
-        }
-    ).catch(
-        (err)=> {
-            // console.log("port", this.API_URL)
-            // console.log("error", err);
-            onNext();
-        }
-    )
-}
+
+    axios({ method: "get", baseURL: this.API_URL + "/classes" })
+      .then((result) => {
+        // console.log("port", this.API_URL)
+        // console.log("data", result.data);
+        onNext();
+      })
+      .catch((err) => {
+        // console.log("port", this.API_URL)
+        // console.log("error", err);
+        onNext();
+      });
+  }
 }

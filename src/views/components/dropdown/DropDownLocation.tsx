@@ -11,7 +11,24 @@ interface Dropdown {
   value: string;
 }
 
-export default function DropDownLocation() {
+type DropDownAddressProps = {
+  selectedCities: string[];
+  selectedDistricts: string[];
+  selectedWards: string[];
+  onSetSelectedCities: (cities: string[]) => void;
+  onSetSelectedDistricts: (districts: string[]) => void;
+  onSetSelectedWards: (wards: string[]) => void;
+}
+
+export default function DropDownLocation(
+  {
+    selectedCities,
+    selectedDistricts,
+    selectedWards,
+    onSetSelectedCities,
+    onSetSelectedDistricts,
+    onSetSelectedWards,
+  }: DropDownAddressProps){
   // states //////////////////////////////////////////////
   const [selectedCity, setSelectedCity] = useState<string>(""); // mang duoc chon
   const [selectedDistrict, setSelectedDistrict] = useState<string>("");
@@ -19,7 +36,6 @@ export default function DropDownLocation() {
   const [district, setDistrict] = useState<Dropdown[]>([]); // quan
   const [ward, setWard] = useState<Dropdown[]>([]); // xa
 
-  const [value, setValue] = useState(null);
   const [isFocus, setIsFocus] = useState(false);
 
   // handle /////////////////////////////////////////////

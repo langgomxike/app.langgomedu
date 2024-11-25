@@ -8,7 +8,6 @@ import AClass from "../../apis/AClass";
 import Lesson from "../../models/Lesson";
 import Dialog from "react-native-dialog";
 
-
 const TurtorClass = () => {
   // state
   const [dataTitle, setDataTitle] = useState<string>("");
@@ -25,6 +24,13 @@ const TurtorClass = () => {
   const [dataPrice, setDataPrice] = useState<number | null>(null);
   const [dataDateStart, setDataDateStart] = useState("");
   const [dataDateEnd, setDataDateEnd] = useState("");
+
+  // state address
+  const [dataProvinces, setDataProvinces] = useState<string[]>([]); // tỉnh - thành phố
+  const [dataDistrict, setDataDistrict] = useState<string[]>([]); // quận - huyện
+  const [dataWard, setDataWard] = useState<string[]>([]); // phường - xã
+  const [dataDetail, setDataDetail] = useState(""); // địa chỉ cụa thể
+
 
   // Dialog state
   const [isDialogVisible, setIsDialogVisible] = useState(false);
@@ -61,7 +67,8 @@ const TurtorClass = () => {
   const handleDataChangeTuition = (
     price?: string,
     dateStart?: string,
-    dateEnd?: string
+    dateEnd?: string,
+    
   ) => {
     if (price) {
       setDataPrice(parseFloat(price));
@@ -145,6 +152,10 @@ const TurtorClass = () => {
         dataPrice,
         convertStringToTimestamp(dataDateStart),
         convertStringToTimestamp(dataDateEnd),
+        dataProvinces,
+        dataDistrict,
+        dataWard,
+        dataDetail,
         lessons,
         () => {
           // Hiển thị dialog khi lớp học được tạo thành công
