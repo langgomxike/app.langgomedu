@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Alert,
   FlatList,
@@ -20,9 +20,22 @@ import AUserReport from "../../apis/AUserReport";
 
 export default function CreateReport() {
   const [content, setContent] = useState<string>(""); // Nội dung báo cáo
-  const [images, setImages] = useState<string[]>([]); // Danh sách ảnh
+  const [selectedImages, setselectedImages] = useState<any[]>([]); // Mảng lưu trữ File[]
   const [isModalVisible, setModalVisible] = useState(false); // Trạng thái hiển thị modal
   const [currentImageIndex, setCurrentImageIndex] = useState(0); // Ảnh được chọn để xem
+
+  // // Kiểm tra thêm các ảnh
+  // if (report.images && report.images.length > 0) {
+  //   report.images.forEach((imageUri, index) => {
+  //     const file = {
+  //       uri: imageUri.uri,  // Đảm bảo là URI của ảnh
+  //       type: imageUri.type,  // Đảm bảo kiểu MIME đúng
+  //       name: imageUri.name,  // Tên tệp ảnh
+  //     };
+
+  //     formData.append("reports", file);
+  //   });
+  // }
 
   // Hàm mở thư viện ảnh
   const pickImage = async () => {
@@ -36,18 +49,28 @@ export default function CreateReport() {
 
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
+      allowsEditing: false,
+      allowsMultipleSelection: true,
       quality: 0.7,
     });
 
     if (!result.canceled) {
-      setImages((prevImages) => [...prevImages, result.assets[0].uri]);
+      const images = result.assets;
+      // console.log('text pick many images',result.assets );
+      setselectedImages(images);
     }
   };
 
+  useEffect(() => {
+    console.log(
+      "text pick many images selectedImages",
+      JSON.stringify(selectedImages, null, 2)
+    );
+  }, [selectedImages]);
+
   // Hàm xóa ảnh đã chọn
   const removeImage = (index: number) => {
-    setImages((prevImages) => prevImages.filter((_, i) => i !== index));
+    setselectedImages((prevFiles) => prevFiles.filter((_, i) => i !== index));
   };
 
   // Hàm gửi báo cáo
@@ -57,27 +80,37 @@ export default function CreateReport() {
       return;
     }
 
-    const reportData = {
-      reporter: "1", // Reporter giả
-      reportee: "2", // Reportee giả
-      class_id: "0", // Class ID giả
-      content: content.trim(),
-      images,
-    };
+    const formdata = new FormData();
+    formdata.append("reporter", "1");
+    formdata.append("reportee", "2");
+    formdata.append("content", content);
+    formdata.append("class_id", "0");
 
+    selectedImages.forEach((image, index) => {
+      formdata.append(`reports`, {
+        uri: image.uri,
+        type: image.mimeType,
+        name: image.name || `image_${index}.jpg`, // Tên tệp
+      } as any);
+    });
+
+    // Gọi API tạo báo cáo
     AUserReport.createReport(
-      reportData,
+      formdata, // Dữ liệu báo cáo
       (response: any) => {
         if (response.success) {
           Alert.alert("Thành công", "Báo cáo đã được gửi thành công!");
           setContent("");
-          setImages([]);
         } else {
           Alert.alert("Thất bại", response.message || "Không thể gửi báo cáo.");
         }
       },
       (loading: boolean) => {
-        console.log("Loading:", loading);
+        if (loading) {
+          console.log("Đang gửi báo cáo...");
+        } else {
+          console.log("Đã gửi báo cáo xong.");
+        }
       }
     );
   };
@@ -87,27 +120,6 @@ export default function CreateReport() {
     setCurrentImageIndex(index);
     setModalVisible(true);
   };
-
-  // Hàm render từng ảnh trong danh sách
-  const renderSelectedImage = ({
-    item,
-    index,
-  }: {
-    item: string;
-    index: number;
-  }) => (
-    <TouchableOpacity onPress={() => openModal(index)}>
-      <View style={styles.imageContainer}>
-        <Image source={{ uri: item }} style={styles.image} />
-        <TouchableOpacity
-          style={styles.deleteIcon}
-          onPress={() => removeImage(index)}
-        >
-          <Ionicons name="close-circle" size={24} color="#000" />
-        </TouchableOpacity>
-      </View>
-    </TouchableOpacity>
-  );
 
   return (
     <ScrollView style={styles.container}>
@@ -143,12 +155,30 @@ export default function CreateReport() {
       </View>
       <View style={styles.component1}>
         <Text style={styles.smallTitle}>Hình ảnh đã chọn</Text>
-        {images.length > 0 ? (
+        {selectedImages.length > 0 ? (
           <FlatList
-            data={images}
-            renderItem={renderSelectedImage}
+            data={selectedImages}
+            renderItem={({ item, index }) => {
+              return (
+                <TouchableOpacity onPress={() => openModal(index)}>
+                  <View style={styles.imageContainer}>
+                    <Image source={{ uri: item.uri }} style={styles.image} />
+                    <TouchableOpacity
+                      style={styles.deleteIcon}
+                      onPress={() => removeImage(index)}
+                    >
+                      <Ionicons
+                        name="close-circle"
+                        size={24}
+                        style={styles.removePicture}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                </TouchableOpacity>
+              );
+            }}
             horizontal
-            keyExtractor={(_, index) => index.toString()}
+            keyExtractor={(item, index) => index.toString()}
           />
         ) : (
           <Text style={styles.noImageText}>
@@ -156,7 +186,7 @@ export default function CreateReport() {
           </Text>
         )}
       </View>
-      <View style={styles.component2}>
+      <View style={styles.component1}>
         <TouchableOpacity style={styles.reportBtn} onPress={handleReportSubmit}>
           <Text style={styles.reportBtnText}>Báo cáo</Text>
         </TouchableOpacity>
@@ -174,7 +204,9 @@ export default function CreateReport() {
 
           {/* Image Viewer */}
           <ImageViewer
-            imageUrls={images.map((uri) => ({ url: uri }))} // Chuyển danh sách ảnh sang định dạng `ImageViewer`
+            imageUrls={selectedImages.map((selectedImage) => ({
+              url: selectedImage.uri,
+            }))} // Sử dụng imageUris để hiển thị ảnh
             index={currentImageIndex}
             onCancel={() => setModalVisible(false)}
             enableSwipeDown={true} // Cho phép vuốt xuống để đóng modal
@@ -298,5 +330,8 @@ const styles = StyleSheet.create({
     top: 40,
     right: 20,
     zIndex: 1, // Hiển thị trên mọi thành phần khác
+  },
+  removePicture: {
+    color: "#000",
   },
 });
