@@ -3,57 +3,39 @@ import MyIcon, { AppIcon } from "../components/MyIcon";
 import Avatar, { Orientation } from "../components/Avatar";
 import React, { useCallback, useContext } from "react";
 import { NavigationContext } from "@react-navigation/native";
+import {AccountContext} from "../../configs/AccountConfig";
+import {BackgroundColor} from "../../configs/ColorConfig";
+import User from "../../models/User";
 
 type propsBackDetail = {
   icName: string;
   subIcon?: React.ReactNode;
   children: React.ReactNode;
+  hiddenBackButton? :boolean;
+  user?: User;
+  handleUploadAvatar? :() => void;
 };
 
 const BackWithDetailLayout = ({
-  icName,
-  subIcon,
   children,
+  user,
+  handleUploadAvatar = () => {}
 }: propsBackDetail) => {
   //contexts
   const navigation = useContext(NavigationContext);
-
-  const handleAvatar = () => {
-    alert("Avatar");
-  };
-
-  const handleBack = useCallback(() => {
-    navigation?.goBack();
-  }, []);
+  const accountContext = useContext(AccountContext);
 
   return (
     <View style={styles.container}>
       {/* Header */}
-      <View style={styles.header}>
-        {/* Back Icon and Text */}
-        <View style={styles.leftSection}>
-          <TouchableOpacity style={styles.iconButton}>
-            <MyIcon icon={AppIcon.ic_back_circle} onPress={handleBack} size="25"/>
-            <Text style={styles.textIcon}>{icName}</Text>
-            {/* {children} */}
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.avatar}>
+      <View style={[styles.header]}>
+        <View style={[styles.avatar]}>
           <Avatar
             canEdit={true}
-            userName="NGUYEN VAN A"
+            userName={user ? user.full_name?.toUpperCase(): accountContext.account?.full_name?.toUpperCase() || ""}
             orientation={Orientation.vertically}
-            onPress={handleAvatar}
+            onPress={handleUploadAvatar}
           />
-        </View>
-
-        {/* Info Icon */}
-        <View style={styles.leftSection}>
-          <TouchableOpacity style={styles.iconButton}>
-            {/* <MyIcon icon={AppIcon.ic_info} onPress={handleInfor}/> */}
-            {subIcon}
-          </TouchableOpacity>
         </View>
       </View>
 
@@ -66,14 +48,14 @@ const BackWithDetailLayout = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: BackgroundColor.sub_primary,
   },
 
   header: {
-    flexDirection: "row",
+    flexDirection: "column",
     justifyContent: "space-between",
-    alignItems: "baseline",
-    backgroundColor: "#008CFF",
+    alignItems: "center",
+    backgroundColor: BackgroundColor.primary,
     height: 220,
     paddingHorizontal: 20,
   },
@@ -114,7 +96,8 @@ const styles = StyleSheet.create({
   avatar: {
     flexDirection: "row",
     alignItems: "center",
-    transform: [{ translateY: 35 }, { translateX: -14 }],
+    alignSelf: "center",
+    marginTop: 20,
   },
 
   mainContent: {

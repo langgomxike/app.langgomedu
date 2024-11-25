@@ -104,12 +104,32 @@ export default function CustomInput({
           </Text>
 
           <View style={[styles.inputBlock, styles.boxShadow]}>
+            {type === "date" &&
+          <TouchableOpacity style={styles.inputDate}  onPress={() => setShowDatePicker(true)}>
+            <TextInput
+                style={[
+                  styles.input,
+                  { backgroundColor: editable === false ? GRAY_DISABLE : "white",
+                    color: editable === false ? "#888" : "black",}
+                ]}
+                onChangeText={onChangeText}
+                placeholder={placeholder}
+                placeholderTextColor="#888"
+                keyboardType={getKeyboardType()}
+                value={value}
+                editable={type === "date" || editable == false ? false : true}
+                onEndEditing={onSubmitEditing}
+              />
+          </TouchableOpacity>
+            }
+
+
+          {type !== "date" &&
             <TextInput
               style={[
                 styles.input,
-                editable === false
-                  ? { backgroundColor: GRAY_DISABLE }
-                  : { backgroundColor: "white" },
+                { backgroundColor: editable === false ? GRAY_DISABLE : "white",
+                  color: editable === false ? "#888" : "black",}
               ]}
               onChangeText={onChangeText}
               placeholder={placeholder}
@@ -117,9 +137,10 @@ export default function CustomInput({
               keyboardType={getKeyboardType()}
               value={value}
               secureTextEntry={type === "password" && !isPasswordVisible}
-              editable={type === "date" || editable == false ? false : true}
+              editable={editable == false ? false : true}
               onEndEditing={onSubmitEditing}
             />
+            }
             {/* Ẩn hiện password */}
             {type === "password" && (
               <TouchableOpacity
@@ -235,15 +256,24 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 10,
     paddingVertical: 10,
+    borderTopWidth: 1,
+    borderTopColor: "#eee",
+
+  },
+
+  inputDate: {
+    flex: 1,
   },
 
   boxShadow: {
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
-      height: 5,
+      height: 1,
     },
-    shadowOpacity: 0.5,
-    elevation: 5,
+    shadowOpacity: 0.2,
+    shadowRadius: 1.41,
+
+    elevation: 2,
   },
 });

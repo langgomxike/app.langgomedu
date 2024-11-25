@@ -5,7 +5,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import ClassComponent from "../../components/admin/ClassComponent";
 import Pagination from "../../components/Pagination";
 import DetailClassBottomSheet from "../../components/bottom-sheet/DetailClassBottomSheet";
@@ -28,19 +28,17 @@ export default function ClassManager() {
 
   // handlers
   // Hàm để mở BottomSheet từ component con
-  const handleOpenBottomSheet = (_class:Class) => {
+  const handleOpenBottomSheet = useCallback((_class:Class) => {
     setIsVisible(true);
     setSelectedClass(_class)
-  };
+  }, []);
 
   // effects
   useEffect(() => {
     AClassAdmin.getAllClasses((data) => {
       setClasses(data);
-    }, setLoading)
-   
+    }, setLoading);
   }, [])
-  
 
   return (
     <View style={styles.container}>
@@ -57,6 +55,7 @@ export default function ClassManager() {
         </View>
         <TabHeader tabList={tabList} />
       </View>
+
       <View style={[styles.classListContainer, { flex: 1 }]}>
         <FlatList
           scrollEnabled={true}
@@ -65,7 +64,7 @@ export default function ClassManager() {
           keyExtractor={(_, index) => index.toString()}
           renderItem={({ item }) => {
             return (
-            <View style={[styles.classItemContainer, item.is_reported
+            <View style={[styles.classItemContainer, item
               ? [styles.boxshadowDanger, styles.borderDanger]
               : styles.boxshadow,]}>
               <TouchableOpacity onPress={() => handleOpenBottomSheet(item)}>

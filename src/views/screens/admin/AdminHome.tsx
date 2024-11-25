@@ -1,4 +1,4 @@
-import React, { useCallback, useContext } from "react";
+import React, {useCallback, useContext} from "react";
 import {
   StyleSheet,
   ScrollView,
@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import Octicons from "@expo/vector-icons/Octicons";
-import { BackgroundColor } from "../../../configs/ColorConfig";
+import {BackgroundColor} from "../../../configs/ColorConfig";
 import ModalStudentList from "../../components/modal/ModalStudentList";
 import ModalAttended from "../../components/modal/ModalAttended";
 import Animated, {
@@ -26,12 +26,17 @@ import Animated, {
 } from "react-native-reanimated";
 import ModalPaidResult from "../../components/modal/ModalPaidResult";
 import ClassInfo from "../../components/ClassInfo";
-import MyIcon, { AppIcon } from "../../components/MyIcon";
-import { NavigationContext } from "@react-navigation/native";
+import MyIcon, {AppIcon} from "../../components/MyIcon";
+import {NavigationContext} from "@react-navigation/native";
 import ScreenName from "../../../constants/ScreenName";
+import {LanguageContext} from "../../../configs/LanguageConfig";
+import {AccountContext} from "../../../configs/AccountConfig";
+import {RoleList} from "../../../models/Role";
 
 export default function AdminHome() {
   const navigation = useContext(NavigationContext);
+  const language = useContext(LanguageContext).language;
+  const accountContext = useContext(AccountContext);
 
   // handler
   const gotToUserManager = useCallback(() => {
@@ -42,45 +47,58 @@ export default function AdminHome() {
     navigation?.navigate(ScreenName.CLASS_MANAGEMENT);
   }, []);
 
+  const goToPermissionManager = useCallback(() => {
+    navigation?.navigate(ScreenName.PERMISSION_MANAGEMENT);
+  }, []);
+
+  const goToGeneralManager = useCallback(() => {
+    navigation?.navigate(ScreenName.APP_INFO_MANAGEMENT);
+  }, []);
+
+  const goToSetting = useCallback(() => {
+    navigation?.navigate(ScreenName.SETTING_INFO_PERSONAL);
+  }, []);
+
   return (
     <View>
+      {/* header */}
       <View style={styles.header}>
+        {/* setting account */}
         <TouchableOpacity style={styles.icon_setting}>
-        <Ionicons name="settings-outline" size={24} color="white" />
+          <Ionicons name="settings-outline" size={24} color="white" onPress={goToSetting}/>
         </TouchableOpacity>
 
         <Image
           style={styles.avatar}
           source={require("../../../../assets/avatar/img_avatar_cat.png")}
-        ></Image>
+        />
         <Text style={styles.name}>LanggomAdmin</Text>
       </View>
+
       <View style={styles.container}>
-        <TouchableOpacity style={styles.group}>
-          <Image style={styles.iconInGroup} source={require('../../../../assets/icons/ic_admin_rule.png')}></Image>
-          <Text style={styles.nameInGroup}>Quản lý phân quyền</Text>
-        </TouchableOpacity>
+        {accountContext.account?.roles.map(r => r.id).includes(RoleList.SUPER_ADMIN) && (
+          <TouchableOpacity style={styles.group} onPress={goToPermissionManager}>
+            <Image style={styles.iconInGroup} source={require('../../../../assets/icons/ic_admin_rule.png')}></Image>
+            <Text style={styles.nameInGroup}>{language.PERMISSION_MANAGEMENT}</Text>
+          </TouchableOpacity>
+        )}
 
-        <TouchableOpacity style={styles.group}>
-          <Image style={styles.iconInGroup} source={require('../../../../assets/icons/ic_admin_rule.png')}></Image>
-          <Text style={styles.nameInGroup}>Thêm quyền quản trị</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity 
-        onPress={gotToUserManager}
-        style={styles.group}>
-        <Image style={styles.iconInGroup} source={require('../../../../assets/icons/ic_account_manage.png')}></Image>
-          <Text style={styles.nameInGroup}>Quản lý người dùng</Text>
+        <TouchableOpacity
+          onPress={gotToUserManager}
+          style={styles.group}>
+          <Image style={styles.iconInGroup} source={require('../../../../assets/icons/ic_account_manage.png')}></Image>
+          <Text style={styles.nameInGroup}>{language.USER_MANAGEMENT}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity onPress={gotToClassManager} style={styles.group}>
-          <Image style={styles.iconInGroup} source={require('../../../../assets/icons/ic_class_pending_approval.png')}></Image>
-          <Text style={styles.nameInGroup}>Quản lý lớp học</Text>
+          <Image style={styles.iconInGroup}
+                 source={require('../../../../assets/icons/ic_class_pending_approval.png')}></Image>
+          <Text style={styles.nameInGroup}>{language.CLASS_MANAGEMENT}</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.group}>
+        <TouchableOpacity style={styles.group} onPress={goToGeneralManager}>
           <Image style={styles.iconInGroup} source={require('../../../../assets/icons/ic_account_manage.png')}></Image>
-          <Text style={styles.nameInGroup}>Quản lý chung</Text>
+          <Text style={styles.nameInGroup}>{language.GENERAL_MANAGEMENT}</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -133,17 +151,17 @@ const styles = StyleSheet.create({
     elevation: 5,
 
     flexDirection: "row",
-    gap: 10, 
+    gap: 10,
     paddingVertical: 15,
     paddingHorizontal: 10,
-   },
+  },
 
-  iconInGroup:{
-    width:30,
+  iconInGroup: {
+    width: 30,
     height: 30,
     resizeMode: "contain",
   },
-  nameInGroup:{
+  nameInGroup: {
     fontSize: 18,
     fontWeight: "bold",
     color: "#000",

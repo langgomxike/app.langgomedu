@@ -1,40 +1,35 @@
-import {
-  PropsWithChildren,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
-import { LanguageContext, Languages, LanguageType } from "./LanguageConfig";
-import languages from "../../languages.json";
+import { PropsWithChildren, useCallback, useState, useEffect } from "react";
+import { LanguageContext } from "./LanguageConfig";
+import vn from "../../languages/vn.json";
 import User from "../models/User";
 import { AccountContext } from "./AccountConfig";
-import { NavigationContext } from "@react-navigation/native";
+import { UserContext, UserDataType, UserType } from "./UserContext";
+import Major from "../models/Major";
+import { MajorsLevelsContext } from "./MajorsLevelsContext";
+import ClassLevel from "../models/ClassLevel";
+import general_infos from "../constants/general_infos.json";
+import { AppInfoContext } from "./AppInfoContext";
 
 export default function AppContext({ children }: PropsWithChildren) {
   //states
-  const navigation = useContext(NavigationContext);
-  const [language, setLanguage] = useState<LanguageType>(languages.VN);
+  const [language, setLanguage] = useState<typeof vn>(vn);
   const [account, setAccount] = useState<User | undefined>(undefined);
-  const [inboxes, setInboxes] = useState<any[]>([]);
+  const [user, setUser] = useState<UserDataType>({
+    ID: "",
+    TYPE: UserType.LEANER,
+  });
+  const [appInfos, setAppInfos] = useState<typeof general_infos>(general_infos);
+
+  const [majors, setMajors] = useState<Major[]>([]);
+  const [classLevels, setClassLevels] = useState<ClassLevel[]>([]);
 
   //handlers
-  const setLanguageContext = useCallback((language: Languages) => {
-    switch (language) {
-      case Languages.VN:
-        setLanguage(languages.VN);
-        break;
-
-      case Languages.EN:
-        setLanguage(languages.EN);
-        break;
-
-      //Return View
-      case Languages.JA:
-        setLanguage(languages.JA);
-        break;
-    }
+  const setLanguageContext = useCallback((language: typeof vn) => {
+    setLanguage(language);
   }, []);
+
+  //effects
+  useEffect(() => {}, []);
 
   return (
     <LanguageContext.Provider
@@ -43,7 +38,17 @@ export default function AppContext({ children }: PropsWithChildren) {
       <AccountContext.Provider
         value={{ account: account, setAccount: setAccount }}
       >
-        {children}
+        <UserContext.Provider value={{ user, setUser }}>
+          <AppInfoContext.Provider
+            value={{ setAppInfo: setAppInfos, infos: appInfos }}
+          >
+            <MajorsLevelsContext.Provider
+              value={{ majors, setMajors, classLevels, setClassLevels }}
+            >
+              {children}
+            </MajorsLevelsContext.Provider>
+          </AppInfoContext.Provider>
+        </UserContext.Provider>
       </AccountContext.Provider>
     </LanguageContext.Provider>
   );

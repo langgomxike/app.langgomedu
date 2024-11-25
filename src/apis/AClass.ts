@@ -2,6 +2,9 @@ import axios from "axios";
 import Class from "../models/Class";
 import ReactAppUrl from "../configs/ConfigUrl";
 import Lesson from "../models/Lesson";
+import Values from "../constants/Values";
+import Pagination from "../models/Pagination";
+import Filters from "../models/Filters";
 
 export default class AClass {
   private static API_URL = ReactAppUrl.API_BASE_URL;
@@ -10,7 +13,7 @@ export default class AClass {
   public static getClassDetailWithUser(
     classId: number,
     userId: string,
-    onNext: (course: Class, realatedClasses: Class[]) => void,
+    onNext: (course: Class) => void,
     onLoading: (loading: boolean) => void
   ) {
     onLoading(true);
@@ -18,12 +21,12 @@ export default class AClass {
       .get(`${this.API_URL}/classes/${classId}?user_id=${userId}`)
       .then((response) => {
         const data = response.data.data;
-        onNext(data.class, data.related_classes);
+        onNext(data.class);
         onLoading(false);
       })
       .catch((err) => {
         console.log("Error: ", err);
-        onNext(new Class(), []);
+        onNext(new Class());
         onLoading(true);
       });
   }
@@ -32,22 +35,44 @@ export default class AClass {
   public static getSuggetingClass(
     userId: string,
     userType: number,
-    onNext: (classes: Class[]) => void,
+    page: number,
+    filters: Filters | undefined,
+    onNext: (classes: Class[], pagination:Pagination) => void,
     onLoading: (loading: boolean) => void
   ) {
-    // console.log(">>> url: ", this.API_URL);
+    const perPage = Values.PERPAGE;
     onLoading(true);
+
+     // Chuyển `filters` thành query string
+     let filterParams = ""
+     if(filters) {
+      filterParams = Object.entries(filters)
+      // Bỏ qua giá trị null/undefined/rỗng/NAN
+      .filter(([, value]) => value !== undefined && value !== null && value !== "")
+      .map(([key, value]) => {
+        if(Array.isArray(value)) {
+          return `${key}=${value.join(",")}`;
+        }
+        return `${key}=${value}`;
+      }).join("&");
+     }
+
+     
+     
+     const url = `${this.API_URL}/classes/suggests/${userId}?user_type=${userType}&page=${page}&perPage=${perPage}${filterParams ? `&${filterParams}` : ""}`
+     console.log(">>> suggest class url: ", url);
+
     axios
-      .get(`${this.API_URL}/classes/suggests/${userId}?user_type=${userType}`)
+      .get(url)
       .then((response) => {
-        onNext(response.data.data);
-        // console.log(">>>> response suggests: ", JSON.stringify(response.data.data,  null, 2));
+        const data = response.data.data
+        onNext(data.classes, data.pagination );
 
         onLoading(false);
       })
       .catch((err) => {
         console.log("Error: ", err);
-        onNext([]);
+        onNext([], new Pagination);
         onLoading(true);
       });
   }
@@ -64,6 +89,8 @@ export default class AClass {
       .get(`${this.API_URL}/classes/attending/${userId}`)
       .then((response) => {
         onNext(response.data.data);
+        
+        // console.log("User id", userId);  
         // console.log(">>>> response: ", JSON.stringify(response.data.data,  null, 2));
 
         onLoading(false);
@@ -100,8 +127,7 @@ export default class AClass {
   //
   public static joinClass(
     classId: number,
-    userId: string,
-    studentIds: number[],
+    userIds: string[],
     onNext: (data: any) => void,
     onLoading: (loading: boolean) => void
   ) {
@@ -109,8 +135,7 @@ export default class AClass {
 
     axios
       .post(`${this.API_URL}/classes/${classId}/join`, {
-        user_id: userId,
-        student_ids: studentIds,
+        user_ids: userIds,
       })
       .then((response) => {
         console.log(">>>joinClass", response.data.data);
@@ -228,7 +253,7 @@ export default class AClass {
   //khoá lớp học
   // Hàm khoá lớp học
 public static lockClass(
-  classId: string,
+  classId: number,
   onNext: (response: any) => void,
   onLoading: (loading: boolean) => void
 ) {

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, {useEffect, useState} from "react";
 import {
   View,
   StyleSheet,
@@ -12,63 +12,23 @@ import Feather from "@expo/vector-icons/Feather";
 import { BackgroundColor } from "../../configs/ColorConfig";
 import CourseItem from "../components/CourseItem";
 import Pagination from "../components/Pagination";
-
-const courses = [
-  {
-    id: 1,
-    name: "Tìm gia sư dạy toán",
-    level: "Lớp 12",
-    date: "24/09/2024",
-    time: 4,
-    type: "Tại nhà",
-    address: "Linh Chiểu, Thủ Đức",
-    cost: 200000,
-  },
-  {
-    id: 2,
-    name: "Khóa học lập trình JavaScript",
-    level: "Người mới bắt đầu",
-    date: "01/10/2024",
-    time: 6,
-    type: "Online",
-    address: "Phạm Văn Đồng, Thủ Đức",
-    cost: 300000,
-  },
-  {
-    id: 3,
-    name: "Gia sư tiếng Anh giao tiếp",
-    level: "Trình độ trung cấp",
-    date: "15/09/2024",
-    time: 2,
-    type: "Tại nhà",
-    address: "Phạm Văn Đồng, Gò Vấp",
-    cost: 150000,
-  },
-  {
-    id: 4,
-    name: "Khóa học thiết kế đồ họa Photoshop",
-    level: "Trình độ cơ bản",
-    date: "05/10/2024",
-    time: 8,
-    type: "Online",
-    address: "Quận 1",
-    cost: 400000,
-  },
-  {
-    id: 5,
-    name: "Lớp học Toán cao cấp",
-    level: "Đại học",
-    date: "20/10/2024",
-    time: 5,
-    type: "Tại nhà",
-    address: "Nguyễn Văn Linh, Quận 7",
-    cost: 250000,
-  },
-];
+import Class from "../../models/Class";
+import DateTimeConfig from "../../configs/DateTimeConfig";
 
 export default function ClassListScreen() {
+  // states
   const [searchKey, setSearchKey] = useState("");
-  const [currentPage, setCurentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [classes, setClasses] = useState<Class[]>([]);
+
+  //handlers
+
+
+  //effects
+  useEffect(() => {
+    alert("call api to get classes here");
+  }, []);
+
   return (
     <View style={styles.container}>
       <View style={styles.searchContainer}>
@@ -85,18 +45,18 @@ export default function ClassListScreen() {
       <View style={styles.bodyContainer}>
         <View style={styles.relatedClassContainer}>
           <FlatList
-            data={courses}
+            data={classes}
             renderItem={({ item }) => (
               <View style={styles.classItem}>
                 <CourseItem 
                   majorIconUrl=""
-                  name={item.name}
-                  level={item.level}
-                  date={item.date}
-                  time={item.time}
-                  type={item.type}
-                  address={item.address}
-                  cost={item.cost}
+                  name={item.title}
+                  level={item.title}
+                  date={DateTimeConfig.getDateFormat(item.started_at)}
+                  time={item.started_at}
+                  type={item.title}
+                  address={item.address_1}
+                  cost={item.price}
                 />
               </View>
             )}
@@ -110,7 +70,7 @@ export default function ClassListScreen() {
                 <Pagination
                   totalPage={5}
                   currentPage={currentPage}
-                  onChange={setCurentPage}
+                  onChange={setCurrentPage}
                 />
               </View>
             }

@@ -1,5 +1,6 @@
 import axios from "axios";
-import UserReport from "../models/UserReport";
+import Report from "../models/Report";
+import Response from "../models/Response";
 import ReactAppUrl from "../configs/ConfigUrl";
 import { jsiConfigureProps } from "react-native-reanimated/lib/typescript/reanimated2/core";
 

@@ -15,10 +15,10 @@ export default function ChatMessageItem({
   chat,
   onPress = () => {},
 }: ChatMessageItemProps) {
-  let content = chat?.newest_message?.content;
+  let content = chat?.message?.content;
 
-  if (chat.newest_message?.file) {
-    if (chat.newest_message?.is_image) {
+  if (chat.message?.file) {
+    if (chat.message?.is_image) {
       content = "[image]";
     } else {
       content = "[file]";
@@ -49,7 +49,7 @@ export default function ChatMessageItem({
       {/* time */}
       <Text style={styles.time}>
         {DateTimeConfig.getDateFormat(
-          +(chat.newest_message?.created_at ?? 0),
+          +(chat.message?.created_at ?? 0),
           true,
           true
         )}
@@ -59,7 +59,7 @@ export default function ChatMessageItem({
       <View
         style={[
           styles.badge,
-          !chat?.newest_message?.to_user_status && {
+          chat?.message?.as_read && {
             backgroundColor: BackgroundColor.white,
           },
         ]}

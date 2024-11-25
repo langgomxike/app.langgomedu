@@ -27,27 +27,15 @@ export default class SAsyncStorage {
 
     public static setData(key: AsyncStorageKeys, valueAsJsonString: string, onSuccess: () => void = emptyFunc, onError: (error: any) => void = emptyFunc, onComplete: () => void = emptyFunc) {
         AsyncStorage.setItem(key, valueAsJsonString)
-            .then(() => {
-                onSuccess();
-            })
-            .catch((error: any) => {
-                onError(error);
-            }).finally(() => {
-                onComplete();
-            });
+            .then(onSuccess)
+            .catch(onError).finally(onComplete);
 
     }
 
     public static removeData(key: AsyncStorageKeys, onSuccess: () => void = emptyFunc, onError: (error: any) => void = emptyFunc, onComplete: () => void = emptyFunc) {
         AsyncStorage.removeItem(key)
-            .then(() => {
-                onSuccess();
-            })
-            .catch((error: any) => {
-                onError(error);
-            })
-            .finally(() => {
-                onComplete();
-            });
+            .then(onSuccess)
+            .catch(onError)
+            .finally(onComplete);
     }
 }

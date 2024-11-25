@@ -13,7 +13,7 @@ import { BackgroundColor } from "../../../configs/ColorConfig";
 import * as FileSystem from "expo-file-system";
 import * as MediaLibrary from "expo-media-library";
 import {
-  NavigationContext,
+  NavigationContext, NavigationRouteContext,
   RouteProp,
   useRoute,
 } from "@react-navigation/native";
@@ -26,17 +26,21 @@ import ClassInfoSkeleton from "../../components/skeleton/ClassInfoSkeleton";
 import ReactAppUrl from "../../../configs/ConfigUrl";
 import ModalConfirmAttendClass from "../../components/modal/ModalConfirmAttendLesson";
 import Attendance from "../../../models/Attendance";
-import { RootStackParamList } from "../../../configs/NavigationRouteTypeConfig";
+import {AttendedForLearner, RootStackParamList} from "../../../configs/NavigationRouteTypeConfig";
 import moment from "moment";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import * as ImagePicker from "expo-image-picker";
+import { FlatList } from "react-native-gesture-handler";
+import ChildItem from "../../components/attendance/ChildItem";
+import ModalPay from "../../components/modal/ModalPay";
 
 const URL = ReactAppUrl.PUBLIC_URL;
+
 export default function LeanerAttendance() {
-  const route =
-    useRoute<RouteProp<RootStackParamList, ScreenName.ATTENDED_FOR_LEARNER>>();
+  // contexts
+  const route = useContext(NavigationRouteContext);
   // Get class id
-  const param = route.params;
+  const param = route?.params as AttendedForLearner || {classId: -1, lessonId: -1};
 
   //context
   const user = useContext(UserContext).user;
@@ -58,16 +62,17 @@ export default function LeanerAttendance() {
   const [isDeferred, setIsDeferred] = useState(false);
   const [modalName, setModalName] = useState("");
 
-  const classId = param.classId;
+  const classId = param?.classId ;
   const lessonId = param.lessonId;
   const userId = user.ID;
-  const attendedAt = new Date("2024-11-14").getTime();
+  const attendedAt = new Date("2024-11-15").getTime();
   // moment.locale('vi');
   // console.log("attendedAt", param.date);
 
   // Handler
   const imageUri =
     "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/QR_code_for_mobile_English_Wikipedia.svg/800px-QR_code_for_mobile_English_Wikipedia.png";
+
   const downloadImage = async () => {
     try {
       // Kiểm tra và yêu cầu quyền truy cập vào thư viện
@@ -94,31 +99,6 @@ export default function LeanerAttendance() {
     } catch (error) {
       Alert.alert("Lỗi", "Không thể tải ảnh");
       console.error(error);
-    }
-  };
-
-  //
-  const selectImage = async () => {
-    // Request permission to access photos
-    const permissionResult =
-      await ImagePicker.requestMediaLibraryPermissionsAsync();
-
-    if (permissionResult.granted === false) {
-      alert("Permission to access gallery is required!");
-      return;
-    }
-
-    // Open the image picker
-    const pickerResult = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: false,
-      quality: 1,
-    });
-
-    if (!pickerResult.canceled) {
-      setSelectedImage(pickerResult.assets[0]);
-      console.log("Image selected:", pickerResult.assets[0]);
-      // Handle the selected image URI, e.g., save or display it
     }
   };
 
@@ -167,7 +147,6 @@ export default function LeanerAttendance() {
         const formData = new FormData();
 
         // Thêm ảnh vào formData
-
         if (selectedImage && paymentMethod === "bank") {
           console.log("selected image", selectedImage);
           formData.append("file", {
@@ -206,6 +185,10 @@ export default function LeanerAttendance() {
     [attendStudents, selectedImage]
   );
 
+  const handlePay = () => {
+    setModalVisible("modalPay")
+  }
+
   // effects
   useEffect(() => {
     // SFirebase.trackOne(FirebaseNode.ATTENDANCE, 1, () => {
@@ -217,9 +200,11 @@ export default function LeanerAttendance() {
       userId,
       attendedAt,
       (lessonDetail, attendStudents) => {
+        console.log(attendStudents);
+        
         setLessonDetail(lessonDetail);
         setAttendStudents(attendStudents);
-        setConfirmAttendance(attendStudents[0].confirm_attendance);
+        setConfirmAttendance(attendStudents.length > 0 && attendStudents[0].confirm_attendance);
         if (attendStudents.length > 0 && attendStudents[0].attendance_payment) {
           setIsPaid(attendStudents[0].attendance_payment.paid);
           setIsDeferred(attendStudents[0].attendance_payment.deferred);
@@ -274,121 +259,33 @@ export default function LeanerAttendance() {
                 </View>
               </View>
 
-              {/* Uploading payment */}
-              <View style={styles.paymentContainer}>
-                <Text style={styles.titleContainer}>
-                  Chọn phương thức thanh toán
-                </Text>
-
-                {/* Phương thức Tiền mặt */}
-                <TouchableOpacity
-                  style={styles.option}
-                  onPress={() => setPaymentMethod("cash")}
-                >
-                  <Ionicons
-                    name="cash-outline"
-                    size={24}
-                    color={paymentMethod === "cash" ? "green" : "gray"}
-                  />
-                  <Text style={styles.optionText}>Thanh toán tiền mặt</Text>
-                  {paymentMethod === "cash" && (
-                    <Ionicons name="checkmark" size={24} color="green" />
-                  )}
-                </TouchableOpacity>
-
-                {/* Phương thức Chuyển khoản */}
-                <TouchableOpacity
-                  style={styles.option}
-                  onPress={() => setPaymentMethod("bank")}
-                >
-                  <Ionicons
-                    name="card-outline"
-                    size={24}
-                    color={paymentMethod === "bank" ? "green" : "gray"}
-                  />
-                  <Text style={styles.optionText}>Chuyển khoản</Text>
-                  {paymentMethod === "bank" && (
-                    <Ionicons name="checkmark" size={24} color="green" />
-                  )}
-                </TouchableOpacity>
-              </View>
-
-              {paymentMethod === "bank" && (
-                <View>
-                  {/* Pay infomation */}
-                  <View style={styles.payInfoContainer}>
-                    <Text style={styles.titleContainer}>
-                      Thông tin chuyển khoản
-                    </Text>
-                    <View style={styles.payInfoContent}>
-                      <View style={styles.hintTitleContainer}>
-                        <Text style={styles.hintTitle}>
-                          Nhấn giữ hình để lưu
-                        </Text>
-                        <Octicons
-                          name="download"
-                          size={18}
-                          color={BackgroundColor.gray_c6}
-                        />
-                      </View>
-
-                      <TouchableOpacity
-                        onLongPress={downloadImage}
-                        style={[styles.boxShadow, styles.imageQrContainer]}
-                      >
-                        <Image
-                          source={{
-                            uri: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/QR_code_for_mobile_English_Wikipedia.svg/800px-QR_code_for_mobile_English_Wikipedia.png",
-                          }}
-                          style={[styles.imageQr, styles.boxShadow]}
-                        />
-                      </TouchableOpacity>
-                      <View style={styles.logoOfBankContainer}>
-                        <Image
-                          source={{ uri: "https://api.vietqr.io/img/MB.png" }}
-                          style={styles.logoOfBank}
-                          resizeMode="contain"
-                        />
-                      </View>
-                      <Text style={styles.bankingNumber}>
-                        {lessonDetail.class?.tutor?.information?.banking_code}
-                      </Text>
-                      <Text style={styles.bankingName}>
-                        {lessonDetail.class?.tutor?.full_name}
-                      </Text>
-                    </View>
+              <View style={styles.childrenComponent}>
+                <View style={styles.childrenComponentTitleContainer}>
+                  <Text style={styles.childrenComponentTitle}>Dánh sách con trong lớp</Text>
+                  <View style={styles.colorInfo}>
+                        <View style={styles.colorContainer}>
+                          <View style={[styles.color, {backgroundColor: BackgroundColor.green_light}]}></View>
+                          <Text style={styles.textColor}>Đã học</Text>
+                        </View>
+                        <View style={styles.colorContainer}>
+                          <View style={[styles.color, {backgroundColor: BackgroundColor.gray_c6}]}></View>
+                          <Text style={styles.textColor}>Vắng</Text>
+                        </View>
                   </View>
 
-                  {/* Uploading payment */}
-                  <View style={styles.uploadPaymentContainer}>
-                    <TouchableOpacity
-                      onPress={selectImage}
-                      style={[styles.uploadImageButton, styles.boxShadow]}
-                    >
-                      <Ionicons name="image-outline" size={24} color="black" />
-                      <Text style={styles.buttonText}>Chọn hình</Text>
-                    </TouchableOpacity>
-
-                    <View style={styles.textContainer}>
-                      <Text style={styles.uploadText}>
-                        Tải ảnh minh chứng thanh toán
-                      </Text>
-                      <Text style={styles.subText}>
-                        Vui lòng tải lên ảnh chụp màn hình hoặc hóa đơn để xác
-                        nhận thanh toán.
-                      </Text>
-                    </View>
-
-                    {/* Display the selected image if available */}
-                    {selectedImage && (
-                      <Image
-                        source={{ uri: selectedImage.uri }}
-                        style={styles.selectedImage}
-                      />
-                    )}
-                  </View>
                 </View>
-              )}
+                <FlatList
+                horizontal={true}
+                showsHorizontalScrollIndicator={false}
+                data={[1,2,3,4]}
+                renderItem={({item}) => {
+                  return (
+                    <ChildItem onPay={handlePay}/>
+                  )
+                }}
+                contentContainerStyle={{padding: 10}}
+                />
+              </View>
 
               {/* History attendce list */}
               <TouchableOpacity onPress={handleNavigateAttendanceHistory}>
@@ -500,8 +397,17 @@ export default function LeanerAttendance() {
           visiable={modalVisible}
           onRequestCloseDialog={() => setModalVisible(null)}
         />
-
       }
+
+        <ModalPay
+          confirmTitle="Thanh toán"
+          confirmContent={
+            "Thanh toán của bạn đã được ghi nhận. Gia sư sẽ sớm sác nhận thanh toán của bạn!"
+          }
+          imageStatus={"success"}
+          visiable={modalVisible}
+          onRequestCloseDialog={() => setModalVisible(null)}
+        />
     </View>
   );
 }
@@ -818,4 +724,48 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 16,
   },
+
+  // children list
+  childrenComponent : {
+    marginTop: 10,
+    backgroundColor: BackgroundColor.white,
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 30,
+  },
+
+  childrenComponentTitleContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 15,
+  },
+
+  childrenComponentTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+
+  colorInfo: {
+    flexDirection: "row",
+    gap: 20
+  },
+
+  colorContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+
+  color: {
+    width: 25,
+    height: 10,
+    borderRadius: 999,
+  },
+
+  textColor: {
+    color: "#666",
+    fontSize: 13,
+  }
+
 });

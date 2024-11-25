@@ -10,16 +10,16 @@ import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import Modal from "react-native-modal";
 import { BackgroundColor } from "../../../configs/ColorConfig";
 import { Image } from "react-native";
-import Student from "../../../models/Student";
 import AClass from "../../../apis/AClass";
 import { UserContext, UserType } from "../../../configs/UserContext";
 import ModalDialogForClass from "./ModalDialogForClass";
+import User from "../../../models/User";
 
 type ModalJoinClassProps = {
   confirmContent: string;
   visiable: string | null;
   onRequestClose: () => void;
-  selectedStudents?: Student[];
+  selectedStudents?: User[];
   classId: number;
   onResultValue: (result: boolean) => void; 
 };
@@ -43,18 +43,18 @@ export default function ModalConfirmJoinClass({
   // states 
   const [isConfirming, setIsConfirming] = useState<string | null>("");
   const [loading, setLoading] = useState(false);
+  const [userIds, setUserIds] = useState<string[]>([]);
   const [modalDialog, setModalDialog] = useState<ModalDialog>({
     confirmContent: "",
     confirmStatus: "failure"
   });
-  const [studentIds, setStudentIds] = useState<number[]>([]);
+
   
   // Handles
   const handleJoinClass = useCallback(() => {
     AClass.joinClass(
       classId, 
-      user.ID, 
-      studentIds,
+      userIds ,
       (data) => {
         setIsConfirming("modalDialogForClass"); // mở modalDialogForClass
         onRequestClose();
@@ -76,7 +76,7 @@ export default function ModalConfirmJoinClass({
       setLoading
      )
 
-  }, [studentIds, classId,]);
+  }, [userIds, classId,]);
 
   const handleAcceptClassToTeach = useCallback(() => {
     AClass.acceptClassToTeach(
@@ -106,9 +106,9 @@ export default function ModalConfirmJoinClass({
   // effects 
   useEffect(() => {
       if (selectedStudents) {
-        setStudentIds(selectedStudents.map((student) => student.id))
+        setUserIds(selectedStudents.map((student) => student.id))
       } else {
-        setStudentIds([]);
+        setUserIds([]);
       }
   }, [selectedStudents]);
 

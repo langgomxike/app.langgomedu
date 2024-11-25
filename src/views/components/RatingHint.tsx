@@ -31,7 +31,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         fontSize: 12,
         fontWeight: 'bold',
-        color: TextColor.primary
+        color: TextColor.sub_primary,
     },
     activeRatingHintBox: {
         backgroundColor: BackgroundColor.primary, // Màu nền khi được chọn

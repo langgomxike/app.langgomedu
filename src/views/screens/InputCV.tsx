@@ -22,6 +22,7 @@ import User from "../../models/User";
 import Information from "../../models/Information";
 import Major from "../../models/Major";
 import moment from 'moment';
+import { BackgroundColor } from "../../configs/ColorConfig";
 
 const AVATAR_SIZE = 100;
 
@@ -63,7 +64,6 @@ export default function InputCVScreen() {
       });
   }, [permission]);
 
-
   //effect
   useEffect(()=>{
     ACV.getPersonalCV(user.ID, (cv)=>{
@@ -90,10 +90,8 @@ export default function InputCVScreen() {
   },[])
 
   return (
-    <>
-      {/* <FloatingBack /> */}
-
-      <ScrollView style={styles.container}>
+      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+    <View>
         <TouchableOpacity style={{ alignSelf: "center" }} onPress={pickImage}>
           <Image
             source={require("../../../assets/avatar/img_avatar_cat.png")}
@@ -109,16 +107,19 @@ export default function InputCVScreen() {
         require={true}
         editable={true}
         />
+
         <Input 
         label="Tên"
         onTextChange={()=>{}}
         placeholder={cv?.user?.full_name}
         />
+
         <Input 
         label="Chuyên Ngành"
         onTextChange={()=>{}}
         placeholder={interestedMajor?.vn_name}
         />
+
         <Input 
         label="Ngày Sinh"
         onTextChange={()=>{}}
@@ -152,41 +153,31 @@ export default function InputCVScreen() {
         editable={true}
         />
 
+    
         <CvBoxEdit 
-        onAddItem={()=>{}}
-        typeItem="education"
-        title="educations">
-          
-        </CvBoxEdit>
-        <CvBoxEdit 
-        onAddItem={()=>{}}
         typeItem="experience"
         title="experiences">
-
         </CvBoxEdit>
+
         <CvBoxEdit 
-        onAddItem={()=>{}}
         typeItem="skills"
         title="skills">
-
         </CvBoxEdit>
+
         <CvBoxEdit 
-        onAddItem={()=>{}}
         typeItem="certificate"
         title="certificates">
-
         </CvBoxEdit>
-
-
+    </View>
       </ScrollView>
-    </>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    margin: 10,
+    paddingHorizontal: 15,
+    backgroundColor: BackgroundColor.white
   },
 
   avatar: {
