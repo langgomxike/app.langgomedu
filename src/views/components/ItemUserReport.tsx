@@ -9,7 +9,7 @@ const URL= ReactAppUrl.PUBLIC_URL;
 type IconReport = {
   userAvatar?: string;
   userName: string;
-  credibility: number;
+  credibility?: number;
 };
 
 export default function IconRepor ({
@@ -17,12 +17,17 @@ export default function IconRepor ({
   userName,
   credibility,
 }:IconReport)  {
-  console.log("userAvatar", userAvatar);
+  console.log("userAvatar", `${URL}/${userAvatar}`);
   return (
     <View style={styles.user}>
       <View style={styles.userInfor}>
         <Image
-        source={{uri:`${URL}${userAvatar}`}}
+       source={
+        userAvatar
+          ? { uri: `${URL}/${userAvatar}` } // Nếu userAvatar tồn tại, sử dụng URI
+          : require("../../../assets/avatar/img_avatar_cat.png") // Nếu không, sử dụng ảnh mặc định
+      }
+    
           style={styles.avatar}
         />
         <Text style={styles.userName}>{userName}</Text>

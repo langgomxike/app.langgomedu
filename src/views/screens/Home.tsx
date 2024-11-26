@@ -105,18 +105,10 @@ export default function HomeScreen() {
   }, []);
 
   // Đường dẫn tạm đếm admin
-  // navigation?.navigate(ScreenName.HOME_ADMIN);
-  // navigation?.navigate(ScreenName.REPORT_USER);
-  // navigation?.navigate(ScreenName.CREATE_ACCOUNT_ADMIN);
-  
-  const handleNavigateToCVList = useCallback(() => {
-    navigation?.navigate(ScreenName.CV_LIST);
-  }, []);
-
-  //open filter
-  const handleOpenFilter = useCallback(() => {
-    // navigation
-  }, []);
+  navigation?.navigate(ScreenName.CREATE_REPORT);
+  // const handleOpenDrawer = () => {
+  //   // navigation
+  // }, []);
 
   const toggleExpand = useCallback((id: number) => {
     const isExplaned = expandedItems.includes(id);
