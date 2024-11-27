@@ -89,20 +89,20 @@ export default class SFirebase {
 
     onValue(firebaseReference,
       (data) => {
-        SLog.log(
-          LogType.Info,
-          `track ${parentNode}`,
-          `track the ${parentNode} with key ${node} successfully`,
-        );
+        // SLog.log(
+        //   LogType.Info,
+        //   `track ${parentNode}`,
+        //   `track the ${parentNode} with key ${node} successfully`,
+        // );
         onNext();
       },
       (error) => {
-        SLog.log(
-          LogType.Info,
-          `track ${parentNode}`,
-          `track the ${parentNode} with key ${node} successfully found error`,
-          error
-        );
+        // SLog.log(
+        //   LogType.Info,
+        //   `track ${parentNode}`,
+        //   `track the ${parentNode} with key ${node} successfully found error`,
+        //   error
+        // );
         onNext();
       }
     );
@@ -114,20 +114,20 @@ export default class SFirebase {
 
     onValue(firebaseReference,
       (data) => {
-        SLog.log(
-          LogType.Info,
-          `track ${FirebaseNode.AppInfos}`,
-          `track the ${FirebaseNode.AppInfos} successfully`,
-        );
+        // SLog.log(
+        //   LogType.Info,
+        //   `track ${FirebaseNode.AppInfos}`,
+        //   `track the ${FirebaseNode.AppInfos} successfully`,
+        // );
         onNext(data.val());
       },
       (error) => {
-        SLog.log(
-          LogType.Info,
-          `track ${FirebaseNode.AppInfos}`,
-          `track the ${FirebaseNode.AppInfos} successfully found error`,
-          error
-        );
+        // SLog.log(
+        //   LogType.Info,
+        //   `track ${FirebaseNode.AppInfos}`,
+        //   `track the ${FirebaseNode.AppInfos} successfully found error`,
+        //   error
+        // );
         onNext(general_infors);
       }
     );
@@ -140,11 +140,11 @@ export default class SFirebase {
 
     update(firebaseReference, infos)
       .then(() => {
-        SLog.log(
-          LogType.Info,
-          `push ${node}`,
-          `push the ${node} successfully`,
-        );
+        // SLog.log(
+        //   LogType.Info,
+        //   `push ${node}`,
+        //   `push the ${node} successfully`,
+        // );
       })
       .catch((error) => {
         SLog.log(

@@ -87,30 +87,38 @@ const Filter = ({ isVisible, onRequestClose, onSetFilterValues }: FilterProps) =
   // PRICE
   // Kiểm tra điều kiện giá
   const validatePrice = (min: string, max: string) => {
-    const minVal = parseFloat(min);
-    const maxVal = parseFloat(max);
-
+    const minVal = parseFloat(min.replace(/\,/g, ""));
+    const maxVal = parseFloat(max.replace(/\,/g, ""));
     if (!isNaN(minVal) && !isNaN(maxVal) && minVal > maxVal) {
       setError("Giá tối thiểu không được lớn hơn giá tối đa.");
-    } else {
+    }else {
       setError(null);
     }
   };
 
-  // Hàm xử lý khi giá trị thay đổi
-  const handleMinPriceChange = (value: string) => {
-    if (/^\d*$/.test(value)) {
-      setMinPrice(value);
-    }
-    validatePrice(value, maxPrice);
+  const formatCurrency = (value: string) => {
+    if (!value) return "";
+    // Loại bỏ tất cả ký tự không phải số
+    const numericValue = value.replace(/\D/g, "");
+    // Format số tiền
+    return numericValue.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   };
 
-  const handleMaxPriceChange = (value: string) => {
-    if (/^\d*$/.test(value)) {
-    setMaxPrice(value);
-    }
-    validatePrice(minPrice, value);
+  // Hàm xử lý khi giá trị thay đổi
+  const handleMinPriceChange = (value: string) => {
+    const formattedValue = formatCurrency(value);
+    setMinPrice(formattedValue);
+
+    validatePrice(formattedValue, maxPrice);
   };
+  
+  const handleMaxPriceChange = (value: string) => {
+    const formattedValue = formatCurrency(value);
+    setMaxPrice(formattedValue);
+
+    validatePrice(minPrice, formattedValue);
+  };
+  
 
   // SO LUONG
   const handleQuantity = (value: string) => {
@@ -136,8 +144,8 @@ const Filter = ({ isVisible, onRequestClose, onSetFilterValues }: FilterProps) =
 
   const handleApply = useCallback(() => {
     const filterValues: Filters = {
-      minPrice: minPrice == "" ? undefined : Number(minPrice),
-      maxPrice: maxPrice == "" ? undefined : Number(maxPrice),
+      minPrice: minPrice === "" ? undefined : Number(minPrice.replace(/,/g, "")),
+      maxPrice: maxPrice === "" ? undefined : Number(maxPrice.replace(/,/g, "")),
       province: selectedCities.length == 0 ? undefined : selectedCities,
       district: selectedDistricts.length == 0 ? undefined : selectedDistricts,
       ward: selectedWards.length == 0 ? undefined : selectedWards,
@@ -177,7 +185,7 @@ const Filter = ({ isVisible, onRequestClose, onSetFilterValues }: FilterProps) =
     // console.log(">> sort", sortValues)
     // console.log(">> min price: ", minPrice);
     // console.log(">> max price: ", maxPrice);
-    // console.log(">> quantity: ", quantitys);
+    // // console.log(">> quantity: ", quantitys);
     // console.log(">> from date: ", fromDate);
     // console.log(">> from date: ", convertDateStringToMilliseconds(fromDate));
     // console.log(">> morjors: ", selectedMajors);
@@ -197,10 +205,7 @@ const Filter = ({ isVisible, onRequestClose, onSetFilterValues }: FilterProps) =
       avoidKeyboard={true}
       onBackdropPress={() => onRequestClose()}
     >
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={styles.keyboardAvoidingView}
-      >
+      
         <View style={styles.overlay}>
           <View style={styles.container}>
             <ScrollView
@@ -336,7 +341,6 @@ const Filter = ({ isVisible, onRequestClose, onSetFilterValues }: FilterProps) =
             </TouchableOpacity> */}
           </View>
         </View>
-      </KeyboardAvoidingView>
     </ReactNativeModal>
   );
 };
@@ -447,11 +451,6 @@ const styles = StyleSheet.create({
     color: "#ff0000",
     fontSize: 15,
     textAlign: "center",
-  },
-
-
-  keyboardAvoidingView: {
-    flex: 1,
   },
 
   inputPriceContainer: {

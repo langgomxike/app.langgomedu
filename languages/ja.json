@@ -72,6 +72,8 @@
 
   "LESSON_DAY": "レッスン日",
   "LESSON_DURATION": "時間",
+  "START_TIME": "開始時間",
+  "END_TIME": "終了時間",
   "LESSON_TYPE": "形式",
   "LESSON_NOTE": "メモ",
   "ONLINE": "オンライン",

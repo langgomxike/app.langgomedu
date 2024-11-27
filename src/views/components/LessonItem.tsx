@@ -1,9 +1,9 @@
-import { View, Text, StyleSheet } from 'react-native'
+import { View, Text, StyleSheet, Image } from 'react-native'
 import React, { useContext } from 'react'
 import { Ionicons, AntDesign } from "@expo/vector-icons";
 import { BackgroundColor } from '../../configs/ColorConfig';
 import Lesson from '../../models/Lesson';
-import moment from 'moment';
+import moment, { duration } from 'moment';
 import "moment/locale/vi"; 
 import { LanguageContext } from '../../configs/LanguageConfig';
 
@@ -55,6 +55,28 @@ const days = [
 
     <View style={styles.contentLessonContainer}>
       <View style={styles.contenLessonTitle}>
+      <Image
+              source={require("../../../assets/images/ic_start_time.png")}
+              style={styles.icImage}
+            />
+        <Text>{languageContext.language.START_TIME}</Text>
+      </View>
+      <Text>{moment(lessonData.started_at).format('LT')}</Text>
+    </View>
+
+    <View style={styles.contentLessonContainer}>
+      <View style={styles.contenLessonTitle}>
+      <Image
+              source={require("../../../assets/images/ic_end_time.png")}
+              style={styles.icImage}
+            />
+        <Text>{languageContext.language.END_TIME}</Text>
+      </View>
+      <Text>{moment(lessonData.started_at).add(lessonData.duration).format('LT')}</Text>
+    </View>
+
+    <View style={styles.contentLessonContainer}>
+      <View style={styles.contenLessonTitle}>
         <Ionicons
           name="git-commit-outline"
           size={ICON_SIZE}
@@ -78,9 +100,11 @@ const days = [
         />
         <Text>{languageContext.language.LESSON_NOTE}</Text>
       </View>
-      <Text>
-        {lessonData.note}
-      </Text>
+      {lessonData.note && 
+        <Text>
+          {lessonData.note}
+        </Text>
+      }
     </View>
   </View>
   )
@@ -129,5 +153,10 @@ const styles = StyleSheet.create({
       line: {
         backgroundColor: BackgroundColor.gray_c6,
         height: 1,
+      },
+
+      icImage: {
+        width: 24,
+        height: 24,
       },
 })

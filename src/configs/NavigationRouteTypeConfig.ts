@@ -1,4 +1,5 @@
 import ScreenName from "../constants/ScreenName";
+import Lesson from "../models/Lesson";
 
 import User from "../models/User";
 import Class from "../models/Class";
@@ -19,10 +20,8 @@ export type GroupMessageNavigationType = {
 }
 
 export type RootStackParamList = {
-  "DetailClass": { classId: number };
-  "AttendedForLearner": { lessonId: number, classId: number };
-  "AttendedForTutor": { lessonId: number, classId: number };
   [ScreenName.REPORT_CLASS]: { classId: number };
+  [ScreenName.CREATE_REPORT]: { classId: number };
 };
 
 export type RootStackParamListFilter = {
@@ -30,9 +29,17 @@ export type RootStackParamListFilter = {
   Filter: undefined;
 };
 
-export type AttendedForLearner = {
-  lessonId: number;
+export type ClassDetailRoute = {
   classId: number;
+}
+
+export type AttendedForLearner = {
+  lesson: Lesson;
+  user: User;
+}
+
+export type AttendedForTutor = {
+  lesson: Lesson;
 }
 
 export type RegisterType = {

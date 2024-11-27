@@ -22,6 +22,7 @@ export default function AppContext({ children }: PropsWithChildren) {
     ID: "",
     TYPE: UserType.LEANER,
   });
+  const [refresh, setRefresh] = useState(false);
   const [appInfos, setAppInfos] = useState<typeof general_infos>(general_infos);
 
   const [majors, setMajors] = useState<Major[]>([]);
@@ -42,7 +43,7 @@ export default function AppContext({ children }: PropsWithChildren) {
       <AccountContext.Provider
         value={{ account: account, setAccount: setAccount }}
       >
-        <UserContext.Provider value={{ user, setUser }}>
+        <UserContext.Provider value={{ user, setUser, refresh, setRefresh}}>
           <AppInfoContext.Provider
             value={{ setAppInfo: setAppInfos, infos: appInfos }}
           >

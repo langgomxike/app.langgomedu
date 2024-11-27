@@ -20,7 +20,6 @@ import { UserContext } from "../../configs/UserContext";
 import Class from "../../models/Class";
 import ReactAppUrl from "../../configs/ConfigUrl";
 import CvItem from "./CvItem";
-import User from "../../models/User";
 import ACV from "../../apis/ACV";
 import CV from "../../models/CV";
 import Filter from "./Filter";
@@ -47,6 +46,7 @@ export default function SuggestList() {
   const [userId, setUserId] = useState<string | undefined>(undefined);
   const [activeTab, setActiveTab] = useState(TAB.SUGGEST_CLASS);
   const [loading, setLoading] = useState(false);
+  const {refresh, setRefresh} = useContext(UserContext);
   const [isFetchingMore, setIsFetchingMore] = useState(false);
   const [suggettingClasses, setSuggettingClasses] = useState<Class[]>([]);
   const [suggessingTutors, setSuggessingTutors] = useState<CV[]>([]);
@@ -70,6 +70,7 @@ export default function SuggestList() {
           //   return reset ? newClasses : [...prevClasses, ...newClasses];
           // });
           setPaginations(pagination);
+          setRefresh(false);
         },
         loading
       );
@@ -111,7 +112,7 @@ export default function SuggestList() {
   // Lấy danh sách lớp học gợi ý lần đầu tiên
   useEffect(() => {
     fetchSuggestedClasses(page,setLoading)
-  }, [userId]);
+  }, [userId, user.TYPE, refresh]);
 
   // Lấy danh sách lớp học khi page thay đổi
   useEffect(() => {
