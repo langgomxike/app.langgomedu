@@ -21,6 +21,7 @@ export type GroupMessageNavigationType = {
 
 export type RootStackParamList = {
   [ScreenName.REPORT_CLASS]: { classId: number };
+  [ScreenName.CREATE_REPORT]: { classId: number };
 };
 
 export type RootStackParamListFilter = {
