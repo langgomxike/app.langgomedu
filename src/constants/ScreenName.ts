@@ -9,6 +9,7 @@ enum ScreenName {
     ACCOUNT = "ACCOUNT",
 
     MESSAGE = "MESSAGE",
+    GROUP_MESSAGE = "GROUP_MESSAGE",
     PROFILE = "PROFILE",
     SCANNER = "SCANNER",
 
