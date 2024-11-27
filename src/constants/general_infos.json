@@ -1,7 +1,7 @@
 {
   "app_name": "LanggomEdu",
-  "banking_code": "MB",
-  "banking_number": "0376961547",
+  "banking_code": "STB",
+  "banking_number": "050137712048",
   "creation_fee_for_parents": 0,
   "creation_fee_for_tutors": 0.3,
   "report_class_level_1": 21,
@@ -12,5 +12,45 @@
   "report_user_level_2": 40,
   "report_user_level_3": 60,
   "report_user_level_4": 80,
+  "suggested_messages_for_learners": {
+    "en": [
+      "I have a question?",
+      "Do we have any assignment today?",
+      "I cannot attend the class today?"
+    ],
+    "ja": [
+      "Shitsumon ga aru?"
+    ],
+    "vn": [
+      "E co cau hoi a?"
+    ]
+  },
+  "suggested_messages_for_tutors": {
+    "en": [
+      "Remember your assignment please",
+      "Complete your classwork",
+      "Assign today's homework at https://....com"
+    ],
+    "ja": [
+      "Remember your assignment please"
+    ],
+    "vn": [
+      "Remember your assignment please"
+    ]
+  },
+  "suggested_rating_contents": {
+    "en": [
+      "C",
+      "D"
+    ],
+    "ja": [
+      "E",
+      "F"
+    ],
+    "vn": [
+      "E",
+      "A"
+    ]
+  },
   "webiste_link": "https://langgomedu.com"
 }

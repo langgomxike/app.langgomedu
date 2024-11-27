@@ -80,7 +80,7 @@ export default function MessageItem(
           {color: TextColor.hint, fontStyle: "italic"},
         ]}
       >
-        Tin nhan da go
+        {language.DELETED_MESSAGE}
       </Text>
     );
   }
@@ -150,7 +150,7 @@ export default function MessageItem(
               size={30}
               color={BackgroundColor.sub_danger}
             />
-            <Text style={action.item}>Go tin nhan</Text>
+            <Text style={action.item}>{language.DELETE_MESSAGE}</Text>
           </TouchableOpacity>
         </RBSheet>
       </View>

@@ -7,15 +7,13 @@ import notificationTab from "../components/message/NotificationTab";
 import contactTab from "../components/message/ContactTab";
 import messageTab from "../components/message/ChatTab";
 import classChatTab from "../components/message/ClassChatTab";
-import {ChatTabContext} from "../components/ButtonNavBar";
+import {ChatTabContext, SearchContext} from "../../configs/AppContext";
 
 const APP_NAME = "Langgom";
 const HEADER_IMAGE = require("../../../assets/icons/ic_chatbox.png");
 const HEADER_TEXT_SIZE = 25;
 const SCREEN_BORDER_HORIZONTAL = 20;
 const SCREEN_ITEM_GAP = 0;
-
-export const SearchContext = createContext("");
 
 const tabs: TabItem[] = [];
 

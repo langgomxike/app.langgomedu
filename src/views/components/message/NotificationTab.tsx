@@ -1,18 +1,23 @@
 import {TabItem} from "../Tab";
-import {ElementRef, useCallback, useContext, useEffect, useRef, useState} from "react";
+import React, {ElementRef, useCallback, useContext, useEffect, useRef, useState} from "react";
 import {LanguageContext} from "../../../configs/LanguageConfig";
 import {AccountContext} from "../../../configs/AccountConfig";
-import {NavigationRouteContext, useFocusEffect} from "@react-navigation/native";
+import {useFocusEffect} from "@react-navigation/native";
 import Message from "../../../models/Message";
-import Toast from "react-native-simple-toast";
 import AMessage from "../../../apis/AMessage";
 import SFirebase, {FirebaseNode} from "../../../services/SFirebase";
 import SAsyncStorage, {AsyncStorageKeys} from "../../../services/SAsyncStorage";
-import {ScrollView, StyleSheet, Text, TouchableOpacity, View} from "react-native";
-import Spinner from "react-native-loading-spinner-overlay";
+import {ScrollView, StyleSheet, Text, View} from "react-native";
 import {BackgroundColor, TextColor} from "../../../configs/ColorConfig";
 import NotificationItem from "../NotificationItem";
-import {SearchContext} from "../../screens/Chat";
+import CustomShimmer from "../skeleton/CustomShimmer";
+import {SearchContext} from "../../../configs/AppContext";
+
+const fakeNotis: number[] = [];
+
+for (let i = 0; i < 10; i++) {
+  fakeNotis.push(i);
+}
 
 const notificationTab: TabItem = {
   title: "Notifications",
@@ -21,9 +26,6 @@ const notificationTab: TabItem = {
     const searchContext = useContext(SearchContext);
     const language = useContext(LanguageContext).language;
     const accountContext = useContext(AccountContext);
-    const route = useContext(NavigationRouteContext);
-
-    //refs
 
     //states
     const [notis, setNotis] = useState<Array<Message>>([]);
@@ -50,8 +52,10 @@ const notificationTab: TabItem = {
         key: FirebaseNode.UserId,
         value: accountContext.account?.id ?? "-1"
       }], () => {
+        setLoading(true);
         AMessage.getNotificationsOfUser((notis: Message[]) => {
           setNotis(notis);
+          setLoading(false);
 
           notis.length > 0 && SAsyncStorage.setData(AsyncStorageKeys.NEWEST_NOTIFICATION_ID, notis[0].id + "");
         });
@@ -68,15 +72,20 @@ const notificationTab: TabItem = {
         showsHorizontalScrollIndicator={false}
         showsVerticalScrollIndicator={false}
       >
-        <Spinner visible={loading}/>
-
-        <Text style={{fontSize: 10, color: TextColor.danger, marginVertical: 10,}}>*Long press to delete</Text>
+        <Text
+          style={{fontSize: 10, color: TextColor.danger, marginVertical: 10,}}>*{language.LONG_PRESS_TO_DELETE}</Text>
         {notis.filter(handleFilter).map((noti) => (
           <NotificationItem key={noti.id} id={noti.id} content={noti.content} createdAt={noti.created_at}/>
         ))}
 
-        {notis.length < 1 && (
-          <Text style={{flex: 1, alignSelf: "center"}}>Danh sach trong</Text>
+        {loading && notis.length < 1 && (
+          fakeNotis.map(i => (
+            <CustomShimmer key={i} height={70} style={styles.item}/>
+          ))
+        )}
+
+        {!loading && notis.length < 1 && (
+          <Text style={{flex: 1, alignSelf: "center"}}>{language.EMPTY_LIST}</Text>
         )}
 
         <View style={{height: 70}}/>
@@ -87,34 +96,12 @@ const notificationTab: TabItem = {
 
 export default notificationTab;
 
-const action = StyleSheet.create({
-  action: {
-    flex: 1,
-    flexDirection: "row",
-    margin: 10,
-    gap: 10,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
+const styles = StyleSheet.create({
   item: {
-    fontSize: 13,
-    fontWeight: "bold",
-  },
-
-  scrollToBottomButtonContainer: {
-    position: "absolute",
-    top: -40,
-    left: 0,
-    right: 0,
-  },
-
-  scrollToBottomButton: {
-    backgroundColor: BackgroundColor.sub_primary,
-    borderRadius: 30,
-    paddingVertical: 5,
-    paddingHorizontal: 10,
-    color: TextColor.white,
-    alignSelf: "center",
-  },
+    flex: 1,
+    marginVertical: 5,
+    borderRadius: 10,
+    minHeight: 70,
+    width: "100%"
+  }
 });

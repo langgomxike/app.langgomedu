@@ -1,10 +1,12 @@
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {Image, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import Chat from "../../models/Chat";
-import { BackgroundColor, TextColor } from "../../configs/ColorConfig";
+import {BackgroundColor, TextColor} from "../../configs/ColorConfig";
 import DateTimeConfig from "../../configs/DateTimeConfig";
 import Inbox from "../../models/Inbox";
 import {useContext} from "react";
 import {AccountContext} from "../../configs/AccountConfig";
+import {LanguageContext} from "../../configs/LanguageConfig";
+import ReactAppUrl from "../../configs/ConfigUrl";
 
 const AVATAR_SIZE = 60;
 const BADGE_SIZE = 10;
@@ -15,16 +17,18 @@ export type ChatMessageItemProps = {
 };
 
 export default function ChatMessageItem({
-  chat,
-  onPress = () => {},
-}: ChatMessageItemProps) {
+                                          chat,
+                                          onPress = () => {
+                                          },
+                                        }: ChatMessageItemProps) {
   //contexts
   const accountContext = useContext(AccountContext);
+  const language = useContext(LanguageContext).language;
 
   let content = chat?.newest_message?.content;
 
   if (content?.includes("$image:")) {
-    content = "[Hinh anh]";
+    content = `[${language.IMAGE}]`;
   }
 
   const asRead = chat.newest_message?.sender?.id === accountContext.account?.id || chat?.newest_message?.as_read;
@@ -32,14 +36,7 @@ export default function ChatMessageItem({
   return (
     <TouchableOpacity onPress={onPress} style={styles.container}>
       {/* avatar */}
-      {chat.other_user_info?.avatar ? (
-        <Image src={chat.other_user_info?.avatar} style={styles.avatar} />
-      ) : (
-        <Image
-          source={require("../../../assets/avatar/avatarTempt.png")}
-          style={styles.avatar}
-        />
-      )}
+      <Image src={ReactAppUrl.PUBLIC_URL + chat.other_user_info?.avatar} style={styles.avatar}/>
 
       {/* text container */}
       <View style={styles.textContainer}>
@@ -59,7 +56,7 @@ export default function ChatMessageItem({
         )}
       </Text>
 
-       {/*badge */}
+      {/*badge */}
       <View
         style={[
           styles.badge,
@@ -85,7 +82,9 @@ const styles = StyleSheet.create({
     width: AVATAR_SIZE,
     height: AVATAR_SIZE,
     borderRadius: AVATAR_SIZE / 2,
-    backgroundColor: BackgroundColor.sub_primary,
+    backgroundColor: BackgroundColor.white,
+    borderWidth: 1,
+    borderColor: BackgroundColor.sub_primary,
     alignSelf: "center",
   },
 

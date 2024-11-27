@@ -1,4 +1,4 @@
-import { PropsWithChildren, useCallback, useState, useEffect } from "react";
+import {PropsWithChildren, useCallback, useState, useEffect, createContext} from "react";
 import { LanguageContext } from "./LanguageConfig";
 import vn from "../../languages/vn.json";
 import User from "../models/User";
@@ -9,6 +9,10 @@ import { MajorsLevelsContext } from "./MajorsLevelsContext";
 import ClassLevel from "../models/ClassLevel";
 import general_infos from "../constants/general_infos.json";
 import { AppInfoContext } from "./AppInfoContext";
+
+export const ChatTabContext = createContext<number[]>([0, 0, 0]);
+export const SearchContext = createContext("");
+
 
 export default function AppContext({ children }: PropsWithChildren) {
   //states

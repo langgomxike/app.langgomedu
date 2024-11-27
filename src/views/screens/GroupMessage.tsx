@@ -23,12 +23,18 @@ import * as ImagePicker from "expo-image-picker";
 import {useCameraPermissions} from "expo-camera";
 import Class from "../../models/Class";
 import AClass from "../../apis/AClass";
+import {LanguageContext} from "../../configs/LanguageConfig";
+import ReactAppUrl from "../../configs/ConfigUrl";
+import {AppInfoContext} from "../../configs/AppInfoContext";
+import {RoleList} from "../../models/Role";
 
 export default function GroupMessageScreen() {
   //contexts
   const navigation = useContext(NavigationContext);
   const route = useContext(NavigationRouteContext);
   const accountContext = useContext(AccountContext);
+  const language = useContext(LanguageContext).language;
+  const appInfos = useContext(AppInfoContext).infos;
   const [permission, requestPermission] = useCameraPermissions();
 
   //refs
@@ -40,6 +46,8 @@ export default function GroupMessageScreen() {
   const [messages, setMessages] = useState<Array<Message>>([]);
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [suggestedList, setSuggestedList] = useState<string[]>([]);
+  const [showSuggestList, setShowSuggestList] = useState(true);
 
   //handlers
   const handleSendNewMessage = useCallback((newMessage: string, ratio?: number) => {
@@ -63,10 +71,8 @@ export default function GroupMessageScreen() {
     }, 10000);
 
     AMessage.sendMessage(message, (result) => {
-        if (result) {
-          Toast.show("Sent a new message", 1000);
-        } else {
-          Toast.show("Failed to send a new message", 1000);
+        if (!result) {
+          Toast.show(language.FAIL_TO_SEND_MESSAGE, 1000);
         }
       },
       () => {
@@ -93,7 +99,7 @@ export default function GroupMessageScreen() {
                 SLog.log(LogType.Warning, "handlePickImage", "path", path);
                 handleSendNewMessage("$image:" + path, ratio);
               } else {
-                Toast.show("Failed to send an image message", 1000);
+                Toast.show(language.FAIL_TO_SEND_IMAGE, 1000);
               }
             },
           );
@@ -146,6 +152,34 @@ export default function GroupMessageScreen() {
       });
   }, [_class, accountContext.account, messages.length]);
 
+  useEffect(() => {
+    if (accountContext.account?.roles?.map(r => r.id)?.includes(RoleList.TUTOR)) {
+      switch (language.TYPE) {
+        case "vi":
+          setSuggestedList(appInfos.suggested_messages_for_tutors.vn);
+          break;
+        case "en":
+          setSuggestedList(appInfos.suggested_messages_for_tutors.en);
+          break;
+        case "ja":
+          setSuggestedList(appInfos.suggested_messages_for_tutors.ja);
+          break;
+      }
+    } else {
+      switch (language.TYPE) {
+        case "vi":
+          setSuggestedList(appInfos.suggested_messages_for_learners.vn);
+          break;
+        case "en":
+          setSuggestedList(appInfos.suggested_messages_for_learners.en);
+          break;
+        case "ja":
+          setSuggestedList(appInfos.suggested_messages_for_learners.ja);
+          break;
+      }
+    }
+  }, [accountContext.account, appInfos]); 
+
   return (
     <View style={styles.container}>
       <Spinner visible={loading}/>
@@ -159,7 +193,7 @@ export default function GroupMessageScreen() {
 
       {/* class */}
       <Pressable style={{alignSelf: "center"}} onPress={goToDetail}>
-        <Image src={_class?.major?.icon ?? ""} style={styles.avatar}/>
+        <Image src={ReactAppUrl.PUBLIC_URL + _class?.major?.icon ?? ""} style={styles.avatar}/>
 
         <Text style={styles.userName}>{_class?.title}</Text>
       </Pressable>
@@ -181,6 +215,13 @@ export default function GroupMessageScreen() {
           ))}
         </ScrollView>
 
+        {showSuggestList && suggestedList &&
+          <ScrollView showsHorizontalScrollIndicator={false} showsVerticalScrollIndicator={false} horizontal={true}>
+            {suggestedList.map((item, index) => (
+              <Text key={index} style={styles.suggestItem} onPress={() => setNewMessage(item)}>{item}</Text>
+            ))}
+          </ScrollView>}
+
         {/* chat bar */}
         <View style={styles.chatContainer}>
           {/* actions */}
@@ -192,6 +233,13 @@ export default function GroupMessageScreen() {
                 color={BackgroundColor.black}
                 onPress={handlePickImage}
               />
+
+              <Ionicons
+                name="bulb-outline"
+                size={30}
+                color={showSuggestList ? BackgroundColor.warning : BackgroundColor.black}
+                onPress={() => setShowSuggestList(prev => !prev)}
+              />
             </>
           )}
 
@@ -199,7 +247,7 @@ export default function GroupMessageScreen() {
             ref={inputRef}
             value={newMessage}
             onChangeText={(value) => setNewMessage(value)}
-            placeholder="Chat here"
+            placeholder={language.CHAT_HERE + "..."}
             style={styles.input}
           />
 
@@ -255,7 +303,9 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 50,
-    backgroundColor: BackgroundColor.primary,
+    backgroundColor: BackgroundColor.white,
+    borderWidth: 0.7,
+    borderColor: BackgroundColor.sub_primary,
     marginTop: 50,
     alignSelf: "center",
   },
@@ -274,4 +324,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     flex: 1,
   },
+
+  suggestItem: {
+    fontSize: 12,
+    backgroundColor: BackgroundColor.gray_30,
+    paddingTop: 5,
+    paddingBottom: 7,
+    paddingHorizontal: 8,
+    borderRadius: 10,
+    margin: 3,
+    fontStyle: "italic"
+  }
 });

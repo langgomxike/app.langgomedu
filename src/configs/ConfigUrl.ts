@@ -1,7 +1,7 @@
 // Your ip address: 192.168.43.156
 const ReactAppUrl = {
-  API_BASE_URL: "http://192.168.1.8:3002/api",
-  PUBLIC_URL: "http://192.168.1.8:3002",
+  API_BASE_URL: "http://192.168.1.4:3002/api",
+  PUBLIC_URL: "http://192.168.1.4:3002",
 };
 
 export default ReactAppUrl;

@@ -1,12 +1,22 @@
 import {TabItem} from "../Tab";
-import {useCallback, useContext, useEffect, useState} from "react";
+import React, {useCallback, useContext, useEffect, useState} from "react";
 import {NavigationContext} from "@react-navigation/native";
 import User from "../../../models/User";
 import ScreenName from "../../../constants/ScreenName";
 import AMessage from "../../../apis/AMessage";
-import {ScrollView, Text, View} from "react-native";
+import {ScrollView, StyleSheet, Text, View} from "react-native";
 import ChatContactItem from "../ChatContactItem";
-import {SearchContext} from "../../screens/Chat";
+import {LanguageContext} from "../../../configs/LanguageConfig";
+import SFirebase, {FirebaseNode} from "../../../services/SFirebase";
+import CustomShimmer from "../skeleton/CustomShimmer";
+import {SearchContext} from "../../../configs/AppContext";
+
+const fakeContacts: number[] = [];
+
+for (let i = 0; i < 10; i++) {
+  fakeContacts.push(i);
+}
+
 
 const contactTab: TabItem = {
   title: "Contacts",
@@ -14,9 +24,11 @@ const contactTab: TabItem = {
     //contexts
     const searchContext = useContext(SearchContext);
     const navigation = useContext(NavigationContext);
+    const language = useContext(LanguageContext).language;
 
     //states
     const [contacts, setContacts] = useState<Array<User>>([]);
+    const [loading, setLoading] = useState(false);
 
     //handlers
     const handleFilter = useCallback(
@@ -45,8 +57,12 @@ const contactTab: TabItem = {
 
     //effects
     useEffect(() => {
-      AMessage.getContactsOfUser((contacts: User[]) => {
-        setContacts(contacts);
+      SFirebase.track(FirebaseNode.Messages, [], () => {
+        setLoading(true);
+        AMessage.getContactsOfUser((contacts: User[]) => {
+          setContacts(contacts);
+          setLoading(false);
+        });
       });
     }, []);
 
@@ -63,8 +79,14 @@ const contactTab: TabItem = {
           />
         ))}
 
-        {contacts.length < 1 && (
-          <Text style={{flex: 1, alignSelf: "center", marginTop: 20}}>Danh sach trong</Text>
+        {loading && contacts.length < 1 && (
+          fakeContacts.map(i => (
+            <CustomShimmer key={i} height={60} style={styles.item} />
+          ))
+        )}
+
+        {!loading && contacts.length < 1 && (
+          <Text style={{flex: 1, alignSelf: "center", marginTop: 20}}>{language.EMPTY_LIST}</Text>
         )}
 
         <View style={{height: 70}}/>
@@ -74,3 +96,13 @@ const contactTab: TabItem = {
 };
 
 export default contactTab;
+
+const styles = StyleSheet.create({
+  item: {
+    flex: 1,
+    marginVertical: 5,
+    borderRadius: 10,
+    minHeight: 70,
+    width: "100%"
+  }
+});

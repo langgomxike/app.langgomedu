@@ -44,3 +44,8 @@ export type RegisterType = {
 export type AuthType = {
   user: User;
 }
+
+export type RatingNavigationType = {
+  id: string;
+  class: Class;
+}
