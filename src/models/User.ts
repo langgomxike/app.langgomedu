@@ -4,6 +4,7 @@ import Address from "./Address";
 import Gender from "./Gender";
 import ClassLevel from "./ClassLevel";
 import Major from "./Major";
+import Attendance from "./Attendance";
 
 export default class User {
     public id: string;
@@ -19,13 +20,15 @@ export default class User {
     public birthday: number;
     public gender: Gender | undefined;
     public point: number;
-    public bankingNumber: string;
-    public bankingCode: string;
+    public banking_number: string;
+    public banking_code: string;
     public created_at: number;
     public updated_at: number;
     public roles: Role[];
     public interested_class_levels: ClassLevel[];
     public interested_majors: Major[];
+    public children: User[];
+    public attendance: Attendance | undefined;
 
     constructor(
         id = "",
@@ -41,13 +44,15 @@ export default class User {
         birthday = 0,
         gender: Gender | undefined = undefined,
         point: number = 0,
-        bankingNumber: string = "",
-        bankingCode: string = "",
+        banking_number: string = "",
+        banking_code: string = "",
         created_at = 0,
         updated_at = 0,
         roles = [],
         interested_class_levels = [],
-        interested_majors = []
+        interested_majors = [],
+        children: User[] = [],
+        attendance: Attendance | undefined = undefined
     ) {
         this.id = id;
         this.full_name = full_name;
@@ -62,12 +67,14 @@ export default class User {
         this.birthday = birthday;
         this.gender = gender;
         this.point = point;
-        this.bankingNumber = bankingNumber;
-        this.bankingCode = bankingCode;
+        this.banking_number = banking_number;
+        this.banking_code = banking_code;
         this.created_at = created_at;
         this.updated_at = updated_at;
         this.roles = roles;
         this.interested_class_levels = interested_class_levels;
         this.interested_majors = interested_majors;
+        this.children = children;
+        this.attendance = attendance;
     }
 }

@@ -72,6 +72,8 @@
 
   "LESSON_DAY": "Lesson Day",
   "LESSON_DURATION": "Duration",
+  "START_TIME": "Start Time",
+  "END_TIME": "End Time",
   "LESSON_TYPE": "Form",
   "LESSON_NOTE": "Note",
   "ONLINE": "Online",

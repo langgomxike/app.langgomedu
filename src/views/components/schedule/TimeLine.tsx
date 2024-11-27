@@ -4,8 +4,9 @@ import LessionItem, { LessionItemProps } from "./LessionItem";
 import Lesson from "../../../models/Lesson";
 import { useCallback, useEffect, useState } from "react";
 import { TouchableOpacity } from "react-native-gesture-handler";
+import User from "../../../models/User";
 export type timeLineProp = {
-  user_id?: string;
+  selectedUser: User;
   lessons: Lesson[];
   selectedDate: Date;
   type: number;
@@ -17,7 +18,7 @@ export type timeLineProp = {
  * type 1 => tutor
  */
 
-export default function TimeLine({ user_id, lessons, selectedDate, type, onChangeType }: timeLineProp) {
+export default function TimeLine({ selectedUser, lessons, selectedDate, type, onChangeType }: timeLineProp) {
   //State >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   const [activeTab, setActiveTab] = useState(type);
 
@@ -75,14 +76,15 @@ export default function TimeLine({ user_id, lessons, selectedDate, type, onChang
             const classId = item.class?.id;
             const classIcon = item.class?.major?.icon;
             const title = item.class?.title;
-            const classType = user_id === item.class?.tutor?.id ? 0 : 1;
+            const classType = selectedUser?.id === item.class?.tutor?.id ? 0 : 1;
             const tutorName = item.class?.tutor?.full_name;
             const startedAt = new Date(item.started_at);
             const duration = item.duration;
             return (
               <LessionItem
+                selectedUser={selectedUser}
                 classId={classId}
-                lessonId={item.id}
+                lessonData={item}
                 classIcon={classIcon}
                 title={title ? title : ""}
                 classType={classType}

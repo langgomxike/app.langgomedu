@@ -40,6 +40,7 @@ import UserClassManager from "../components/UserClassManager";
 import { RoleList } from "../../models/Role";
 import { MajorsLevelsContext } from "../../configs/MajorsLevelsContext";
 import AClassLevel from "../../apis/AClassLevel";
+import { RefreshControl } from "react-native-gesture-handler";
 
 
 const items = [
@@ -62,15 +63,14 @@ export default function HomeScreen() {
   const appInfoContext = useContext(AppInfoContext);
   const languageContext = useContext(LanguageContext);
   const {user, setUser} = useContext(UserContext);
+  const {refresh, setRefresh} = useContext(UserContext);
   const majorsLevelsContext = useContext(MajorsLevelsContext);
 
   //states
-  const [showingFilter, setShowingFilter] = useState(false);
   const [searchKey, setSearchKey] = useState<string>("");
   const [loading, setLoading] = useState(false);
-  const [expandedItems, setExpandedItems] = useState<number[]>(
-    items.map((item) => item.id)
-  );
+  const [isRefesh, setIsRefesh] = useState(false);
+
   const [userTypeName, setUserTypeName] = useState("Leaner");
   const [majors, setMajors] = useState<Major[]>([]);
 
@@ -118,45 +118,6 @@ export default function HomeScreen() {
     // navigation
   }, []);
 
-  const toggleExpand = useCallback((id: number) => {
-    const isExplaned = expandedItems.includes(id);
-
-    let index = id - 1;
-    Animated.timing(animation[index], {
-      toValue: isExplaned ? 0 : 1,
-      duration: 500,
-      useNativeDriver: false,
-    }).start();
-
-    setExpandedItems((prev) =>
-      isExplaned ? prev.filter((item) => item !== id) : [...prev, id]
-    );
-  }, [animation]);
-
-  // Hàm lấy height interpolation cho từng item
-  const getHeightInterpolation = useCallback((index: number) => {
-    return animation[index].interpolate({
-      inputRange: [0, 1],
-      outputRange: [0, 380], // Thu hẹp là 0, mở rộng là 450
-    });
-  }, [animation]);
-
-  // Hàm lấy opacity interpolation cho từng item
-  const getOpacityInterpolation = useCallback((index: number) => {
-    return animation[index].interpolate({
-      inputRange: [0, 1],
-      outputRange: [0.5, 1], // Mờ là 0.5, rõ là 1
-    });
-  }, [animation]);
-
-  // Hàm lấy rotation interpolation cho từng item
-  const getRotationInterpolation = useCallback((index: number) => {
-    return animation[index].interpolate({
-      inputRange: [0, 1],
-      outputRange: ["0deg", "90deg"], // Xoay từ 0 đến 90 độ
-    });
-  }, [animation]);
-
   // effects
   useEffect(() => {
       AMajor.getAllMajors((data) => {
@@ -168,11 +129,23 @@ export default function HomeScreen() {
         majorsLevelsContext?.setClassLevels(data);
       });
 
-  }, [ accountContext.setAccount]);
+  }, [accountContext.setAccount]);
+
+  const onRefresh = useCallback(() => {
+    setRefresh(true);
+  }, [refresh]);
 
   // render
   return (
-    <ScrollView showsVerticalScrollIndicator={false}>
+    <ScrollView 
+    showsVerticalScrollIndicator={false}
+    refreshControl={
+      <RefreshControl
+      refreshing={refresh}
+      onRefresh={onRefresh}
+    />
+    }
+    >
       <View style={styles.container}>
 
         {/* Header */}

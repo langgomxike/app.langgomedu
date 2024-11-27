@@ -72,6 +72,8 @@
 
   "LESSON_DAY": "Buổi học",
   "LESSON_DURATION": "Thời lượng",
+  "START_TIME": "Bắt đầu",
+  "END_TIME" : "Kết thúc",
   "LESSON_TYPE": "Hình thức",
   "LESSON_NOTE": "Ghi chú",
   "ONLINE": "Online",
