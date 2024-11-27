@@ -1,4 +1,4 @@
-import React, {useCallback, useContext, useEffect, useState} from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -10,8 +10,11 @@ import {
 } from "react-native";
 import { BackgroundColor, BorderColor } from "../../configs/ColorConfig";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { useRoute, RouteProp, NavigationContext } from "@react-navigation/native";
-import { RootStackParamList } from "../../configs/NavigationRouteTypeConfig";
+import {
+  NavigationContext,
+  NavigationRouteContext,
+} from "@react-navigation/native";
+import { ClassDetailRoute } from "../../configs/NavigationRouteTypeConfig";
 import AClass from "../../apis/AClass";
 import ReactAppUrl from "../../configs/ConfigUrl";
 import Class from "../../models/Class";
@@ -24,25 +27,29 @@ import LessonItem from "../components/LessonItem";
 import DateTimeConfig from "../../configs/DateTimeConfig";
 import User from "../../models/User";
 import { LanguageContext } from "../../configs/LanguageConfig";
+import { AccountContext } from "../../configs/AccountConfig";
+import AuthorTuorInClass from "../components/AuthorTuorInClass";
 
 const URL = ReactAppUrl.PUBLIC_URL;
 export default function ClassDetail() {
-  const navigation = useContext(NavigationContext);
-  const route: RouteProp<RootStackParamList> = useRoute();
+  const route = useContext(NavigationRouteContext);
+  const param = (route?.params as ClassDetailRoute) || new Class();
+
   // Get class id
-  const param = route.params;
-  const languageContext = useContext(LanguageContext);
 
   //contexts
-  const { user, setUser } = useContext(UserContext);
-  const userId = "089204000003"
+  const navigation = useContext(NavigationContext);
+  const languageContext = useContext(LanguageContext);
+  const account = useContext(AccountContext).account;
+  const user = useContext(UserContext).user;
 
   // state
+  const [userId, setUserId] = useState("");
   const [classDetail, setClassDetail] = useState<Class>();
   const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState<string | null>("");
   const [classLearners, setclassLearners] = useState<User[]>([]);
-  const [resultResponse, setResultResponse] = useState(false)
+  const [resultResponse, setResultResponse] = useState(false);
 
   // handlers
   function formatCurrency(amount: number, locale = "vi-VN", currency = "VND") {
@@ -67,55 +74,67 @@ export default function ClassDetail() {
 
   // effect
   useEffect(() => {
-    
     //Get detail class
-    AClass.getClassDetailWithUser(
-      param.classId,
-      userId,
-      (_class) => {
-        setClassDetail(_class);
-        // console.log("Detail class", JSON.stringify(_class, null, 2));
-        
-      },
-      setLoading
-    );
-    if (user.TYPE === UserType.LEANER) {
-      //Get student class belongs to user for leaner
-      AStudent.getStudentBelongsToUser(
-        userId,
-        (data) => {
-          setclassLearners(data);
-        },
-        setLoading
-      );
-    } else {
-      //Get student in class for tutor
-      AStudent.getStudentsInClass(
+    if (userId) {
+      AClass.getClassDetailWithUser(
         param.classId,
-        (data) => {
-          setclassLearners(data);
+        userId,
+        (_class) => {
+          setClassDetail(_class);
+          // console.log("Detail class", JSON.stringify(_class, null, 2));
         },
         setLoading
       );
+      if (user.TYPE === UserType.LEANER) {
+        //Get student class belongs to user for leaner
+        console.log(
+          ">>>Get student class belongs to user for leaner: user id: ",
+          userId
+        );
+
+        AStudent.getStudentBelongsToUser(
+          userId,
+          (data) => {
+            setclassLearners(data);
+          },
+          setLoading
+        );
+      } else {
+        //Get student in class for tutor
+        AStudent.getStudentsInClass(
+          param.classId,
+          (data) => {
+            setclassLearners(data);
+          },
+          setLoading
+        );
+      }
     }
-  }, [resultResponse]);
+  }, [resultResponse, userId]);
 
   useEffect(() => {
     // Đặt lại title của header khi màn hình được hiển thị
-    if(navigation) {
-      navigation.setOptions({ 
+    if (navigation) {
+      navigation.setOptions({
         title: languageContext.language.CLASS_DETAILS,
         headerShown: true,
-                  contentStyle: {
-                    padding: 0,
-                  },
-                  headerStyle: {
-                    backgroundColor: BackgroundColor.primary,
-                  },
-                  headerTintColor: "#fff",
-       });
+        contentStyle: {
+          padding: 0,
+        },
+        headerStyle: {
+          backgroundColor: BackgroundColor.primary,
+        },
+        headerTintColor: "#fff",
+      });
     }
   }, [navigation]);
+
+  useEffect(() => {
+    if (account) {
+      setUserId(account.id);
+      console.log(">>> user: " + account.id);
+    }
+  }, [account]);
 
   // render
   return (
@@ -136,11 +155,11 @@ export default function ClassDetail() {
                   />
                 </View>
                 <Text style={styles.headerTitle}>
-                {languageContext.language.TYPE === "vi" 
-                  ? classDetail.major?.vn_name 
-                  : languageContext.language.TYPE === "en"
-                  ? classDetail.major?.en_name 
-                  : classDetail.major?.ja_name}
+                  {languageContext.language.TYPE === "vi"
+                    ? classDetail.major?.vn_name
+                    : languageContext.language.TYPE === "en"
+                    ? classDetail.major?.en_name
+                    : classDetail.major?.ja_name}
                 </Text>
               </View>
 
@@ -148,19 +167,20 @@ export default function ClassDetail() {
               <View style={styles.bodyContainer}>
                 {/* Class infomation */}
                 <View style={styles.classInfoContainer}>
-
                   {/* Tiêu đề môn học */}
                   <Text style={styles.classInfoTitle}>{classDetail.title}</Text>
 
                   <View style={styles.row}>
-                  {/* class level */}
+                    {/* class level */}
                     <View style={styles.itemInfoTwo}>
                       <Ionicons name="book-outline" size={24} color="black" />
-                      <Text>{languageContext.language.TYPE === "vi" 
-                  ? classDetail.class_level?.vn_name
-                  : languageContext.language.TYPE === "en"
-                  ? classDetail.class_level?.en_name
-                  : classDetail.class_level?.ja_name}</Text>
+                      <Text style={styles.infoTitle}>
+                        {languageContext.language.TYPE === "vi"
+                          ? classDetail.class_level?.vn_name
+                          : languageContext.language.TYPE === "en"
+                          ? classDetail.class_level?.en_name
+                          : classDetail.class_level?.ja_name}
+                      </Text>
                     </View>
 
                     {/* start time*/}
@@ -175,7 +195,9 @@ export default function ClassDetail() {
                         size={24}
                         color="black"
                       />
-                      <Text>{DateTimeConfig.getDateFormat(classDetail.started_at)}</Text>
+                      <Text style={styles.infoTitle}>
+                        {DateTimeConfig.getDateFormat(classDetail.started_at)}
+                      </Text>
                     </View>
                   </View>
 
@@ -185,7 +207,7 @@ export default function ClassDetail() {
                   <View style={styles.itemInfo}>
                     <View style={styles.row}>
                       <Ionicons name="cube-outline" size={24} color="black" />
-                      <Text>{languageContext.language.QUANTITY}</Text>
+                      <Text style={styles.infoTitle}>{languageContext.language.QUANTITY}</Text>
                     </View>
                     <Text style={styles.itemContent}>
                       {classDetail.max_learners}
@@ -200,18 +222,16 @@ export default function ClassDetail() {
                         size={24}
                         color="black"
                       />
-                      <Text>{languageContext.language.FORM}</Text>
+                      <Text style={styles.infoTitle}>{languageContext.language.FORM}</Text>
                     </View>
-                    <Text style={styles.itemContent}>
-                      {classDetail.type}
-                    </Text>
+                    <Text style={styles.itemContent}>{classDetail.type}</Text>
                   </View>
 
                   {/* time each lesson */}
                   <View style={styles.itemInfo}>
                     <View style={styles.row}>
                       <Ionicons name="timer-outline" size={24} color="black" />
-                      <Text>{languageContext.language.TIME}</Text>
+                      <Text style={styles.infoTitle}>{languageContext.language.TIME}</Text>
                     </View>
                     <Text style={[styles.itemContent]}>time giờ/Buổi</Text>
                   </View>
@@ -220,7 +240,7 @@ export default function ClassDetail() {
                   <View style={styles.itemInfo}>
                     <View style={styles.row}>
                       <Ionicons name="cash-outline" size={24} color="black" />
-                      <Text>{languageContext.language.PRICE}</Text>
+                      <Text style={styles.infoTitle}>{languageContext.language.PRICE}</Text>
                     </View>
                     <Text style={[styles.itemContent]}>
                       {formatCurrency(classDetail.price)}/Buổi
@@ -235,10 +255,10 @@ export default function ClassDetail() {
                         size={24}
                         color="black"
                       />
-                      <Text>{languageContext.language.ADDRESS}</Text>
+                      <Text style={styles.infoTitle}>{languageContext.language.ADDRESS}</Text>
                     </View>
-                    <Text style={[styles.itemContent]}>
-                      {/* {`${classDetail.address_4}, ${classDetail.address_3}, ${classDetail.address_2}, ${classDetail.address_1}`} */}
+                    <Text style={{color: "#999", textAlign: "right", flex: 1}}>
+                      {`${classDetail.address?.detail}, ${classDetail.address?.ward}, ${classDetail.address?.district}, ${classDetail.address?.province}`}
                     </Text>
                   </View>
 
@@ -247,7 +267,7 @@ export default function ClassDetail() {
                   {/* class fee */}
                   <View style={[styles.itemInfo, { marginTop: 20 }]}>
                     <View style={styles.row}>
-                    <Text>{languageContext.language.CLASS_FEE}</Text>
+                      <Text style={styles.infoTitle}>{languageContext.language.CLASS_FEE}</Text>
                     </View>
                     <Text style={[styles.itemContentFee]}>
                       {formatCurrency(50000)}
@@ -255,10 +275,12 @@ export default function ClassDetail() {
                   </View>
                 </View>
 
-                {/* Student information */}
-                <View style={styles.studentInfomationContainer}>
+                <AuthorTuorInClass classDetail={classDetail}/>
+
+                {/* class description */}
+                <View style={styles.classDescription}>
                   <Text style={[styles.containerTitle, { marginBottom: 10 }]}>
-                  {languageContext.language.DESCRIPTION}
+                    {languageContext.language.DESCRIPTION}
                   </Text>
                   <Text>{classDetail.description}</Text>
                 </View>
@@ -266,26 +288,23 @@ export default function ClassDetail() {
                 {/* Các lớp học liên quan */}
                 <View style={styles.lessonContainer}>
                   <Text style={[styles.containerTitle, { padding: 20 }]}>
-                   {languageContext.language.LESSONS}
+                    {languageContext.language.LESSONS}
                   </Text>
 
                   <FlatList
-                   scrollEnabled={false}
-                  // horizontal={true}
-                  data={classDetail.lessons}
-                  renderItem={({item:lesson}) => {
-                    return (
-                      <LessonItem lessonData={lesson}/>
-                    )
-                  }}
-                  contentContainerStyle={{paddingHorizontal: 15}}
+                    scrollEnabled={false}
+                    // horizontal={true}
+                    data={classDetail.lessons}
+                    renderItem={({ item: lesson }) => {
+                      return <LessonItem lessonData={lesson} />;
+                    }}
+                    contentContainerStyle={{ paddingHorizontal: 15 }}
                   />
                 </View>
               </View>
             </View>
           </ScrollView>
         )}
-
       </View>
       {/* Nút bấn để nhập lớp */}
       {classDetail?.user_status !== "author" && (
@@ -422,6 +441,10 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
 
+  infoTitle: {
+    // fontWeight: "500",
+  },
+
   shadow: {
     shadowColor: "#000",
     shadowOffset: {
@@ -457,6 +480,7 @@ const styles = StyleSheet.create({
     color: BackgroundColor.white,
   },
 
+  // Class info container
   classInfoContainer: {
     backgroundColor: BackgroundColor.white,
     borderTopLeftRadius: 30,
@@ -508,7 +532,8 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
 
-  studentInfomationContainer: {
+  // class description
+  classDescription: {
     backgroundColor: BackgroundColor.white,
     paddingHorizontal: 20,
     paddingVertical: 20,

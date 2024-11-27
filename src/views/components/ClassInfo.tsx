@@ -10,6 +10,7 @@ import {
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { BackgroundColor } from "../../configs/ColorConfig";
 import Lesson from "../../models/Lesson";
+import moment from "moment";
 
 type ClassInfoProps = {
   lessonDetail: Lesson;
@@ -45,7 +46,7 @@ export default function ClassInfo({ lessonDetail }: ClassInfoProps) {
 
           <View style={[styles.itemInfoTwo, { justifyContent: "flex-end" }]}>
             <Ionicons name="calendar-outline" size={24} color="black" />
-            <Text>03/10/2024</Text>
+            <Text>{moment(lessonDetail.started_at).format("DD/MM/YYYY")}</Text>
           </View>
         </View>
 

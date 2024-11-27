@@ -45,6 +45,7 @@ import WelcomeScreen from "./src/views/screens/Welcome";
 import Notification from "./src/views/components/Notification";
 import ChatScreen from "./src/views/screens/Chat";
 import GroupMessageScreen from "./src/views/screens/GroupMessage";
+import CreateReport from "./src/views/screens/CreateReport";
 
 PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS);
 
@@ -208,6 +209,11 @@ export default function App() {
                 name={ScreenName.CREATE_ACCOUNT_ADMIN}
                 component={CreatAcountAdmin}
               />
+
+              <Stack.Screen
+                name={ScreenName.CREATE_REPORT}
+                component={CreateReport}
+              />  
 
               <Stack.Screen
                 name={ScreenName.APP_INFO_MANAGEMENT}

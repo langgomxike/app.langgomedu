@@ -24,11 +24,11 @@ export enum months{
 
 const ExperienceItem = ({experience}: ExperienceItemProp) => {
     //state
-    const [startedAt, setStartedAt] = useState<Date>(new Date); 
+    const [startedAt, setStartedAt] = useState<Date>(new Date()); 
     const [endedAt, setEndedAt] = useState<Date>(new Date()); 
 
     useEffect(()=>{
-        // console.log(experience?.started_at, experience?.ended_at);
+        // console.log(experience);
         if(experience){
             setStartedAt(new Date(experience.started_at ? experience.started_at : Date.now()))
             setEndedAt(new Date(experience.ended_at ? experience.ended_at : Date.now()))
@@ -41,11 +41,11 @@ const ExperienceItem = ({experience}: ExperienceItemProp) => {
             <View style={styles.iconBox}>
                 <Image
                     style={styles.icon}
-                    source={{uri: `${ReactAppUrl.PUBLIC_URL}${experience?.major?.icon?.path}`}} />
+                    source={require('../../../../assets/icons/ic_gradute_and_scroll.png')} />
             </View>
             <View style={styles.textBox}>
-                <Text style={styles.title}>{experience?.title}</Text>
-                <Text style={styles.description}> {experience?.major?.vn_name} </Text>
+                <Text style={styles.title}>{experience?.name}</Text>
+                <Text style={styles.description}> {experience?.note} </Text>
                 <Text>{`${months[startedAt.getMonth()]} ${startedAt.getFullYear()} - ${months[endedAt.getMonth()]} ${endedAt.getFullYear()} | ${endedAt.getFullYear() - startedAt.getFullYear()} yrs ${endedAt.getMonth() - startedAt.getMonth() === 0 ? `` : `${endedAt.getMonth() - startedAt.getMonth()} mons` } `}</Text>
             </View>
         </View>

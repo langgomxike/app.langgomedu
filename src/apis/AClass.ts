@@ -78,7 +78,7 @@ export default class AClass {
   }
 
   // get attending class with user id
-  public static getAttedingClass(
+  public static getCLassesByUserId(
     userId: string,
     onNext: (classes: Class[]) => void,
     onLoading: (loading: boolean) => void
@@ -86,34 +86,12 @@ export default class AClass {
     // console.log(">>> url: ", this.API_URL);
     onLoading(true);
     axios
-      .get(`${this.API_URL}/classes/attending/${userId}`)
+      .get(`${this.API_URL}/classes/${userId}`)
       .then((response) => {
         onNext(response.data.data);
         
         // console.log("User id", userId);  
         // console.log(">>>> response: ", JSON.stringify(response.data.data,  null, 2));
-
-        onLoading(false);
-      })
-      .catch((err) => {
-        console.log("Error: ", err);
-        onNext([]);
-        onLoading(true);
-      });
-  }
-
-  //get teachers class with user id
-  public static getTeachingClass(
-    userId: string,
-    onNext: (classes: Class[]) => void,
-    onLoading: (loading: boolean) => void
-  ) {
-    onLoading(true);
-    axios
-      .get(`${this.API_URL}/classes/teaching/${userId}`)
-      .then((response) => {
-        onNext(response.data.data);
-        // console.log(">>>> teaching class: ", JSON.stringify(response.data.data,  null, 2));
 
         onLoading(false);
       })
@@ -229,27 +207,7 @@ export default class AClass {
         onLoading(false);
       });
   }
-
-  public static getCreatedClass(
-    userId: string,
-    onNext: (classes: Class[]) => void,
-    onLoading: (loading: boolean) => void
-  ) {
-    onLoading(true);
-    axios
-      .get(`${this.API_URL}/classes/created/${userId}`)
-      .then((response) => {
-        onNext(response.data.data);
-        // console.log(">>>> created class: ", JSON.stringify(response.data.data,  null, 2));
-
-        onLoading(false);
-      })
-      .catch((err) => {
-        console.log("Error: ", err);
-        onNext([]);
-        onLoading(true);
-      });
-  }
+  
   //khoá lớp học
   // Hàm khoá lớp học
 public static lockClass(
