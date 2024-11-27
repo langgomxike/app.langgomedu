@@ -256,7 +256,7 @@ export default function HomeScreen() {
           {/* Class lists */}
           <View>
             {/* SuggestList */}
-            <SuggestList/>
+            {/*<SuggestList/>*/}
             {/* User class manager */}
             <UserClassManager/>
           </View>

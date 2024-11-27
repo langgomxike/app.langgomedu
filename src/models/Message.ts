@@ -4,7 +4,7 @@ import User from "./User";
 export default class Message {
     public id: number;
     public sender: User | undefined;
-    public reciever: User | undefined;
+    public receiver: User | undefined;
     public content: string;
     public ratio: number;
     public class: Class | undefined;
@@ -25,7 +25,7 @@ export default class Message {
     ) {
         this.id = id;
         this.sender = sender;
-        this.reciever = reciever;
+        this.receiver = reciever;
         this.content = content;
         this.ratio = ratio;
         this.class = classObj;
