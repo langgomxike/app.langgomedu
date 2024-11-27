@@ -1,6 +1,7 @@
 import {useCallback, useContext, useEffect, useRef, useState} from "react";
 import {
   Animated,
+  Dimensions,
   FlatList,
   Image,
   Pressable,
@@ -13,8 +14,6 @@ import {
 import {NavigationContext} from "@react-navigation/native";
 import {BackgroundColor} from "../../configs/ColorConfig";
 import Search from "../components/Inputs/SearchBar";
-import CourseItem from "../components/CourseItem";
-import TutorItem from "../components/CvItem";
 import Filter from "../components/Filter";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import ScreenName from "../../constants/ScreenName";
@@ -25,20 +24,23 @@ import {UserContext, UserType} from "../../configs/UserContext";
 import AClass from "../../apis/AClass";
 import Class from "../../models/Class";
 import ListMajorSkeleton from "../components/skeleton/ListMajorSkeleton";
-import ClassListSkeleton from "../components/skeleton/ClassListSkeleten";
 import AUser from "../../apis/AUser";
 import {AccountContext} from "../../configs/AccountConfig";
-import Role, {RoleList} from "../../models/Role";
 import Toast from "react-native-simple-toast";
 import SAsyncStorage, {AsyncStorageKeys} from "../../services/SAsyncStorage";
 import {LanguageContext} from "../../configs/LanguageConfig";
 import vn from "../../../languages/vn.json";
 import en from "../../../languages/en.json";
 import ja from "../../../languages/ja.json";
-import DateTimeConfig from "../../configs/DateTimeConfig";
 import ReactAppUrl from "../../configs/ConfigUrl";
 import {AppInfoContext} from "../../configs/AppInfoContext";
 import SFirebase, { FirebaseNode } from "../../services/SFirebase";
+import SuggestList from "../components/SuggestList";
+import UserClassManager from "../components/UserClassManager";
+import { RoleList } from "../../models/Role";
+import { MajorsLevelsContext } from "../../configs/MajorsLevelsContext";
+import AClassLevel from "../../apis/AClassLevel";
+
 
 const items = [
   {id: 1, title: "Các lớp học đang tham gia"},
@@ -49,6 +51,7 @@ const items = [
 
 
 const URL = ReactAppUrl.PUBLIC_URL
+const {width: SCREEN_WIDTH} = Dimensions.get('screen');
 
 export default function HomeScreen() {
   //contexts, refs
@@ -59,6 +62,7 @@ export default function HomeScreen() {
   const appInfoContext = useContext(AppInfoContext);
   const languageContext = useContext(LanguageContext);
   const {user, setUser} = useContext(UserContext);
+  const majorsLevelsContext = useContext(MajorsLevelsContext);
 
   //states
   const [showingFilter, setShowingFilter] = useState(false);
@@ -69,11 +73,6 @@ export default function HomeScreen() {
   );
   const [userTypeName, setUserTypeName] = useState("Leaner");
   const [majors, setMajors] = useState<Major[]>([]);
-  const [suggettingClasses, setSuggettingClasses] = useState<Class[]>([]);
-  const [attedingClasses, setAttedingClasses] = useState<Class[]>([]);
-  const [teachingClasses, setTeachingClasses] = useState<Class[]>([]);
-  const [createdClasses, setCreatedClasses] = useState<Class[]>([]);
-  const [suggessingTutors, setSuggessingTutors] = useState<User[]>([]);
 
   // handlers
   const handleChangeUserType = () => {
@@ -106,18 +105,10 @@ export default function HomeScreen() {
   }, []);
 
   // Đường dẫn tạm đếm admin
-  // navigation?.navigate(ScreenName.HOME_ADMIN);
-  // navigation?.navigate(ScreenName.REPORT_USER);
-  // navigation?.navigate(ScreenName.CREATE_ACCOUNT_ADMIN);
-  
-  const handleNavigateToCVList = useCallback(() => {
-    navigation?.navigate(ScreenName.CV_LIST);
-  }, []);
-
-  //open filter
-  const handleOpenFilter = useCallback(() => {
-    // navigation
-  }, []);
+  navigation?.navigate(ScreenName.CREATE_REPORT);
+  // const handleOpenDrawer = () => {
+  //   // navigation
+  // }, []);
 
   const toggleExpand = useCallback((id: number) => {
     const isExplaned = expandedItems.includes(id);
@@ -160,61 +151,16 @@ export default function HomeScreen() {
 
   // effects
   useEffect(() => {
-    if(accountContext.account || "089204000003" ) {
-      // const userId = accountContext.account.id
-      const userId = "089204000003"
-
       AMajor.getAllMajors((data) => {
         setMajors(data);
+        majorsLevelsContext?.setMajors(data);
       }, setLoading);
 
-      SFirebase.track(FirebaseNode.Classes, [], () => {
-        console.log(">>> Goi lay lớp học gợi ý");
-
-        AClass.getSuggetingClass(
-          userId,
-          user.TYPE,
-          (data) => {
-            setSuggettingClasses(data);
-          },
-          setLoading
-        );
+      AClassLevel.getAllClassLevels((data) => {
+        majorsLevelsContext?.setClassLevels(data);
       });
 
-      AClass.getAttedingClass(
-        userId,
-        (data) => {
-          setAttedingClasses(data);
-        },
-        setLoading
-      );
-
-      AClass.getAttedingClass(
-        userId,
-        (data) => {
-          setAttedingClasses(data);
-        },
-        setLoading
-      );
-
-      AClass.getTeachingClass(
-        userId,
-        (data) => {
-          setTeachingClasses(data);
-        },
-        setLoading
-      );
-
-      AClass.getCreatedClass(
-        userId,
-        (data) => {
-          setCreatedClasses(data);
-        },
-        setLoading
-      );
-
-    }
-  }, [userTypeName, accountContext]);
+  }, [ accountContext.setAccount]);
 
   // render
   return (
@@ -309,436 +255,12 @@ export default function HomeScreen() {
 
           {/* Class lists */}
           <View>
-            {/* Suggesting class */}
-            <View style={styles.classContainer}>
-              <View style={[styles.titleContainer, {paddingHorizontal: 20}]}>
-                <TouchableOpacity
-                  onPress={() => toggleExpand(items[3].id)}
-                  style={{flexDirection: "row", gap: 10}}
-                >
-                  <Animated.View
-                    style={{
-                      transform: [
-                        {rotate: getRotationInterpolation(items[3].id - 1)},
-                      ],
-                    }}
-                  >
-                    <Ionicons name="chevron-forward" size={20} color="black"/>
-                  </Animated.View>
-                  <Text style={styles.title}>{items[3].title}</Text>
-                </TouchableOpacity>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    gap: 10,
-                    alignItems: "center",
-                  }}
-                >
-                  <TouchableOpacity>
-                    <Text onPress={goToClassList} style={styles.showAllText}>
-                      Xem tất cả
-                    </Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    onPress={() => setShowingFilter(true)}
-                  >
-                    <Image
-                      source={require("../../../assets/images/ic_filter.png")}
-                      style={{width: 20, height: 20}}
-                    />
-                  </TouchableOpacity>
-                </View>
-              </View>
-
-              <Animated.View
-                style={[
-                  styles.relatedClassContainer,
-                  {
-                    height: getHeightInterpolation(items[3].id - 1),
-                    opacity: getOpacityInterpolation(items[3].id - 1),
-                  },
-                ]}
-              >
-                {loading && <ClassListSkeleton/> || (
-                  <FlatList
-                    data={suggettingClasses}
-                    renderItem={({item: suggettingClass}) => {
-                      return (
-                        <View style={styles.classItem}>
-                          <Pressable
-                            onPress={() =>
-                              handleNavigateToDetail(suggettingClass.id)
-                            }
-                          >
-                            <CourseItem
-                              majorIconUrl={`${URL}${suggettingClass.major?.icon}`}
-                              name={suggettingClass.title}
-                              level={suggettingClass.class_level?.vn_name || ""}
-                              date={DateTimeConfig.getDateFormat(suggettingClass.started_at)}
-                              time={2}
-                              type={"Tại nhà"}
-                              address={suggettingClass.address?.detail ?? ""}
-                              cost={suggettingClass.price}
-                            />
-                          </Pressable>
-                        </View>
-                      );
-                    }}
-                    keyExtractor={(item) => item.id.toString()}
-                    horizontal={true}
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={[
-                      styles.classList,
-                      suggettingClasses.length === 1 && styles.centeredItem,
-                    ]}
-                  />
-                )}
-              </Animated.View>
-            </View>
-            {/* End suggesting class*/}
-
-            {/* Attending class */}
-            <View style={styles.classContainer}>
-              <View style={[styles.titleContainer, {paddingHorizontal: 20}]}>
-                <TouchableOpacity
-                  onPress={() => toggleExpand(items[0].id)}
-                  style={{flexDirection: "row", gap: 10}}
-                >
-                  <Animated.View
-                    style={{
-                      transform: [
-                        {rotate: getRotationInterpolation(items[0].id - 1)},
-                      ],
-                    }}
-                  >
-                    <Ionicons name="chevron-forward" size={20} color="black"/>
-                  </Animated.View>
-                  <Text style={styles.title}>{items[0].title}</Text>
-                </TouchableOpacity>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    gap: 10,
-                    alignItems: "center",
-                  }}
-                >
-                  <TouchableOpacity>
-                    <Text onPress={goToClassList} style={styles.showAllText}>
-                      Xem tất cả
-                    </Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    onPress={() => setShowingFilter(true)}
-                  >
-                    <Image
-                      source={require("../../../assets/images/ic_filter.png")}
-                      style={{width: 20, height: 20}}
-                    />
-                  </TouchableOpacity>
-                </View>
-              </View>
-
-              <Animated.View
-                style={[
-                  styles.relatedClassContainer,
-                  {
-                    height: getHeightInterpolation(items[0].id - 1),
-                    opacity: getOpacityInterpolation(items[0].id - 1),
-                  },
-                ]}
-              >
-                {loading && <ClassListSkeleton/> || (
-                  <FlatList
-                    data={attedingClasses}
-                    renderItem={({item: attedingClass}) => {
-                      return (
-                        <View style={styles.classItem}>
-                          <Pressable
-                            onPress={() =>
-                              handleNavigateToDetail(attedingClass.id)
-                            }
-                          >
-                            <CourseItem
-                              majorIconUrl={`${URL}${attedingClass.major?.icon}`}
-                              name={attedingClass.title}
-                              level={attedingClass.class_level?.vn_name || ""}
-                              date={DateTimeConfig.getDateFormat(attedingClass.started_at)}
-                              time={2}
-                              type={"Tại nhà"}
-                              address={attedingClass?.address?.detail ?? ""}
-                              cost={attedingClass.price}
-                            />
-                          </Pressable>
-                        </View>
-                      );
-                    }}
-                    keyExtractor={(item) => item.id.toString()}
-                    horizontal={true}
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={[
-                      styles.classList,
-                      attedingClasses.length === 1 && styles.centeredItem,
-                    ]}
-                  />
-                )}
-              </Animated.View>
-            </View>
-            {/* End Attending class*/}
-
-            {/* Teaching class */}
-            {teachingClasses.length > 0 && (
-              <View style={styles.classContainer}>
-                <View
-                  style={[styles.titleContainer, {paddingHorizontal: 20}]}
-                >
-                  <TouchableOpacity
-                    onPress={() => toggleExpand(items[1].id)}
-                    style={{flexDirection: "row", gap: 10}}
-                  >
-                    <Animated.View
-                      style={{
-                        transform: [
-                          {rotate: getRotationInterpolation(items[1].id - 1)},
-                        ],
-                      }}
-                    >
-                      <Ionicons
-                        name="chevron-forward"
-                        size={20}
-                        color="black"
-                      />
-                    </Animated.View>
-                    <Text style={styles.title}>{items[1].title}</Text>
-                  </TouchableOpacity>
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      gap: 10,
-                      alignItems: "center",
-                    }}
-                  >
-                    <TouchableOpacity>
-                      <Text style={styles.showAllText}>Xem tất cả</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      onPress={() => setShowingFilter(true)}
-                    >
-                      <Image
-                        source={require("../../../assets/images/ic_filter.png")}
-                        style={{width: 20, height: 20}}
-                      />
-                    </TouchableOpacity>
-                  </View>
-                </View>
-
-                <Animated.View
-                  style={[
-                    styles.relatedClassContainer,
-                    {
-                      height: getHeightInterpolation(items[1].id - 1),
-                      opacity: getOpacityInterpolation(items[1].id - 1),
-                    },
-                  ]}
-                >
-                  {loading && <ClassListSkeleton/> || (
-                    <FlatList
-                      data={teachingClasses}
-                      renderItem={({item: attedingClass}) => {
-                        return (
-                          <View style={styles.classItem}>
-                            <Pressable
-                              onPress={() =>
-                                handleNavigateToDetail(attedingClass.id)
-                              }
-                            >
-                              <CourseItem
-                                majorIconUrl={`${URL}${attedingClass.major?.icon}`}
-                                name={attedingClass.title}
-                                level={attedingClass.class_level?.vn_name || ""}
-                                date={DateTimeConfig.getDateFormat(attedingClass.started_at)}
-                                time={2}
-                                type={"Tại nhà"}
-                                address={attedingClass.address?.detail ?? ""}
-                                cost={attedingClass.price}
-                              />
-                            </Pressable>
-                          </View>
-                        );
-                      }}
-                      keyExtractor={(item) => item.id.toString()}
-                      horizontal={true}
-                      showsHorizontalScrollIndicator={false}
-                      contentContainerStyle={[
-                        styles.classList,
-                        teachingClasses.length === 1 && styles.centeredItem,
-                      ]}
-                    />
-                  )}
-                </Animated.View>
-              </View>
-            )}
-            {/* End Teaching class*/}
-
-            {/* Created classes */}
-            {createdClasses.length > 0 && (
-              <View style={styles.classContainer}>
-                <View
-                  style={[styles.titleContainer, {paddingHorizontal: 20}]}
-                >
-                  <TouchableOpacity
-                    onPress={() => toggleExpand(items[2].id)}
-                    style={{flexDirection: "row", gap: 10}}
-                  >
-                    <Animated.View
-                      style={{
-                        transform: [
-                          {rotate: getRotationInterpolation(items[2].id - 1)},
-                        ],
-                      }}
-                    >
-                      <Ionicons
-                        name="chevron-forward"
-                        size={20}
-                        color="black"
-                      />
-                    </Animated.View>
-                    <Text style={styles.title}>{items[2].title}</Text>
-                  </TouchableOpacity>
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      gap: 10,
-                      alignItems: "center",
-                    }}
-                  >
-                    <TouchableOpacity>
-                      <Text style={styles.showAllText}>Xem tất cả</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      onPress={() => setShowingFilter(true)}
-                    >
-                      <Image
-                        source={require("../../../assets/images/ic_filter.png")}
-                        style={{width: 20, height: 20}}
-                      />
-                    </TouchableOpacity>
-                  </View>
-                </View>
-
-                <Animated.View
-                  style={[
-                    styles.relatedClassContainer,
-                    {
-                      height: getHeightInterpolation(items[2].id - 1),
-                      opacity: getOpacityInterpolation(items[2].id - 1),
-                    },
-                  ]}
-                >
-                  {loading && <ClassListSkeleton/>}
-
-                  {!loading && (
-                    <FlatList
-                      data={createdClasses}
-                      renderItem={({item: createdClass}) => {
-                        return (
-                          <View style={styles.classItem}>
-                            <Pressable
-                              onPress={() =>
-                                handleNavigateToDetail(createdClass.id)
-                              }
-                            >
-                              <CourseItem
-                                majorIconUrl={`${URL}${createdClass.major?.icon}`}
-                                name={createdClass.title}
-                                level={createdClass.class_level?.vn_name || ""}
-                                date={DateTimeConfig.getDateFormat(createdClass.started_at)}
-                                time={2}
-                                type={"Tại nhà"}
-                                address={createdClass.address?.detail ?? ""}
-                                cost={createdClass.price}
-                              />
-                            </Pressable>
-                          </View>
-                        );
-                      }}
-                      keyExtractor={(item) => item.id.toString()}
-                      horizontal={true}
-                      showsHorizontalScrollIndicator={false}
-                      contentContainerStyle={[
-                        styles.classList,
-                        createdClasses.length === 1 && styles.centeredItem,
-                      ]}
-                    />
-                  )}
-                </Animated.View>
-              </View>
-            )}
-            {/* End Created classes */}
-
-            {/* Suggessing Tutor list*/}
-            <View style={styles.classContainer}>
-              <View style={[styles.titleContainer, {paddingHorizontal: 20}]}>
-                <View style={{flexDirection: "row", gap: 10}}>
-                  <Ionicons
-                    name="chevron-down-outline"
-                    size={20}
-                    color="black"
-                  />
-                  {/* <Ionicons name="chevron-forward" size={24} color="black" /> */}
-                  <Text style={styles.title}>Các CV</Text>
-                </View>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    gap: 10,
-                    alignItems: "center",
-                  }}
-                >
-                  <TouchableOpacity onPress={handleNavigateToCVList}>
-                    <Text onPress={goToCVList} style={styles.showAllText}>
-                      Xem tất cả
-                    </Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    onPress={() => setShowingFilter(true)}
-                  >
-                    <Image
-                      source={require("../../../assets/images/ic_filter.png")}
-                      style={{width: 20, height: 20}}
-                    />
-                  </TouchableOpacity>
-                </View>
-              </View>
-
-              <View>
-                <FlatList
-                  data={suggessingTutors}
-                  renderItem={({item}) => (
-                    <Pressable onPress={goToDetailCV} style={styles.classItem}>
-                      <TutorItem
-                        avatar={item.avatar ?? ""}
-                        userName={item.full_name}
-                        phoneNumber={item.phone_number}
-                        email={item.username}
-                        address={item + "address"}
-                      />
-                    </Pressable>
-                  )}
-                  keyExtractor={(item) => item.id.toString()}
-                  horizontal={true}
-                  showsHorizontalScrollIndicator={true}
-                  contentContainerStyle={styles.classList}
-                />
-              </View>
-            </View>
-            {/* End Suggessing Tutor list*/}
+            {/* SuggestList */}
+            <SuggestList/>
+            {/* User class manager */}
+            <UserClassManager/>
           </View>
         </View>
-
-        <Filter
-          isVisible={showingFilter}
-          onRequestClose={() => setShowingFilter(false)}
-        />
       </View>
     </ScrollView>
   );
@@ -748,10 +270,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
+    paddingBottom: 80
   },
   headerContainer: {
     backgroundColor: BackgroundColor.primary,
-    paddingTop: 50,
+    paddingTop: 30,
     paddingBottom: 100,
     paddingHorizontal: 20,
   },
@@ -888,7 +411,7 @@ const styles = StyleSheet.create({
 
   classItem: {
     padding: 10,
-    width: 340,
+    width: SCREEN_WIDTH * 0.8,
   },
 
   classList: {
