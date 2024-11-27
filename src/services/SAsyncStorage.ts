@@ -3,6 +3,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 export enum AsyncStorageKeys {
     TOKEN = "TOKEN",
     LANGUAGE = "LANGUAGE",
+    NEWEST_NOTIFICATION_ID = "NEWEST_NOTIFICATION_ID",
 }
 
 const emptyFunc = () => { };

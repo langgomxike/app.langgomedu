@@ -1,24 +1,25 @@
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import Chat from "../../models/Chat";
-import { BackgroundColor, TextColor } from "../../configs/ColorConfig";
+import {Image, StyleSheet, Text, TouchableOpacity, View} from "react-native";
+import {BackgroundColor, TextColor} from "../../configs/ColorConfig";
 import DateTimeConfig from "../../configs/DateTimeConfig";
-import Inbox from "../../models/Inbox";
+import ClassInbox from "../../models/ClassInbox";
 import {useContext} from "react";
 import {AccountContext} from "../../configs/AccountConfig";
+import SLog, {LogType} from "../../services/SLog";
 
 const AVATAR_SIZE = 60;
 const BADGE_SIZE = 10;
 
-export type ChatMessageItemProps = {
-  chat: Inbox;
+export type ClassChatMessageItem = {
+  chat: ClassInbox;
   onPress: () => void;
 };
 
-export default function ChatMessageItem({
-  chat,
-  onPress = () => {},
-}: ChatMessageItemProps) {
-  //contexts
+export default function ClassChatMessageItem({
+                                               chat,
+                                               onPress = () => {
+                                               },
+                                             }: ClassChatMessageItem) {
+  //states
   const accountContext = useContext(AccountContext);
 
   let content = chat?.newest_message?.content;
@@ -27,13 +28,15 @@ export default function ChatMessageItem({
     content = "[Hinh anh]";
   }
 
+  SLog.log(LogType.Warning, "check class chat item", "", chat);
+
   const asRead = chat.newest_message?.sender?.id === accountContext.account?.id || chat?.newest_message?.as_read;
 
   return (
     <TouchableOpacity onPress={onPress} style={styles.container}>
       {/* avatar */}
-      {chat.other_user_info?.avatar ? (
-        <Image src={chat.other_user_info?.avatar} style={styles.avatar} />
+      {chat.in_class?.major?.icon ? (
+        <Image src={chat.in_class?.major?.icon} style={styles.avatar}/>
       ) : (
         <Image
           source={require("../../../assets/avatar/avatarTempt.png")}
@@ -44,23 +47,23 @@ export default function ChatMessageItem({
       {/* text container */}
       <View style={styles.textContainer}>
         {/* name */}
-        <Text style={styles.name}>{chat.other_user_info?.full_name}</Text>
+        <Text style={styles.name}>{chat.in_class?.title}</Text>
 
         {/* new message */}
         <Text style={styles.message}>{content}</Text>
       </View>
 
       {/* time */}
-      <Text style={styles.time}>
+      {chat.newest_message?.created_at && <Text style={styles.time}>
         {DateTimeConfig.getDateFormat(
           +(chat.newest_message?.created_at ?? 0),
           true,
           true
         )}
-      </Text>
+      </Text>}
 
-       {/*badge */}
-      <View
+      {/* badge */}
+      {(chat.newest_message?.id ?? -1) > 0 && <View
         style={[
           styles.badge,
           asRead && {
@@ -68,8 +71,10 @@ export default function ChatMessageItem({
           },
         ]}
       />
+      }
     </TouchableOpacity>
-  );
+  )
+    ;
 }
 
 const styles = StyleSheet.create({

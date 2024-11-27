@@ -2,6 +2,7 @@ import ScreenName from "../constants/ScreenName";
 import Lesson from "../models/Lesson";
 
 import User from "../models/User";
+import Class from "../models/Class";
 
 export type IdNavigationType = {
   id: number | string;
@@ -12,6 +13,10 @@ export type MessageNavigationType = {
   user: User;
   from_user: string;
   to_user: string;
+}
+
+export type GroupMessageNavigationType = {
+ class: Class | undefined;
 }
 
 export type RootStackParamList = {

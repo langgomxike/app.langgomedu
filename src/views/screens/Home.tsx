@@ -105,18 +105,10 @@ export default function HomeScreen() {
   }, []);
 
   // Đường dẫn tạm đếm admin
-  // navigation?.navigate(ScreenName.HOME_ADMIN);
-  // navigation?.navigate(ScreenName.REPORT_USER);
-  // navigation?.navigate(ScreenName.CREATE_ACCOUNT_ADMIN);
-  
-  const handleNavigateToCVList = useCallback(() => {
-    navigation?.navigate(ScreenName.CV_LIST);
-  }, []);
-
-  //open filter
-  const handleOpenFilter = useCallback(() => {
-    // navigation
-  }, []);
+  navigation?.navigate(ScreenName.CREATE_REPORT);
+  // const handleOpenDrawer = () => {
+  //   // navigation
+  // }, []);
 
   // effects
   useEffect(() => {
@@ -237,7 +229,7 @@ export default function HomeScreen() {
           {/* Class lists */}
           <View>
             {/* SuggestList */}
-            <SuggestList/>
+            {/*<SuggestList/>*/}
             {/* User class manager */}
             <UserClassManager/>
           </View>

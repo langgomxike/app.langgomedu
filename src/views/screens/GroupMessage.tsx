@@ -8,7 +8,11 @@ import MessageItem from "../components/MessageItem";
 import RBSheet from "react-native-raw-bottom-sheet";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import {NavigationContext, NavigationRouteContext} from "@react-navigation/native";
-import {IdNavigationType, MessageNavigationType} from "../../configs/NavigationRouteTypeConfig";
+import {
+  GroupMessageNavigationType,
+  IdNavigationType,
+  MessageNavigationType
+} from "../../configs/NavigationRouteTypeConfig";
 import {AccountContext} from "../../configs/AccountConfig";
 import SLog, {LogType} from "../../services/SLog";
 import Toast from "react-native-simple-toast";
@@ -17,8 +21,10 @@ import ScreenName from "../../constants/ScreenName";
 import Spinner from "react-native-loading-spinner-overlay";
 import * as ImagePicker from "expo-image-picker";
 import {useCameraPermissions} from "expo-camera";
+import Class from "../../models/Class";
+import AClass from "../../apis/AClass";
 
-export default function MessageScreen() {
+export default function GroupMessageScreen() {
   //contexts
   const navigation = useContext(NavigationContext);
   const route = useContext(NavigationRouteContext);
@@ -30,7 +36,7 @@ export default function MessageScreen() {
   const listRef = useRef<ElementRef<typeof ScrollView>>(null);
 
   //states
-  const [user, setUser] = useState<User>();
+  const [_class, setClass] = useState<Class | undefined>(undefined);
   const [messages, setMessages] = useState<Array<Message>>([]);
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(false);
@@ -45,7 +51,7 @@ export default function MessageScreen() {
     const message = new Message();
     message.content = newMessage;
     message.sender = accountContext.account;
-    message.receiver = user;
+    message.class = _class;
     message.ratio = ratio ?? 1;
 
     setNewMessage("");
@@ -66,8 +72,9 @@ export default function MessageScreen() {
       () => {
         setLoading(false);
         clearTimeout(timeId);
-      });
-  }, [accountContext.account, user]);
+      },
+      true);
+  }, [accountContext.account, _class]);
 
   const handlePickImage = useCallback(() => {
     ImagePicker.launchImageLibraryAsync({
@@ -92,27 +99,27 @@ export default function MessageScreen() {
           );
         }
       });
-  }, [permission, handleSendNewMessage, accountContext.account, user]);
+  }, [permission, handleSendNewMessage, accountContext.account, _class]);
 
   //handlers
   const goBack = useCallback(() => {
-    AMessage.markAsRead(user?.id ?? "-1", accountContext.account?.id ?? "-1", () => {
+    AMessage.markAsReadInGroup(accountContext.account?.id ?? "-1", _class?.id ?? -1, () => {
       navigation?.goBack();
       navigation?.navigate(ScreenName.CHAT);
     });
-  }, [user, accountContext.account, messages.length]);
+  }, [accountContext.account, messages.length, _class]);
 
-  const goToProfile = useCallback(() => {
+  const goToDetail = useCallback(() => {
     const data: IdNavigationType = {
-      id: user?.id ?? "-1",
+      id: _class?.id ?? -1,
     }
-    navigation?.navigate(ScreenName.PROFILE, data);
-  }, [user]);
+    navigation?.navigate(ScreenName.DETAIL_CLASS, data);
+  }, [_class]);
 
   //effects
   useEffect(() => {
-    const data: MessageNavigationType = route?.params as MessageNavigationType;
-    setUser(data.user);
+    const data: GroupMessageNavigationType = route?.params as GroupMessageNavigationType;
+    setClass(data.class);
   }, []);
 
   useEffect(() => {
@@ -123,19 +130,21 @@ export default function MessageScreen() {
 
   useEffect(() => {
     SFirebase.track(FirebaseNode.Messages, [
-      {
-        key: FirebaseNode.FromUserId,
-        value: user?.id ?? "-1"
-      },
-      {
-        key: FirebaseNode.ToUserId,
-        value: accountContext.account?.id ?? "-1"
-      }], () => {
-      AMessage.getMessagesOfTowUsers(user?.id ?? "-1", accountContext.account?.id ?? "-1", (messages) => {
-        setMessages(messages);
+        {
+          key: FirebaseNode.ClassId,
+          value: _class?.id ?? -1
+        }],
+      () => {
+        AMessage.getMessagesOfGroup(_class?.id ?? -1, (messages) => {
+
+          messages.forEach(m => {
+            m.class = new Class(_class?.id ?? -1);
+          });
+
+          setMessages(messages);
+        });
       });
-    });
-  }, [user, accountContext.account, messages.length]);
+  }, [_class, accountContext.account, messages.length]);
 
   return (
     <View style={styles.container}>
@@ -148,11 +157,11 @@ export default function MessageScreen() {
         onPress={goBack}
       />
 
-      {/* user */}
-      <Pressable style={{alignSelf: "center"}} onPress={goToProfile}>
-        <Image src={user?.avatar} style={styles.avatar}/>
+      {/* class */}
+      <Pressable style={{alignSelf: "center"}} onPress={goToDetail}>
+        <Image src={_class?.major?.icon ?? ""} style={styles.avatar}/>
 
-        <Text style={styles.userName}>{user?.full_name}</Text>
+        <Text style={styles.userName}>{_class?.title}</Text>
       </Pressable>
 
       <View style={[styles.container, styles.chatContent]}>
@@ -166,6 +175,7 @@ export default function MessageScreen() {
               <MessageItem
                 message={message}
                 ofMine={accountContext.account?.id === message.sender?.id}
+                inGroup={true}
               />
             </Pressable>
           ))}

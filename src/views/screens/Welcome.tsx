@@ -106,7 +106,6 @@ export default function WelcomeScreen() {
       <Text style={styles.appName}>{appInfoContext.infos.app_name}</Text>
 
       <Text style={styles.text}>Welcome to {appInfoContext.infos.app_name} 👋</Text>
-      <Text onPress={() => openLink(appInfoContext.infos.webiste_link)} style={[styles.text, styles.link]}>👉 Explore us at {appInfoContext.infos.webiste_link}</Text>
 
       <Image source={require("../../../assets/loading_animation.gif")}/>
       <Text style={{color: TextColor.white, opacity: 0.8}}>Loading...</Text>

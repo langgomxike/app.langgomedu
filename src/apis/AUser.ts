@@ -184,23 +184,29 @@ export default class AUser {
   public static minusUserPoints(
     user_id: string,
     point: number,
+    report_id: string,  // Thêm tham số report_id
     onNext: (response: any) => void,
     onLoading: (loading: boolean) => void
   ) {
     // Bắt đầu loading
     onLoading(true);
-
-    const url = this.BASE_URL + "/reports/minusUserPoints";
-
-    // Gửi request POST đến BE với user_id và số điểm cần trừ
+    
+    // Gửi request POST đến BE với user_id, số điểm cần trừ và report_id
+    console.log("Sending request to subtract points:", { user_id, point, report_id });
+  
     axios
-      .post(`${url}`, {user_id, point: point})
+      .post(`${this.API_URL}/reports/minusUserPoints`, { user_id, point, report_id })
       .then((response) => {
-        onNext(response.data);
+        // Nếu thành công, gọi callback onNext với kết quả từ BE
+        if (response.data.success) {
+          onNext({ success: true, message: "Points subtracted successfully." });
+        } else {
+          onNext({ success: false, message: response.data.message || "Failed to subtract points." });
+        }
       })
       .catch((error) => {
-        SLog.log(LogType.Error, "minusUserPoints", "Cannot minus", error);
-        onNext({success: false, message: "Failed to subtract points."});
+        console.error("Error subtracting points:", error);
+        onNext({ success: false, message: "Failed to subtract points due to server error." });
       })
       .finally(() => {
         // Kết thúc loading
@@ -212,16 +218,23 @@ export default class AUser {
   // Khóa tài khoản người dùng
   public static lockUserAccount(
     user_id: string,
+    report_id: string, // Thêm tham số report_id
+    permissionIds: string[], // Mảng quyền
     onNext: (response: any) => void,
     onLoading: (loading: boolean) => void
   ) {
     // Bắt đầu loading
     onLoading(true);
-    const url = `${this.BASE_URL}/reports/lockUserAccount`;
-
-    // Gửi request POST đến BE với user_id
+    console.log(`Gửi request để khóa tài khoản cho user_id: ${user_id} và report_id: ${report_id}`);
+    console.log(`${this.API_URL}/reports/lockUserAccount`);
+  
+    // Gửi request POST đến BE với user_id, report_id và permissionIds
     axios
-      .post(url, {user_id})
+      .post(`${this.API_URL}/reports/lockUserAccount`, {
+        user_id,
+        report_id, // Truyền thêm report_id
+        permission_ids: permissionIds,
+      })
       .then((response) => {
         // Nếu thành công, gọi callback `onNext` với kết quả từ BE
         onNext(response.data);
@@ -229,39 +242,6 @@ export default class AUser {
       .catch((error) => {
         console.error("Error locking user account:", error);
         onNext({success: false, message: "Failed to lock user account."});
-      })
-      .finally(() => {
-        // Kết thúc loading
-        onLoading(false);
-      });
-  }
-
-  //tạo tài khoản admin
-  public static registerAdmin(
-    phone: string,
-    email: string,
-    password: string,
-    onNext: (response: any) => void,
-    onLoading: (loading: boolean) => void
-  ) {
-    // Bắt đầu loading
-    onLoading(true);
-    const url = `${this.BASE_URL}/users/register/admin`;
-
-    // Gửi request POST đến BE với thông tin cần thiết để tạo tài khoản admin
-    axios
-      .post(url, {
-        phone,
-        email,
-        password,
-      })
-      .then((response) => {
-        // Nếu thành công, gọi callback `onNext` với kết quả từ BE
-        onNext(response.data);
-      })
-      .catch((error) => {
-        console.error("Error creating admin account:", error);
-        onNext({success: false, message: "Failed to create admin account."});
       })
       .finally(() => {
         // Kết thúc loading
