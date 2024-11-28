@@ -1,4 +1,4 @@
-import {useCallback, useContext, useEffect, useState} from "react";
+import React, {useCallback, useContext, useEffect, useState} from "react";
 import {View, StyleSheet, Text, ScrollView, Alert} from "react-native";
 import BackWithDetailLayout from "../layouts/BackWithDetail";
 import {BackgroundColor, BorderColor, TextColor} from "../../configs/ColorConfig";
@@ -17,6 +17,8 @@ import {AccountContext} from "../../configs/AccountConfig";
 import User from "../../models/User";
 import AUser from "../../apis/AUser";
 import Class from "../../models/Class";
+import {RatingNavigationType} from "../../configs/NavigationRouteTypeConfig";
+import {AppInfoContext} from "../../configs/AppInfoContext";
 
 const RatingScreen = () => {
   //contexts
@@ -24,16 +26,17 @@ const RatingScreen = () => {
   const navigation = useContext(NavigationContext);
   const accountContext = useContext(AccountContext);
   const route = useContext(NavigationRouteContext);
+  const appInfos = useContext(AppInfoContext).infos;
 
   //set State
   const [rating, setRating] = useState(5);
-  const [activeTag, setActiveTag] = useState(-1);
   const [text, setText] = useState('');
   const [showAll, setShowAll] = useState(false);
   const [selectedReviews, setSelectedReviews] = useState<number[]>([]);
   const [loading, setLoading] = useState(false);
   const [ratee, setRatee] = useState<User | undefined>(undefined);
   const [_class, setClass] = useState<Class | undefined>(undefined);
+  const [suggestedRatingList, setSuggestedRatingList] = useState<string[]>([]);
 
   //set Handle
   const handleRatingChange = useCallback((newRating: number) => {
@@ -87,8 +90,8 @@ const RatingScreen = () => {
 
   //effects
   useEffect(() => {
-    const id : string = (route?.params as any)?.id ?? "089304000006";
-    const _class = (route?.params as any)?.class as Class ?? new Class(1);
+    const id: string = (route?.params as RatingNavigationType)?.id;
+    const _class = (route?.params as RatingNavigationType)?.class as Class;
 
     setClass(_class);
     AUser.getUserById(id, (user) => {
@@ -101,9 +104,27 @@ const RatingScreen = () => {
     });
   }, []);
 
+  useEffect(() => {
+    switch (language.TYPE) {
+      case "vi":
+        setSuggestedRatingList(appInfos.suggested_rating_contents.vn);
+        break;
+
+      case "en":
+        setSuggestedRatingList(appInfos.suggested_rating_contents.en);
+        break;
+
+      case "ja":
+        setSuggestedRatingList(appInfos.suggested_rating_contents.ja);
+        break;
+    }
+  }, []);
+
   return (
-    <BackWithDetailLayout icName={""} user={ratee}>
+    <BackWithDetailLayout icName={""} user={ratee} canGoBack={true}>
+
       <Spinner visible={loading}/>
+
       <ScrollView showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false}>
         <>
           {/* rating stars */}
@@ -116,7 +137,7 @@ const RatingScreen = () => {
 
           {/* rating hint */}
           <View style={styles.hintRatingBox}>
-            {(showAll ? [...language.RATING] : [...language.RATING?.slice(0, 10)])?.map((tag, index) => (
+            {(showAll ? [...suggestedRatingList] : [...suggestedRatingList?.slice(0, 10)])?.map((tag, index) => (
               <RatingHint
                 key={index}
                 content={tag}
@@ -125,8 +146,8 @@ const RatingScreen = () => {
               />
             ))}
 
-            {!showAll && <RatingHint
-              key={language.RATING?.length ?? -1}
+            {!showAll && suggestedRatingList.length > 10 && <RatingHint
+              key={suggestedRatingList?.length ?? -1}
               content={"..."}
               isActive={false}
               onPress={() => setShowAll(true)}
@@ -204,7 +225,7 @@ const styles = StyleSheet.create({
     backgroundColor: BackgroundColor.white, // Màu nền
     borderRadius: 5, // Bo góc của textarea
     marginTop: 10,
-  },
+  }
 })
 
 export default RatingScreen;
