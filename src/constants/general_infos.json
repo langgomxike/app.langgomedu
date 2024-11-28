@@ -1,4 +1,5 @@
 {
+  "ai_key": "123abc",
   "app_name": "LanggomEdu",
   "banking_code": "STB",
   "banking_number": "050137712048",
@@ -22,7 +23,9 @@
       "Shitsumon ga aru?"
     ],
     "vn": [
-      "E co cau hoi a?"
+      "Em co thac mac a",
+      "Hom nay co bai tap khong a",
+      "Em co viec ban, hom nay em xin nghi duoc khong a"
     ]
   },
   "suggested_messages_for_tutors": {
@@ -49,7 +52,9 @@
     ],
     "vn": [
       "E",
-      "A"
+      "Nhiet huyet",
+      "Day hay",
+      "Tuyt cu meo"
     ]
   },
   "webiste_link": "https://langgomedu.com"

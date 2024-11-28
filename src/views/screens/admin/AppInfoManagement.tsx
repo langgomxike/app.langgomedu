@@ -18,7 +18,7 @@ export default function AppInfoManagementScreen() {
 
   //states
   const [appName, setAppName] = useState("");
-  const [appLogo, setAppLogo] = useState("");
+  const [aiKey, setAIKey] = useState("");
   const [appWebLink, setAppWebLink] = useState("https://");
   const [bankingCode, setBankingCode] = useState("");
   const [bankingNumber, setBankingNumber] = useState("");
@@ -77,6 +77,18 @@ export default function AppInfoManagementScreen() {
             <TextValueInput value={appName} setValue={setAppName}/>
           )}
           onSubmit={() => handlerChangeAppInfo("app_name", appName, setAppName)}
+        />
+
+        {/* AI key */}
+        <AppInfoContainer
+          title={languageContext.AI_KEY}
+          oldValue={(
+            <TextValue value={appInfoContext.ai_key}/>
+          )}
+          newValue={(
+            <TextValueInput value={aiKey} setValue={setAIKey}/>
+          )}
+          onSubmit={() => handlerChangeAppInfo("ai_key", aiKey, setAIKey)}
         />
 
         {/*/!*  web link*!/*/}

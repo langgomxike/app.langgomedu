@@ -45,7 +45,7 @@ export default function MessageScreen() {
 
     // @ts-ignore
     const message = new Message();
-    message.content = newMessage;
+    message.content = newMessage?.trim();
     message.sender = accountContext.account;
     message.receiver = user;
     message.ratio = ratio ?? 1;

@@ -52,10 +52,7 @@ const messageTab: TabItem = {
     const handleGoToMessage = useCallback((user: User | undefined, fromUserId: string, toUserId: string) => {
       if (user) {
         const data: MessageNavigationType = {
-          me: accountContext.account,
           user,
-          from_user: fromUserId,
-          to_user: toUserId
         };
         navigation?.navigate(ScreenName.MESSAGE, data);
       }

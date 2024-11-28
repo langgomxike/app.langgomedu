@@ -141,6 +141,8 @@
   "CHAT_HERE": "Chat here",
   "FAIL_TO_SEND_IMAGE": "Failed to send image",
   "FAIL_TO_SEND_MESSAGE": "Failed to send message",
-  "DELETED_MESSAGE": "Delete message"
+  "DELETED_MESSAGE": "Delete message",
+  "ASK_AI": "Ask AI",
+  "AI_KEY": "AI key"
 
 }

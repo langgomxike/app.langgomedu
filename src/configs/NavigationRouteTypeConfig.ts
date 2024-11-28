@@ -9,10 +9,7 @@ export type IdNavigationType = {
 }
 
 export type MessageNavigationType = {
-  me: User | undefined;
   user: User;
-  from_user: string;
-  to_user: string;
 }
 
 export type GroupMessageNavigationType = {

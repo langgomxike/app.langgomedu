@@ -17,6 +17,7 @@ type MessageItemProps = {
   message: Message;
   ofMine: boolean;
   inGroup?: boolean;
+  askAI?: () => void;
 };
 
 const emptyFuc = () => {
@@ -27,9 +28,11 @@ export default function MessageItem(
     message,
     ofMine,
     inGroup,
+    askAI
   }: MessageItemProps) {
   //refs
   const refRBSheet = useRef<ElementRef<typeof RBSheet>>(null);
+  const refRBSheetAI = useRef<ElementRef<typeof RBSheet>>(null);
 
   //contexts
   const language = useContext(LanguageContext).language;
@@ -62,7 +65,7 @@ export default function MessageItem(
   } else {
     content = (
       <Text style={[styles.content, ofMine && styles.textOfMine]}
-            onLongPress={ofMine && refRBSheet.current?.open || emptyFuc}>
+            onLongPress={ofMine && refRBSheet.current?.open || (askAI && refRBSheetAI?.current?.open) || emptyFuc}>
         {message.content}
       </Text>
     );
@@ -151,6 +154,24 @@ export default function MessageItem(
               color={BackgroundColor.sub_danger}
             />
             <Text style={action.item}>{language.DELETE_MESSAGE}</Text>
+          </TouchableOpacity>
+        </RBSheet>
+
+        {/* ai */}
+        <RBSheet ref={refRBSheetAI} useNativeDriver={false} height={100}>
+          <TouchableOpacity
+            style={action.action}
+            onPress={() => {
+              refRBSheetAI?.current?.close();
+              askAI && askAI();
+            }}
+          >
+            <Ionicons
+              name="globe-outline"
+              size={30}
+              color={BackgroundColor.sub_primary}
+            />
+            <Text style={action.item}>{language.ASK_AI}</Text>
           </TouchableOpacity>
         </RBSheet>
       </View>

@@ -1,18 +1,12 @@
-import {Image, Pressable, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View,} from "react-native";
+import {Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View,} from "react-native";
 import {BackgroundColor, TextColor} from "../../configs/ColorConfig";
 import {ElementRef, useCallback, useContext, useEffect, useRef, useState,} from "react";
 import Message from "../../models/Message";
-import User from "../../models/User";
 import AMessage from "../../apis/AMessage";
 import MessageItem from "../components/MessageItem";
-import RBSheet from "react-native-raw-bottom-sheet";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import {NavigationContext, NavigationRouteContext} from "@react-navigation/native";
-import {
-  GroupMessageNavigationType,
-  IdNavigationType,
-  MessageNavigationType
-} from "../../configs/NavigationRouteTypeConfig";
+import {GroupMessageNavigationType, IdNavigationType} from "../../configs/NavigationRouteTypeConfig";
 import {AccountContext} from "../../configs/AccountConfig";
 import SLog, {LogType} from "../../services/SLog";
 import Toast from "react-native-simple-toast";
@@ -22,7 +16,6 @@ import Spinner from "react-native-loading-spinner-overlay";
 import * as ImagePicker from "expo-image-picker";
 import {useCameraPermissions} from "expo-camera";
 import Class from "../../models/Class";
-import AClass from "../../apis/AClass";
 import {LanguageContext} from "../../configs/LanguageConfig";
 import ReactAppUrl from "../../configs/ConfigUrl";
 import {AppInfoContext} from "../../configs/AppInfoContext";
@@ -48,6 +41,7 @@ export default function GroupMessageScreen() {
   const [loading, setLoading] = useState(false);
   const [suggestedList, setSuggestedList] = useState<string[]>([]);
   const [showSuggestList, setShowSuggestList] = useState(true);
+  const [isTutor, setIsTutor] = useState(false);
 
   //handlers
   const handleSendNewMessage = useCallback((newMessage: string, ratio?: number) => {
@@ -57,7 +51,7 @@ export default function GroupMessageScreen() {
 
     // @ts-ignore
     const message = new Message();
-    message.content = newMessage;
+    message.content = newMessage?.trim();
     message.sender = accountContext.account;
     message.class = _class;
     message.ratio = ratio ?? 1;
@@ -107,6 +101,26 @@ export default function GroupMessageScreen() {
       });
   }, [permission, handleSendNewMessage, accountContext.account, _class]);
 
+  const askAI = useCallback((content: string) => {
+    setLoading(true);
+
+    const timeId = setTimeout(() => {
+      setLoading(false);
+    }, 10000);
+
+    AMessage.askAI(
+      appInfos.ai_key,
+      content,
+      (result) => {
+        setNewMessage(result);
+      },
+      () => {
+        setLoading(false);
+        clearTimeout(timeId);
+      }
+    );
+  }, [appInfos]);
+
   //handlers
   const goBack = useCallback(() => {
     AMessage.markAsReadInGroup(accountContext.account?.id ?? "-1", _class?.id ?? -1, () => {
@@ -127,6 +141,11 @@ export default function GroupMessageScreen() {
     const data: GroupMessageNavigationType = route?.params as GroupMessageNavigationType;
     setClass(data.class);
   }, []);
+
+  useEffect(() => {
+    const tutorId: string = (_class as any)?.tutor_id ?? "-$$";
+    setIsTutor(tutorId === accountContext.account?.id);
+  }, [_class, accountContext.account]);
 
   useEffect(() => {
     if (!permission || !permission.granted) {
@@ -178,7 +197,7 @@ export default function GroupMessageScreen() {
           break;
       }
     }
-  }, [accountContext.account, appInfos]); 
+  }, [accountContext.account, appInfos]);
 
   return (
     <View style={styles.container}>
@@ -210,6 +229,7 @@ export default function GroupMessageScreen() {
                 message={message}
                 ofMine={accountContext.account?.id === message.sender?.id}
                 inGroup={true}
+                askAI={isTutor ? () => askAI(message.content) : undefined}
               />
             </Pressable>
           ))}
@@ -248,6 +268,8 @@ export default function GroupMessageScreen() {
             value={newMessage}
             onChangeText={(value) => setNewMessage(value)}
             placeholder={language.CHAT_HERE + "..."}
+            multiline={true}
+            numberOfLines={Math.ceil(newMessage.length / 30)}
             style={styles.input}
           />
 
@@ -319,7 +341,7 @@ const styles = StyleSheet.create({
 
   input: {
     backgroundColor: BackgroundColor.gray_10,
-    height: 40,
+    minHeight: 40,
     borderRadius: 20,
     paddingHorizontal: 10,
     flex: 1,
@@ -333,6 +355,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     borderRadius: 10,
     margin: 3,
-    fontStyle: "italic"
+    fontStyle: "italic",
+    maxHeight: 30,
+    alignSelf: "flex-end",
   }
 });
