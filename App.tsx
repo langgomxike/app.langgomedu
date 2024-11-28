@@ -46,6 +46,7 @@ import Notification from "./src/views/components/Notification";
 import ChatScreen from "./src/views/screens/Chat";
 import GroupMessageScreen from "./src/views/screens/GroupMessage";
 import CreateReport from "./src/views/screens/CreateReport";
+import UserPermissionManagementScreen from "./src/views/screens/admin/UserPermissionManagement";
 
 PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS);
 
@@ -223,6 +224,11 @@ export default function App() {
               <Stack.Screen
                 name={ScreenName.PERMISSION_MANAGEMENT}
                 component={PermissionManagementScreen}
+              />
+
+              <Stack.Screen
+                name={ScreenName.USER_PERMISSION_MANAGEMENT}
+                component={UserPermissionManagementScreen}
               />
 
               <Stack.Screen

@@ -155,6 +155,28 @@ export default class AUser {
       .finally(onComplete);
   }
 
+  public static updateRolesOfUser(userId: string, roles: number[], onNext: (result: boolean) => void, onComplete?: () => void ) {
+    const url = this.BASE_URL + "/roles";
+
+    const data = {
+      user: {
+        id: userId,
+      },
+      roles
+    }
+
+    axios.put<Response>(url, data)
+      .then(response => {
+        SLog.log(LogType.Info, "updateRolesOfUser", response.data.message, response.data.status);
+        onNext(response.data.status_code === 200);
+      })
+      .catch(error => {
+        SLog.log(LogType.Info, "updateRolesOfUser", "Found error", error);
+        onNext(false);
+      })
+      .finally(onComplete);
+  }
+
   public static changePassword(
     oldPassword: string,
     newPassword: string,
