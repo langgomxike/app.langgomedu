@@ -15,20 +15,12 @@ export const ListItemVietnamese: Array<AccountItemProps> = [
         iconName: require("../../assets/settings/user.png")
     },
     {
-        title: 'Quản lý lớp học',
-        iconName: require("../../assets/settings/class.png")
-    },
-    {
-        title: 'Đánh giá từ phụ huynh, học sinh',
+        title: 'Gui email den quan tri vien',
         iconName: require("../../assets/settings/rating.png")
     },
     {
         title: 'Đổi Mật Khẩu',
         iconName: require("../../assets/settings/password.png")
-    },
-    {
-        title: 'Xóa tài khoản',
-        iconName: require("../../assets/settings/delete.png")
     },
     {
         title: 'Sử dụng bản website',
@@ -58,20 +50,12 @@ export const ListItemEnglish: Array<AccountItemProps> = [
         iconName: require("../../assets/settings/user.png")
     },
     {
-        title: 'Manage Classes',
-        iconName: require("../../assets/settings/class.png")
-    },
-    {
-        title: 'Feedback from Parents and Students',
+        title: 'Send email to administrator',
         iconName: require("../../assets/settings/rating.png")
     },
     {
         title: 'Change Password',
         iconName: require("../../assets/settings/password.png")
-    },
-    {
-        title: 'Delete Account',
-        iconName: require("../../assets/settings/delete.png")
     },
     {
         title: 'Using website version',
@@ -101,20 +85,12 @@ export const ListItemJapanese: Array<AccountItemProps> = [
         iconName: require("../../assets/settings/user.png")
     },
     {
-        title: 'クラス管理', // Japanese for 'Manage Classes'
-        iconName: require("../../assets/settings/class.png")
-    },
-    {
         title: '保護者・生徒からのフィードバック', // Japanese for 'Feedback from Parents and Students'
         iconName: require("../../assets/settings/rating.png")
     },
     {
         title: 'パスワードを変更', // Japanese for 'Change Password'
         iconName: require("../../assets/settings/password.png")
-    },
-    {
-        title: 'アカウントを削除', // Japanese for 'Delete Account'
-        iconName: require("../../assets/settings/delete.png")
     },
     {
         title: 'Website',

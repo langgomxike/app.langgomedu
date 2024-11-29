@@ -18,7 +18,9 @@ export default function AppInfoManagementScreen() {
 
   //states
   const [appName, setAppName] = useState("");
+  const [contactEmail, setContactEmail] = useState("");
   const [aiKey, setAIKey] = useState("");
+  const [otpServiceKey, setOTPServiceKey] = useState("");
   const [appWebLink, setAppWebLink] = useState("https://");
   const [bankingCode, setBankingCode] = useState("");
   const [bankingNumber, setBankingNumber] = useState("");
@@ -33,9 +35,6 @@ export default function AppInfoManagementScreen() {
   const [crSerious, setCRSerious] = useState(0);
   const [crExtremelySerious, setCRExtremelySerious] = useState(0);
   const [loading, setLoading] = useState(false);
-  const [suggestedMessagesForLearners, setSuggestedMessagesForLearners] = useState<string[]>(appInfoContext.suggested_messages_for_learners.en);
-  const [suggestedMessagesForTutors, setSuggestedMessagesForTutors] = useState<string[]>(appInfoContext.suggested_messages_for_tutors.en);
-  const [suggestedRatings, setSuggestedRatings] = useState<string[]>(appInfoContext.suggested_rating_contents.en);
 
   //handlers
   const handlerChangeAppInfo = useCallback((key: string, value: string | number, setState?: Dispatch<any>) => {
@@ -60,6 +59,12 @@ export default function AppInfoManagementScreen() {
     }
   }, [appWebLink]);
 
+  useEffect(() => {
+    if (!contactEmail) {
+      setContactEmail("@gmail.com");
+    }
+  }, [contactEmail]);
+
   return (
     <BackLayout>
       <View style={{flex: 1}}>
@@ -79,6 +84,18 @@ export default function AppInfoManagementScreen() {
           onSubmit={() => handlerChangeAppInfo("app_name", appName, setAppName)}
         />
 
+        {/* contact email */}
+        <AppInfoContainer
+          title={languageContext.CONTACT_EMAIL}
+          oldValue={(
+            <TextValue value={appInfoContext.contact_email}/>
+          )}
+          newValue={(
+            <TextValueInput value={contactEmail} setValue={setContactEmail}/>
+          )}
+          onSubmit={() => handlerChangeAppInfo("contact_email", contactEmail, setContactEmail)}
+        />
+
         {/* AI key */}
         <AppInfoContainer
           title={languageContext.AI_KEY}
@@ -89,6 +106,18 @@ export default function AppInfoManagementScreen() {
             <TextValueInput value={aiKey} setValue={setAIKey}/>
           )}
           onSubmit={() => handlerChangeAppInfo("ai_key", aiKey, setAIKey)}
+        />
+
+        {/* OTP service key */}
+        <AppInfoContainer
+          title={languageContext.OTP_SERVICE_KEY}
+          oldValue={(
+            <TextValue value={appInfoContext.otp_service_key}/>
+          )}
+          newValue={(
+            <TextValueInput value={otpServiceKey} setValue={setOTPServiceKey}/>
+          )}
+          onSubmit={() => handlerChangeAppInfo("otp_service_key", otpServiceKey, setOTPServiceKey)}
         />
 
         {/*/!*  web link*!/*/}

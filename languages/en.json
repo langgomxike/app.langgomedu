@@ -36,6 +36,7 @@
   "UPLOAD_AVATAR": "Upload avatar",
   "HOMETOWN": "Hometown",
   "FULL_NAME": "Full name",
+  "INVALID_FULL_NAME": "Full name invalid. Please try again",
   "ID": "Citizen card ID",
   "AUTH": "Authentication",
   "INVALID_AUTH": "Invalid authentication",
@@ -147,6 +148,13 @@
   "FAIL_TO_SEND_MESSAGE": "Failed to send message",
   "DELETED_MESSAGE": "Delete message",
   "ASK_AI": "Ask AI",
-  "AI_KEY": "AI key"
+  "AI_KEY": "AI key",
+  "CONTACT_EMAIL": "Contact email",
+  "TO_ADMIN_EMAIL_SUBJECT": "Contact to ",
+  "TO_ADMIN_EMAIL_BODY": "I have a question about...",
+  "OTP_FAILED": "Cannot send otp. Please try again",
+  "RESEND_OTP": "Resend OTP",
+  "OTP_SERVICE_KEY": "OTP service key"
+  
 
 }

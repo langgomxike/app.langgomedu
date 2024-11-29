@@ -8,6 +8,11 @@ export type IdNavigationType = {
   id: number | string;
 }
 
+export type OTPNavigationType = {
+  id: number | string;
+  phone_number: string;
+}
+
 export type MessageNavigationType = {
   user: User;
 }

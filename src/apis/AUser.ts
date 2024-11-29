@@ -8,6 +8,29 @@ import axios from "axios";
 export default class AUser {
   private static BASE_URL = ReactAppUrl.API_BASE_URL + "/users";
 
+  public static auth(id: string, phoneNumber: string, onComplete: () => void) {
+    const url = this.BASE_URL + "/auth";
+    const data = {
+      user: {
+        id: id,
+        phone_number: phoneNumber,
+      }
+    }
+
+    axios.post<Response>(url, data)
+      .then(response => {
+        if (response.data.status_code === 200) {
+          SLog.log(LogType.Error, "auth", "send otp successfully", response.data.status);
+        } else {
+          SLog.log(LogType.Error, "auth", "cannot send otp", response.data.message);
+        }
+      })
+      .catch(error => {
+        SLog.log(LogType.Error, "auth", "cannot send otp", error);
+      })
+      .finally(onComplete);
+  }
+
   public static getUserById(id: string, onNext: (user: User | undefined) => void) {
     const url = this.BASE_URL + "/" + id;
 
@@ -139,7 +162,7 @@ export default class AUser {
     const url = this.BASE_URL + "/register";
     const data = {user, code: requestCode};
 
-    SLog.log(LogType.Info,"register", "check url, check params", {url, data});
+    SLog.log(LogType.Info, "register", "check url, check params", {url, data});
 
     //process login with parameters
     axios.post<Response>(url, data)
@@ -178,7 +201,7 @@ export default class AUser {
       .finally(onComplete);
   }
 
-  public static updateRolesOfUser(userId: string, roles: number[], onNext: (result: boolean) => void, onComplete?: () => void ) {
+  public static updateRolesOfUser(userId: string, roles: number[], onNext: (result: boolean) => void, onComplete?: () => void) {
     const url = this.BASE_URL + "/roles";
 
     const data = {
@@ -201,19 +224,24 @@ export default class AUser {
   }
 
   public static changePassword(
-    oldPassword: string,
+    userId: string,
     newPassword: string,
+    otp: number,
     onNext: (result: boolean) => void,
     onComplete?: () => void,
   ) {
     //prepare parameters
     const url = this.BASE_URL + "/change-password";
-    const data = {old_password: oldPassword, new_password: newPassword};
-
-    // SLog.log(LogType.Info,"register", "check url, check params", {url, data});
+    const data = {
+      user: {
+        id: userId,
+      },
+      new_password: newPassword,
+      otp
+    };
 
     //process login with parameters
-    axios.post<Response>(url, data)
+    axios.put<Response>(url, data)
       .then((response) => {
         SLog.log(LogType.Info, "changePassword", response.data.message, response.data.status);
         onNext(response.data.status_code === 200);
@@ -237,23 +265,23 @@ export default class AUser {
     onLoading(true);
 
     const url = `${this.BASE_URL}/reports/minusUserPoints`;
-    
+
     // Gửi request POST đến BE với user_id, số điểm cần trừ và report_id
-    console.log("Sending request to subtract points:", { user_id, point, report_id });
-  
+    console.log("Sending request to subtract points:", {user_id, point, report_id});
+
     axios
-      .post(url, { user_id, point, report_id })
+      .post(url, {user_id, point, report_id})
       .then((response) => {
         // Nếu thành công, gọi callback onNext với kết quả từ BE
         if (response.data.success) {
-          onNext({ success: true, message: "Points subtracted successfully." });
+          onNext({success: true, message: "Points subtracted successfully."});
         } else {
-          onNext({ success: false, message: response.data.message || "Failed to subtract points." });
+          onNext({success: false, message: response.data.message || "Failed to subtract points."});
         }
       })
       .catch((error) => {
         console.error("Error subtracting points:", error);
-        onNext({ success: false, message: "Failed to subtract points due to server error." });
+        onNext({success: false, message: "Failed to subtract points due to server error."});
       })
       .finally(() => {
         // Kết thúc loading
@@ -277,7 +305,7 @@ export default class AUser {
 
     console.log(`Gửi request để khóa tài khoản cho user_id: ${user_id} và report_id: ${report_id}`);
     console.log(url);
-  
+
     // Gửi request POST đến BE với user_id, report_id và permissionIds
     axios
       .post(url, {
