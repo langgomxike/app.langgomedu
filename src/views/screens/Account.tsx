@@ -45,6 +45,10 @@ function FlatListItem({item, index}: FlatListItemProps) {
     navigation?.navigate(ScreenName.PROFILE);
   }, []);
 
+  const goToRegisterChileScreen = useCallback(() => {
+    navigation?.navigate(ScreenName.REGISTER_STEP_CHILD);
+  }, []);
+
   const goToCVScreen = useCallback(() => {
     navigation?.navigate(ScreenName.SETTING_PERSONAL_CV);
   }, []);
@@ -94,6 +98,7 @@ function FlatListItem({item, index}: FlatListItemProps) {
   useEffect(() => {
     const handlers = [
       goToPersonalInfoScreen,
+      goToRegisterChileScreen,
       goToCVScreen,
       goToScheduleScreen,
       goToRatingScreen,

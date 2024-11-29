@@ -9,12 +9,13 @@ import React, {useCallback, useEffect, useState} from "react";
 import ClassComponent from "../../components/admin/ClassComponent";
 import Pagination from "../../components/Pagination";
 import DetailClassBottomSheet from "../../components/bottom-sheet/DetailClassBottomSheet";
-import { BackgroundColor } from "../../../configs/ColorConfig";
+import {BackgroundColor} from "../../../configs/ColorConfig";
 import TabHeader from "../../components/admin/TabHeader";
 import SearchBar from "../../components/Inputs/SearchBar";
 import Feather from "@expo/vector-icons/Feather";
 import Class from "../../../models/Class";
 import AClassAdmin from "../../../apis/admin/AClassAdmin";
+import BackLayout from "../../layouts/Back";
 
 const tabList = ["Tất cả", "Chờ duyệt", "Đang hoạt động", "Bị báo cáo"];
 export default function ClassManager() {
@@ -28,7 +29,7 @@ export default function ClassManager() {
 
   // handlers
   // Hàm để mở BottomSheet từ component con
-  const handleOpenBottomSheet = useCallback((_class:Class) => {
+  const handleOpenBottomSheet = useCallback((_class: Class) => {
     setIsVisible(true);
     setSelectedClass(_class)
   }, []);
@@ -41,41 +42,36 @@ export default function ClassManager() {
   }, [])
 
   return (
-    <View style={styles.container}>
-      <View style={styles.headerContainer}>
-        <View style={styles.searchHeader}>
-          <SearchBar
-            value={searchKey}
-            onChangeText={setSearchKey}
-            style={{ flex: 1 }}
-          />
-          <TouchableOpacity style={[styles.filterButton, styles.boxshadow]}>
-            <Feather name="filter" size={20} color="black" />
-          </TouchableOpacity>
+    <>
+      <BackLayout>
+        <View style={styles.headerContainer}>
+          <View style={styles.searchHeader}>
+            <SearchBar
+              value={searchKey}
+              onChangeText={setSearchKey}
+              style={{flex: 1}}
+            />
+            <TouchableOpacity style={[styles.filterButton, styles.boxshadow]}>
+              <Feather name="filter" size={20} color="black"/>
+            </TouchableOpacity>
+          </View>
+          <TabHeader tabList={tabList}/>
         </View>
-        <TabHeader tabList={tabList} />
-      </View>
 
-      <View style={[styles.classListContainer, { flex: 1 }]}>
-        <FlatList
-          scrollEnabled={true}
-          showsVerticalScrollIndicator={false}
-          data={classes}
-          keyExtractor={(_, index) => index.toString()}
-          renderItem={({ item }) => {
-            return (
-            <View style={[styles.classItemContainer, item
+        <View style={[styles.classListContainer, {flex: 1}]}>
+          {classes.map(_class => (
+            <View key={_class.id} style={[styles.classItemContainer, _class
               ? [styles.boxshadowDanger, styles.borderDanger]
               : styles.boxshadow,]}>
-              <TouchableOpacity onPress={() => handleOpenBottomSheet(item)}>
-                <ClassComponent classData={item}/>
+              <TouchableOpacity onPress={() => handleOpenBottomSheet(_class)}>
+                <ClassComponent classData={_class}/>
               </TouchableOpacity>
             </View>
-            )
-          }}
-          contentContainerStyle={{ paddingHorizontal: 10, paddingBottom: 90}}
-        />
-      </View>
+          ))}
+        </View>
+      </BackLayout>
+
+      <View style={{height: 80}}/>
 
       <View style={{marginHorizontal: 10}}>
         <View style={[styles.paginationContainer, styles.boxshadow]}>
@@ -90,9 +86,9 @@ export default function ClassManager() {
       <DetailClassBottomSheet
         isVisible={isVisible}
         onCloseButtonSheet={() => setIsVisible(false)}
-        classData = {selectedClass}
+        classData={selectedClass}
       />
-    </View>
+    </>
   );
 }
 
