@@ -9,10 +9,12 @@ import { MajorsLevelsContext } from "./MajorsLevelsContext";
 import ClassLevel from "../models/ClassLevel";
 import general_infos from "../constants/general_infos.json";
 import { AppInfoContext } from "./AppInfoContext";
+import {AuthContext} from "./AuthContext";
 
 export const ChatTabContext = createContext<number[]>([0, 0, 0]);
 export const SearchContext = createContext("");
 
+const authFunc = (otp: number, onComplete: () => void) => {}
 
 export default function AppContext({ children }: PropsWithChildren) {
   //states
@@ -27,14 +29,12 @@ export default function AppContext({ children }: PropsWithChildren) {
 
   const [majors, setMajors] = useState<Major[]>([]);
   const [classLevels, setClassLevels] = useState<ClassLevel[]>([]);
+  const [func, setFunc] = useState<(otp: number, onComplete: () => void) => void>(authFunc);
 
   //handlers
   const setLanguageContext = useCallback((language: typeof vn) => {
     setLanguage(language);
   }, []);
-
-  //effects
-  useEffect(() => {}, []);
 
   return (
     <LanguageContext.Provider
@@ -50,7 +50,9 @@ export default function AppContext({ children }: PropsWithChildren) {
             <MajorsLevelsContext.Provider
               value={{ majors, setMajors, classLevels, setClassLevels }}
             >
+              <AuthContext.Provider value={{onAfterAuth: func, setOnAfterAuth: setFunc}}>
               {children}
+              </AuthContext.Provider>
             </MajorsLevelsContext.Provider>
           </AppInfoContext.Provider>
         </UserContext.Provider>
