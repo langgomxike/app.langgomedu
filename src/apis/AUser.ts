@@ -155,6 +155,29 @@ export default class AUser {
       .finally(onComplete);
   }
 
+  public static registerChild(
+    user: User,
+    parent: User,
+    onNext: (result: boolean) => void,
+    onComplete?: () => void,
+  ) {
+    //prepare parameters
+    const url = this.BASE_URL + "/register/child";
+    const data = {user, parent};
+
+    //process login with parameters
+    axios.post<Response>(url, data)
+      .then((response) => {
+        SLog.log(LogType.Info, "registerChild", response.data.message, response.data.status);
+        onNext(response.data.status_code === 200);
+      })
+      .catch((error) => {
+        SLog.log(LogType.Info, "registerChild", "Found error", error);
+        onNext(false);
+      })
+      .finally(onComplete);
+  }
+
   public static updateRolesOfUser(userId: string, roles: number[], onNext: (result: boolean) => void, onComplete?: () => void ) {
     const url = this.BASE_URL + "/roles";
 
@@ -212,12 +235,14 @@ export default class AUser {
   ) {
     // Bắt đầu loading
     onLoading(true);
+
+    const url = `${this.BASE_URL}/reports/minusUserPoints`;
     
     // Gửi request POST đến BE với user_id, số điểm cần trừ và report_id
     console.log("Sending request to subtract points:", { user_id, point, report_id });
   
     axios
-      .post(`${this.API_URL}/reports/minusUserPoints`, { user_id, point, report_id })
+      .post(url, { user_id, point, report_id })
       .then((response) => {
         // Nếu thành công, gọi callback onNext với kết quả từ BE
         if (response.data.success) {
@@ -247,12 +272,15 @@ export default class AUser {
   ) {
     // Bắt đầu loading
     onLoading(true);
+
+    const url = `${this.BASE_URL}/reports/lockUserAccount`;
+
     console.log(`Gửi request để khóa tài khoản cho user_id: ${user_id} và report_id: ${report_id}`);
-    console.log(`${this.API_URL}/reports/lockUserAccount`);
+    console.log(url);
   
     // Gửi request POST đến BE với user_id, report_id và permissionIds
     axios
-      .post(`${this.API_URL}/reports/lockUserAccount`, {
+      .post(url, {
         user_id,
         report_id, // Truyền thêm report_id
         permission_ids: permissionIds,

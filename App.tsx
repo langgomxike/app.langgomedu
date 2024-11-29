@@ -47,6 +47,7 @@ import ChatScreen from "./src/views/screens/Chat";
 import GroupMessageScreen from "./src/views/screens/GroupMessage";
 import CreateReport from "./src/views/screens/CreateReport";
 import UserPermissionManagementScreen from "./src/views/screens/admin/UserPermissionManagement";
+import RegisterChildScreen from "./src/views/screens/RegisterChild";
 
 PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS);
 
@@ -175,6 +176,11 @@ export default function App() {
               <Stack.Screen
                 name={ScreenName.REGISTER_STEP_2}
                 component={Register2Screen}
+              />
+
+              <Stack.Screen
+                name={ScreenName.REGISTER_STEP_CHILD}
+                component={RegisterChildScreen}
               />
 
               <Stack.Screen

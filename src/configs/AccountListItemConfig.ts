@@ -7,6 +7,10 @@ export const ListItemVietnamese: Array<AccountItemProps> = [
         iconName: require("../../assets/settings/user.png")
     },
     {
+        title: 'Thêm tài khoản con cái',
+        iconName: require("../../assets/settings/user.png")
+    },
+    {
         title: 'CV Gia Sư',
         iconName: require("../../assets/settings/user.png")
     },
@@ -46,6 +50,10 @@ export const ListItemEnglish: Array<AccountItemProps> = [
         iconName: require("../../assets/settings/user.png")
     },
     {
+        title: 'Create accounts for children',
+        iconName: require("../../assets/settings/user.png")
+    },
+    {
         title: 'Tutor CV',
         iconName: require("../../assets/settings/user.png")
     },
@@ -80,6 +88,10 @@ export const ListItemEnglish: Array<AccountItemProps> = [
 ];
 
 export const ListItemJapanese: Array<AccountItemProps> = [
+    {
+        title: 'プロフィール情報', // Japanese for 'Profile Information'
+        iconName: require("../../assets/settings/user.png")
+    },
     {
         title: 'プロフィール情報', // Japanese for 'Profile Information'
         iconName: require("../../assets/settings/user.png")
