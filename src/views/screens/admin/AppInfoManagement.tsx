@@ -1,4 +1,4 @@
-import {Linking, StyleSheet, Text, TextInput, View} from "react-native";
+import {Linking, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View} from "react-native";
 import BackLayout from "../../layouts/Back";
 import {BackgroundColor, TextColor} from "../../../configs/ColorConfig";
 import AppInfoContainer from "../../components/admin/AppInfoContainer";
@@ -9,11 +9,14 @@ import {AppInfoContext} from "../../../configs/AppInfoContext";
 import Spinner from "react-native-loading-spinner-overlay";
 import Toast from "react-native-simple-toast";
 import {LanguageContext} from "../../../configs/LanguageConfig";
+import { NavigationContext } from "@react-navigation/native";
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 export default function AppInfoManagementScreen() {
   //contexts
   const appInfoContext = useContext(AppInfoContext).infos;
   const languageContext = useContext(LanguageContext).language;
+  const navigation = useContext(NavigationContext);
 
   //states
   const [appName, setAppName] = useState("");
@@ -51,14 +54,36 @@ export default function AppInfoManagementScreen() {
 
   //effects
   useEffect(() => {
+    // Đặt lại title của header khi màn hình được hiển thị
+    if (navigation) {
+      navigation.setOptions({
+        title: `${languageContext.GENERAL_MANAGEMENT}`,
+        headerShown: true,
+        contentStyle: {
+          padding: 0,
+        },
+        headerStyle: {
+          backgroundColor: BackgroundColor.primary,
+        },
+        headerTintColor: "#fff",
+        headerLeft: () => (
+          <TouchableOpacity onPress={() => navigation.goBack()} style={{ paddingRight: 10 }}>
+            <Ionicons name="chevron-back" size={24} color="white" />
+          </TouchableOpacity>
+        )
+      });
+    }
+  }, [navigation]);
+
+  useEffect(() => {
     if (!appWebLink) {
       setAppWebLink("https://");
     }
   }, [appWebLink]);
 
   return (
-    <BackLayout>
-      <View style={{flex: 1}}>
+    <ScrollView style={{backgroundColor: BackgroundColor.white}}>
+      <View style={styles.bodyContainer}>
         <Spinner visible={loading} />
 
         <Text style={styles.title}>{languageContext.GENERAL_MANAGEMENT?.toUpperCase()}</Text>
@@ -244,7 +269,7 @@ export default function AppInfoManagementScreen() {
           </>
         </AppInfoContainer>
       </View>
-    </BackLayout>
+    </ScrollView>
   );
 }
 
@@ -272,6 +297,12 @@ function TextValueInput({value, setValue, isLink, isNum}: {
 }
 
 const styles = StyleSheet.create({
+  bodyContainer: {
+    flex: 1, 
+    paddingHorizontal: 15,
+    paddingTop: 20,
+  },
+
   title: {
     fontSize: 20,
     fontWeight: "bold",

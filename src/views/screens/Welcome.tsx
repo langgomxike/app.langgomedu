@@ -1,6 +1,6 @@
 import {Image, Linking, StyleSheet, Text, View} from "react-native";
 import {BackgroundColor, TextColor} from "../../configs/ColorConfig";
-import {useCallback, useContext, useEffect} from "react";
+import {useCallback, useContext, useEffect, useState} from "react";
 import {LanguageContext} from "../../configs/LanguageConfig";
 import {NavigationContext} from "@react-navigation/native";
 import {AppInfoContext} from "../../configs/AppInfoContext";
@@ -16,6 +16,11 @@ import {UserContext, UserType} from "../../configs/UserContext";
 import {RoleList} from "../../models/Role";
 import Toast from "react-native-simple-toast";
 import {ProgressBar} from "@react-native-community/progress-bar-android";
+import { MajorsLevelsContext } from "../../configs/MajorsLevelsContext";
+import AMajor from "../../apis/AMajor";
+import AClassLevel from "../../apis/AClassLevel";
+import AGender from "../../apis/AGender";
+import { GenderContext } from "../../configs/GenderContext";
 
 export default function WelcomeScreen() {
   // context
@@ -24,6 +29,10 @@ export default function WelcomeScreen() {
   const appInfoContext = useContext(AppInfoContext);
   const accountContext = useContext(AccountContext);
   const {user, setUser} = useContext(UserContext);
+  const majorsLevelsContext = useContext(MajorsLevelsContext);
+  const genderContext = useContext(GenderContext);
+
+  const [loading, setLoading] = useState(false);
 
   //handlers
   const openLink = useCallback((link: string) => {
@@ -99,6 +108,21 @@ export default function WelcomeScreen() {
       clearTimeout(timeId);
     }
   }, [accountContext.setAccount]);
+
+  useEffect(() => {
+    AMajor.getAllMajors((data) => {
+      majorsLevelsContext?.setMajors(data);
+    }, setLoading);
+
+    AClassLevel.getAllClassLevels((data) => {
+      majorsLevelsContext?.setClassLevels(data);
+    });
+
+    AGender.getAllGenders((data) => {
+      genderContext?.setGenders(data)
+    })
+
+}, [accountContext.setAccount]);
 
   return(
     <View style={styles.container}>

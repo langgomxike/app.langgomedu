@@ -3,25 +3,31 @@ import ReactAppUrl from "../../configs/ConfigUrl";
 import Class from "../../models/Class";
 import Lesson from "../../models/Lesson";
 import User from "../../models/User";
+import Pagination from "../../models/Pagination";
 
 export default class AClassAdmin {
   private static BASE_URL = `${ReactAppUrl.API_BASE_URL}/admin`;
 
   // Get all class
   public static getAllClasses(
-    onNext: (classes: Class[]) => void,
+    search: string, action: string, page: number, perPage: number,
+    onNext: (classes: Class[], pagination: Pagination) => void,
     onLoading: (loading: boolean) => void
   ) {
     onLoading(true)
+    // console.log("Get all classes: ", `${this.BASE_URL}/classes?search=${search}&action=${action}&page=${page}&perPage=${perPage}` );
+    
     axios
-      .get(`${this.BASE_URL}/classes`)
+      .get(`${this.BASE_URL}/classes?search=${search}&action=${action}&page=${page}&perPage=${perPage}`)
       .then((response) => {
-        onNext(response.data.data);
         onLoading(false);
+        const classes = response.data.data.classes;
+        const pagination = response.data.data.pagination;
+        onNext(classes, pagination);
       })
       .catch((err) => {
         console.log("Error: ", err);
-        onNext([]);
+        onNext([], new Pagination);
         onLoading(true);
       });
   }

@@ -9,6 +9,8 @@ import { MajorsLevelsContext } from "./MajorsLevelsContext";
 import ClassLevel from "../models/ClassLevel";
 import general_infos from "../constants/general_infos.json";
 import { AppInfoContext } from "./AppInfoContext";
+import Gender from "../models/Gender";
+import { GenderContext } from "./GenderContext";
 
 export default function AppContext({ children }: PropsWithChildren) {
   //states
@@ -23,6 +25,7 @@ export default function AppContext({ children }: PropsWithChildren) {
 
   const [majors, setMajors] = useState<Major[]>([]);
   const [classLevels, setClassLevels] = useState<ClassLevel[]>([]);
+  const [genders, setGenders] = useState<Gender[]>([]);
 
   //handlers
   const setLanguageContext = useCallback((language: typeof vn) => {
@@ -46,7 +49,9 @@ export default function AppContext({ children }: PropsWithChildren) {
             <MajorsLevelsContext.Provider
               value={{ majors, setMajors, classLevels, setClassLevels }}
             >
-              {children}
+              <GenderContext.Provider value={{genders, setGenders}}>
+                {children}
+              </GenderContext.Provider>
             </MajorsLevelsContext.Provider>
           </AppInfoContext.Provider>
         </UserContext.Provider>

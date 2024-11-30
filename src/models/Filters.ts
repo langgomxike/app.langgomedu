@@ -8,7 +8,8 @@ export default class Filters {
       major?: number[]; // Ngành học
       isOnline?: boolean; // Hình thức học online hay offline
       maxLearners?: number;
-      startedAt: number | undefined | null; // Ngày bắt đầu (từ)
-      endedAt: number | undefined | null; // Ngày kết thúc (đến)
+      startedAt?: number | undefined | null; // Ngày bắt đầu (từ)
+      endedAt?: number | undefined | null; // Ngày kết thúc (đến)
       sort?: string;
+      gender?: number;
 }

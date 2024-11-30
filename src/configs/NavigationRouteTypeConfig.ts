@@ -42,6 +42,10 @@ export type AttendedForTutor = {
   lesson: Lesson;
 }
 
+export type CVApprovalRoute = {
+  cv_id: string;
+}
+
 export type RegisterType = {
   phone_number: string;
   username: string;

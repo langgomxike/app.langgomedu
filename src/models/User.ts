@@ -29,6 +29,8 @@ export default class User {
     public interested_majors: Major[];
     public children: User[];
     public attendance: Attendance | undefined;
+    public is_reported: boolean;
+    public cv_id: string | undefined;
 
     constructor(
         id = "",
@@ -52,7 +54,9 @@ export default class User {
         interested_class_levels = [],
         interested_majors = [],
         children: User[] = [],
-        attendance: Attendance | undefined = undefined
+        attendance: Attendance | undefined = undefined,
+        is_reported = false,
+        cv_id: string | undefined = undefined,
     ) {
         this.id = id;
         this.full_name = full_name;
@@ -76,5 +80,7 @@ export default class User {
         this.interested_majors = interested_majors;
         this.children = children;
         this.attendance = attendance;
+        this.is_reported = is_reported;
+        this.cv_id = cv_id;
     }
 }

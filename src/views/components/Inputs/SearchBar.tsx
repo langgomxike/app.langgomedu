@@ -1,6 +1,7 @@
-import React, { useContext } from 'react';
-import { TextInput, StyleSheet, View, Image } from 'react-native';
+import React, { useContext, useRef } from 'react';
+import { TextInput, StyleSheet, View, Image, TouchableOpacity } from 'react-native';
 import { LanguageContext } from "../../../configs/LanguageConfig";
+import Ionicons from '@expo/vector-icons/Ionicons';
 type InputProps = {
     value: string,
     onChangeText: (text:string) => void;
@@ -12,7 +13,14 @@ export default function SearchBar({
     style
   }:InputProps){
     const languageContext = useContext(LanguageContext);
+    const inputRef = useRef<TextInput | null>(null); 
 
+   const handleClearText = () => {
+    onChangeText("")
+    if (inputRef.current) {
+      inputRef.current.blur(); // Tắt focus và con trỏ nháy
+    }
+   }
 
     return (
         <View style={[styles.textInputBox, styles.shadowProp, style]}>
@@ -23,12 +31,18 @@ export default function SearchBar({
           style={styles.inputImage}
         />
         <TextInput 
+        ref={inputRef}
         style={[styles.textInput]} 
         value={value}
         onChangeText={onChangeText}
         placeholder= {languageContext.language.SEARCH}
         placeholderTextColor="#888" 
         />
+        {value && 
+        <TouchableOpacity style={styles.btnDelete} onPress={handleClearText}>
+          <Ionicons name="close" size={20} color="gray" />
+        </TouchableOpacity>
+        }
       </View>
     );
   };
@@ -63,5 +77,9 @@ const styles = StyleSheet.create({
       textInput: {
         flex: 1,
         padding: 5,
+      },
+
+      btnDelete: {
+        paddingHorizontal: 10
       },
 });
