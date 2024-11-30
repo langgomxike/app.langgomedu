@@ -16,9 +16,11 @@ export default class AClass {
     onNext: (course: Class) => void,
     onLoading: (loading: boolean) => void
   ) {
+    console.log("Đã vào đây", `${this.API_URL}/classes/detail/${classId}?user_id=${userId}` );
     onLoading(true);
+    
     axios
-      .get(`${this.API_URL}/classes/${classId}?user_id=${userId}`)
+      .get(`${this.API_URL}/classes/detail/${classId}?user_id=${userId}`)
       .then((response) => {
         const data = response.data.data;
         onNext(data.class);

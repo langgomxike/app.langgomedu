@@ -32,18 +32,17 @@ import AuthorTuorInClass from "../components/AuthorTuorInClass";
 
 const URL = ReactAppUrl.PUBLIC_URL;
 export default function ClassDetail() {
+  // navigation ----------------------------------------------------------------
   const route = useContext(NavigationRouteContext);
   const param = (route?.params as ClassDetailRoute) || new Class();
 
-  // Get class id
-
-  //contexts
+  //contexts ---------------------------------------------------------------------
   const navigation = useContext(NavigationContext);
   const languageContext = useContext(LanguageContext);
   const account = useContext(AccountContext).account;
   const user = useContext(UserContext).user;
 
-  // state
+  // state -------------------------------------------------------------------------
   const [userId, setUserId] = useState("");
   const [classDetail, setClassDetail] = useState<Class>();
   const [loading, setLoading] = useState(true);
@@ -51,7 +50,7 @@ export default function ClassDetail() {
   const [classLearners, setclassLearners] = useState<User[]>([]);
   const [resultResponse, setResultResponse] = useState(false);
 
-  // handlers
+  // handlers -------------------------------------------------------------------------
   function formatCurrency(amount: number, locale = "vi-VN", currency = "VND") {
     // Kiểm tra nếu không phải số, trả về chuỗi lỗi
     if (typeof amount !== "number") return "Invalid input";
@@ -69,10 +68,14 @@ export default function ClassDetail() {
   }, [classLearners]);
 
   const handleAcceptClass = () => {
+
+    if(classDetail?.author) {
+      // SMessage.createNotification("nội dung", classDetail?.author.id, () => {});
+    }
     setModalVisible("modalConfirmJoinClass");
   };
 
-  // effect
+  // effect -------------------------------------------------------------------------
   useEffect(() => {
     //Get detail class
     if (userId) {
@@ -136,7 +139,7 @@ export default function ClassDetail() {
     }
   }, [account]);
 
-  // render
+  // render ----------------------------------------------------------------
   return (
     <View style={styles.container}>
       <View style={{ flex: 9 }}>

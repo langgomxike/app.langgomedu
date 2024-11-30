@@ -66,9 +66,9 @@ export default function SuggestList() {
         currentPage,
         filterValues,
         (newClasses, pagination ) => {
-          // setSuggettingClasses((prevClasses) => {
-          //   return reset ? newClasses : [...prevClasses, ...newClasses];
-          // });
+          setSuggettingClasses((prevClasses) => {
+            return reset ? newClasses : [...prevClasses, ...newClasses];
+          });
           setPaginations(pagination);
           setRefresh(false);
         },

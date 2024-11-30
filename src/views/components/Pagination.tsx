@@ -18,16 +18,14 @@ const BUTTON_SIZE = 35;
 
 export default function Pagination({
   totalPage = 0,
-  currentPage = 1,
-  onChange = (page: number) => {},
+  currentPage,
+  onChange,
 }: PaginationProp) {
   //refs, contexts
   const languageContext = useContext(LanguageContext);
 
   //states
-  const [active, setActive] = useState<number>(
-    currentPage > totalPage || currentPage <= 0 ? 1 : currentPage
-  );
+  const [active, setActive] = useState<number>(currentPage);
 
     // Handlers for setting active page
     const goToFirstPage = () => setActive(1);
@@ -39,6 +37,10 @@ export default function Pagination({
   useEffect(() => {
     onChange(active);
   }, [active]);
+
+  useEffect(() => {
+   setActive(currentPage);
+  }, [currentPage])
 
   return (
     <View style={styles.container}>
