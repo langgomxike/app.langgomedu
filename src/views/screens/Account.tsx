@@ -45,20 +45,25 @@ function FlatListItem({item, index}: FlatListItemProps) {
     navigation?.navigate(ScreenName.PROFILE);
   }, []);
 
+  const goToRegisterChileScreen = useCallback(() => {
+    navigation?.navigate(ScreenName.REGISTER_STEP_CHILD);
+  }, []);
+
   const goToCVScreen = useCallback(() => {
     navigation?.navigate(ScreenName.SETTING_PERSONAL_CV);
   }, []);
 
-  const goToScheduleScreen = useCallback(() => {
-    navigation?.navigate(ScreenName.PERSONAL_SCHEDULE);
-  }, []);
+  const sendEmail = useCallback(() => {
+    const email = appInfos.contact_email;
+    const subject = languageContext.language.TO_ADMIN_EMAIL_SUBJECT;
+    const body = languageContext.language.TO_ADMIN_EMAIL_BODY;
+    const emailUrl = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 
-  const goToRatingScreen = useCallback(() => {
-    navigation?.navigate(ScreenName.RATING);
+    Linking.openURL(emailUrl);
   }, []);
 
   const goToChangePasswordScreen = useCallback(() => {
-    navigation?.navigate(ScreenName.OTP);
+    navigation?.navigate(ScreenName.CHANGE_PASSWORD);
   }, []);
 
   const handleDeleteAccount = useCallback(() => {
@@ -94,9 +99,9 @@ function FlatListItem({item, index}: FlatListItemProps) {
   useEffect(() => {
     const handlers = [
       goToPersonalInfoScreen,
+      goToRegisterChileScreen,
       goToCVScreen,
-      goToScheduleScreen,
-      goToRatingScreen,
+      sendEmail,
       goToChangePasswordScreen,
       () => setShowConfirmDeleteAccount(true),
       handleOpenWebsite,
@@ -158,7 +163,7 @@ function FlatListItem({item, index}: FlatListItemProps) {
 export default function AccountScreen() {
   //contexts
   const languageContext = useContext(LanguageContext);
-
+ 
   //states
   const [ListItem, setListItem] = useState<AccountItemProps[]>(ListItemVietnamese);
 

@@ -5,6 +5,8 @@ import ClassInbox from "../../models/ClassInbox";
 import {useContext} from "react";
 import {AccountContext} from "../../configs/AccountConfig";
 import SLog, {LogType} from "../../services/SLog";
+import {LanguageContext} from "../../configs/LanguageConfig";
+import ReactAppUrl from "../../configs/ConfigUrl";
 
 const AVATAR_SIZE = 60;
 const BADGE_SIZE = 10;
@@ -14,18 +16,20 @@ export type ClassChatMessageItem = {
   onPress: () => void;
 };
 
-export default function ClassChatMessageItem({
-                                               chat,
-                                               onPress = () => {
-                                               },
-                                             }: ClassChatMessageItem) {
+export default function ClassChatMessageItem(
+  {
+    chat,
+    onPress = () => {
+    },
+  }: ClassChatMessageItem) {
   //states
   const accountContext = useContext(AccountContext);
+  const language = useContext(LanguageContext).language;
 
   let content = chat?.newest_message?.content;
 
   if (content?.includes("$image:")) {
-    content = "[Hinh anh]";
+    content = `[${language.IMAGE}]`;
   }
 
   SLog.log(LogType.Warning, "check class chat item", "", chat);
@@ -35,14 +39,8 @@ export default function ClassChatMessageItem({
   return (
     <TouchableOpacity onPress={onPress} style={styles.container}>
       {/* avatar */}
-      {chat.in_class?.major?.icon ? (
-        <Image src={chat.in_class?.major?.icon} style={styles.avatar}/>
-      ) : (
-        <Image
-          source={require("../../../assets/avatar/avatarTempt.png")}
-          style={styles.avatar}
-        />
-      )}
+      <Image src={ReactAppUrl.PUBLIC_URL + chat.in_class?.major?.icon} style={styles.avatar}/>
+
 
       {/* text container */}
       <View style={styles.textContainer}>
@@ -90,7 +88,9 @@ const styles = StyleSheet.create({
     width: AVATAR_SIZE,
     height: AVATAR_SIZE,
     borderRadius: AVATAR_SIZE / 2,
-    backgroundColor: BackgroundColor.sub_primary,
+    backgroundColor: BackgroundColor.white,
+    borderWidth: 1,
+    borderColor: BackgroundColor.sub_primary,
     alignSelf: "center",
   },
 

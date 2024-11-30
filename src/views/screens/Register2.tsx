@@ -12,12 +12,13 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import {BackgroundColor, TextColor} from "../../configs/ColorConfig";
 import {LanguageContext} from "../../configs/LanguageConfig";
 import DateTimeConfig from "../../configs/DateTimeConfig";
-import {AuthType, RegisterType} from "../../configs/NavigationRouteTypeConfig";
+import {AuthType, IdNavigationType, OTPNavigationType, RegisterType} from "../../configs/NavigationRouteTypeConfig";
 import Spinner from "react-native-loading-spinner-overlay";
 import AUser from "../../apis/AUser";
 import User from "../../models/User";
 import SAsyncStorage, {AsyncStorageKeys} from "../../services/SAsyncStorage";
 import Toast from "react-native-simple-toast";
+import {AuthContext} from "../../configs/AuthContext";
 
 export default function RegisterStep2Screen() {
   //contexts
@@ -25,6 +26,7 @@ export default function RegisterStep2Screen() {
   const [permission, requestPermission] = useCameraPermissions();
   const languageContext = useContext(LanguageContext);
   const route = useContext(NavigationRouteContext);
+  const authContext = useContext(AuthContext);
 
   //states
   const [id, setId] = useState("");
@@ -39,7 +41,45 @@ export default function RegisterStep2Screen() {
     navigation?.goBack();
   }, []);
 
-  const onRegister = useCallback(() => {
+  const onRegister = useCallback((otp: number, onComplete: () => void) => {
+    const {phone_number, username, password} = route?.params as RegisterType ?? {
+      phone_number: "",
+      username: "",
+      password: ""
+    };
+
+    const user = new User();
+    user.id = id;
+    user.full_name = name;
+    user.phone_number = phone_number;
+    user.password = password;
+    user.hometown = address;
+    const day = +dayOfBirth.substring(0, 2);
+    const month = +dayOfBirth.substring(2, 4);
+    const year = +dayOfBirth.substring(4, 8);
+    const date = new Date(year, month, day);
+    user.birthday = date.getTime();
+    user.username = username;
+
+    AUser.register(user, otp,
+      (user) => {
+        if (user) {
+          SAsyncStorage.setData(AsyncStorageKeys.TOKEN, user.token, () => {
+            navigation?.reset({
+              index: 0,
+              routes: [{name: ScreenName.WELCOME}],
+            });
+          });
+        } else {
+          Alert.alert(languageContext.language.REGISTER, languageContext.language.REGISTER_FAILED);
+        }
+      },
+      onComplete
+    );
+
+  }, [id, name, dayOfBirth, gender, address, authContext.onAfterAuth]);
+
+  const handleAuth = useCallback(() => {
     if (!id || !name || !dayOfBirth || !gender || !address) {
       Alert.alert(languageContext.language.UPLOAD_CITIZEN_ID, languageContext.language.INVALID_UPLOAD_CITIZEN_ID);
       return;
@@ -56,27 +96,18 @@ export default function RegisterStep2Screen() {
       return;
     }
 
-    const user = new User();
-    user.id = id;
-    user.full_name = name;
-    user.phone_number = phone_number;
-    user.password = password;
-    user.hometown = address;
-    const day = +dayOfBirth.substring(0, 2);
-    const month = +dayOfBirth.substring(2, 4);
-    const year = +dayOfBirth.substring(4, 8);
-    const date = new Date(year, month, day);
-    user.birthday = date.getTime();
-    user.username = username;
-    setLoading(true);
+    const data: OTPNavigationType = {
+      id: id,
+      phone_number: phone_number,
+    }
 
-    const data: AuthType = {user}
     navigation?.navigate(ScreenName.OTP, data);
+    authContext.setOnAfterAuth(() => onRegister);
   }, [id, name, dayOfBirth, gender, address]);
 
-  function goToLogin(): void {
+  const goToLogin = useCallback(() => {
     navigation?.navigate(ScreenName.LOGIN);
-  }
+  }, []);
 
   const pickImage = useCallback(() => {
     setLoading(true);
@@ -151,7 +182,7 @@ export default function RegisterStep2Screen() {
         Alert.alert(languageContext.language.UPLOAD_CITIZEN_ID, languageContext.language.INVALID_UPLOAD_CITIZEN_ID);
         return;
       } else {
-        Toast.show(languageContext.language.UPLOADED_CITIZEN_ID, 1500);
+        Toast.show(languageContext.language.UPLOADED_CITIZEN_ID, 1000);
       }
     },
     [permission]
@@ -278,7 +309,7 @@ export default function RegisterStep2Screen() {
           title={languageContext.language.REGISTER}
           textColor="white"
           backgroundColor={BackgroundColor.primary}
-          onPress={onRegister}
+          onPress={handleAuth}
         />
 
         {/* hint text */}

@@ -207,7 +207,7 @@ export default class AMessage {
   }
 
   public static sendMessage(message: Message, onNext: (result: boolean) => void, onComplete?: () => void, inGroup?: boolean) {
-    const url = this.BASE_URL + (inGroup ? "/group": "");
+    const url = this.BASE_URL + (inGroup ? "/group" : "");
 
     SLog.log(LogType.Info, "sendMessage", "check url", url);
 
@@ -360,8 +360,8 @@ export default class AMessage {
       });
   }
 
-  public static deleteMessage(message: Message, onNext: (result: boolean) => void, onComplete?: () => void, inGroup? : boolean) {
-    const url = this.BASE_URL + (inGroup ? "/group": "");
+  public static deleteMessage(message: Message, onNext: (result: boolean) => void, onComplete?: () => void, inGroup?: boolean) {
+    const url = this.BASE_URL + (inGroup ? "/group" : "");
 
     const data = {message};
 
@@ -388,5 +388,38 @@ export default class AMessage {
         SLog.log(LogType.Error, "deleteMessage", "cannot delete message", error);
         onComplete && onComplete();
       });
+  }
+
+  public static askAI(aiKey:string, content: string, onNext: (result: string) => void, onComplete?: () => void) {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${aiKey}`;
+    const data = {
+      "contents": [
+        {
+          "parts": [
+            {
+              "text": `Give me some information or answer about: "${content}", (summary within 100 characters)`
+            }
+          ]
+        }
+      ]
+    };
+
+    axios.post(url, data)
+      .then(response => {
+
+        const data: any = response.data as any;
+        const candidates: any[] = data?.candidates as any[] ?? [];
+        const content: any = candidates.length > 0 && candidates[0].content;
+        const parts: any[] = content?.parts as any[] ?? [];
+        const result: string = parts.length > 0 && parts[0]?.text || "Cannot response";
+
+        onNext(result);
+        SLog.log(LogType.Info, "askAI", "answered", result);
+      })
+      .catch(error => {
+        SLog.log(LogType.Info, "askAI", "found error", error);
+        onNext("Cannot response");
+      })
+      .finally(onComplete);
   }
 }

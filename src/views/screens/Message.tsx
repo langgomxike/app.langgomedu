@@ -5,7 +5,6 @@ import Message from "../../models/Message";
 import User from "../../models/User";
 import AMessage from "../../apis/AMessage";
 import MessageItem from "../components/MessageItem";
-import RBSheet from "react-native-raw-bottom-sheet";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import {NavigationContext, NavigationRouteContext} from "@react-navigation/native";
 import {IdNavigationType, MessageNavigationType} from "../../configs/NavigationRouteTypeConfig";
@@ -17,12 +16,15 @@ import ScreenName from "../../constants/ScreenName";
 import Spinner from "react-native-loading-spinner-overlay";
 import * as ImagePicker from "expo-image-picker";
 import {useCameraPermissions} from "expo-camera";
+import {LanguageContext} from "../../configs/LanguageConfig";
+import ReactAppUrl from "../../configs/ConfigUrl";
 
 export default function MessageScreen() {
   //contexts
   const navigation = useContext(NavigationContext);
   const route = useContext(NavigationRouteContext);
   const accountContext = useContext(AccountContext);
+  const languageContext = useContext(LanguageContext).language;
   const [permission, requestPermission] = useCameraPermissions();
 
   //refs
@@ -43,7 +45,7 @@ export default function MessageScreen() {
 
     // @ts-ignore
     const message = new Message();
-    message.content = newMessage;
+    message.content = newMessage?.trim();
     message.sender = accountContext.account;
     message.receiver = user;
     message.ratio = ratio ?? 1;
@@ -57,10 +59,8 @@ export default function MessageScreen() {
     }, 10000);
 
     AMessage.sendMessage(message, (result) => {
-        if (result) {
-          Toast.show("Sent a new message", 1000);
-        } else {
-          Toast.show("Failed to send a new message", 1000);
+        if (!result) {
+          Toast.show(languageContext.FAIL_TO_SEND_MESSAGE, 1000);
         }
       },
       () => {
@@ -86,7 +86,7 @@ export default function MessageScreen() {
                 SLog.log(LogType.Warning, "handlePickImage", "path", path);
                 handleSendNewMessage("$image:" + path, ratio);
               } else {
-                Toast.show("Failed to send an image message", 1000);
+                Toast.show(languageContext.FAIL_TO_SEND_IMAGE, 1000);
               }
             },
           );
@@ -150,7 +150,7 @@ export default function MessageScreen() {
 
       {/* user */}
       <Pressable style={{alignSelf: "center"}} onPress={goToProfile}>
-        <Image src={user?.avatar} style={styles.avatar}/>
+        <Image src={ReactAppUrl.PUBLIC_URL + user?.avatar} style={styles.avatar}/>
 
         <Text style={styles.userName}>{user?.full_name}</Text>
       </Pressable>
@@ -189,7 +189,7 @@ export default function MessageScreen() {
             ref={inputRef}
             value={newMessage}
             onChangeText={(value) => setNewMessage(value)}
-            placeholder="Chat here"
+            placeholder={languageContext.CHAT_HERE + "..."}
             style={styles.input}
           />
 
@@ -245,7 +245,9 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 50,
-    backgroundColor: BackgroundColor.primary,
+    backgroundColor: BackgroundColor.white,
+    borderWidth: 0.7,
+    borderColor: BackgroundColor.sub_primary,
     marginTop: 50,
     alignSelf: "center",
   },

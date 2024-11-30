@@ -47,8 +47,6 @@ export default function DetailUserBottomSheet ({
   const [createdClasses, setCreatedClasses] = useState<Class[]>([]);
   const [loading, setLoading] = useState(true);
 
-  console.log("DetailUserBottomSheet");
-
   // ref
   const bottomSheetRef = useRef<BottomSheet>(null);
 

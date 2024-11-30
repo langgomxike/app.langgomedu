@@ -18,8 +18,6 @@ import Toast from "react-native-simple-toast";
 import AMessage from "../../apis/AMessage";
 import {LanguageContext} from "../../configs/LanguageConfig";
 
-const AVATAR_SIZE = 50;
-
 type ChatContactItemProps = {
   id: number;
   content: string;
@@ -80,7 +78,7 @@ export default function NotificationItem(
             size={30}
             color={BackgroundColor.sub_danger}
           />
-          <Text style={action.item}>Go thong bao</Text>
+          <Text style={action.item}>{language.DELETE_NOTIFICATION}</Text>
         </TouchableOpacity>
       </RBSheet>
     </TouchableOpacity>

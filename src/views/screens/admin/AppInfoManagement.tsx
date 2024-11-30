@@ -2,15 +2,15 @@ import {Linking, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View
 import BackLayout from "../../layouts/Back";
 import {BackgroundColor, TextColor} from "../../../configs/ColorConfig";
 import AppInfoContainer from "../../components/admin/AppInfoContainer";
-import {Dispatch, SetStateAction, useCallback, useContext, useEffect, useState} from "react";
+import {Dispatch, useCallback, useContext, useEffect, useState} from "react";
 import SFirebase from "../../../services/SFirebase";
-import general_infos from "../../../constants/general_infos.json";
 import {AppInfoContext} from "../../../configs/AppInfoContext";
 import Spinner from "react-native-loading-spinner-overlay";
 import Toast from "react-native-simple-toast";
 import {LanguageContext} from "../../../configs/LanguageConfig";
 import { NavigationContext } from "@react-navigation/native";
 import Ionicons from '@expo/vector-icons/Ionicons';
+import SLog, {LogType} from "../../../services/SLog";
 
 export default function AppInfoManagementScreen() {
   //contexts
@@ -20,7 +20,9 @@ export default function AppInfoManagementScreen() {
 
   //states
   const [appName, setAppName] = useState("");
-  const [appLogo, setAppLogo] = useState("");
+  const [contactEmail, setContactEmail] = useState("");
+  const [aiKey, setAIKey] = useState("");
+  const [otpServiceKey, setOTPServiceKey] = useState("");
   const [appWebLink, setAppWebLink] = useState("https://");
   const [bankingCode, setBankingCode] = useState("");
   const [bankingNumber, setBankingNumber] = useState("");
@@ -37,7 +39,7 @@ export default function AppInfoManagementScreen() {
   const [loading, setLoading] = useState(false);
 
   //handlers
-  const handlerChangeAppInfo = useCallback((key: string, value: string | number, setState? : Dispatch<any>) => {
+  const handlerChangeAppInfo = useCallback((key: string, value: string | number, setState?: Dispatch<any>) => {
 
     if (!value) return;
 
@@ -46,7 +48,7 @@ export default function AppInfoManagementScreen() {
     const infors = {...appInfoContext, [key]: value};
 
     SFirebase.setAppInfos(infors, () => {
-      setState && setState(typeof value == typeof 0 ? 0: "");
+      setState && setState(typeof value == typeof 0 ? 0 : "");
       setLoading(false);
       Toast.show(languageContext.UPDATED, 1000);
     });
@@ -81,6 +83,12 @@ export default function AppInfoManagementScreen() {
     }
   }, [appWebLink]);
 
+  useEffect(() => {
+    if (!contactEmail) {
+      setContactEmail("@gmail.com");
+    }
+  }, [contactEmail]);
+
   return (
     <ScrollView style={{backgroundColor: BackgroundColor.white}}>
       <View style={styles.bodyContainer}>
@@ -100,6 +108,42 @@ export default function AppInfoManagementScreen() {
           onSubmit={() => handlerChangeAppInfo("app_name", appName, setAppName)}
         />
 
+        {/* contact email */}
+        <AppInfoContainer
+          title={languageContext.CONTACT_EMAIL}
+          oldValue={(
+            <TextValue value={appInfoContext.contact_email}/>
+          )}
+          newValue={(
+            <TextValueInput value={contactEmail} setValue={setContactEmail}/>
+          )}
+          onSubmit={() => handlerChangeAppInfo("contact_email", contactEmail, setContactEmail)}
+        />
+
+        {/* AI key */}
+        <AppInfoContainer
+          title={languageContext.AI_KEY}
+          oldValue={(
+            <TextValue value={appInfoContext.ai_key}/>
+          )}
+          newValue={(
+            <TextValueInput value={aiKey} setValue={setAIKey}/>
+          )}
+          onSubmit={() => handlerChangeAppInfo("ai_key", aiKey, setAIKey)}
+        />
+
+        {/* OTP service key */}
+        <AppInfoContainer
+          title={languageContext.OTP_SERVICE_KEY}
+          oldValue={(
+            <TextValue value={appInfoContext.otp_service_key}/>
+          )}
+          newValue={(
+            <TextValueInput value={otpServiceKey} setValue={setOTPServiceKey}/>
+          )}
+          onSubmit={() => handlerChangeAppInfo("otp_service_key", otpServiceKey, setOTPServiceKey)}
+        />
+
         {/*/!*  web link*!/*/}
         <AppInfoContainer
           title={languageContext.WEBSITE_LINK}
@@ -113,7 +157,7 @@ export default function AppInfoManagementScreen() {
         />
 
         <AppInfoContainer
-          title={languageContext.WEBSITE_LINK}
+          title={languageContext.BANKING_CODE}
           oldValue={(
             <TextValue value={appInfoContext.banking_code} isLink={true}/>
           )}
@@ -124,7 +168,7 @@ export default function AppInfoManagementScreen() {
         />
 
         <AppInfoContainer
-          title={languageContext.WEBSITE_LINK}
+          title={languageContext.BANKING_NUMBER}
           oldValue={(
             <TextValue value={appInfoContext.banking_number + ""} isLink={true}/>
           )}
@@ -268,9 +312,135 @@ export default function AppInfoManagementScreen() {
             />
           </>
         </AppInfoContainer>
+
+        {/* suggested rating*/}
+        <AppInfoContainer
+          title={languageContext.SUGGESTED_RATING}>
+
+          <AppInfoContainer title={"Tiếng Việt"}>
+            <ArrayValue array={appInfoContext.suggested_rating_contents.vn} name={"vn"}
+                        fireBaseKey={"suggested_rating_contents"}/>
+          </AppInfoContainer>
+
+          <AppInfoContainer title={"English"}>
+            <ArrayValue array={appInfoContext.suggested_rating_contents.en} name={"en"}
+                        fireBaseKey={"suggested_rating_contents"}/>
+          </AppInfoContainer>
+
+          <AppInfoContainer title={"日本語"}>
+            <ArrayValue array={appInfoContext.suggested_rating_contents.ja} name={"ja"}
+                        fireBaseKey={"suggested_rating_contents"}/>
+          </AppInfoContainer>
+
+        </AppInfoContainer>
+
+        {/* suggested messages for tutors*/}
+        <AppInfoContainer
+          title={languageContext.SUGGESTED_MESSAGES_FOR_TUTORS}>
+
+          <AppInfoContainer title={"Tiếng Việt"}>
+            <ArrayValue array={appInfoContext.suggested_messages_for_tutors.vn} name={"vn"}
+                        fireBaseKey={"suggested_messages_for_tutors"}/>
+          </AppInfoContainer>
+
+          <AppInfoContainer title={"English"}>
+            <ArrayValue array={appInfoContext.suggested_messages_for_tutors.en} name={"en"}
+                        fireBaseKey={"suggested_messages_for_tutors"}/>
+          </AppInfoContainer>
+
+          <AppInfoContainer title={"日本語"}>
+            <ArrayValue array={appInfoContext.suggested_messages_for_tutors.ja} name={"ja"}
+                        fireBaseKey={"suggested_messages_for_tutors"}/>
+          </AppInfoContainer>
+
+        </AppInfoContainer>
+
+        {/* suggested messages for learners*/}
+        <AppInfoContainer
+          title={languageContext.SUGGESTED_MESSAGES_FOR_LEARNERS}>
+
+          <AppInfoContainer title={"Tiếng Việt"}>
+            <ArrayValue array={appInfoContext.suggested_messages_for_learners.vn} name={"vn"}
+                        fireBaseKey={"suggested_messages_for_learners"}/>
+          </AppInfoContainer>
+
+          <AppInfoContainer title={"English"}>
+            <ArrayValue array={appInfoContext.suggested_messages_for_learners.en} name={"en"}
+                        fireBaseKey={"suggested_messages_for_learners"}/>
+          </AppInfoContainer>
+
+          <AppInfoContainer title={"日本語"}>
+            <ArrayValue array={appInfoContext.suggested_messages_for_learners.ja} name={"ja"}
+                        fireBaseKey={"suggested_messages_for_learners"}/>
+          </AppInfoContainer>
+
+        </AppInfoContainer>
+
       </View>
     </ScrollView>
   );
+}
+
+function ArrayValue({array, fireBaseKey, name}: {
+  array: string[];
+  fireBaseKey: string,
+  name: string
+}): React.JSX.Element {
+  //states
+  const [newItem, setNewItem] = useState("");
+
+  //handlers
+  const handleAddItem = useCallback(async () => {
+    if (!newItem) return;
+    setNewItem("");
+
+    const newArray = [...(array ?? []), newItem];
+
+    SFirebase.setNewList(newArray, fireBaseKey, name, () => {
+      SLog.log(LogType.Info, "SFirebase.setNewList", "after being deleted", newArray);
+    });
+  }, [newItem, fireBaseKey, name]);
+
+  const handleDeleteItem = useCallback(async (index: number) => {
+    const newArray: string[] = [];
+
+    for (let i = 0; i < array.length; i++) {
+      if (i === index) continue;
+      newArray.push(array[i]);
+    }
+
+    SLog.log(LogType.Warning, "check new list", "after being deleted", newArray);
+
+    SFirebase.setNewList(newArray, fireBaseKey, name, () => {
+      SLog.log(LogType.Info, "SFirebase.setNewList", "after being deleted", newArray);
+    });
+  }, [array, fireBaseKey, name]);
+
+  return <>
+    {array && array.map((item, index) => (
+      <View key={index} style={{flexDirection: "row", marginBottom: 12, padding: 8}}>
+        <Text style={{flex: 1}}>{item}</Text>
+
+        <Ionicons onPress={() => handleDeleteItem(index)} name={"close"} size={25} style={{alignSelf: "center"}}/>
+      </View>
+    ))}
+
+    <View style={{
+      flexDirection: "row",
+      marginBottom: 10,
+      padding: 5,
+      paddingLeft: 15,
+      borderWidth: 0.1,
+      borderColor: TextColor.sub_primary,
+      borderRadius: 10
+    }}>
+      <View style={{flex: 1}}>
+        <TextInput value={newItem} onChangeText={setNewItem}/>
+      </View>
+
+      <Ionicons onPress={handleAddItem} name={"arrow-up-circle-outline"} size={20} style={{alignSelf: "center"}}/>
+    </View>
+  </>
 }
 
 function TextValue({value, isLink, isNum}: { value: string, isLink?: boolean, isNum?: boolean }) {

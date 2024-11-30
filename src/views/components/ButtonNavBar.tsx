@@ -8,27 +8,18 @@ import AccountScreen from "../screens/Account";
 import {StyleSheet, View} from "react-native";
 import {BackgroundColor, TextColor} from "../../configs/ColorConfig";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import {createContext, useContext, useEffect, useState} from "react";
+import {useContext, useEffect, useState} from "react";
 import {AccountContext} from "../../configs/AccountConfig";
 import SFirebase, {FirebaseNode} from "../../services/SFirebase";
 import AMessage from "../../apis/AMessage";
 import Message from "../../models/Message";
-import SLog, {LogType} from "../../services/SLog";
+import {ChatTabContext} from "../../configs/AppContext";
 
-const activeColor = "#0D99FF";
-const hintColor = "#AAA";
 const TAB_BAR_BORDER_RADIUS = 20;
 const TAB_BAR_MARGIN = 8;
-
 const TAB_ICON_SIZE = 24;
 
 const Tab = createBottomTabNavigator();
-
-
-// type AntDesignIconName = React.ComponentProps<typeof AntDesign>['name'];
-// type FeatherIconName = React.ComponentProps<typeof Feather>['name'];
-
-export const ChatTabContext = createContext<number[]>([0, 0, 0]);
 
 export default function ButtonNavBar() {
   //contexts

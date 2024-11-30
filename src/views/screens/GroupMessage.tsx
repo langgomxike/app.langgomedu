@@ -1,18 +1,12 @@
-import {Image, Pressable, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View,} from "react-native";
+import {Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View,} from "react-native";
 import {BackgroundColor, TextColor} from "../../configs/ColorConfig";
 import {ElementRef, useCallback, useContext, useEffect, useRef, useState,} from "react";
 import Message from "../../models/Message";
-import User from "../../models/User";
 import AMessage from "../../apis/AMessage";
 import MessageItem from "../components/MessageItem";
-import RBSheet from "react-native-raw-bottom-sheet";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import {NavigationContext, NavigationRouteContext} from "@react-navigation/native";
-import {
-  GroupMessageNavigationType,
-  IdNavigationType,
-  MessageNavigationType
-} from "../../configs/NavigationRouteTypeConfig";
+import {GroupMessageNavigationType, IdNavigationType} from "../../configs/NavigationRouteTypeConfig";
 import {AccountContext} from "../../configs/AccountConfig";
 import SLog, {LogType} from "../../services/SLog";
 import Toast from "react-native-simple-toast";
@@ -22,13 +16,18 @@ import Spinner from "react-native-loading-spinner-overlay";
 import * as ImagePicker from "expo-image-picker";
 import {useCameraPermissions} from "expo-camera";
 import Class from "../../models/Class";
-import AClass from "../../apis/AClass";
+import {LanguageContext} from "../../configs/LanguageConfig";
+import ReactAppUrl from "../../configs/ConfigUrl";
+import {AppInfoContext} from "../../configs/AppInfoContext";
+import {RoleList} from "../../models/Role";
 
 export default function GroupMessageScreen() {
   //contexts
   const navigation = useContext(NavigationContext);
   const route = useContext(NavigationRouteContext);
   const accountContext = useContext(AccountContext);
+  const language = useContext(LanguageContext).language;
+  const appInfos = useContext(AppInfoContext).infos;
   const [permission, requestPermission] = useCameraPermissions();
 
   //refs
@@ -40,6 +39,9 @@ export default function GroupMessageScreen() {
   const [messages, setMessages] = useState<Array<Message>>([]);
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [suggestedList, setSuggestedList] = useState<string[]>([]);
+  const [showSuggestList, setShowSuggestList] = useState(true);
+  const [isTutor, setIsTutor] = useState(false);
 
   //handlers
   const handleSendNewMessage = useCallback((newMessage: string, ratio?: number) => {
@@ -49,7 +51,7 @@ export default function GroupMessageScreen() {
 
     // @ts-ignore
     const message = new Message();
-    message.content = newMessage;
+    message.content = newMessage?.trim();
     message.sender = accountContext.account;
     message.class = _class;
     message.ratio = ratio ?? 1;
@@ -63,10 +65,8 @@ export default function GroupMessageScreen() {
     }, 10000);
 
     AMessage.sendMessage(message, (result) => {
-        if (result) {
-          Toast.show("Sent a new message", 1000);
-        } else {
-          Toast.show("Failed to send a new message", 1000);
+        if (!result) {
+          Toast.show(language.FAIL_TO_SEND_MESSAGE, 1000);
         }
       },
       () => {
@@ -93,13 +93,33 @@ export default function GroupMessageScreen() {
                 SLog.log(LogType.Warning, "handlePickImage", "path", path);
                 handleSendNewMessage("$image:" + path, ratio);
               } else {
-                Toast.show("Failed to send an image message", 1000);
+                Toast.show(language.FAIL_TO_SEND_IMAGE, 1000);
               }
             },
           );
         }
       });
   }, [permission, handleSendNewMessage, accountContext.account, _class]);
+
+  const askAI = useCallback((content: string) => {
+    setLoading(true);
+
+    const timeId = setTimeout(() => {
+      setLoading(false);
+    }, 10000);
+
+    AMessage.askAI(
+      appInfos.ai_key,
+      content,
+      (result) => {
+        setNewMessage(result);
+      },
+      () => {
+        setLoading(false);
+        clearTimeout(timeId);
+      }
+    );
+  }, [appInfos]);
 
   //handlers
   const goBack = useCallback(() => {
@@ -121,6 +141,11 @@ export default function GroupMessageScreen() {
     const data: GroupMessageNavigationType = route?.params as GroupMessageNavigationType;
     setClass(data.class);
   }, []);
+
+  useEffect(() => {
+    const tutorId: string = (_class as any)?.tutor_id ?? "-$$";
+    setIsTutor(tutorId === accountContext.account?.id);
+  }, [_class, accountContext.account]);
 
   useEffect(() => {
     if (!permission || !permission.granted) {
@@ -146,6 +171,34 @@ export default function GroupMessageScreen() {
       });
   }, [_class, accountContext.account, messages.length]);
 
+  useEffect(() => {
+    if (accountContext.account?.roles?.map(r => r.id)?.includes(RoleList.TUTOR)) {
+      switch (language.TYPE) {
+        case "vi":
+          setSuggestedList(appInfos.suggested_messages_for_tutors.vn);
+          break;
+        case "en":
+          setSuggestedList(appInfos.suggested_messages_for_tutors.en);
+          break;
+        case "ja":
+          setSuggestedList(appInfos.suggested_messages_for_tutors.ja);
+          break;
+      }
+    } else {
+      switch (language.TYPE) {
+        case "vi":
+          setSuggestedList(appInfos.suggested_messages_for_learners.vn);
+          break;
+        case "en":
+          setSuggestedList(appInfos.suggested_messages_for_learners.en);
+          break;
+        case "ja":
+          setSuggestedList(appInfos.suggested_messages_for_learners.ja);
+          break;
+      }
+    }
+  }, [accountContext.account, appInfos]);
+
   return (
     <View style={styles.container}>
       <Spinner visible={loading}/>
@@ -159,7 +212,7 @@ export default function GroupMessageScreen() {
 
       {/* class */}
       <Pressable style={{alignSelf: "center"}} onPress={goToDetail}>
-        <Image src={_class?.major?.icon ?? ""} style={styles.avatar}/>
+        <Image src={ReactAppUrl.PUBLIC_URL + _class?.major?.icon ?? ""} style={styles.avatar}/>
 
         <Text style={styles.userName}>{_class?.title}</Text>
       </Pressable>
@@ -176,10 +229,18 @@ export default function GroupMessageScreen() {
                 message={message}
                 ofMine={accountContext.account?.id === message.sender?.id}
                 inGroup={true}
+                askAI={isTutor ? () => askAI(message.content) : undefined}
               />
             </Pressable>
           ))}
         </ScrollView>
+
+        {showSuggestList && suggestedList &&
+          <ScrollView showsHorizontalScrollIndicator={false} showsVerticalScrollIndicator={false} horizontal={true}>
+            {suggestedList.map((item, index) => (
+              <Text key={index} style={styles.suggestItem} onPress={() => setNewMessage(item)}>{item}</Text>
+            ))}
+          </ScrollView>}
 
         {/* chat bar */}
         <View style={styles.chatContainer}>
@@ -192,6 +253,13 @@ export default function GroupMessageScreen() {
                 color={BackgroundColor.black}
                 onPress={handlePickImage}
               />
+
+              <Ionicons
+                name="bulb-outline"
+                size={30}
+                color={showSuggestList ? BackgroundColor.warning : BackgroundColor.black}
+                onPress={() => setShowSuggestList(prev => !prev)}
+              />
             </>
           )}
 
@@ -199,7 +267,9 @@ export default function GroupMessageScreen() {
             ref={inputRef}
             value={newMessage}
             onChangeText={(value) => setNewMessage(value)}
-            placeholder="Chat here"
+            placeholder={language.CHAT_HERE + "..."}
+            multiline={true}
+            numberOfLines={Math.ceil(newMessage.length / 30)}
             style={styles.input}
           />
 
@@ -255,7 +325,9 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 50,
-    backgroundColor: BackgroundColor.primary,
+    backgroundColor: BackgroundColor.white,
+    borderWidth: 0.7,
+    borderColor: BackgroundColor.sub_primary,
     marginTop: 50,
     alignSelf: "center",
   },
@@ -269,9 +341,22 @@ const styles = StyleSheet.create({
 
   input: {
     backgroundColor: BackgroundColor.gray_10,
-    height: 40,
+    minHeight: 40,
     borderRadius: 20,
     paddingHorizontal: 10,
     flex: 1,
   },
+
+  suggestItem: {
+    fontSize: 12,
+    backgroundColor: BackgroundColor.gray_30,
+    paddingTop: 5,
+    paddingBottom: 7,
+    paddingHorizontal: 8,
+    borderRadius: 10,
+    margin: 3,
+    fontStyle: "italic",
+    maxHeight: 30,
+    alignSelf: "flex-end",
+  }
 });

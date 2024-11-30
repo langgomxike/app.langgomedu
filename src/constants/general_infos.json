@@ -1,9 +1,12 @@
 {
+  "ai_key": "AIzaSyBe5HEYepx8fS730it_oy0nyDiqfvLAdnk",
   "app_name": "LanggomEdu",
-  "banking_code": "MB",
-  "banking_number": "0376961547",
+  "banking_code": "STB",
+  "banking_number": "050137712048",
+  "contact_email": "khanh.lv.iit@gmail.com",
   "creation_fee_for_parents": 0,
   "creation_fee_for_tutors": 0.3,
+  "otp_service_key": "dd56071151d8e50595f459b2f502f538-bd5fb397-4378-4b30-aa3c-0c41f815d9d2",
   "report_class_level_1": 21,
   "report_class_level_2": 41,
   "report_class_level_3": 61,
@@ -12,5 +15,49 @@
   "report_user_level_2": 40,
   "report_user_level_3": 60,
   "report_user_level_4": 80,
-  "webiste_link": "https://langgomedu.com"
+  "suggested_messages_for_learners": {
+    "en": [
+      "I have a question?",
+      "Do we have any assignment today?",
+      "I cannot attend the class today?"
+    ],
+    "ja": [
+      "Shitsumon ga aru?"
+    ],
+    "vn": [
+      "Em co thac mac a",
+      "Hom nay co bai tap khong a",
+      "Em co viec ban, hom nay em xin nghi duoc khong a"
+    ]
+  },
+  "suggested_messages_for_tutors": {
+    "en": [
+      "Remember your assignment please",
+      "Complete your classwork",
+      "Assign today's homework at https://....com"
+    ],
+    "ja": [
+      "Remember your assignment please"
+    ],
+    "vn": [
+      "Remember your assignment please"
+    ]
+  },
+  "suggested_rating_contents": {
+    "en": [
+      "C",
+      "D"
+    ],
+    "ja": [
+      "E",
+      "F"
+    ],
+    "vn": [
+      "E",
+      "Nhiet huyet",
+      "Day hay",
+      "Tuyt cu meo"
+    ]
+  },
+  "webiste_link": "http://192.168.1.4:3002/api"
 }

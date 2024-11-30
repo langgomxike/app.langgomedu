@@ -94,7 +94,6 @@ export default function WelcomeScreen() {
               navigation?.reset({
                 index: 0,
                 routes: [{ name: ScreenName.NAV_BAR }],
-                // routes: [{ name: ScreenName.RATING }],
               });
             }
 

@@ -1,11 +1,11 @@
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import MyIcon, { AppIcon } from "../components/MyIcon";
 import Avatar, { Orientation } from "../components/Avatar";
 import React, { useCallback, useContext } from "react";
 import { NavigationContext } from "@react-navigation/native";
 import {AccountContext} from "../../configs/AccountConfig";
 import {BackgroundColor} from "../../configs/ColorConfig";
 import User from "../../models/User";
+import Ionicons from "@expo/vector-icons/Ionicons";
 
 type propsBackDetail = {
   icName: string;
@@ -14,12 +14,14 @@ type propsBackDetail = {
   hiddenBackButton? :boolean;
   user?: User;
   handleUploadAvatar? :() => void;
+  canGoBack? : boolean;
 };
 
 const BackWithDetailLayout = ({
   children,
   user,
-  handleUploadAvatar = () => {}
+  handleUploadAvatar = () => {},
+  canGoBack
 }: propsBackDetail) => {
   //contexts
   const navigation = useContext(NavigationContext);
@@ -27,6 +29,8 @@ const BackWithDetailLayout = ({
 
   return (
     <View style={styles.container}>
+      {canGoBack && <Ionicons name={"close"} size={30} style={styles.iconBack} onPress={navigation?.goBack}/>}
+
       {/* Header */}
       <View style={[styles.header]}>
         <View style={[styles.avatar]}>
@@ -109,6 +113,14 @@ const styles = StyleSheet.create({
     padding: 16,
     zIndex: 1,
   },
+
+  iconBack: {
+    position: 'absolute',
+    top: 10,
+    left: 10,
+    backgroundColor: "transparent",
+    zIndex: 100,
+  }
 });
 
 export default BackWithDetailLayout;

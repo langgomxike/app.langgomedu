@@ -8,11 +8,13 @@ export type IdNavigationType = {
   id: number | string;
 }
 
+export type OTPNavigationType = {
+  id: number | string;
+  phone_number: string;
+}
+
 export type MessageNavigationType = {
-  me: User | undefined;
   user: User;
-  from_user: string;
-  to_user: string;
 }
 
 export type GroupMessageNavigationType = {
@@ -54,4 +56,9 @@ export type RegisterType = {
 
 export type AuthType = {
   user: User;
+}
+
+export type RatingNavigationType = {
+  id: string;
+  class: Class;
 }
