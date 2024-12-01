@@ -103,7 +103,6 @@ function FlatListItem({item, index}: FlatListItemProps) {
       goToCVScreen,
       sendEmail,
       goToChangePasswordScreen,
-      () => setShowConfirmDeleteAccount(true),
       handleOpenWebsite,
       refRBSheet.current?.open,
       () => setShowConfirmLogout(true),
