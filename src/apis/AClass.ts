@@ -2,6 +2,10 @@ import axios from "axios";
 import Class from "../models/Class";
 import ReactAppUrl from "../configs/ConfigUrl";
 import Lesson from "../models/Lesson";
+import { useContext } from "react";
+import { AccountContext } from "../configs/AccountConfig";
+import User from "../models/User";
+import { RoleList } from "../models/Role";
 
 export default class AClass {
   private static API_URL = ReactAppUrl.API_BASE_URL;
@@ -126,6 +130,7 @@ export default class AClass {
       });
   }
 
+  // tạo lớp cho gia sư
   public static createClass(
     title: string,
     description: string,
@@ -134,30 +139,48 @@ export default class AClass {
     price: number,
     startedAt: number | null,
     endedAt: number | null,
-    province: string[],
-    district: string[],
-    ward: string[],
+    province: string,
+    district: string,
+    ward: string,
     detail: string,
+    tutor_id: string,
+    author_id: string,
     lessons: Lesson[],
     onNext: (result: boolean, insertId?: number) => void
   ) {
-    console.log({
-      title: title,
-      description: description,
-      major_id: majorId,
-      class_level_id: classLevelId,
-      price: price,
-      started_at: startedAt,
-      ended_at: endedAt,
-      province,
-      district,
-      ward,
-      detail,
-      lessons: lessons,
-    });
+    const user = useContext(AccountContext); // lay duoc acount
+    const roleIds = user.account?.roles?.map((role) => role.id); // lấy id của quyền
+    const tutorId = roleIds?.includes(RoleList.TUTOR)
+      ? user.account?.id.toString()
+      : "";
+    const authorId = user.account?.id;
+
+    console.log(
+      "create class data: ",
+      JSON.stringify(
+        {
+          title,
+          description,
+          major_id: majorId,
+          class_level_id: classLevelId,
+          price,
+          started_at: startedAt,
+          ended_at: endedAt,
+          province,
+          district,
+          ward,
+          detail,
+          tutor_id: tutorId, // Thêm vào payload
+          author_id: authorId, // Thêm vào payload
+          lessons,
+        },
+        null,
+        2
+      )
+    );
 
     axios
-      .post(`${this.API_URL}/classes/create`, {
+      .post(`${this.API_URL}/classes/create-learner`, {
         title,
         description,
         major_id: majorId,
@@ -169,6 +192,82 @@ export default class AClass {
         district,
         ward,
         detail,
+        tutor_id: tutorId, // Thêm vào payload
+        author_id: authorId, // Thêm vào payload
+        lessons,
+      })
+      .then((response) => {
+        console.log("Class created successfully:", response.data);
+        onNext(true, response.data.data.classId); // Truyền `classId` về từ response
+      })
+      .catch((err) => {
+        console.error("Error:", err);
+        console.log(">>> title", "Tạo lớp không thành công");
+        onNext(false);
+      });
+  }
+
+  // tạo lớp cho phụ huynh
+  // Update the static method to accept user, tutorId, and authorId as parameters
+  public static createClassForLearner(
+    title: string,
+    description: string,
+    majorId: number,
+    classLevelId: number,
+    price: number,
+    startedAt: number | null,
+    endedAt: number | null,
+    maxLearners: number,
+    province: string,
+    district: string,
+    ward: string,
+    detail: string,
+    tutorId: string | "",
+    authorId: string,
+    lessons: Lesson[],
+    onNext: (result: boolean, insertId?: number) => void
+  ) {
+    console.log(
+      "create class data: ",
+      JSON.stringify(
+        {
+          title,
+          description,
+          major_id: majorId,
+          class_level_id: classLevelId,
+          price,
+          started_at: startedAt,
+          ended_at: endedAt,
+          maxLearners,
+          province,
+          district,
+          ward,
+          detail,
+          tutor_id: tutorId || "", // Thêm vào payload
+          author_id: authorId, // Thêm vào payload
+          lessons,
+        },
+        null,
+        2
+      )
+    );
+
+    axios
+      .post(`${this.API_URL}/classes/create-learner`, {
+        title,
+        description,
+        major_id: majorId,
+        class_level_id: classLevelId,
+        price,
+        started_at: startedAt,
+        ended_at: endedAt,
+        max_learners: maxLearners,
+        province,
+        district,
+        ward,
+        detail,
+        tutor_id: tutorId || "", // Thêm vào payload
+        author_id: authorId, // Thêm vào payload
         lessons,
       })
       .then((response) => {

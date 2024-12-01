@@ -10,7 +10,7 @@ import {
 import { Picker } from "@react-native-picker/picker";
 import DateTimePickerAndroid from "@react-native-community/datetimepicker";
 import Feather from "@expo/vector-icons/Feather";
-import Lesson from "../../../models/Lesson";
+import Lesson from "../../models/Lesson";
 
 type props = {
   handleGetLesson: (lessons: Lesson[]) => void;
@@ -20,20 +20,14 @@ const InfoLesson = ({ handleGetLesson }: props) => {
   const [lessons, setLessons] = useState<Lesson[]>([
     new Lesson(1, undefined, 0, 0, 0, true, ""),
   ]);
-  const [startedAt, setStartedAt] = useState(false);
+  const [startedAt, setStartedAt] = useState("");
   const [selectedLessonIndex, setSelectedLessonIndex] = useState<number>(0);
+  const [showPicker, setShowPicker] = useState(false);
 
   const onChange = (selectedTime: Date, lessonIndex: number) => {
     const currentTime = selectedTime || new Date();
     const updatedLessons = [...lessons];
     updatedLessons[lessonIndex].started_at = currentTime.getTime();
-
-    const formattedTime =
-      currentTime.getHours() +
-      ":" +
-      (currentTime.getMinutes() < 10 ? "0" : "") +
-      currentTime.getMinutes();
-    updatedLessons[lessonIndex].note = formattedTime;
 
     setLessons(updatedLessons);
   };
@@ -41,7 +35,7 @@ const InfoLesson = ({ handleGetLesson }: props) => {
   const showTimepicker = (lessonIndex: number) => {
     if (Platform.OS === "android") {
       setSelectedLessonIndex(lessonIndex);
-      setStartedAt(true);
+      setShowPicker(true);
     }
   };
 
@@ -138,12 +132,19 @@ const InfoLesson = ({ handleGetLesson }: props) => {
               <Text style={styles.label}>
                 Thời gian bắt đầu <Text style={styles.required}>*</Text>
               </Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Chọn thời gian"
-                value={lesson.note} // Hiển thị thời gian bắt đầu dưới dạng hh:mm
-                onFocus={() => showTimepicker(index)}
-              />
+              <TouchableOpacity
+                style={[styles.input, { justifyContent: "center" }]}
+                onPress={() => showTimepicker(index)}
+              >
+                <Text>
+                  {lesson.started_at
+                    ? new Date(lesson.started_at).toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })
+                    : "Chọn thời gian"}
+                </Text>
+              </TouchableOpacity>
             </View>
 
             {/* Thời gian kết thúc */}
@@ -185,7 +186,19 @@ const InfoLesson = ({ handleGetLesson }: props) => {
 
           <View style={{ marginTop: 25 }}>
             <Text style={styles.label}>Ghi chú</Text>
-            <TextInput style={styles.input} placeholder="Thêm ghi chú ..." />
+            <TextInput
+              style={styles.input}
+              placeholder="Thêm ghi chú ..."
+              value={lesson.note} // Hiển thị giá trị hiện tại từ lesson
+              onChangeText={(text) => {
+                // Cập nhật giá trị ghi chú của lesson cụ thể
+                setLessons((prevLessons) =>
+                  prevLessons.map((l) =>
+                    l.id === lesson.id ? { ...l, note: text } : l
+                  )
+                );
+              }}
+            />
           </View>
 
           <TouchableOpacity style={styles.btnAdd} onPress={handleAdd}>
@@ -193,7 +206,7 @@ const InfoLesson = ({ handleGetLesson }: props) => {
           </TouchableOpacity>
         </View>
       ))}
-      {startedAt && (
+      {showPicker && (
         <DateTimePickerAndroid
           value={
             lessons[selectedLessonIndex].started_at
@@ -204,7 +217,7 @@ const InfoLesson = ({ handleGetLesson }: props) => {
           is24Hour={true}
           display="default"
           onChange={(event: any, selectedTime: Date | undefined) => {
-            setStartedAt(false);
+            setShowPicker(false);
             if (selectedTime) {
               onChange(selectedTime, selectedLessonIndex);
             }
@@ -232,7 +245,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginTop: 25,
-    marginLeft: 120
+    marginLeft: 120,
   },
   txtAdd: { fontSize: 16, color: "#FFFFFF", fontWeight: "bold" },
   txtDelete: { fontSize: 16, color: "#FFFFFF", fontWeight: "bold" },

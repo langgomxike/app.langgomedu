@@ -16,21 +16,23 @@ type props = {
     tuition?: string,
     dateStart?: string,
     dateEnd?: string,
-    province?: string[],
-    district?: string[],
-    ward?: string[],
+    province?: string,
+    district?: string,
+    ward?: string,
     detail?: string
   ) => void;
+  priceFee?: number;
 };
 
-const InfoTuition = ({ onNext }: props) => {
+const InfoTuition = ({ onNext, priceFee }: props) => {
   // context
   const appInfos = useContext(AppInfoContext);
-  console.log("code: ", appInfos.infos.banking_code);
-  console.log("number: ", appInfos.infos.banking_number);
+  // console.log("code: ", appInfos.infos.banking_code);
+  // console.log("number: ", appInfos.infos.banking_number);
 
   // state
-  const [tuition, setTuition] = useState("");
+  const [tuition, setTuition] = useState<number | null>(null); // Giá trị gốc dạng số
+  const [formattedTuition, setFormattedTuition] = useState<string>(""); // Giá trị hiển thị
   const [dateStart, setDateStart] = useState("");
   const [dateEnd, setDateEnd] = useState("");
   const [error, setError] = useState("");
@@ -38,10 +40,11 @@ const InfoTuition = ({ onNext }: props) => {
   const [datePickerType, setDatePickerType] = useState<"start" | "end">();
 
   // state address
-  const [selectedProvince, setSelectedProvince] = useState<string[]>([]);
-  const [selectedDistrict, setSelectedDistrict] = useState<string[]>([]);
-  const [selectedWard, setSelectedWard] = useState<string[]>([]);
+  const [selectedProvince, setSelectedProvince] = useState("");
+  const [selectedDistrict, setSelectedDistrict] = useState("");
+  const [selectedWard, setSelectedWard] = useState("");
   const [detail, setDetail] = useState("");
+  const [zalo, setZalo] = useState("");
 
   // Kiểm tra logic ngày bắt đầu và ngày kết thúc
   const validateDates = (start: string, end: string) => {
@@ -69,7 +72,7 @@ const InfoTuition = ({ onNext }: props) => {
 
   // Xử lý khi chọn ngày
   const handleConfirm = (date: Date) => {
-    const formattedDate = date.toISOString().split("T")[0]; // Format: YYYY-MM-DD
+    const formattedDate = date.toLocaleDateString("vi-VN");
 
     if (datePickerType === "start") {
       setDateStart(formattedDate);
@@ -85,49 +88,79 @@ const InfoTuition = ({ onNext }: props) => {
     }
 
     onNext(
-      tuition,
+      tuition?.toString(),
       dateStart,
       dateEnd,
       selectedProvince,
       selectedDistrict,
-      selectedWard
+      selectedWard,
+      detail
     );
     hideDatePicker();
   };
 
   const handleChangeTuition = (value: string) => {
-    setTuition(value); // Lưu lại giá trị người dùng nhập vào
+    if (value === "") {
+      setTuition(null);
+      setFormattedTuition("");
+      setError("");
+      onNext(
+        undefined,
+        dateStart,
+        dateEnd,
+        selectedProvince,
+        selectedDistrict,
+        selectedWard,
+        detail
+      );
+      return;
+    }
 
-    // Kiểm tra khi người dùng nhập xong
-    if (value !== "") {
-      const numericValue = Number(value);
+    // Loại bỏ dấu phẩy khỏi giá trị nhập vào
+    const numericValue = Number(value.replace(/,/g, ""));
 
-      if (isNaN(numericValue) || numericValue < 0) {
+    // Kiểm tra nếu giá trị là số hợp lệ
+    if (!isNaN(numericValue)) {
+      if (numericValue < 0) {
         setError("Mức học phí phải là số dương và không được âm.");
       } else if (numericValue < 10000) {
         setError("Mức học phí phải từ 10,000 trở lên.");
       } else {
         setError(""); // Reset lỗi nếu hợp lệ
       }
-    } else {
-      setError("");
-    }
 
-    onNext(
-      value,
-      dateStart,
-      dateEnd,
-      selectedProvince,
-      selectedDistrict,
-      selectedWard,
-      detail
-    );
+      // Lưu giá trị không có dấu phẩy vào state (để dùng cho tính toán)
+      setTuition(numericValue);
+
+      setFormattedTuition(numericValue.toLocaleString("en-US")); // định dạng hiển thị ra gia diện
+
+      // Gửi giá trị không dấu phẩy qua onNext
+      onNext(
+        numericValue.toString(),
+        dateStart,
+        dateEnd,
+        selectedProvince,
+        selectedDistrict,
+        selectedWard,
+        detail
+      );
+    } else {
+      setError("Giá trị không hợp lệ. Vui lòng nhập số.");
+    }
   };
 
   useEffect(() => {
     // Gửi dữ liệu địa chỉ khi có sự thay đổi
+    console.log("tuition: ", tuition);
+    console.log("dateStart: ", dateStart);
+    console.log("dateEnd", dateEnd);
+    console.log("selectedProvince: ", selectedProvince);
+    console.log("selectedDistrict: ", selectedDistrict);
+    console.log("selectedWard: ", selectedWard);
+    console.log("detail: ", detail);
+
     onNext(
-      tuition,
+      tuition?.toString(),
       dateStart,
       dateEnd,
       selectedProvince,
@@ -135,7 +168,15 @@ const InfoTuition = ({ onNext }: props) => {
       selectedWard,
       detail
     );
-  }, [selectedProvince, selectedDistrict, selectedWard, detail]);
+  }, [
+    tuition,
+    dateStart,
+    dateEnd,
+    selectedProvince,
+    selectedDistrict,
+    selectedWard,
+    detail,
+  ]);
 
   return (
     <View style={styles.container}>
@@ -148,7 +189,7 @@ const InfoTuition = ({ onNext }: props) => {
           style={styles.input}
           placeholder="Nhập mức học phí"
           keyboardType="numeric"
-          value={tuition}
+          value={formattedTuition}
           onChangeText={handleChangeTuition}
         />
       </View>
@@ -195,30 +236,66 @@ const InfoTuition = ({ onNext }: props) => {
           Địa chỉ <Text style={styles.required}>*</Text>
         </Text>
         <DropDownLocation
-          selectedCities={selectedProvince}
-          selectedDistricts={selectedDistrict}
-          selectedWards={selectedWard}
-          onSetSelectedCities={setSelectedProvince}
-          onSetSelectedDistricts={setSelectedDistrict}
-          onSetSelectedWards={setSelectedWard}
+          selectedCity={selectedProvince}
+          selectedDistrict={selectedDistrict}
+          selectedWard={selectedWard}
+          onSetSelectedCity={setSelectedProvince}
+          onSetSelectedDistrict={setSelectedDistrict}
+          onSetSelectedWard={setSelectedWard}
         />
       </View>
-      <Text style={[styles.label]}>
-        Địa chỉ cụ thể <Text style={styles.required}>*</Text>
-      </Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Thêm địa chỉ của bạn"
-        value={detail}
-      />
+      <View>
+        <Text style={styles.label}>
+          Địa chỉ cụ thể <Text style={styles.required}>*</Text>
+        </Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Thêm địa chỉ cụ thể của bạn ..."
+          value={detail}
+          onChangeText={(text) => {
+            setDetail(text);
+            onNext(
+              tuition?.toString(),
+              dateStart,
+              dateEnd,
+              selectedProvince,
+              selectedDistrict,
+              selectedWard,
+              text
+            );
+          }}
+        />
+      </View>
+
+      {/* LINK ZALO */}
+      <View style={{ marginTop: 25 }}>
+        <Text style={styles.label}>Địa chỉ Zalo</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Thêm địa chỉ Zalo của bạn"
+          value={zalo}
+          onChangeText={(text) => {
+            setZalo(text);
+            onNext(
+              tuition?.toString(),
+              dateStart,
+              dateEnd,
+              selectedProvince,
+              selectedDistrict,
+              selectedWard,
+              text
+            );
+          }}
+        />
+      </View>
+
       <Text style={[styles.label, { marginTop: 25 }]}>
         Phí tạo lớp <Text style={styles.required}>*</Text>
       </Text>
-      <View style={{width: 400, height: 500}}>
-        <Image
-          src={`https://img.vietqr.io/image/${appInfos.infos.banking_code}-${appInfos.infos.banking_number}-compact2.jpg?amount=79000&addInfo=dong%20tien%20phi%20tao%20lop&accountName=Phi%20Tao%20Lop`}
-        />
-      </View>
+      <Image
+        style={{ width: 400, height: 500, marginLeft: -14 }}
+        src={`https://vietqr.co/api/generate/${appInfos.infos.banking_code}/${appInfos.infos.banking_number}/VIETQR.CO/${priceFee}/phi%20tao%20lop`}
+      />
     </View>
   );
 };

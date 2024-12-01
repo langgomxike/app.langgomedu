@@ -12,27 +12,25 @@ interface Dropdown {
 }
 
 type DropDownAddressProps = {
-  selectedCities: string[];
-  selectedDistricts: string[];
-  selectedWards: string[];
-  onSetSelectedCities: (cities: string[]) => void;
-  onSetSelectedDistricts: (districts: string[]) => void;
-  onSetSelectedWards: (wards: string[]) => void;
+  selectedCity: string;
+  selectedDistrict: string;
+  selectedWard: string;
+  onSetSelectedCity: (cities: string) => void;
+  onSetSelectedDistrict: (districts: string) => void;
+  onSetSelectedWard: (wards: string) => void;
 }
 
 export default function DropDownLocation(
   {
-    selectedCities,
-    selectedDistricts,
-    selectedWards,
-    onSetSelectedCities,
-    onSetSelectedDistricts,
-    onSetSelectedWards,
+    selectedCity,
+    selectedDistrict,
+    selectedWard,
+    onSetSelectedCity,
+    onSetSelectedDistrict,
+    onSetSelectedWard,
   }: DropDownAddressProps){
+    
   // states //////////////////////////////////////////////
-  const [selectedCity, setSelectedCity] = useState<string>(""); // mang duoc chon
-  const [selectedDistrict, setSelectedDistrict] = useState<string>("");
-  const [selectedWard, setSelectedWard] = useState<string>("");
   const [district, setDistrict] = useState<Dropdown[]>([]); // quan
   const [ward, setWard] = useState<Dropdown[]>([]); // xa
 
@@ -54,10 +52,9 @@ export default function DropDownLocation(
       });
     }
 
-    console.log("city: ", selectedCity);
 
     setDistrict(updatedDistricts);
-    setSelectedDistrict("");
+    onSetSelectedDistrict("");
   }, [selectedCity]);
 
   // Lấy danh sách xã phường theo quận, huyện
@@ -72,9 +69,9 @@ export default function DropDownLocation(
         });
       }
     });
-
+    
     setWard(updatedWards);
-    setSelectedWard("");
+    onSetSelectedWard("");
   }, [selectedDistrict]);
 
   const renderItem = (item: any, selected: any) => {
@@ -115,7 +112,7 @@ export default function DropDownLocation(
         onFocus={() => setIsFocus(true)}
         onBlur={() => setIsFocus(false)}
         onChange={(item) => {
-          setSelectedCity(item.value);
+          onSetSelectedCity(item.value);
           setIsFocus(false);
         }}
         renderLeftIcon={() => (
@@ -147,7 +144,7 @@ export default function DropDownLocation(
         onFocus={() => setIsFocus(true)}
         onBlur={() => setIsFocus(false)}
         onChange={(item) => {
-          setSelectedDistrict(item.value);
+          onSetSelectedDistrict(item.value);
           setIsFocus(false);
         }}
         renderLeftIcon={() => (
@@ -178,7 +175,7 @@ export default function DropDownLocation(
         onFocus={() => setIsFocus(true)}
         onBlur={() => setIsFocus(false)}
         onChange={(item) => {
-          setSelectedWard(item.value);
+          onSetSelectedWard(item.value);
           setIsFocus(false);
         }}
         renderLeftIcon={() => (
@@ -202,10 +199,19 @@ const styles = StyleSheet.create({
   },
   dropdown: {
     height: 50,
-    borderColor: "gray",
-    borderWidth: 0.5,
-    borderRadius: 8,
-    paddingHorizontal: 8,
+    borderColor: "#E0E0E0", // Màu viền xám nhạt
+    borderWidth: 1,
+    borderRadius: 8, // Bo tròn viền
+    paddingHorizontal: 12,
+    backgroundColor: "#FFFFFF", // Nền dropdown trắng
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.05, // Hiệu ứng bóng nhẹ
+    shadowRadius: 4,
+    elevation: 1,
   },
   icon: {
     marginRight: 5,
@@ -214,16 +220,20 @@ const styles = StyleSheet.create({
     position: "absolute",
     backgroundColor: "white",
     left: 22,
-    top: 8,
+    top: -10,
     zIndex: 999,
     paddingHorizontal: 8,
     fontSize: 14,
+    color: "#6E6E6E", // Màu chữ nhạt cho label
   },
   placeholderStyle: {
     fontSize: 14,
+    color: "#B0B0B0", // Màu placeholder xám nhạt
   },
   selectedTextStyle: {
     fontSize: 14,
+    color: "#4F4F4F", // Màu chữ khi đã chọn
+    fontWeight: "400",
   },
   iconStyle: {
     width: 20,
@@ -232,34 +242,34 @@ const styles = StyleSheet.create({
   inputSearchStyle: {
     height: 40,
     fontSize: 14,
+    borderColor: "#E0E0E0", // Viền xám nhạt
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    backgroundColor: "#F7F7F7", // Nền ô search xám nhạt
+    color: "#333333", // Màu chữ trong ô search
   },
   item: {
-    padding: 17,
+    padding: 15,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    backgroundColor: "#FFFFFF", // Nền của mỗi item trắng
+    borderBottomWidth: 1,
+    borderBottomColor: "#F0F0F0", // Đường phân cách giữa các item
+  },
+  selectedItemText: {
+    color: "#0D99FF",
+    fontWeight: "500",
   },
   selectedStyle: {
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 14,
-    backgroundColor: "white",
-    shadowColor: "#000",
+    backgroundColor: "#EFEFEF", // Nền khi được chọn
     marginTop: 8,
     marginRight: 12,
     paddingHorizontal: 12,
     paddingVertical: 8,
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 1.41,
-    elevation: 2,
-  },
-  selectedItemText: {
-    color: "blue",
-    fontWeight: "bold",
   },
 });
