@@ -4,7 +4,6 @@ import {
   StyleSheet,
   TouchableOpacity,
   Dimensions,
-  FlatList,
   Pressable,
   Image,
 } from "react-native";
@@ -18,7 +17,7 @@ import Class from "../../models/Class";
 import AClass from "../../apis/AClass";
 import ReactAppUrl from "../../configs/ConfigUrl";
 import { AccountContext } from "../../configs/AccountConfig";
-import { ScrollView } from "react-native-gesture-handler";
+import { ScrollView , FlatList} from "react-native-gesture-handler";
 import { UserContext } from "../../configs/UserContext";
 
 const TAB = {
@@ -35,12 +34,14 @@ const tabs = [
   { label: "Lớp đã tạo", value: TAB.CREATED_CLASS },
 ];
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("screen");
 const URL = ReactAppUrl.PUBLIC_URL;
-export default function UserClassManager() {
+type UserClassManagerProps = {
+  userId: string;
+}
+export default function UserClassManager({userId}: UserClassManagerProps) {
   //contexts, refs
   const navigation = useContext(NavigationContext);
-  const account = useContext(AccountContext).account;
   const {refresh, setRefresh} = useContext(UserContext);
   // states
   const [activeTab, setActiveTab] = useState(TAB.ATTENDING_CLASS);
@@ -52,20 +53,21 @@ export default function UserClassManager() {
   const handleNavigateToDetail = useCallback((classId: number) => {
     navigation?.navigate(ScreenName.DETAIL_CLASS, { classId });
   }, []);
+  
 
   const filterClassesByTab = (selectedTab: string): Class[] => {
-    if (!account) return [];
+    if (!userId) return [];
     switch (selectedTab) {
       case TAB.ATTENDING_CLASS:
         return classList.filter(
-          (cls) => cls.author?.id !== account.id && cls.tutor?.id !== account.id
+          (cls) => cls.author?.id !== userId && cls.tutor?.id !== userId
         );
       case TAB.TEACHING_CLASS:
-        return classList.filter((cls) => cls.tutor?.id === account.id);
+        return classList.filter((cls) => cls.tutor?.id === userId);
       case TAB.PENDING_APPROVAL:
         return classList.filter((cls) => cls.admin_accepted === false);
       case TAB.CREATED_CLASS:
-        return classList.filter((cls) => cls.author?.id === account.id);
+        return classList.filter((cls) => cls.author?.id === userId);
       default:
         return [];
     }
@@ -78,18 +80,19 @@ export default function UserClassManager() {
   };
   
   useEffect(() => {
-    if (account) {
+
+    if (userId) {
       AClass.getCLassesByUserId(
-        account.id,
+        userId,
         (data) => {
           setclassList(data);
-          setFilteredClassList(data.filter((cls) => cls.author?.id !== account.id && cls.tutor?.id !== account.id))
+          setFilteredClassList(data.filter((cls) => cls.author?.id !== userId && cls.tutor?.id !== userId))
           setRefresh(false);
         },
         setLoading
       );
     }
-  }, [refresh]);
+  }, [refresh, userId]);
 
   return (
     <View style={styles.container}>

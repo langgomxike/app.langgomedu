@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Button, StyleSheet, Text, TextInput, View } from "react-native";
-import CustomInput from "../Inputs/CustomInput";
+import CustomInput from "./Inputs/CustomInput";
 import { Picker } from "@react-native-picker/picker";
-import AClassLevel from "../../../apis/AClassLevel";
-import ClassLevel from "../../../models/ClassLevel";
-import Major from "../../../models/Major";
-import AMajor from "../../../apis/AMajor";
+import AClassLevel from "../../apis/AClassLevel";
+import ClassLevel from "../../models/ClassLevel";
+import AMajor from "../../apis/AMajor";
 
 type props = {
   // dataTitle: string;
@@ -186,9 +185,6 @@ const InfoClass = ({ onNext }: props) => {
               onValueChange={(itemValue) => handleChangeCapHoc(itemValue)}
               style={styles.picker}
             >
-              {/* <Picker.Item label="Sơ cấp" value="0" />
-              <Picker.Item label="Trung cấp" value="1" />
-              <Picker.Item label="Cao cấp" value="2" /> */}
               {capHocList.map((classLevel) => (
                 <Picker.Item
                   label={classLevel.vn_name}
@@ -211,16 +207,15 @@ const styles = StyleSheet.create({
   },
   pickerContainer: {
     borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 10,
-    backgroundColor: "#fff",
+    borderColor: "#E0E0E0", // Màu viền xám nhạt
+    borderRadius: 10, // Bo tròn góc
+    overflow: "hidden", // Đảm bảo picker không tràn
   },
-  row: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  inputContainer: {
-    marginRight: 10, // khoảng cách giữa 2 input
+  picker: {
+    height: 50,
+    fontSize: 16,
+    paddingHorizontal: 10,
+    color: "#4F4F4F", // Màu chữ
   },
   marginInput: {
     marginBottom: 20,
@@ -228,34 +223,38 @@ const styles = StyleSheet.create({
   label: {
     fontWeight: "bold",
     fontSize: 16,
+    color: "#333333",
     marginBottom: 8,
   },
   required: {
-    color: "red",
+    color: "red", // Màu đỏ nhẹ cho dấu sao
+    fontWeight: "600",
   },
-  picker: {
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 10,
-    backgroundColor: "#fff",
-    height: 50,
-    width: "100%", // Đảm bảo chiều ngang đầy đủ
-    paddingHorizontal: 10, // Tăng khoảng cách giữa nội dung và cạnh
-  },
-  input: {
-    height: 40,
-    borderColor: "gray",
-    borderWidth: 1,
-    marginTop: 10,
-    paddingHorizontal: 10,
+  inputContainer: {
+    marginBottom: 15,
   },
   textInput: {
     flex: 1,
-    height: 40,
-    borderColor: "gray",
+    height: 45,
     borderWidth: 1,
-    marginRight: 10,
+    borderColor: "#E0E0E0",
+    borderRadius: 8,
     paddingHorizontal: 10,
+    backgroundColor: "#FFFFFF",
+    color: "#333333",
+    fontSize: 14,
+  },
+  button: {
+    marginTop: 10,
+    backgroundColor: "#007BFF",
+    borderRadius: 8,
+    paddingVertical: 10,
+    alignItems: "center",
+  },
+  buttonText: {
+    color: "#FFFFFF",
+    fontWeight: "600",
+    fontSize: 16,
   },
 });
 

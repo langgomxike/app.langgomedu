@@ -27,11 +27,12 @@ export default class Class {
     public user_status: string;
     public type: string;
     public lessons: Lesson[] | undefined;
+    public is_reported: boolean;
 
     constructor(id = -1, title = "", description = "", major: Major | undefined = undefined, tutor: User | undefined = undefined, author: User | undefined = undefined, price = 0, 
         classCreationFee = 0, classLevel: ClassLevel | undefined = undefined,  maxLearners = 0, 
         startedAt = 0, endedAt = 0, address: Address | undefined = undefined, paid = false, author_accepted = false, 
-        admin_accepted = false, createdAt = 0, updatedAt = 0, user_status = "", type = "", lessons: Lesson[] | undefined = undefined) {
+        admin_accepted = false, createdAt = 0, updatedAt = 0, user_status = "", type = "", lessons: Lesson[] | undefined = undefined, is_reported = false) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -53,5 +54,6 @@ export default class Class {
         this.user_status = user_status;
         this.type = type;
         this.lessons = lessons;
+        this.is_reported = is_reported;
     }
 }

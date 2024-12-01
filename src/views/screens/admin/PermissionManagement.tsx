@@ -1,4 +1,4 @@
-import {StyleSheet, Text, TextInput, TouchableOpacity, View} from "react-native";
+import {ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View} from "react-native";
 import BackLayout from "../../layouts/Back";
 import SearchBar from "../../components/Inputs/SearchBar";
 import Feather from "@expo/vector-icons/Feather";
@@ -15,10 +15,12 @@ import Pagination from "../../components/Pagination";
 import {LanguageContext} from "../../../configs/LanguageConfig";
 import Toast from "react-native-simple-toast";
 import SFirebase, {FirebaseNode} from "../../../services/SFirebase";
+import { NavigationContext } from "@react-navigation/native";
 
 export default function PermissionManagementScreen() {
   //contexts
   const language = useContext(LanguageContext).language;
+  const navigation = useContext(NavigationContext);
 
   //states
   const [roles, setRoles] = useState<Role[]>([]);
@@ -83,6 +85,28 @@ export default function PermissionManagementScreen() {
 
   //effects
   useEffect(() => {
+    // Đặt lại title của header khi màn hình được hiển thị
+    if (navigation) {
+      navigation.setOptions({
+        title: `${language.PERMISSION_MANAGEMENT}`,
+        headerShown: true,
+        contentStyle: {
+          padding: 0,
+        },
+        headerStyle: {
+          backgroundColor: BackgroundColor.primary,
+        },
+        headerTintColor: "#fff",
+        headerLeft: () => (
+          <TouchableOpacity onPress={() => navigation.goBack()} style={{ paddingRight: 10 }}>
+            <Ionicons name="chevron-back" size={24} color="white" />
+          </TouchableOpacity>
+        )
+      });
+    }
+  }, [navigation]);
+
+  useEffect(() => {
     SFirebase.track(FirebaseNode.Roles, [], () => {
       setLoading(true);
       const timeId = setTimeout(() => {
@@ -101,12 +125,10 @@ export default function PermissionManagementScreen() {
       });
     });
   }, []);
-
   return (
-    <BackLayout>
+    <ScrollView style={{backgroundColor: BackgroundColor.white}}>
+    <View style={styles.container}>
       <Spinner visible={loading}/>
-
-      <Text style={styles.title}>{language.PERMISSION_MANAGEMENT?.toUpperCase()}</Text>
 
       <View style={styles.headerContainer}>
         {/* search bar*/}
@@ -138,7 +160,8 @@ export default function PermissionManagementScreen() {
           </AppInfoContainer>
         ))}
       </View>
-    </BackLayout>
+    </View>
+    </ScrollView>
   );
 }
 
@@ -259,7 +282,8 @@ function PermissionList({allPers, role}: PermissionListProp) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: 40,
+    paddingHorizontal: 20,
+    marginTop: 10,
   },
 
   textInputBox: {

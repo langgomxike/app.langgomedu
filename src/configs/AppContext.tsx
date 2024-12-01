@@ -1,4 +1,10 @@
-import {PropsWithChildren, useCallback, useState, useEffect, createContext} from "react";
+import {
+  PropsWithChildren,
+  useCallback,
+  useState,
+  useEffect,
+  createContext,
+} from "react";
 import { LanguageContext } from "./LanguageConfig";
 import vn from "../../languages/vn.json";
 import User from "../models/User";
@@ -9,12 +15,14 @@ import { MajorsLevelsContext } from "./MajorsLevelsContext";
 import ClassLevel from "../models/ClassLevel";
 import general_infos from "../constants/general_infos.json";
 import { AppInfoContext } from "./AppInfoContext";
-import {AuthContext} from "./AuthContext";
+import Gender from "../models/Gender";
+import { GenderContext } from "./GenderContext";
+import { AuthContext } from "./AuthContext";
 
 export const ChatTabContext = createContext<number[]>([0, 0, 0]);
 export const SearchContext = createContext("");
 
-const authFunc = (otp: number, onComplete: () => void) => {}
+const authFunc = (otp: number, onComplete: () => void) => {};
 
 export default function AppContext({ children }: PropsWithChildren) {
   //states
@@ -29,7 +37,9 @@ export default function AppContext({ children }: PropsWithChildren) {
 
   const [majors, setMajors] = useState<Major[]>([]);
   const [classLevels, setClassLevels] = useState<ClassLevel[]>([]);
-  const [func, setFunc] = useState<(otp: number, onComplete: () => void) => void>(authFunc);
+  const [genders, setGenders] = useState<Gender[]>([]);
+  const [func, setFunc] =
+    useState<(otp: number, onComplete: () => void) => void>(authFunc);
 
   //handlers
   const setLanguageContext = useCallback((language: typeof vn) => {
@@ -43,16 +53,16 @@ export default function AppContext({ children }: PropsWithChildren) {
       <AccountContext.Provider
         value={{ account: account, setAccount: setAccount }}
       >
-        <UserContext.Provider value={{ user, setUser, refresh, setRefresh}}>
+        <UserContext.Provider value={{ user, setUser, refresh, setRefresh }}>
           <AppInfoContext.Provider
             value={{ setAppInfo: setAppInfos, infos: appInfos }}
           >
-            <MajorsLevelsContext.Provider
-              value={{ majors, setMajors, classLevels, setClassLevels }}
-            >
-              <AuthContext.Provider value={{onAfterAuth: func, setOnAfterAuth: setFunc}}>
-              {children}
-              </AuthContext.Provider>
+            <MajorsLevelsContext.Provider value={{ majors, setMajors, classLevels, setClassLevels }}>
+              <GenderContext.Provider value={{ genders, setGenders }}>
+                <AuthContext.Provider  value={{ onAfterAuth: func, setOnAfterAuth: setFunc }}>
+                  {children}
+                </AuthContext.Provider>
+              </GenderContext.Provider>
             </MajorsLevelsContext.Provider>
           </AppInfoContext.Provider>
         </UserContext.Provider>
