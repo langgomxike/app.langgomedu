@@ -209,6 +209,28 @@ export default class AClass {
         onLoading(false);
       });
   }
+
+  public static payFeeForClass(
+    formData: FormData, 
+    onNext: (result: any) => void,
+    onLoading: (loading: boolean) => void){
+
+    onLoading(true);
+      axios
+    .post(`${this.API_URL}/classes/class-fee/pay`, formData,  {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      }
+    })
+    .then((response) => {
+      console.log(">>> pay fee for class: ", response.data.data);
+      onNext(response.data.data);
+    })
+    .catch((err) => {
+      console.log("Error: ", err);
+      console.log(err.message);
+    });
+  }
   
   //khoá lớp học
   // Hàm khoá lớp học

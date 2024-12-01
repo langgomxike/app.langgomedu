@@ -54,4 +54,52 @@ export default class AClassAdmin {
       });
   }
 
+  public static approveClass(
+    classId: number,
+    onNext: (data: any) => void,
+    onLoading: (loading: boolean) => void
+  ) {
+    onLoading(true);
+
+    axios
+      .put(`${this.BASE_URL}/classes/approve`, {
+        class_id: classId,
+      })
+      .then((response) => {
+        console.log(">>>approveClass", response.data.data);
+        onNext(response.data.data);
+        onLoading(false);
+      })
+      .catch((err) => {
+        console.error("Error enrolling in class:", err);
+        console.log(">>> title", "Xác thực lớp không thành công");
+        onNext(err);
+        onLoading(true);
+      });
+  }
+
+  public static approvePaymentByAdmin(
+    classId: number,
+    onNext: (data: any) => void,
+    onLoading: (loading: boolean) => void
+  ) {
+    onLoading(true);
+
+    axios
+      .put(`${this.BASE_URL}/classes/approve-paid`, {
+        class_id: classId,
+      })
+      .then((response) => {
+        console.log(">>>approvePaymentByAdmin", response.data.data);
+        onNext(response.data.data);
+        onLoading(false);
+      })
+      .catch((err) => {
+        console.error("Error enrolling in class:", err);
+        console.log(">>> title", "Xác thưc thanh toán không thành công");
+        onNext(err);
+        onLoading(false);
+      });
+  }
+
 }
