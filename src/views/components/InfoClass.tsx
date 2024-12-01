@@ -7,21 +7,23 @@ import ClassLevel from "../../models/ClassLevel";
 import AMajor from "../../apis/AMajor";
 
 type props = {
-  // dataTitle: string;
-  // onDataTitle: (value: string) => void;
   onNext: (
     title?: string,
     desc?: string,
     monHoc?: string,
-    capHoc?: number
+    capHoc?: number,
+    maxLearners?: number
   ) => void;
 };
 
-const InfoClass = ({ onNext }: props) => {
+const InfoClass = ({
+  onNext,
+}: props) => {
   const [title, setTitle] = useState("");
   const [desc, setDesc] = useState("");
   const [capHocList, setCapHocList] = useState<ClassLevel[]>([]); // đặt select
   const [selectedCapHoc, setSelectedCapHoc] = useState<number>(-1);
+  const [maxLearners, setMaxLearners] = useState<number>(0);
 
   // useState MÔN HỌC, FETCH DATA
   const [monHoc, setMonHoc] = useState<number>(-1); // đặt select
@@ -49,6 +51,14 @@ const InfoClass = ({ onNext }: props) => {
     }, setIsLoading);
   }, []);
 
+  useEffect(() => {
+    AClassLevel.getAllClassLevels((classLevels) => {
+      setCapHocList(classLevels);
+      // console.log("hihi ", classLevels);
+    });
+  }, []);
+
+  // handle
   const handleSelectChange = (itemValue: any | "other") => {
     if (itemValue === "other") {
       setIsOtherSelected(true); // Chuyển Picker thành TextInput nếu chọn "Khác"
@@ -80,29 +90,12 @@ const InfoClass = ({ onNext }: props) => {
     }
   };
 
-  /** ========================================= */
-
-  /**
-   * FETCH DATA CẤP HỌC
-   */
-
-  useEffect(() => {
-    AClassLevel.getAllClassLevels((classLevels) => {
-      setCapHocList(classLevels);
-      // console.log("hihi ", classLevels);
-    });
-  }, []);
-
   const handleChangeCapHoc = (value: number) => {
     setSelectedCapHoc(value);
     console.log("value cap hoc: ", value);
-    
+
     onNext(undefined, undefined, undefined, value);
   };
-
-  /**
-   * ===========================================
-   */
 
   // TITLE
   const handleChangeTitle = (value: any) => {
@@ -115,6 +108,14 @@ const InfoClass = ({ onNext }: props) => {
     setDesc(value);
     onNext(undefined, value, undefined, undefined);
   };
+
+  // MAX LEARNER
+  const handleChangeMaxLearner = (value: any) => {
+    setMaxLearners(value); // Cập nhật state của component con
+    onNext(undefined, undefined, undefined, undefined, value);
+  };
+  
+
   return (
     <View style={styles.container}>
       <View style={styles.marginInput}>
@@ -195,6 +196,18 @@ const InfoClass = ({ onNext }: props) => {
             </Picker>
           </View>
         </View>
+
+        {/* MAX LEARNER */}
+        <Text style={styles.label}>
+          Số lượng người học <Text style={styles.required}>*</Text>
+        </Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Nhập số lượng người học"
+          keyboardType="numeric"
+          value={maxLearners.toString()} // Chuyển `number` sang `string`
+          onChangeText={handleChangeMaxLearner}
+        />
       </View>
     </View>
   );
@@ -255,6 +268,14 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontWeight: "600",
     fontSize: 16,
+  },
+  input: {
+    height: 50,
+    borderColor: "#ccc",
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingLeft: 10,
+    justifyContent: "center",
   },
 });
 

@@ -5,10 +5,6 @@ import Lesson from "../models/Lesson";
 import Values from "../constants/Values";
 import Pagination from "../models/Pagination";
 import Filters from "../models/Filters";
-import { useContext } from "react";
-import { AccountContext } from "../configs/AccountConfig";
-import User from "../models/User";
-import { RoleList } from "../models/Role";
 
 export default class AClass {
   private static API_URL = ReactAppUrl.API_BASE_URL;
@@ -141,6 +137,7 @@ export default class AClass {
     description: string,
     majorId: number,
     classLevelId: number,
+    maxLearners: number,
     price: number,
     startedAt: number | null,
     endedAt: number | null,
@@ -148,17 +145,11 @@ export default class AClass {
     district: string,
     ward: string,
     detail: string,
-    tutor_id: string,
-    author_id: string,
+    tutorId: string,
+    authorId: string,
     lessons: Lesson[],
     onNext: (result: boolean, insertId?: number) => void
   ) {
-    const user = useContext(AccountContext); // lay duoc acount
-    const roleIds = user.account?.roles?.map((role) => role.id); // lấy id của quyền
-    const tutorId = roleIds?.includes(RoleList.TUTOR)
-      ? user.account?.id.toString()
-      : "";
-    const authorId = user.account?.id;
 
     console.log(
       "create class data: ",
@@ -168,6 +159,7 @@ export default class AClass {
           description,
           major_id: majorId,
           class_level_id: classLevelId,
+          max_learners: maxLearners,
           price,
           started_at: startedAt,
           ended_at: endedAt,
@@ -185,7 +177,7 @@ export default class AClass {
     );
 
     axios
-      .post(`${this.API_URL}/classes/create-learner`, {
+      .post(`${this.API_URL}/classes/create`, {
         title,
         description,
         major_id: majorId,
@@ -193,6 +185,7 @@ export default class AClass {
         price,
         started_at: startedAt,
         ended_at: endedAt,
+        max_learners: maxLearners,
         province,
         district,
         ward,
@@ -308,6 +301,28 @@ export default class AClass {
         onNext(err);
         onLoading(false);
       });
+  }
+
+  public static payFeeForClass(
+    formData: FormData, 
+    onNext: (result: any) => void,
+    onLoading: (loading: boolean) => void){
+
+    onLoading(true);
+      axios
+    .post(`${this.API_URL}/classes/class-fee/pay`, formData,  {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      }
+    })
+    .then((response) => {
+      console.log(">>> pay fee for class: ", response.data.data);
+      onNext(response.data.data);
+    })
+    .catch((err) => {
+      console.log("Error: ", err);
+      console.log(err.message);
+    });
   }
   
   //khoá lớp học
