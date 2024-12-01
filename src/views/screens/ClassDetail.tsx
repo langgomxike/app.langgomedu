@@ -29,6 +29,8 @@ import User from "../../models/User";
 import { LanguageContext } from "../../configs/LanguageConfig";
 import { AccountContext } from "../../configs/AccountConfig";
 import AuthorTuorInClass from "../components/AuthorTuorInClass";
+import moment from "moment";
+import ButtonsInDetailClass from "../components/button/ButtonsInDetailClass";
 
 const URL = ReactAppUrl.PUBLIC_URL;
 export default function ClassDetail() {
@@ -142,7 +144,6 @@ export default function ClassDetail() {
   // render ----------------------------------------------------------------
   return (
     <View style={styles.container}>
-      <View style={{ flex: 9 }}>
         {loading && <DetailClassSkeleton />}
         {!loading && classDetail && (
           <ScrollView showsVerticalScrollIndicator={false}>
@@ -199,7 +200,7 @@ export default function ClassDetail() {
                         color="black"
                       />
                       <Text style={styles.infoTitle}>
-                        {DateTimeConfig.getDateFormat(classDetail.started_at)}
+                        {moment(classDetail.started_at).format("DD/MM/YYYY")}
                       </Text>
                     </View>
                   </View>
@@ -238,6 +239,30 @@ export default function ClassDetail() {
                     </View>
                     <Text style={[styles.itemContent]}>time giờ/Buổi</Text>
                   </View>
+
+                  <View style={styles.itemInfo}>
+                      <View style={styles.row}>
+                        <Image
+                          source={require("../../../assets/images/ic_start_time.png")}
+                          style={styles.icImage}
+                        />
+                        <Text>{languageContext.language.START_TIME}</Text>
+                      </View>
+                      <Text style={[styles.itemContent]}>{moment(classDetail.started_at).format("DD/MM/YYYY")}</Text>
+                    </View>
+
+                    <View style={styles.itemInfo}>
+                      <View style={styles.row}>
+                        <Image
+                          source={require("../../../assets/images/ic_end_time.png")}
+                          style={styles.icImage}
+                        />
+                        <Text>{languageContext.language.END_TIME}</Text>
+                      </View>
+                      <Text style={[styles.itemContent]}>
+                        {moment(classDetail.ended_at).format("DD/MM/YYYY")}
+                      </Text>
+                    </View>
 
                   {/* price */}
                   <View style={styles.itemInfo}>
@@ -308,73 +333,10 @@ export default function ClassDetail() {
             </View>
           </ScrollView>
         )}
-      </View>
-      {/* Nút bấn để nhập lớp */}
-      {classDetail?.user_status !== "author" && (
-        <View style={[styles.buttonContainer, styles.shadow]}>
-          {user.TYPE === UserType.LEANER ? (
-            // Tham gia lớp học dành cho leaner
-            // Disable khi learner tham gia vào lớp đọc đó, learner đó là người tạo lớp, người tham gia lớp học đó
-            // Được active trạng thái không phải là membern ko phải là người tạo lớp, không phải người dạy lớp học đó
-            <TouchableOpacity
-              disabled={
-                classDetail?.user_status === "member" ||
-                classDetail?.tutor?.id === userId ||
-                classDetail?.author?.id === userId
-              }
-              onPress={handleJoinClass}
-              style={[
-                classDetail?.user_status === "member" ||
-                classDetail?.tutor?.id === userId ||
-                classDetail?.author?.id === userId
-                  ? styles.btnDiableReceiveClass
-                  : styles.btnReceiveClass,
-                styles.boxShadow,
-              ]}
-            >
-              <Text style={styles.btnReceiveClassText}>
-                {classDetail?.user_status === "member"
-                  ? "Bạn đã tham gia lớp học"
-                  : classDetail?.tutor?.id === userId
-                  ? "Bạn đã dạy lớp này"
-                  : classDetail?.author?.id === userId
-                  ? "Bạn đã tạo lớp này"
-                  : "Tham gia lớp học"}
-              </Text>
-            </TouchableOpacity>
-          ) : (
-            // Nhận lớp dành cho tutor
-            // Disable khi là gia sư của lớp học đó, người tạo lớp đó, thành viên của lớp học đó
-            // Active khi chưa là sư sư của lớp học, không phải người tạo lớp, không phải là thành viên trong lớp
-            <TouchableOpacity
-              disabled={
-                classDetail?.user_status === "tutor" ||
-                classDetail?.author?.id === userId ||
-                classDetail?.user_status === "member"
-              }
-              onPress={handleAcceptClass}
-              style={[
-                classDetail?.user_status === "tutor" ||
-                classDetail?.author?.id === userId ||
-                classDetail?.user_status === "member"
-                  ? styles.btnDiableReceiveClass
-                  : styles.btnReceiveClass,
-                styles.boxShadow,
-              ]}
-            >
-              <Text style={styles.btnReceiveClassText}>
-                {classDetail?.user_status === "tutor"
-                  ? "Đã nhập lớp"
-                  : classDetail?.author?.id === userId
-                  ? "Bạn đã tạo lớp này"
-                  : classDetail?.user_status === "member"
-                  ? "Bạn đã tham gia lớp này"
-                  : "Nhận dạy lớp"}
-              </Text>
-            </TouchableOpacity>
-          )}
-        </View>
-      )}
+
+        {classDetail && 
+        <ButtonsInDetailClass classDetail={classDetail} handleJoinClass={handleJoinClass} handleAcceptClass={handleAcceptClass} />
+        }
 
       {/* Modal for leaner */}
       {user.TYPE === UserType.LEANER && (
@@ -557,36 +519,7 @@ const styles = StyleSheet.create({
     textAlign: "right",
   },
 
-  btnReceiveClass: {
-    backgroundColor: BackgroundColor.primary,
-    paddingVertical: 15,
-    paddingHorizontal: 10,
-    marginHorizontal: 50,
-    borderRadius: 10,
-  },
 
-  btnDiableReceiveClass: {
-    backgroundColor: BackgroundColor.gray_c6,
-    paddingVertical: 15,
-    paddingHorizontal: 10,
-    marginHorizontal: 50,
-    borderRadius: 10,
-  },
-
-  btnReceiveClassText: {
-    color: BackgroundColor.white,
-    fontWeight: "bold",
-    fontSize: 16,
-    textAlign: "center",
-  },
-
-  buttonContainer: {
-    flex: 1,
-    backgroundColor: BackgroundColor.white,
-    justifyContent: "center",
-    borderTopColor: BorderColor.gray_30,
-    borderTopWidth: 1,
-  },
 
   lessonContainer: {
     backgroundColor: BackgroundColor.white,
@@ -607,5 +540,10 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+  },
+
+  icImage: {
+    width: 24,
+    height: 24,
   },
 });

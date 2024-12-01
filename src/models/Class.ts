@@ -20,6 +20,7 @@ export default class Class {
     public ended_at: number;
     public address: Address | undefined;
     public paid : boolean;
+    public paid_path: string;
     public author_accepted: boolean;
     public admin_accepted: boolean;
     public created_at: number;
@@ -31,7 +32,7 @@ export default class Class {
 
     constructor(id = -1, title = "", description = "", major: Major | undefined = undefined, tutor: User | undefined = undefined, author: User | undefined = undefined, price = 0, 
         classCreationFee = 0, classLevel: ClassLevel | undefined = undefined,  maxLearners = 0, 
-        startedAt = 0, endedAt = 0, address: Address | undefined = undefined, paid = false, author_accepted = false, 
+        startedAt = 0, endedAt = 0, address: Address | undefined = undefined, paid = false, paid_path = "" ,author_accepted = false, 
         admin_accepted = false, createdAt = 0, updatedAt = 0, user_status = "", type = "", lessons: Lesson[] | undefined = undefined, is_reported = false) {
         this.id = id;
         this.title = title;
@@ -47,6 +48,7 @@ export default class Class {
         this.ended_at = endedAt;
         this.address = address;
         this.paid = paid;
+        this.paid_path = paid_path;
         this.author_accepted = author_accepted;
         this.admin_accepted = admin_accepted;
         this.created_at = createdAt;
