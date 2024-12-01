@@ -155,6 +155,6 @@
   "OTP_FAILED": "Cannot send otp. Please try again",
   "RESEND_OTP": "Resend OTP",
   "OTP_SERVICE_KEY": "OTP service key"
-  
+
 
 }

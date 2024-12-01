@@ -103,7 +103,6 @@ function FlatListItem({item, index}: FlatListItemProps) {
       goToCVScreen,
       sendEmail,
       goToChangePasswordScreen,
-      () => setShowConfirmDeleteAccount(true),
       handleOpenWebsite,
       refRBSheet.current?.open,
       () => setShowConfirmLogout(true),
@@ -163,7 +162,7 @@ function FlatListItem({item, index}: FlatListItemProps) {
 export default function AccountScreen() {
   //contexts
   const languageContext = useContext(LanguageContext);
- 
+
   //states
   const [ListItem, setListItem] = useState<AccountItemProps[]>(ListItemVietnamese);
 
