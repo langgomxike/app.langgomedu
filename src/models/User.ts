@@ -31,6 +31,7 @@ export default class User {
     public attendance: Attendance | undefined;
     public is_reported: boolean;
     public cv_id: string | undefined;
+    public parent_id: string = "";
 
     constructor(
         id = "",

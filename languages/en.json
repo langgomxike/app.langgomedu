@@ -154,7 +154,13 @@
   "TO_ADMIN_EMAIL_BODY": "I have a question about...",
   "OTP_FAILED": "Cannot send otp. Please try again",
   "RESEND_OTP": "Resend OTP",
-  "OTP_SERVICE_KEY": "OTP service key"
-
+  "OTP_SERVICE_KEY": "OTP service key",
+  "RESET_PASSWORD": "Reset password",
+  "RESET_PASSWORD_HINT": "Reset your password and login with the new one",
+  "INVALID_RESET_PASSWORD": "Cannot reset password. Please try again",
+  "PASSWORD_RESET_ALREADY": "Your password has been reset",
+  "CHILDREN_CANNOT_CREATE_CHILDREN": "Children cannot create children",
+  "APP_STORE_APP_ID" : "Application id in app store",
+  "PLAY_STORE_APP_ID" : "Application id in google play store"
 
 }
