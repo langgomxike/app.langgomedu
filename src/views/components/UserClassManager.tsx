@@ -24,6 +24,7 @@ const TAB = {
   ATTENDING_CLASS: "attendingClass",
   TEACHING_CLASS: "teachingClass",
   PENDING_APPROVAL: "pendingApproval",
+  PENDING_PAY: "pendingPay",
   CREATED_CLASS: "createdClass",
 };
 
@@ -31,6 +32,7 @@ const tabs = [
   { label: "Lớp đang học", value: TAB.ATTENDING_CLASS },
   { label: "Lớp đang dạy", value: TAB.TEACHING_CLASS },
   { label: "Lớp chờ duyệt", value: TAB.PENDING_APPROVAL },
+  { label: "Lớp chờ thanh toán", value: TAB.PENDING_PAY },
   { label: "Lớp đã tạo", value: TAB.CREATED_CLASS },
 ];
 
@@ -66,10 +68,29 @@ export default function UserClassManager({userId}: UserClassManagerProps) {
         return classList.filter((cls) => cls.tutor?.id === userId);
       case TAB.PENDING_APPROVAL:
         return classList.filter((cls) => cls.admin_accepted === false);
+        case TAB.PENDING_PAY:
+        return classList.filter((cls) => cls.paid === false);
       case TAB.CREATED_CLASS:
         return classList.filter((cls) => cls.author?.id === userId);
       default:
         return [];
+    }
+  };
+
+  const getEmptyMessage = () => {
+    switch (activeTab) {
+      case TAB.ATTENDING_CLASS:
+        return "Không có lớp học đang tham gia";
+      case TAB.TEACHING_CLASS:
+        return "Không có lớp học đang giảng dạy";
+      case TAB.PENDING_APPROVAL:
+        return "Không có lớp học chờ phê duyệt";
+      case TAB.PENDING_PAY:
+        return "Không có lớp học chờ thanh toán";
+      case TAB.CREATED_CLASS:
+        return "Không có lớp học đã tạo";
+      default:
+        return "Không có dữ liệu";
     }
   };
 
@@ -99,7 +120,7 @@ export default function UserClassManager({userId}: UserClassManagerProps) {
       <View style={styles.headerNavList}>
         <FlatList
           data={tabs}
-          keyExtractor={(item) => item.value.toString()}
+          keyExtractor={(item, index) => `${index}`}
           horizontal // Nếu muốn danh sách ngang
           renderItem={({ item }) => (
             <View style={styles.headerItem}>
@@ -147,7 +168,7 @@ export default function UserClassManager({userId}: UserClassManagerProps) {
           source={require("../../../assets/images/ic_empty.png")}
           style={[styles.emptyImage]}
         />
-        <Text style={styles.emptyText}>Không có lớp học đang học</Text>
+        <Text style={styles.emptyText}>{getEmptyMessage()}</Text>
       </View>
       }
 
@@ -218,6 +239,7 @@ const styles = StyleSheet.create({
     height: SCREEN_WIDTH * 0.18,
     backgroundColor: "#fff",
   },
+  
   emptyText: {
     marginTop: 20,
     color: "#888",

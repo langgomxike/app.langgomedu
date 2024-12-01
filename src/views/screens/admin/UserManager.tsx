@@ -44,7 +44,7 @@ export default function UserManager () {
   const [loading, setLoading] = useState(false);
   const [users, setUsers] = useState<User[]>();
   const [selectedUser, setSelectedUser] = useState<User>(new User());
-  const [showingFilter, setShowingFilter] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const [page, setPage] = useState(1);
   const [paginations, setPaginations] = useState(new PaginationModal);
@@ -65,6 +65,22 @@ export default function UserManager () {
   const handleTabChange = (tab: string) => {
     setActiveTab(tab); 
     setPage(1);
+  };
+
+  const fetchUsers = (tab: string, onComplete?: () => void) => {
+    AUserAdmin.getAllUsers(debouncedSearchKey, tab, page, PERPAGE,
+      (users, pagination) => {
+        setUsers(users);
+        setPaginations(pagination);
+        onComplete?.();
+      },
+      setLoading
+    );
+  };
+
+  const handleRefresh = () => {
+    setIsRefreshing(true);
+    fetchUsers(activeTab, () => setIsRefreshing(false));
   };
   
 
@@ -108,35 +124,10 @@ export default function UserManager () {
     setPage(1)
   }, [debouncedSearchKey]);
 
-    useEffect(() => {
-      if (activeTab === USER_TAB.REPORTED) {
-        AUserAdmin.getAllUsers(debouncedSearchKey, USER_TAB.REPORTED ,page, PERPAGE, (users, pagination) => {
-          setUsers(users);
-          setPaginations(pagination);
-        }, setLoading);
-      } 
-      else if (activeTab === USER_TAB.BANNED) {
-        AUserAdmin.getAllUsers(debouncedSearchKey, USER_TAB.BANNED ,page, PERPAGE, (users, pagination) => {
-          setUsers(users);
-          setPaginations(pagination);
-        }, setLoading);  
-      }
-      else if (activeTab === USER_TAB.PENDING_APPROVAL) {
-        AUserAdmin.getAllUsers(debouncedSearchKey, USER_TAB.PENDING_APPROVAL ,page, PERPAGE, (users, pagination) => {
-          setUsers(users);
-          console.log(users);
-          
-          setPaginations(pagination);
-        }, setLoading);
-      }
-      
-      else {
-        AUserAdmin.getAllUsers(debouncedSearchKey, USER_TAB.ALL ,page, PERPAGE, (users, pagination) => {
-          setUsers(users);
-          setPaginations(pagination);
-        }, setLoading);
-      }
-    }, [activeTab, page, debouncedSearchKey]);
+  useEffect(() => {
+    setLoading(true);
+    fetchUsers(activeTab, () => setLoading(false));
+  }, [activeTab, page, debouncedSearchKey]);
 
   //render
   return (
@@ -178,6 +169,8 @@ export default function UserManager () {
             </View>
           )}
           contentContainerStyle={{ paddingHorizontal: 10, paddingBottom: 90 }}
+          refreshing={isRefreshing} 
+          onRefresh={handleRefresh}
         />
         }
       </View>

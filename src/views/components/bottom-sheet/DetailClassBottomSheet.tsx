@@ -6,7 +6,14 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Image, Dimensions } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  Dimensions,
+} from "react-native";
 import BottomSheet, {
   BottomSheetBackdrop,
   BottomSheetView,
@@ -31,6 +38,8 @@ import { LanguageContext } from "../../../configs/LanguageConfig";
 import moment from "moment";
 import ReactAppUrl from "../../../configs/ConfigUrl";
 import { CLASS_TAB } from "../../../constants/TabListAdmin";
+import ModalDialogForClass from "../modal/ModalDialogForClass";
+import ModalInputReason from "../modal/ModalInputReason";
 
 type DetailHistoryBottonSheetProps = {
   isVisible: boolean;
@@ -67,6 +76,10 @@ export default function ({
   const [loading, setLoading] = useState(false);
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [userList, setUserList] = useState<User[]>([]);
+  const [modalResult, setModalResult] = useState<string | null>(null);
+  const [modalContent, setModalContent] = useState<{title: string, content: string}>({title:"", content:""})
+  const [approveResult, setApproveResult] = useState(false);
+  const [approvePayResult, setApprovePayResult] = useState(false);
 
   // ref
   const bottomSheetRef = useRef<BottomSheet>(null);
@@ -104,6 +117,34 @@ export default function ({
     }
   };
 
+  const handleApproveClass = useCallback(() => {
+    setModalContent({title: "Xác nhận", content: "Xác thực lớp thành công!"})
+    setModalResult("modalDialogForClass");
+    if (classData) {
+      AClassAdmin.approveClass(classData.id, (data) => {
+        setApproveResult(data.result);
+      }, setLoading);
+    }
+  }, [classData]);
+
+  const handleApprovePaymentByAdmin = useCallback(() => {
+    if (classData) {
+      setModalContent({title: "Xác nhận", content: "Xác nhận thanh toán thành công!"})
+      setModalResult("modalDialogForClass");
+      AClassAdmin.approvePaymentByAdmin(
+        classData.id,
+        (data) => {
+          setApprovePayResult(data.result);
+        },
+        setLoading
+      );
+    }
+  }, [classData]);
+
+  const handleDenyClass = () => {
+      setModalResult("modalInputReason")
+  }
+
   // effect ----------------------------------------------------------------
   useEffect(() => {
     if (classData) {
@@ -115,6 +156,9 @@ export default function ({
         },
         setLoading
       );
+
+      setApprovePayResult(false);
+      setApproveResult(false);
     }
   }, [classData?.id]);
 
@@ -254,44 +298,96 @@ export default function ({
           </View>
 
           {/* Danh sách học sinh của lớp */}
-          <View style={[styles.titleContainer, {marginTop: 15}]}>
-              <Ionicons name="people-outline" size={24} color="black" />
-              <Text style={styles.title}>Danh sách học sinh</Text>
-            </View>
-            <View style={styles.studentListContainer}>
-              {userList && userList.map((user, index) => (
-                      <View key={index} style={[styles.studentItem, styles.boxshadow]}>
-                        <Image source={{uri: `${URL}${user.avatar}`}} style={styles.studentAvatar}/>
-                        <Text style={styles.studentText}>{user.full_name}</Text>
-                      </View>
-                ))}
-                {!userList && 
-                <Text>Chưa có người học trong lớp này</Text>
-                }
-            </View>
+          <View style={[styles.titleContainer, { marginTop: 15 }]}>
+            <Ionicons name="people-outline" size={24} color="black" />
+            <Text style={styles.title}>Danh sách học sinh</Text>
+          </View>
+          <View style={styles.studentListContainer}>
+            {userList &&
+              userList.map((user, index) => (
+                <View
+                  key={index}
+                  style={[styles.studentItem, styles.boxshadow]}
+                >
+                  <Image
+                    source={{ uri: `${URL}${user.avatar}` }}
+                    style={styles.studentAvatar}
+                  />
+                  <Text style={styles.studentText}>{user.full_name}</Text>
+                </View>
+              ))}
+            {!userList && <Text>Chưa có người học trong lớp này</Text>}
+          </View>
         </View>
       </ScrollView>
       {activeTab === CLASS_TAB.PENDING_APPROVAL && (
-        <View style={styles.btnCotainer}>
-          <TouchableOpacity style={[styles.btn, styles.btnDeny]}>
-            <Text style={styles.btnDenyText}>Từ Chối</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={[styles.btn, styles.btnAccept]}>
-            <Text style={styles.btnAcceptText}>Chấp nhận</Text>
-          </TouchableOpacity>
+        <View>
+          {!approveResult ? (
+            <View style={styles.btnCotainer}>
+              <TouchableOpacity onPress={handleDenyClass} style={[styles.btn, styles.btnDeny]}>
+                <Text style={styles.btnDenyText}>Từ Chối</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={handleApproveClass}
+                style={[styles.btn, styles.btnAccept]}
+              >
+                <Text style={styles.btnAcceptText}>Chấp nhận</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <View style={styles.btnCotainer}>
+              <TouchableOpacity
+                disabled={true}
+                style={[styles.btn, styles.btnAcceptDisable]}
+              >
+                <Text style={styles.btnAcceptText}>Chờ thanh toán</Text>
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
       )}
 
-    {activeTab === CLASS_TAB.PENDING_PAY && (
-        <View style={styles.btnCotainer}>
-          <TouchableOpacity style={[styles.btn, styles.btnDeny]}>
-            <Text style={styles.btnDenyText}>Nhắc nhở</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={[styles.btn, styles.btnAccept]}>
-            <Text style={styles.btnAcceptText}>Đã thanh toán</Text>
-          </TouchableOpacity>
+      {activeTab === CLASS_TAB.PENDING_PAY && (
+        <View>
+          {!approvePayResult ? (
+          <View style={styles.btnCotainer}>
+            <TouchableOpacity style={[styles.btn, styles.btnDeny]}>
+              <Text style={styles.btnDenyText}>Nhắc nhở</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={handleApprovePaymentByAdmin}
+              style={[styles.btn, styles.btnAccept]}
+            >
+              <Text style={styles.btnAcceptText}>Xác nhận trả</Text>
+            </TouchableOpacity>
+          </View>
+          ) : (
+            <View style={styles.btnCotainer}>
+            <TouchableOpacity
+              onPress={handleApprovePaymentByAdmin}
+              style={[styles.btn, styles.btnAcceptDisable]}
+            >
+              <Text style={styles.btnAcceptText}>Đã xác nhận thanh toán</Text>
+            </TouchableOpacity>
+          </View>
+          )}
         </View>
       )}
+
+      <ModalDialogForClass
+        confirmTitle={modalContent.title}
+        confirmContent={modalContent.content}
+        imageStatus="success"
+        visiable={modalResult}
+        onRequestCloseDialog={() => setModalResult(null)}
+        loading={loading}
+      />
+      <ModalInputReason
+       confirmTitle="Từ chối"
+        confirmContent=""
+        imageStatus="confirm"
+        visiable={modalResult}
+        onRequestCloseDialog={() => setModalResult(null)}/>
     </BottomSheet>
   );
 }
@@ -498,6 +594,10 @@ const styles = StyleSheet.create({
 
   btnAccept: {
     backgroundColor: BackgroundColor.primary,
+  },
+
+  btnAcceptDisable: {
+    backgroundColor: BackgroundColor.gray_50,
   },
 
   btnAcceptText: {

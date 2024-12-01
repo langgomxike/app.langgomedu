@@ -16,16 +16,6 @@ type ClassComponentProps = {
 };
 
 export default function ClassComponent({ classData }: ClassComponentProps) {
-  function fomatDate(timestamp: number) {
-    if (!timestamp) return ""; // Kiểm tra nếu timestamp là undefined hoặc null
-
-    const date = new Date(timestamp);
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const year = date.getFullYear();
-
-    return `${day}/${month}/${year}`; // Trả về chuỗi theo định dạng DD/MM/YYYY
-  }
 
   function formatCurrency(amount: number, locale = "vi-VN", currency = "VND") {
     // Kiểm tra nếu không phải số, trả về chuỗi lỗi
@@ -47,7 +37,7 @@ export default function ClassComponent({ classData }: ClassComponentProps) {
         <ScrollView>
           <View style={styles.headerContent}>
             <Text style={styles.createdTime}>
-              {moment(classData.created_at).format("DD/MM/YYYY")}
+              {moment(classData.updated_at).format("HH:mm DD/MM/YYYY")}
             </Text>
           </View>
 
@@ -75,7 +65,7 @@ export default function ClassComponent({ classData }: ClassComponentProps) {
                 />
                 <Text>Bắt đầu</Text>
               </View>
-              <Text>{fomatDate(classData.started_at)}</Text>
+              <Text>{moment(classData.started_at).format("DD/MM/YYYY")}</Text>
             </View>
 
             <View style={styles.textWithIconContainer}>
@@ -87,7 +77,7 @@ export default function ClassComponent({ classData }: ClassComponentProps) {
                 />
                 <Text>Kết thúc</Text>
               </View>
-              <Text>{fomatDate(classData.ended_at)}</Text>
+              <Text>{moment(classData.ended_at).format("DD/MM/YYYY")}</Text>
             </View>
 
             <View style={styles.textWithIconContainer}>
