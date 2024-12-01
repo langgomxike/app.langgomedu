@@ -1,6 +1,6 @@
 const appStoreAppId = "123";
 const googleStoreAppId = "456";
-const websiteLink = "https://github.io/khanhcan2k4/langgomedu";
+const websiteLink = "https://langgomxike.github.io/app.langgomedu/";
 const email = "langgomedus@gmail.com";
 const title = "LanggomEdu - Kết nối gia sư và phụ huynh";
 const subTitle = "LanggomEdu phát triển ứng dụng học và luyện thi tiếng Anh hiệu quả, có thể sử dụng miễn phí";
