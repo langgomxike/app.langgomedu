@@ -8,7 +8,7 @@ import { RoleList } from "../../models/Role";
 
 export default function CreateClassScreen() {
 
-  // Giả lập vai trò (role)
+  // lấy vai trò (role)
   const accountContext = useContext(AccountContext); // lay duoc acount
 
   // State quản lý tab đang được chọn
