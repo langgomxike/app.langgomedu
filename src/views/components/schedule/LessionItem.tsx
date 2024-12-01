@@ -6,11 +6,14 @@ import ReactAppUrl from '../../../configs/ConfigUrl';
 import { NavigationContext } from "@react-navigation/native";
 import ScreenName from '../../../constants/ScreenName';
 import moment from 'moment';
+import Lesson from '../../../models/Lesson';
+import User from '../../../models/User';
 
 export type LessionItemProps = {
-    lessonId: number;
+    selectedUser: User
+    lessonData: Lesson;
     classId?: number,
-    classIcon?: File,
+    classIcon?: string,
     title: string,
     classType: number,
     tutorName: string,
@@ -20,19 +23,16 @@ export type LessionItemProps = {
 }
 const URL = ReactAppUrl.PUBLIC_URL;
 
-const LessionItem = ({lessonId, classId, classIcon, title, classType, tutorName, startedAt, duration, selectedDate}: LessionItemProps) => {
-
+const LessionItem = ({selectedUser ,lessonData, classId, classIcon, title, classType, tutorName, startedAt, duration, selectedDate}: LessionItemProps) => {
     const endedAt: Date = new Date(startedAt?.getTime() + duration * 1000);
     const navigation = useContext(NavigationContext);
 
     const handleNavigateToLeanerAttendance = () => {
-        const formattedDate = moment(selectedDate).format("YYYY-MM-DD");
-        console.log(">>> lesson id", lessonId);
-        navigation?.navigate(ScreenName.ATTENDED_FOR_LEARNER, { lessonId, classId: classId, date: formattedDate  });
+        navigation?.navigate(ScreenName.ATTENDED_FOR_LEARNER, { lesson:lessonData, user: selectedUser });
     }
 
     const handleNavigateToTutorRequestAttendance = () => {
-        navigation?.navigate(ScreenName.ATTENDED_FOR_TUTOR,  { lessonId, classId: classId  });
+        navigation?.navigate(ScreenName.ATTENDED_FOR_TUTOR,  {lesson:lessonData });
     }
 
 
@@ -43,7 +43,7 @@ const LessionItem = ({lessonId, classId, classIcon, title, classType, tutorName,
                 <View style={lessonStyle.class}>
                     <Image
                         // source={{ uri: "https://cdn-icons-png.flaticon.com/128/11418/11418651.png" }}
-                        source={{ uri: URL + classIcon?.path }}
+                        source={{ uri: URL + classIcon }}
                         style={lessonStyle.classIcon} />
 
                     <Text style={[lessonStyle.textStyle, lessonStyle.title]} id="title">

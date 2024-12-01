@@ -2,6 +2,9 @@ import axios from "axios";
 import Class from "../models/Class";
 import ReactAppUrl from "../configs/ConfigUrl";
 import Lesson from "../models/Lesson";
+import Values from "../constants/Values";
+import Pagination from "../models/Pagination";
+import Filters from "../models/Filters";
 import { useContext } from "react";
 import { AccountContext } from "../configs/AccountConfig";
 import User from "../models/User";
@@ -17,9 +20,11 @@ export default class AClass {
     onNext: (course: Class) => void,
     onLoading: (loading: boolean) => void
   ) {
+    console.log("Đã vào đây", `${this.API_URL}/classes/detail/${classId}?user_id=${userId}` );
     onLoading(true);
+    
     axios
-      .get(`${this.API_URL}/classes/${classId}?user_id=${userId}`)
+      .get(`${this.API_URL}/classes/detail/${classId}?user_id=${userId}`)
       .then((response) => {
         const data = response.data.data;
         onNext(data.class);
@@ -36,28 +41,50 @@ export default class AClass {
   public static getSuggetingClass(
     userId: string,
     userType: number,
-    onNext: (classes: Class[]) => void,
+    page: number,
+    filters: Filters | undefined,
+    onNext: (classes: Class[], pagination:Pagination) => void,
     onLoading: (loading: boolean) => void
   ) {
-    // console.log(">>> url: ", this.API_URL);
+    const perPage = Values.PERPAGE;
     onLoading(true);
+
+     // Chuyển `filters` thành query string
+     let filterParams = ""
+     if(filters) {
+      filterParams = Object.entries(filters)
+      // Bỏ qua giá trị null/undefined/rỗng/NAN
+      .filter(([, value]) => value !== undefined && value !== null && value !== "")
+      .map(([key, value]) => {
+        if(Array.isArray(value)) {
+          return `${key}=${value.join(",")}`;
+        }
+        return `${key}=${value}`;
+      }).join("&");
+     }
+
+     
+     
+     const url = `${this.API_URL}/classes/suggests/${userId}?user_type=${userType}&page=${page}&perPage=${perPage}${filterParams ? `&${filterParams}` : ""}`
+     console.log(">>> suggest class url: ", url);
+
     axios
-      .get(`${this.API_URL}/classes/suggests/${userId}?user_type=${userType}`)
+      .get(url)
       .then((response) => {
-        onNext(response.data.data);
-        // console.log(">>>> response suggests: ", JSON.stringify(response.data.data,  null, 2));
+        const data = response.data.data
+        onNext(data.classes, data.pagination );
 
         onLoading(false);
       })
       .catch((err) => {
         console.log("Error: ", err);
-        onNext([]);
+        onNext([], new Pagination);
         onLoading(true);
       });
   }
 
   // get attending class with user id
-  public static getAttedingClass(
+  public static getCLassesByUserId(
     userId: string,
     onNext: (classes: Class[]) => void,
     onLoading: (loading: boolean) => void
@@ -65,34 +92,12 @@ export default class AClass {
     // console.log(">>> url: ", this.API_URL);
     onLoading(true);
     axios
-      .get(`${this.API_URL}/classes/attending/${userId}`)
+      .get(`${this.API_URL}/classes/${userId}`)
       .then((response) => {
         onNext(response.data.data);
 
         // console.log("User id", userId);
         // console.log(">>>> response: ", JSON.stringify(response.data.data,  null, 2));
-
-        onLoading(false);
-      })
-      .catch((err) => {
-        console.log("Error: ", err);
-        onNext([]);
-        onLoading(true);
-      });
-  }
-
-  //get teachers class with user id
-  public static getTeachingClass(
-    userId: string,
-    onNext: (classes: Class[]) => void,
-    onLoading: (loading: boolean) => void
-  ) {
-    onLoading(true);
-    axios
-      .get(`${this.API_URL}/classes/teaching/${userId}`)
-      .then((response) => {
-        onNext(response.data.data);
-        // console.log(">>>> teaching class: ", JSON.stringify(response.data.data,  null, 2));
 
         onLoading(false);
       })
@@ -304,27 +309,7 @@ export default class AClass {
         onLoading(false);
       });
   }
-
-  public static getCreatedClass(
-    userId: string,
-    onNext: (classes: Class[]) => void,
-    onLoading: (loading: boolean) => void
-  ) {
-    onLoading(true);
-    axios
-      .get(`${this.API_URL}/classes/created/${userId}`)
-      .then((response) => {
-        onNext(response.data.data);
-        // console.log(">>>> created class: ", JSON.stringify(response.data.data,  null, 2));
-
-        onLoading(false);
-      })
-      .catch((err) => {
-        console.log("Error: ", err);
-        onNext([]);
-        onLoading(true);
-      });
-  }
+  
   //khoá lớp học
   // Hàm khoá lớp học
   public static lockClass(

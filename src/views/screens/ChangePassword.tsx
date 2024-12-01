@@ -10,27 +10,46 @@ import {LanguageContext} from "../../configs/LanguageConfig";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import AUser from "../../apis/AUser";
 import SAsyncStorage, {AsyncStorageKeys} from "../../services/SAsyncStorage";
-import {AuthType} from "../../configs/NavigationRouteTypeConfig";
+import {AuthType, IdNavigationType, OTPNavigationType} from "../../configs/NavigationRouteTypeConfig";
 import Spinner from "react-native-loading-spinner-overlay";
 import {BackgroundColor, TextColor} from "../../configs/ColorConfig";
+import {AuthContext} from "../../configs/AuthContext";
+import {AccountContext} from "../../configs/AccountConfig";
 
 export default function ChangePasswordScreen() {
   //contexts
   const navigation = useContext(NavigationContext);
   const languageContext = useContext(LanguageContext);
+  const authContext = useContext(AuthContext);
+  const accountContext = useContext(AccountContext);
 
   //states
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [loading, setLoading] = useState(false);
 
   //handlers
   const goBack = useCallback(() => {
     navigation?.goBack();
   }, []);
 
-  const handleSubmit = useCallback(() => {
+  const handleSubmit = useCallback((otp: number, onComplete: () => void) => {
+    AUser.changePassword(accountContext.account?.id ?? "-1", newPassword, otp,
+      (result) => {
+        if (result) {
+          navigation?.reset({
+            index: 0,
+            routes: [{name: ScreenName.LOGIN}],
+          });
+        } else {
+          Alert.alert(languageContext.language.CHANGE_PASSWORD, languageContext.language.INVALID_CHANGE_PASSWORD);
+        }
+      },
+      onComplete
+    );
+  }, [newPassword, authContext.onAfterAuth, accountContext.account]);
+
+  const handleAuth = useCallback(() => {
     if (!currentPassword) {
       Alert.alert(languageContext.language.OLD_PASSWORD, languageContext.language.INVALID_PASSWORD);
       return;
@@ -46,34 +65,17 @@ export default function ChangePasswordScreen() {
       return;
     }
 
-    setLoading(true);
-    const timeId = setTimeout(() => {
-      setLoading(false);
-      Alert.alert(languageContext.language.CHANGE_PASSWORD, languageContext.language.INVALID_CHANGE_PASSWORD);
-    }, 10000);
+    const data: OTPNavigationType = {
+      id: accountContext.account?.id ?? "-1",
+      phone_number: accountContext.account?.phone_number?? "",
+    }
+    navigation?.navigate(ScreenName.OTP, data);
 
-    AUser.changePassword(currentPassword, newPassword,
-      (result) => {
-        if (result) {
-          navigation?.reset({
-            index: 0,
-            routes: [{name: ScreenName.LOGIN}],
-          });
-        } else {
-          Alert.alert(languageContext.language.CHANGE_PASSWORD, languageContext.language.INVALID_CHANGE_PASSWORD);
-        }
-      },
-      () => {
-        setLoading(false);
-        clearTimeout(timeId);
-      }
-    );
-  }, [newPassword, confirmPassword, currentPassword]);
+    authContext.setOnAfterAuth(() => handleSubmit);
+  }, [handleSubmit, newPassword, confirmPassword, currentPassword, accountContext.account]);
 
   return (
     <View style={styles.container}>
-      <Spinner visible={loading}/>
-
       {/* back button*/}
       <Ionicons
         name="close"
@@ -132,7 +134,7 @@ export default function ChangePasswordScreen() {
       {/* submit button*/}
       <View style={styles.btn}>
         <Button title={languageContext.language.CHANGE_PASSWORD} textColor={TextColor.white}
-                backgroundColor={BackgroundColor.primary} onPress={handleSubmit}/>
+                backgroundColor={BackgroundColor.primary} onPress={handleAuth}/>
       </View>
     </View>
   );

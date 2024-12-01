@@ -1,18 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
-import AntDesign from "@expo/vector-icons/AntDesign";
 import User from "../../../models/User";
+import Ionicons from '@expo/vector-icons/Ionicons';
 
-type DropdownParentProps = {
+type DropdownLearnersProps = {
   learners: User[];
   onSlectedLeanerId: (id: string) => void;
 };
 
-const DropdownParent = ({
+export default function DropdownLearners ({
   learners,
   onSlectedLeanerId,
-}: DropdownParentProps) => {
+}: DropdownLearnersProps) {
   const [value, setValue] = useState("");
   const [isFocus, setIsFocus] = useState(false);
 
@@ -22,20 +22,23 @@ const DropdownParent = ({
     ...learners,
   ];
 
-  const renderLabel = () => {
-    if (value || isFocus) {
-      return (
-        <Text style={[styles.label, isFocus && { color: "blue" }]}>
-          Phụ huynh
+  const renderItem = (item: any, selected: any) => {
+    return (
+      <View style={styles.item}>
+        <Text
+          style={[
+            styles.selectedTextStyle
+          ]}
+        >
+          {item.full_name}
         </Text>
-      );
-    }
-    return null;
+      </View>
+    );
   };
+
 
   return (
     <View style={styles.container}>
-      {renderLabel()}
       <Dropdown
         style={[styles.dropdown, isFocus && { borderColor: "blue" }]}
         placeholderStyle={styles.placeholderStyle}
@@ -47,7 +50,7 @@ const DropdownParent = ({
         maxHeight={300}
         labelField="full_name"
         valueField="id"
-        placeholder={!isFocus ? "Chọn..." : "..."}
+        placeholder={!isFocus ? "Chọn học sinh..." : "..."}
         searchPlaceholder="Search..."
         value={value}
         onFocus={() => setIsFocus(true)}
@@ -64,19 +67,14 @@ const DropdownParent = ({
           }
         }}
         renderLeftIcon={() => (
-          <AntDesign
-            style={styles.icon}
-            color={isFocus ? "blue" : "black"}
-            name="Safety"
-            size={20}
-          />
+          <Ionicons style={styles.icon} name="person-outline" size={20} color={isFocus ? "blue" : "black"} />
         )}
+
+        renderItem={renderItem}
       />
     </View>
   );
 };
-
-export default DropdownParent;
 
 const styles = StyleSheet.create({
   container: {
@@ -85,10 +83,18 @@ const styles = StyleSheet.create({
   },
   dropdown: {
     height: 50,
-    borderColor: "gray",
-    borderWidth: 0.5,
-    borderRadius: 8,
-    paddingHorizontal: 8,
+    backgroundColor: "white",
+    borderRadius: 12,
+    padding: 12,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 1.41,
+
+    elevation: 2,
   },
   icon: {
     marginRight: 5,
@@ -103,10 +109,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   placeholderStyle: {
-    fontSize: 16,
+    fontSize: 14,
   },
   selectedTextStyle: {
-    fontSize: 16,
+    fontSize: 14,
   },
   iconStyle: {
     width: 20,
@@ -115,5 +121,32 @@ const styles = StyleSheet.create({
   inputSearchStyle: {
     height: 40,
     fontSize: 16,
+  },
+
+  item: {
+    padding: 17,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+
+  selectedStyle: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 14,
+    backgroundColor: "white",
+    shadowColor: "#000",
+    marginTop: 8,
+    marginRight: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 1.41,
+    elevation: 2,
   },
 });

@@ -9,34 +9,36 @@ import {
 import { BackgroundColor, TextColor } from "../../../configs/ColorConfig";
 
 type TabHeader = {
-    tabList: string[]
+    tabList: {label: string; value: string; }[],
+    onTabChange: (tab: string) => void
 }
 
 
-export default function TabHeader({tabList}: TabHeader) {
+export default function TabHeader({tabList, onTabChange}: TabHeader) {
 
-    const [status, setStatus] = useState("Tất cả");
+    const [activeTab, setActiveTab] = useState(tabList[0].value);
 
-    const headleSetStatusFilter = (newStatus: string, index:number) => {
-        setStatus(newStatus);
-      };
+    const handleTabPress = (tab: string) => {
+      setActiveTab(tab);
+      onTabChange(tab);
+    };
     return (
         <FlatList
           data={tabList}
-          renderItem={({ item, index }) => (
+          renderItem={({ item: tab, index }) => (
             <TouchableOpacity
               style={[styles.btnTab]}
-              onPress={() => headleSetStatusFilter(item, index)}
+              onPress={() => handleTabPress(tab.value)}
             >
               <Text
                 style={[
                   styles.textTab,
-                  status === item && styles.tabTextActive,
+                  activeTab === tab.value && styles.tabTextActive,
                 ]}
               >
-                {item}
+                {tab.label}
               </Text>
-              {status === item && (
+              {activeTab === tab.value && (
                 <View style={[styles.bottomLine]}></View>
               )}
             </TouchableOpacity>
@@ -56,6 +58,8 @@ const styles = StyleSheet.create({
     
       tabListContentContainer: {
         paddingHorizontal: 20,
+        justifyContent: "space-between",
+        flexGrow: 1, 
       },
     
       btnTab: {

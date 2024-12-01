@@ -55,11 +55,6 @@ export default function ModalConfirmAttendClass({
   };
 
   const source = getImageSource(imageStatus);
-
-  if(modalName){
-    console.log("in the modal", modalName);
-
-  }
   
 
   return (

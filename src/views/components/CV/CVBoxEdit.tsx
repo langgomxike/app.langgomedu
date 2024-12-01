@@ -6,6 +6,7 @@ import {
   Button,
   ActivityIndicator,
   Image,
+  ScrollView,
 } from "react-native";
 import HLine, { HLineType } from "../HLine";
 import { Children, ReactNode, useState } from "react";
@@ -63,14 +64,16 @@ const CvBoxEdit = ({ title, children, onAddItem }: CvBoxProps) => {
       console.log("Image selected:", pickerResult.assets[0]);
       // Handle the selected image URI, e.g., save or display it
     }
-}
+  }
 
   return (
     <View style={styles.container}>
       <View style={styles.box}>
         <Text style={styles.title}>{title}</Text>
         <HLine type={HLineType.LIGHT} />
-        <View style={styles.children}>{children}</View>
+        <View style={styles.children}>
+          {children}
+        </View>
       </View>
       <View style={styles.addButtonBox}>
         <TouchableOpacity
@@ -99,8 +102,11 @@ const CvBoxEdit = ({ title, children, onAddItem }: CvBoxProps) => {
               <Ionicons name="close" size={24} color="black" />
             </TouchableOpacity>
           </View>
-
-          <View style={styles.modalBody}>
+          
+          <ScrollView 
+          // showsHorizontalScrollIndicator={false}
+          showsVerticalScrollIndicator={false}
+          style={styles.modalBody}>
             <Input
               label="Tên"
               onTextChange={setTextValue}
@@ -119,40 +125,39 @@ const CvBoxEdit = ({ title, children, onAddItem }: CvBoxProps) => {
               editable={true}
             />
 
-          <View>
-            <Text>Tải mình chứng</Text>
+            <View>
+              <Text>Tải mình chứng</Text>
 
-            {/* Uploading payment */}
-            <View style={styles.uploadPaymentContainer}>
-                    <TouchableOpacity
-                    onPress={selectImage}
-                      style={[styles.uploadImageButton, styles.boxShadow]}
-                    >
-                      <Ionicons name="image-outline" size={24} color="black" />
-                      <Text style={styles.buttonText}>Chọn hình</Text>
-                    </TouchableOpacity>
+              {/* Uploading payment */}
+              <View style={styles.uploadPaymentContainer}>
+                <TouchableOpacity
+                  onPress={selectImage}
+                  style={[styles.uploadImageButton, styles.boxShadow]}
+                >
+                  <Ionicons name="image-outline" size={24} color="black" />
+                  <Text style={styles.buttonText}>Chọn hình</Text>
+                </TouchableOpacity>
 
-                    <View style={styles.textContainer}>
-                      <Text style={styles.uploadText}>
-                        Tải ảnh minh chứng thanh toán
-                      </Text>
-                      <Text style={styles.subText}>
-                        Vui lòng tải lên ảnh chụp màn hình hoặc hóa đơn để xác
-                        nhận thanh toán.
-                      </Text>
-                    </View>
+                <View style={styles.textContainer}>
+                  <Text style={styles.uploadText}>
+                    Tải ảnh minh chứng 
+                  </Text>
+                  <Text style={styles.subText}>
+                    Vui lòng tải lên ảnh chụp minh chứng.
+                  </Text>
+                </View>
 
-                    {/* Display the selected image if available */}
-                    {selectedImage && (
-                      <Image
-                        source={{ uri: selectedImage.uri }}
-                        style={styles.selectedImage}
-                      />
-                    )}
-                  </View>
-          </View>
+                {/* Display the selected image if available */}
+                {selectedImage && (
+                  <Image
+                    source={{ uri: selectedImage.uri }}
+                    style={styles.selectedImage}
+                  />
+                )}
+              </View>
+            </View>
 
-          </View>
+          </ScrollView>
           <View style={[styles.btnContainer]}>
             <TouchableOpacity
               onPress={() => setModalVisible(null)}
@@ -265,8 +270,8 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
 
-//upload file
-uploadPaymentContainer: {
+  //upload file
+  uploadPaymentContainer: {
     alignItems: "center",
     backgroundColor: BackgroundColor.white,
     marginTop: 10,

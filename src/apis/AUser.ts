@@ -8,6 +8,48 @@ import axios from "axios";
 export default class AUser {
   private static BASE_URL = ReactAppUrl.API_BASE_URL + "/users";
 
+  public static auth(id: string, phoneNumber: string, onComplete: () => void) {
+    const url = this.BASE_URL + "/auth";
+    const data = {
+      user: {
+        id: id,
+        phone_number: phoneNumber,
+      }
+    }
+
+    axios.post<Response>(url, data)
+      .then(response => {
+        if (response.data.status_code === 200) {
+          SLog.log(LogType.Error, "auth", "send otp successfully", response.data.status);
+        } else {
+          SLog.log(LogType.Error, "auth", "cannot send otp", response.data.message);
+        }
+      })
+      .catch(error => {
+        SLog.log(LogType.Error, "auth", "cannot send otp", error);
+      })
+      .finally(onComplete);
+  }
+
+  public static getUserById(id: string, onNext: (user: User | undefined) => void) {
+    const url = this.BASE_URL + "/" + id;
+
+    axios.get<Response>(url)
+      .then(response => {
+        if (response.data.status_code === 200) {
+          SLog.log(LogType.Error, "getUserById", "get user successfully", response.data.status);
+          onNext(response.data.data as User ?? undefined);
+        } else {
+          SLog.log(LogType.Error, "getUserById", "cannot get user", response.data.message);
+          onNext(undefined);
+        }
+      })
+      .catch(error => {
+        SLog.log(LogType.Error, "getUserById", "cannot get user", error);
+        onNext(undefined);
+      });
+  }
+
   public static implicitLogin(onNext: (user: User | undefined) => void) {
     //prepare parameters
     const url = this.BASE_URL + "/login/implicit";
@@ -120,7 +162,7 @@ export default class AUser {
     const url = this.BASE_URL + "/register";
     const data = {user, code: requestCode};
 
-    SLog.log(LogType.Info,"register", "check url, check params", {url, data});
+    SLog.log(LogType.Info, "register", "check url, check params", {url, data});
 
     //process login with parameters
     axios.post<Response>(url, data)
@@ -136,20 +178,70 @@ export default class AUser {
       .finally(onComplete);
   }
 
+  public static registerChild(
+    user: User,
+    parent: User,
+    onNext: (result: boolean) => void,
+    onComplete?: () => void,
+  ) {
+    //prepare parameters
+    const url = this.BASE_URL + "/register/child";
+    const data = {user, parent};
+
+    //process login with parameters
+    axios.post<Response>(url, data)
+      .then((response) => {
+        SLog.log(LogType.Info, "registerChild", response.data.message, response.data.status);
+        onNext(response.data.status_code === 200);
+      })
+      .catch((error) => {
+        SLog.log(LogType.Info, "registerChild", "Found error", error);
+        onNext(false);
+      })
+      .finally(onComplete);
+  }
+
+  public static updateRolesOfUser(userId: string, roles: number[], onNext: (result: boolean) => void, onComplete?: () => void) {
+    const url = this.BASE_URL + "/roles";
+
+    const data = {
+      user: {
+        id: userId,
+      },
+      roles
+    }
+
+    axios.put<Response>(url, data)
+      .then(response => {
+        SLog.log(LogType.Info, "updateRolesOfUser", response.data.message, response.data.status);
+        onNext(response.data.status_code === 200);
+      })
+      .catch(error => {
+        SLog.log(LogType.Info, "updateRolesOfUser", "Found error", error);
+        onNext(false);
+      })
+      .finally(onComplete);
+  }
+
   public static changePassword(
-    oldPassword: string,
+    userId: string,
     newPassword: string,
+    otp: number,
     onNext: (result: boolean) => void,
     onComplete?: () => void,
   ) {
     //prepare parameters
     const url = this.BASE_URL + "/change-password";
-    const data = {old_password: oldPassword, new_password: newPassword};
-
-    // SLog.log(LogType.Info,"register", "check url, check params", {url, data});
+    const data = {
+      user: {
+        id: userId,
+      },
+      new_password: newPassword,
+      otp
+    };
 
     //process login with parameters
-    axios.post<Response>(url, data)
+    axios.put<Response>(url, data)
       .then((response) => {
         SLog.log(LogType.Info, "changePassword", response.data.message, response.data.status);
         onNext(response.data.status_code === 200);
@@ -165,23 +257,31 @@ export default class AUser {
   public static minusUserPoints(
     user_id: string,
     point: number,
+    report_id: string,  // Thêm tham số report_id
     onNext: (response: any) => void,
     onLoading: (loading: boolean) => void
   ) {
     // Bắt đầu loading
     onLoading(true);
 
-    const url = this.BASE_URL + "/reports/minusUserPoints";
+    const url = `${this.BASE_URL}/reports/minusUserPoints`;
 
-    // Gửi request POST đến BE với user_id và số điểm cần trừ
+    // Gửi request POST đến BE với user_id, số điểm cần trừ và report_id
+    console.log("Sending request to subtract points:", {user_id, point, report_id});
+
     axios
-      .post(`${url}`, {user_id, point: point})
+      .post(url, {user_id, point, report_id})
       .then((response) => {
-        onNext(response.data);
+        // Nếu thành công, gọi callback onNext với kết quả từ BE
+        if (response.data.success) {
+          onNext({success: true, message: "Points subtracted successfully."});
+        } else {
+          onNext({success: false, message: response.data.message || "Failed to subtract points."});
+        }
       })
       .catch((error) => {
-        SLog.log(LogType.Error, "minusUserPoints", "Cannot minus", error);
-        onNext({success: false, message: "Failed to subtract points."});
+        console.error("Error subtracting points:", error);
+        onNext({success: false, message: "Failed to subtract points due to server error."});
       })
       .finally(() => {
         // Kết thúc loading
@@ -193,16 +293,26 @@ export default class AUser {
   // Khóa tài khoản người dùng
   public static lockUserAccount(
     user_id: string,
+    report_id: string, // Thêm tham số report_id
+    permissionIds: string[], // Mảng quyền
     onNext: (response: any) => void,
     onLoading: (loading: boolean) => void
   ) {
     // Bắt đầu loading
     onLoading(true);
+
     const url = `${this.BASE_URL}/reports/lockUserAccount`;
 
-    // Gửi request POST đến BE với user_id
+    console.log(`Gửi request để khóa tài khoản cho user_id: ${user_id} và report_id: ${report_id}`);
+    console.log(url);
+
+    // Gửi request POST đến BE với user_id, report_id và permissionIds
     axios
-      .post(url, {user_id})
+      .post(url, {
+        user_id,
+        report_id, // Truyền thêm report_id
+        permission_ids: permissionIds,
+      })
       .then((response) => {
         // Nếu thành công, gọi callback `onNext` với kết quả từ BE
         onNext(response.data);
@@ -210,39 +320,6 @@ export default class AUser {
       .catch((error) => {
         console.error("Error locking user account:", error);
         onNext({success: false, message: "Failed to lock user account."});
-      })
-      .finally(() => {
-        // Kết thúc loading
-        onLoading(false);
-      });
-  }
-
-  //tạo tài khoản admin
-  public static registerAdmin(
-    phone: string,
-    email: string,
-    password: string,
-    onNext: (response: any) => void,
-    onLoading: (loading: boolean) => void
-  ) {
-    // Bắt đầu loading
-    onLoading(true);
-    const url = `${this.BASE_URL}/users/register/admin`;
-
-    // Gửi request POST đến BE với thông tin cần thiết để tạo tài khoản admin
-    axios
-      .post(url, {
-        phone,
-        email,
-        password,
-      })
-      .then((response) => {
-        // Nếu thành công, gọi callback `onNext` với kết quả từ BE
-        onNext(response.data);
-      })
-      .catch((error) => {
-        console.error("Error creating admin account:", error);
-        onNext({success: false, message: "Failed to create admin account."});
       })
       .finally(() => {
         // Kết thúc loading

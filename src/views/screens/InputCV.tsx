@@ -2,7 +2,7 @@ import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import BackLayout from "../layouts/Back";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import FloatingBack from "../components/FloatingBack";
-import { ScrollView } from "react-native-gesture-handler";
+import { FlatList, ScrollView } from "react-native-gesture-handler";
 import {
   BarcodeScanningResult,
   Camera,
@@ -19,10 +19,13 @@ import ACV from "../../apis/ACV";
 import { UserContext } from "../../configs/UserContext";
 import CV from "../../models/CV";
 import User from "../../models/User";
-import Information from "../../models/Information";
 import Major from "../../models/Major";
 import moment from 'moment';
-import { BackgroundColor } from "../../configs/ColorConfig";
+import { BackgroundColor, BorderColor } from "../../configs/ColorConfig";
+import Address from "../../models/Address";
+import EducationItem from "../components/CV/EducationItem";
+import ExperienceItem from "../components/CV/ExperienceItem";
+import CertificateItem from "../components/CV/CertificateItem";
 
 const AVATAR_SIZE = 100;
 
@@ -34,12 +37,12 @@ export default function InputCVScreen() {
   const [permission, requestPermission] = useCameraPermissions();
   const [cv, setCV] = useState<CV>();
   const [userInfo, setUserInfo] = useState<User>();
-  const [information, setInformation] = useState<Information>();
+  const [address, setAddress] = useState<Address>();
   const [birthday, setBirthday] = useState<string>('');
   const [interestedMajor, setInterestedMajor] = useState<Major>()
 
 
-  //handlers
+  //HANDLRRS >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   const pickImage = useCallback(() => {
     ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
@@ -64,21 +67,19 @@ export default function InputCVScreen() {
       });
   }, [permission]);
 
-  //effect
+  //EFFECT >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   useEffect(()=>{
     ACV.getPersonalCV(user.ID, (cv)=>{
       if(cv){
         setCV(cv);
         // console.log('log in screen', JSON.stringify(cv?.user, null, 2));
-        setUserInfo(cv.user);
-        setInformation(cv.information);
-        const priorityMajor = cv.interested_majors.find(major => major.priority === 0)
-        setInterestedMajor(priorityMajor ? priorityMajor.major :cv.interested_majors[0].major)
-        // console.log(cv.interested_majors[0].major);
-        console.log(interestedMajor);
+        setUserInfo(cv.user); 
+        setAddress(cv.user?.address);
+        setInterestedMajor(cv.user?.interested_majors[0]);
+        // console.log(interestedMajor);
         
-        if(cv.information){
-          const birthday = new Date(cv.information?.birthday);
+        if(cv.user){
+          const birthday = new Date(cv.user?.birthday);
           // const birthdayData = birthday.getDate() + '/' + (birthday.getMonth() +1) + '/' + birthday.getFullYear()
           const birthdayData = moment(birthday)
           setBirthday(birthdayData.format('DD/MM/yyyy'));
@@ -90,7 +91,8 @@ export default function InputCVScreen() {
   },[])
 
   return (
-      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+    <View style={styles.container}>
+      <ScrollView style={[styles.scrollviewContainer]}  showsVerticalScrollIndicator={false}>
     <View>
         <TouchableOpacity style={{ alignSelf: "center" }} onPress={pickImage}>
           <Image
@@ -135,14 +137,14 @@ export default function InputCVScreen() {
         <Input
         label="Địa Chỉ"
         onTextChange={()=>{}}
-        placeholder={`${information?.address_4}, ${information?.address_3}, ${information?.address_2}, ${information?.address_1}`}
+        placeholder={`${address?.province}, ${address?.district}, ${address?.ward}, ${address?.detail}`}
         />
 
-        <Input
+        {/* <Input
         label="Email"
         onTextChange={()=>{}}
         placeholder={userInfo?.email}
-        />
+        /> */}
 
         <Input 
         label="Mo ta ban than"
@@ -155,21 +157,48 @@ export default function InputCVScreen() {
 
     
         <CvBoxEdit 
-        typeItem="experience"
-        title="experiences">
+        typeItem="education"
+        title="education">
+          <FlatList 
+              scrollEnabled = {false}
+              data={cv?.educations}
+              renderItem={({ item }) => <EducationItem education={item} />}
+            />
         </CvBoxEdit>
+
 
         <CvBoxEdit 
-        typeItem="skills"
-        title="skills">
+        typeItem="experience"
+        title="experiences">
+          <FlatList 
+              scrollEnabled = {false}
+              data={cv?.experiences}
+              renderItem={({ item }) => <ExperienceItem experience={item} />}
+            />
         </CvBoxEdit>
-
         <CvBoxEdit 
         typeItem="certificate"
         title="certificates">
+          <FlatList 
+              scrollEnabled = {false}
+              data={cv?.certificates}
+              renderItem={({ item }) => <CertificateItem certificate={item} />}
+            />
         </CvBoxEdit>
     </View>
       </ScrollView>
+      <View style={[styles.buttonContainer]}>
+            <TouchableOpacity
+              onPress={()=>{}}
+              style={[styles.btn, styles.boxShadow,]}
+            >
+              <Text style={styles.btnText}>
+                Xac nhan
+              </Text>
+            </TouchableOpacity>
+          
+        </View>
+    </View>
   );
 }
 
@@ -179,6 +208,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     backgroundColor: BackgroundColor.white
   },
+  scrollviewContainer: {
+    marginBottom: 45,
+  }, 
 
   avatar: {
     borderRadius: 50,
@@ -187,4 +219,37 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     marginTop: 20,
   },
+
+  boxShadow: {
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+
+    elevation: 2,
+  },
+  btn: {
+    position: 'absolute',
+    bottom: 10,
+    left: 50,
+    right: 50,
+    backgroundColor: BackgroundColor.primary,
+    paddingVertical: 15,
+    paddingHorizontal: 10,
+    borderRadius: 10,
+  },
+
+  btnText: {
+    color: BackgroundColor.white,
+    fontWeight: "bold",
+    fontSize: 16,
+    textAlign: "center",
+  },
+
+  buttonContainer: {
+  },
+
 });

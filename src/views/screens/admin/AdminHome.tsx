@@ -32,6 +32,7 @@ import ScreenName from "../../../constants/ScreenName";
 import {LanguageContext} from "../../../configs/LanguageConfig";
 import {AccountContext} from "../../../configs/AccountConfig";
 import {RoleList} from "../../../models/Role";
+import {IdNavigationType} from "../../../configs/NavigationRouteTypeConfig";
 
 export default function AdminHome() {
   const navigation = useContext(NavigationContext);
@@ -57,7 +58,7 @@ export default function AdminHome() {
 
   const goToSetting = useCallback(() => {
     navigation?.navigate(ScreenName.SETTING_INFO_PERSONAL);
-  }, []);
+  }, []); 
 
   return (
     <View>

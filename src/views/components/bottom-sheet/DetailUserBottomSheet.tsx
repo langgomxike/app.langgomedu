@@ -24,6 +24,9 @@ import ReactAppUrl from "../../../configs/ConfigUrl";
 import AClass from "../../../apis/AClass";
 import Class from "../../../models/Class";
 import ClassListSkeleton from "../skeleton/ClassListSkeleten";
+import moment from "moment";
+import UserComponent from "../admin/UserComponent";
+import UserClassManager from "../UserClassManager";
 
 const URL = ReactAppUrl.PUBLIC_URL;
 
@@ -33,7 +36,7 @@ type DetailHistoryBottonSheetProps = {
   userData: User;
 };
 
-export default function ({
+export default function DetailUserBottomSheet ({
   isVisible,
   onCloseButtonSheet,
   userData,
@@ -74,17 +77,6 @@ export default function ({
     [isVisible]
   );
 
-  function fomatDate(timestamp: number) {
-    if (!timestamp) return ""; // Kiểm tra nếu timestamp là undefined hoặc null
-
-    const date = new Date(timestamp);
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const year = date.getFullYear();
-
-    return `${day}/${month}/${year}`; // Trả về chuỗi theo định dạng DD/MM/YYYY
-  }
-
   // Mở hoặc đóng tùy theo `isVisible`
   if (isVisible && bottomSheetRef.current) {
     bottomSheetRef.current.snapToIndex(1);
@@ -94,28 +86,6 @@ export default function ({
   useEffect(() => {
     if (isVisible) {
       // Fetch dữ liệu danh sách lớp học
-      AClass.getAttedingClass(
-        userData.id,
-        (data) => {
-          setAttendingClasses(data);
-        },
-        setLoading
-      );
-      AClass.getTeachingClass(
-        userData.id,
-        (data) => {
-          setTeachingClasses(data);
-        },
-        setLoading
-      );
-
-      AClass.getCreatedClass(
-        userData.id,
-        (data) => {
-          setCreatedClasses(data);
-        },
-        setLoading
-      );
     }
   }, [isVisible]);
 
@@ -131,11 +101,11 @@ export default function ({
     >
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.contentContainer}>
-          <View style={styles.userHeaderContainer}>
+          {/* <View style={styles.userHeaderContainer}>
             <View style={styles.userInfoBlock}>
               <View style={styles.userAvatarContainer}>
                 <Image
-                  source={{ uri: `${URL}${userData.avatar?.path}` }}
+                  source={{ uri: `${URL}${userData.avatar}` }}
                   style={styles.userAvatar}
                 />
                 <Text style={styles.userFullName}>{userData.full_name}</Text>
@@ -155,16 +125,14 @@ export default function ({
                   Điểm uy tín:
                 </Text>
                 <Text style={styles.content}>
-                  {userData.information?.point}
+                  {userData.point}
                 </Text>
               </View>
 
               <View style={styles.rowItem}>
                 <View style={[styles.row, { flex: 1 }]}>
                   <Ionicons name="calendar-outline" size={20} color="black" />
-                  <Text style={styles.content}>
-                    {fomatDate(userData.information?.birthday!)}
-                  </Text>
+                  <Text style={styles.content}>{moment(userData.birthday).format("DD/MM/YYYY")}</Text>
                 </View>
 
                 <View style={[styles.row, { flex: 1 }]}>
@@ -179,12 +147,14 @@ export default function ({
                   size={20}
                   color="black"
                 />
-                <Text style={[styles.content, { marginTop: 7 }]}>
-                  {`${userData.information?.address_4}, ${userData.information?.address_3}\n${userData.information?.address_2}, ${userData.information?.address_1}`}
-                </Text>
+                <Text style={[styles.content, {marginTop: 7}]}>
+                {`${userData.address?.ward}, ${userData.address?.district}, ${userData.address?.province}`}
+              </Text>
               </View>
             </View>
-          </View>
+          </View> */}
+
+          <UserComponent userData={userData}/>
 
           {userData.is_reported && (
           <View style={{ alignItems: "center" }}>
@@ -197,129 +167,7 @@ export default function ({
           )}
 
           <View style={styles.userBodyContainer}>
-            <View style={styles.classContainer}>
-              <Text style={styles.titleBody}>Lớp học đã tham gia</Text>
-              <View>
-                {loading && <ClassListSkeleton />}
-                {!loading && (
-                  <FlatList
-                    data={attendingClasses}
-                    renderItem={({ item: attedingClass }) => {
-                      return (
-                        <View style={styles.classItem}>
-                          <Pressable>
-                            <CourseItem
-                              majorIconUrl={`${URL}${attedingClass.major?.icon?.path}`}
-                              name={attedingClass.title}
-                              level={attedingClass.class_level?.vn_name || ""}
-                              date={fomatDate(attedingClass.started_at)}
-                              time={2}
-                              type={"Tại nhà"}
-                              address={attedingClass.address_1}
-                              cost={attedingClass.price}
-                            />
-                          </Pressable>
-                        </View>
-                      );
-                    }}
-                    keyExtractor={(item) => item.id.toString()}
-                    horizontal={true}
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={[
-                      styles.classList,
-                      attendingClasses.length === 1 && styles.centeredItem,
-                    ]}
-                  />
-                )}
-
-                {!loading && attendingClasses.length == 0 && (
-                  <Text>Không có lớp học đang tham gia</Text>
-                )}
-              </View>
-            </View>
-            <View style={styles.classContainer}>
-              <Text style={[styles.titleBody, { marginTop: 50 }]}>
-                Lớp học đang dạy
-              </Text>
-              <View>
-                {loading && <ClassListSkeleton />}
-
-                {!loading && (
-                  <FlatList
-                    data={teachingClasses}
-                    renderItem={({ item: attedingClass }) => {
-                      return (
-                        <View style={styles.classItem}>
-                          <Pressable>
-                            <CourseItem
-                              majorIconUrl={`${URL}${attedingClass.major?.icon?.path}`}
-                              name={attedingClass.title}
-                              level={attedingClass.class_level?.vn_name || ""}
-                              date={fomatDate(attedingClass.started_at)}
-                              time={2}
-                              type={"Tại nhà"}
-                              address={attedingClass.address_1}
-                              cost={attedingClass.price}
-                            />
-                          </Pressable>
-                        </View>
-                      );
-                    }}
-                    keyExtractor={(item) => item.id.toString()}
-                    horizontal={true}
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={[
-                      styles.classList,
-                      teachingClasses.length === 1 && styles.centeredItem,
-                    ]}
-                  />
-                )}
-              </View>
-            </View>
-
-            <View style={styles.classContainer}>
-              <Text style={[styles.titleBody, { marginTop: 50 }]}>
-                Lớp học đã tạo
-              </Text>
-              <View>
-                {loading && <ClassListSkeleton />}
-
-                {!loading && createdClasses.length > 0 && (
-                  <FlatList
-                    data={createdClasses}
-                    renderItem={({ item: createdClass }) => {
-                      return (
-                        <View style={styles.classItem}>
-                          <Pressable>
-                            <CourseItem
-                              majorIconUrl={`${URL}${createdClass.major?.icon?.path}`}
-                              name={createdClass.title}
-                              level={createdClass.class_level?.vn_name || ""}
-                              date={fomatDate(createdClass.started_at)}
-                              time={2}
-                              type={"Tại nhà"}
-                              address={createdClass.address_1}
-                              cost={createdClass.price}
-                            />
-                          </Pressable>
-                        </View>
-                      );
-                    }}
-                    keyExtractor={(item) => item.id.toString()}
-                    horizontal={true}
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={[
-                      styles.classList,
-                      createdClasses.length === 1 && styles.centeredItem,
-                    ]}
-                  />
-                )}
-
-                {!loading && createdClasses.length == 0 && (
-                  <Text>Không có lớp học đã tạo</Text>
-                )}
-              </View>
-            </View>
+            <UserClassManager userId={userData.id}/>
           </View>
         </View>
       </ScrollView>

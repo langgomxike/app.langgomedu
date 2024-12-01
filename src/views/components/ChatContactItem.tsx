@@ -1,5 +1,5 @@
 import {
-  Image,
+  Image, Linking,
   Pressable,
   StyleSheet,
   Text,
@@ -7,8 +7,12 @@ import {
   View,
 } from "react-native";
 import Chat from "../../models/Chat";
-import { BackgroundColor, TextColor } from "../../configs/ColorConfig";
+import {BackgroundColor, TextColor} from "../../configs/ColorConfig";
 import User from "../../models/User";
+import {useCallback, useContext, useState} from "react";
+import Spinner from "react-native-loading-spinner-overlay";
+import {LanguageContext} from "../../configs/LanguageConfig";
+import ReactAppUrl from "../../configs/ConfigUrl";
 
 const AVATAR_SIZE = 50;
 
@@ -17,38 +21,39 @@ export type ChatContactItemProps = {
   onPress: () => void;
 };
 
-export default function ChatContactItem({
-  user,
-  onPress = () => {},
-}: ChatContactItemProps) {
+export default function ChatContactItem(
+  {
+    user,
+    onPress = () => {
+    },
+  }: ChatContactItemProps) {
+  //contexts
+  const language = useContext(LanguageContext).language;
+
+  //states
+  const [loading, setLoading] = useState(false);
+
+  //handlers
+  const openInZalo = useCallback(() => {
+    setLoading(true);
+    Linking.openURL(`https://zalo.me/${user.phone_number}`)
+      .finally(() => setLoading(false));
+  }, []);
+
   return (
     <TouchableOpacity onPress={onPress} style={styles.container}>
+      <Spinner visible={loading}/>
       {/* avatar */}
-      {user.avatar ? (
-        <Image src={user?.avatar?.path} style={styles.avatar} />
-      ) : (
-        <Image
-          source={require("../../../assets/avatar/avatarTempt.png")}
-          style={styles.avatar}
-        />
-      )}
+      <Image src={ReactAppUrl.PUBLIC_URL + user?.avatar} style={styles.avatar}/>
 
       {/* name */}
-      <View style={{ flex: 1 }}>
+      <View style={{flex: 1, flexDirection: "row", alignItems: "center"}}>
         {/* name */}
         <Text style={styles.name}>{user.full_name?.toLocaleUpperCase()}</Text>
 
-        <View style={{ flexDirection: "row" }}>
-          {/* phone number */}
-          <Text style={styles.subName}>
-            {user.phone_number.toLocaleLowerCase() || "No phone number"}
-          </Text>
-
-          {/* email */}
-          <Text style={[styles.subName, { flex: 2, textAlign: "right" }]}>
-            {user.email.toLocaleLowerCase() || "No email"}
-          </Text>
-        </View>
+        <TouchableOpacity onPress={openInZalo}>
+          <Text style={styles.hint}>{language.VIEW_IN_ZALO}</Text>
+        </TouchableOpacity>
       </View>
     </TouchableOpacity>
   );
@@ -67,14 +72,25 @@ const styles = StyleSheet.create({
     width: AVATAR_SIZE,
     height: AVATAR_SIZE,
     borderRadius: AVATAR_SIZE / 2,
-    backgroundColor: BackgroundColor.sub_primary,
+    backgroundColor: BackgroundColor.white,
+    borderWidth: 1,
+    borderColor: BackgroundColor.sub_primary,
     alignSelf: "center",
   },
 
   name: {
-    fontSize: 15,
+    fontSize: 13,
     fontWeight: "500",
     flex: 1,
+  },
+
+  hint: {
+    backgroundColor: BackgroundColor.primary,
+    padding: 5,
+    borderRadius: 10,
+    fontSize: 8,
+    color: TextColor.white,
+    textAlign: "center",
   },
 
   subName: {
