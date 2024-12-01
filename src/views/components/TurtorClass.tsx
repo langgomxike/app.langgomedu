@@ -9,23 +9,30 @@ import Lesson from "../../models/Lesson";
 import Dialog from "react-native-dialog";
 import { NavigationContext } from "@react-navigation/native";
 import ScreenName from "../../constants/ScreenName";
-import { AppInfoContext } from "../../configs/AppInfoContext";
+import { AccountContext } from "../../configs/AccountConfig";
+import { RoleList } from "../../models/Role";
 
 const TurtorClass = () => {
-  const tutorId = 1;
-  const authorId = 1;
-  const appInfos = useContext(AppInfoContext);
   // context
   const navigation = useContext(NavigationContext);
+  const user = useContext(AccountContext); // get account info
+
+  if (!user || !user.account) {
+    return <Text>Error: User not found</Text>; // handle case where user data is not available
+  }
+
+  const roleIds = user.account?.roles?.map((role) => role.id); // get role ids
+  const tutorId = roleIds?.includes(RoleList.TUTOR)
+    ? user.account?.id ?? ""
+    : ""; // if not TUTOR, it's an empty string
+  const authorId = user.account?.id;
 
   // state
   const [dataTitle, setDataTitle] = useState<string>("");
   const [dataDesc, setDataDesc] = useState<string>("");
   const [dataMajorId, setDataMajorId] = useState<number>(-1);
   const [dataClassLevel, setDataClassLevel] = useState<number>(-1);
-
-  // phi tao lop
-  const [creationFee, setCreationFee] = useState<number>(0);
+  const [dataMaxLearner, setDataMaxLearner] = useState<number>(0);
 
   // thêm state để báo lỗi khi các trường để trống
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -51,19 +58,12 @@ const TurtorClass = () => {
   // Dialog state
   const [isDialogVisible, setIsDialogVisible] = useState(false);
 
-  // phi tao lop
-  useEffect(() => {
-    const priceFee = Math.ceil(
-      (dataPrice ?? 0) * lessons.length * appInfos.infos.creation_fee_for_tutors
-    );
-    setCreationFee(priceFee);
-  }, [appInfos.infos, dataPrice, lessons]);
-
   const handleDataChangeClass = (
     title?: string,
     desc?: string,
     monHoc?: string,
-    capHoc?: number
+    capHoc?: number,
+    maxLearners?: number
   ) => {
     if (title) {
       setDataTitle(title);
@@ -79,6 +79,10 @@ const TurtorClass = () => {
 
     if (capHoc) {
       setDataClassLevel(capHoc);
+    }
+
+    if (maxLearners) {
+      setDataMaxLearner(maxLearners);
     }
   };
 
@@ -149,6 +153,7 @@ const TurtorClass = () => {
     console.log("description: ", dataDesc);
     console.log("majorId: ", dataMajorId);
     console.log("classLevelId: ", dataClassLevel);
+    console.log("max learner: ", dataMaxLearner);
     console.log("gia: ", dataPrice);
     console.log("startedAt: ", dataDateStart);
     console.log("endedAt: ", dataDateEnd);
@@ -178,6 +183,10 @@ const TurtorClass = () => {
       return;
     }
 
+    if (dataMaxLearner === 0) {
+      setErrorMessage("Vui lòng nhập số lượng người học");
+    }
+
     if (dataPrice === null || dataPrice === 0 || isNaN(dataPrice)) {
       setErrorMessage("Vui lòng nhập học phí hợp lệ.");
       return;
@@ -197,6 +206,7 @@ const TurtorClass = () => {
         dataDesc,
         dataMajorId,
         dataClassLevel,
+        dataMaxLearner,
         dataPrice,
         convertStringToTimestamp(dataDateStart),
         convertStringToTimestamp(dataDateEnd),
@@ -215,20 +225,6 @@ const TurtorClass = () => {
 
           // Hiển thị dialog khi lớp học được tạo thành công
           setIsDialogVisible(true);
-
-          // Reset các trường về giá trị ban đầu
-          setDataTitle("");
-          setDataDesc("");
-          setDataMajorId(-1);
-          setDataClassLevel(-1);
-          setDataPrice(null);
-          setDataDateStart("");
-          setDataDateEnd("");
-          setDataProvinces("");
-          setDataDistrict("");
-          setDataWard("");
-          setDataDetail("");
-          setLessons([]);
         }
       );
     }
@@ -237,6 +233,7 @@ const TurtorClass = () => {
     dataDesc,
     dataMajorId,
     dataClassLevel,
+    dataMaxLearner,
     dataPrice,
     dataDateStart,
     dataDateEnd,
@@ -249,11 +246,29 @@ const TurtorClass = () => {
     lessons,
   ]);
 
+  // reset lại các giá trị trong ô input
+  const handleResetInput = () => {
+    // Reset các trường về giá trị ban đầu
+    setDataTitle("");
+    setDataDesc("");
+    setDataMajorId(-1);
+    setDataClassLevel(-1);
+    setDataMaxLearner(0);
+    setDataPrice(null);
+    setDataDateStart("");
+    setDataDateEnd("");
+    setDataProvinces("");
+    setDataDistrict("");
+    setDataWard("");
+    setDataDetail("");
+    setLessons([]);
+  };
+
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
       <InfoClass onNext={handleDataChangeClass} />
       <InfoLesson handleGetLesson={handleDataChangeLesson} />
-      <InfoTuition onNext={handleDataChangeTuition} priceFee={creationFee} />
+      <InfoTuition onNext={handleDataChangeTuition} />
 
       <TouchableOpacity style={styles.btnNext} onPress={handleSaveClass}>
         <Text style={styles.txtNext}>Tạo Lớp</Text>
@@ -270,6 +285,7 @@ const TurtorClass = () => {
         <Dialog.Button
           label="OK"
           onPress={() => {
+            handleResetInput();
             setIsDialogVisible(false);
             handleNavigateToDetail(createClassId);
           }} // Đóng dialog khi nhấn "OK"
