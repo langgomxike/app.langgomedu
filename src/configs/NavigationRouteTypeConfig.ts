@@ -9,7 +9,6 @@ export type IdNavigationType = {
 }
 
 export type OTPNavigationType = {
-  id: number | string;
   phone_number: string;
 }
 

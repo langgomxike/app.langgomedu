@@ -33,6 +33,7 @@ export default class User {
     public is_reported: boolean;
     public cv_id: string | undefined;
     public lessons: Lesson[] | [];
+    public parent_id: string = "";
 
     constructor(
         id = "",
@@ -60,6 +61,7 @@ export default class User {
         is_reported = false,
         cv_id: string | undefined = undefined,
         lessons: Lesson[] | [] = [],
+        parent_id = ""
     ) {
         this.id = id;
         this.full_name = full_name;
@@ -86,5 +88,6 @@ export default class User {
         this.is_reported = is_reported;
         this.cv_id = cv_id;
         this.lessons = lessons;
+        this.parent_id = parent_id;
     }
 }

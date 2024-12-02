@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { View, TouchableOpacity, Image, StyleSheet, Text } from "react-native";
+import ReactAppUrl from "../../configs/ConfigUrl";
+import {BackgroundColor} from "../../configs/ColorConfig";
 // import {
 //   launchImageLibrary,
 //   ImageLibraryOptions,
@@ -30,12 +32,12 @@ const Avatar: React.FC<MyAvatar> = ({
     avatar || avatarTempt
   );
 
-  if (canEdit == true) {
+  if (canEdit) {
     if (orientation == "horizontally") {
       return (
         <TouchableOpacity onPress={onPress}>
           <View style={styles.horizontally}>
-            <Image source={avatarTempt} style={styles.avatar} />
+            <Image src={ReactAppUrl.PUBLIC_URL + avatar} style={styles.avatar} />
             <Text style={styles.usernameh}>{userName}</Text>
           </View>
         </TouchableOpacity>
@@ -44,7 +46,7 @@ const Avatar: React.FC<MyAvatar> = ({
       return (
         <TouchableOpacity onPress={onPress}>
           <View style={styles.vertically}>
-            <Image source={avatarTempt} style={styles.avatar} />
+            <Image src={ReactAppUrl.PUBLIC_URL + avatar} style={styles.avatar} />
             <Text style={styles.username}>{userName}</Text>
           </View>
         </TouchableOpacity>
@@ -53,7 +55,7 @@ const Avatar: React.FC<MyAvatar> = ({
   } else {
       return (
         <View style={orientation == "horizontally" ? styles.horizontally : styles.vertically}>
-          <Image source={avatarTempt} style={styles.avatar} />
+          <Image src={ReactAppUrl.PUBLIC_URL + avatar} style={styles.avatar} />
           <Text style={orientation == "horizontally" ? styles.usernameh : styles.username}>{userName}</Text>
         </View>
       );
@@ -66,8 +68,9 @@ const styles = StyleSheet.create({
     height: 100,
     borderRadius: 50,
     borderWidth: 1,
-    borderColor: "#000",
+    borderColor: BackgroundColor.white,
     alignSelf: "center",
+    marginTop: 10,
   },
   horizontally: {
     flexDirection: "row", // Đặt hướng là hàng
@@ -79,7 +82,7 @@ const styles = StyleSheet.create({
   },
   username: {
     textAlign: "center",
-    marginTop: 20,
+    marginTop: 10,
     color: "#fff",
     fontSize: 16,
     fontWeight: "bold"

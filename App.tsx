@@ -49,6 +49,7 @@ import CreateReport from "./src/views/screens/CreateReport";
 import UserPermissionManagementScreen from "./src/views/screens/admin/UserPermissionManagement";
 import RegisterChildScreen from "./src/views/screens/RegisterChild";
 import UpdateClass from "./src/views/screens/UpdateClass";
+import ResetPasswordScreen from "./src/views/screens/ResetPassword";
 
 PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS);
 
@@ -191,6 +192,11 @@ export default function App() {
               <Stack.Screen
                 name={ScreenName.CHANGE_PASSWORD}
                 component={ChangePasswordScreen}
+              />
+
+              <Stack.Screen
+                name={ScreenName.RESET_PASSWORD}
+                component={ResetPasswordScreen}
               />
 
               {/* ADMIN SCREENS */}

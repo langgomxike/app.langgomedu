@@ -31,7 +31,7 @@ export default function LoginScreen() {
 
   //handlers
   const handleForgettingPassword = useCallback(() => {
-    navigation?.navigate(ScreenName.OTP);
+    navigation?.navigate(ScreenName.RESET_PASSWORD);
   }, []);
 
   const goToRegister = useCallback(() => {

@@ -24,6 +24,8 @@ export default function AppInfoManagementScreen() {
   const [aiKey, setAIKey] = useState("");
   const [otpServiceKey, setOTPServiceKey] = useState("");
   const [appWebLink, setAppWebLink] = useState("https://");
+  const [appStoreId, setAppStoreId] = useState("");
+  const [playStoreId, setPlayStoreId] = useState("");
   const [bankingCode, setBankingCode] = useState("");
   const [bankingNumber, setBankingNumber] = useState("");
   const [creationFeeForTutors, setCreationFeeForTutors] = useState(0);
@@ -154,6 +156,30 @@ export default function AppInfoManagementScreen() {
             <TextValueInput value={appWebLink} setValue={setAppWebLink} isLink={true}/>
           )}
           onSubmit={() => handlerChangeAppInfo("webiste_link", appWebLink, setAppWebLink)}
+        />
+
+        {/*/!*  app store id *!/*/}
+        <AppInfoContainer
+          title={languageContext.APP_STORE_APP_ID}
+          oldValue={(
+            <TextValue value={appInfoContext.apple_store_app_id} isLink={true}/>
+          )}
+          newValue={(
+            <TextValueInput value={appStoreId} setValue={setAppStoreId} isLink={true}/>
+          )}
+          onSubmit={() => handlerChangeAppInfo("apple_store_app_id", appStoreId, setAppStoreId)}
+        />
+
+        {/*/!*  play store *!/*/}
+        <AppInfoContainer
+          title={languageContext.PLAY_STORE_APP_ID}
+          oldValue={(
+            <TextValue value={appInfoContext.play_store_app_id} isLink={true}/>
+          )}
+          newValue={(
+            <TextValueInput value={playStoreId} setValue={setPlayStoreId} isLink={true}/>
+          )}
+          onSubmit={() => handlerChangeAppInfo("play_store_app_id", playStoreId, setPlayStoreId)}
         />
 
         <AppInfoContainer

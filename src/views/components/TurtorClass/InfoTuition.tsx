@@ -21,10 +21,9 @@ type props = {
     ward?: string,
     detail?: string
   ) => void;
-  priceFee?: number;
 };
 
-const InfoTuition = ({ onNext, priceFee }: props) => {
+const InfoTuition = ({ onNext }: props) => {
   // context
   const appInfos = useContext(AppInfoContext);
   // console.log("code: ", appInfos.infos.banking_code);
@@ -288,14 +287,6 @@ const InfoTuition = ({ onNext, priceFee }: props) => {
           }}
         />
       </View>
-
-      <Text style={[styles.label, { marginTop: 25 }]}>
-        Phí tạo lớp <Text style={styles.required}>*</Text>
-      </Text>
-      <Image
-        style={{ width: 400, height: 500, marginLeft: -14 }}
-        src={`https://vietqr.co/api/generate/${appInfos.infos.banking_code}/${appInfos.infos.banking_number}/VIETQR.CO/${priceFee}/phi%20tao%20lop`}
-      />
     </View>
   );
 };
