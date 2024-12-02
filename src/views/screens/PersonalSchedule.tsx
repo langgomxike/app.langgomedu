@@ -11,6 +11,7 @@ import DropdownChildren from "../components/dropdown/DropDownChildren";
 import SLog, { LogType } from "../../services/SLog";
 import User from "../../models/User";
 import { RoleList } from "../../models/Role";
+import { AccountContext } from "../../configs/AccountConfig";
 // import RatingScreen from "./Rating";
 
 export type Day = {
@@ -30,7 +31,7 @@ export default function PersonalScheduleScreen() {
   //day
   //schedule
   const day: Date = useMemo(() => new Date(), []);
-  const { user, setUser } = useContext(UserContext);
+  const { account, setAccount} = useContext(AccountContext);
 
   //STATE >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   const [type, setType] = useState<number>(0);
@@ -47,7 +48,7 @@ export default function PersonalScheduleScreen() {
    */
   const [selectedDate, setSelectedDate] = useState(new Date());
   // Người được chọn từ dropdown
-  const [selectedUserId, setSelectedUserId] = useState(user.ID);
+  const [selectedUserId, setSelectedUserId] = useState(account?.id);
   const [users, setUsers] = useState<User[]>([]);
   const [selectedUser, setSelectedUser] = useState<User>(new User());
 
@@ -70,7 +71,6 @@ export default function PersonalScheduleScreen() {
   //gọi api trả về danh sách lịch học
   const handleCallAPI = useCallback((lessons: Lesson[]) => {
     // console.log(JSON.stringify(lessons, null, 2));
-
     setLessons(lessons);
     const todayLessons: Lesson[] = [];
     const today = new Date(`${day.getFullYear()}-${day.getMonth() + 1}-${day.getDate()}T00:00:00.000Z`)
@@ -128,39 +128,41 @@ export default function PersonalScheduleScreen() {
 
   //lay danh sach cac nguoi dung trong thoi khoa bieu
   useEffect(() => {
-    console.log(user.ID);
-    
-    ASchedule.getUserParentAndChild(user.ID, (users) => {
-      //lấy người dùng mặc định trên dropdown
-      users.forEach(item => {
-        if (item.id === user.ID) {
-          setSelectedUser(item);
-          if (item.roles.some((role) => role.id === RoleList.TUTOR)) {
-            setType(1);
+    // console.log(user.ID);
+    if(account){
+      ASchedule.getUserParentAndChild(account.id, (users) => {
+        //lấy người dùng mặc định trên dropdown
+        users.forEach(item => {
+          if (item.id === account.id) {
+            setSelectedUser(item);
+            if (item.roles.some((role) => role.id === RoleList.TUTOR)) {
+              setType(1);
+            }
           }
-        }
-        setUsers(users)
-      });
-    })
-  }, [user])
+          setUsers(users)
+        });
+      })
+    }
+    
+  }, [account])
 
 
   //testing ///////////////////////////////////////////
-  useEffect(() => {
-    console.log(type);
-    // console.log(selectedUser);
+  // useEffect(() => {
+  //   console.log(type);
+  //   // console.log(selectedUser);
 
-  }, [type])
+  // }, [type])
 
   return (
     <View style={styles.container}>
       <View style={styles.infoBox}>
         <Text style={styles.infoText}>{language.SCHEDULE}</Text>
         <View style={{ flex: 1 }}>
-          <DropdownChildren user_default={selectedUser} learners={users} onSelectedLearner={(user) => {
-            setSelectedUser(user);
+          <DropdownChildren user_default={selectedUser} learners={users} onSelectedLearner={(account) => {
+            setSelectedUser(account);
             // Đặt lại type mỗi khi chọn người dùng
-            if (user.roles.some((role) => role.id === RoleList.TUTOR)) {
+            if (account.roles.some((role) => role.id === RoleList.TUTOR)) {
               setType(1);
             } else {
               setType(0);
@@ -178,7 +180,7 @@ export default function PersonalScheduleScreen() {
           }>
           <WeekCalendar today={currentDay} currentDay={currentDay} currentDate={currentDate} currentWeek={currentWeek} activeDate={activeDate} setActiveDate={handlerSetActiveDate} setCurrentWeek={handlerSetWeek} setSelectedDate={setSelectedDate} />
           {/* <TimeLine lessons={lessons}/> */}
-          <TimeLine user_id={user.ID} lessons={todayLessons} selectedDate={selectedDate} type={type} onChangeType={setType} />
+          <TimeLine user_id={account?.id} lessons={todayLessons} selectedDate={selectedDate} type={type} onChangeType={setType} />
         </ScrollView>
         {/* <RatingScreen/> */}
 

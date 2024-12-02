@@ -4,6 +4,7 @@ import { Dropdown, MultiSelect } from "react-native-element-dropdown";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import vietnamData from "../../../data/vietnam.json";
 import Feather from "@expo/vector-icons/Feather";
+import { BackgroundColor } from "../../../configs/ColorConfig";
 
 // Định nghĩa kiểu dữ liệu cho JSON
 interface Dropdown {
@@ -11,38 +12,56 @@ interface Dropdown {
   value: string;
 }
 
-export default function DropDownLocation() {
-  // states //////////////////////////////////////////////
-  const [selectedCity, setSelectedCity] = useState<string>(""); // mang duoc chon
-  const [selectedDistrict, setSelectedDistrict] = useState<string>("");
-  const [selectedWard, setSelectedWard] = useState<string>("");
-  const [district, setDistrict] = useState<Dropdown[]>([]); // quan
-  const [ward, setWard] = useState<Dropdown[]>([]); // xa
+type DropDownAddressProps = {
+  selectedProvince: string;
+  selectedDistrict: string;
+  selectedWard: string;
+  onSetSelectedProvince: (cities: string) => void;
+  onSetSelectedDistrict: (districts: string) => void;
+  onSetSelectedWard: (wards: string) => void;
+  errors : {
+    province : boolean,
+    district : boolean,
+    ward : boolean,
+  }
+}
 
-  const [value, setValue] = useState(null);
+export default function DropDownLocation(
+  {
+    selectedProvince,
+    selectedDistrict,
+    selectedWard,
+    onSetSelectedProvince,
+    onSetSelectedDistrict,
+    onSetSelectedWard,
+    errors,
+  }: DropDownAddressProps){
+  // states >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+  const [district, setDistrict] = useState<Dropdown[]>([]); // Quận - Huyện
+  const [ward, setWard] = useState<Dropdown[]>([]); // Xã - Thị Trấn
   const [isFocus, setIsFocus] = useState(false);
 
-  // handle /////////////////////////////////////////////
+  // handle >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
-  // effect ////////////////////////////////////////////
+  // effect >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
   // Lấy danh sách quận huyện
   useEffect(() => {
     // Cập nhật danh sách quận/huyện khi thay đổi danh sách thành phố
     const updatedDistricts: { label: string; value: string }[] = [];
 
-    const city = vietnamData.find((c) => c.name === selectedCity);
+    const city = vietnamData.find((c) => c.name === selectedProvince);
     if (city) {
       city.districts.forEach((district) => {
         updatedDistricts.push({ label: district.name, value: district.name });
       });
     }
 
-    console.log("city: ", selectedCity);
+    // console.log("city: ", selectedProvince);
 
     setDistrict(updatedDistricts);
-    setSelectedDistrict("");
-  }, [selectedCity]);
+    onSetSelectedDistrict("");
+  }, [selectedProvince]);
 
   // Lấy danh sách xã phường theo quận, huyện
   useEffect(() => {
@@ -58,7 +77,7 @@ export default function DropDownLocation() {
     });
 
     setWard(updatedWards);
-    setSelectedWard("");
+    onSetSelectedWard("");
   }, [selectedDistrict]);
 
   const renderItem = (item: any, selected: any) => {
@@ -80,7 +99,7 @@ export default function DropDownLocation() {
     <View style={styles.container}>
       {/* TINH, THANH PHO */}
       <Dropdown
-        style={[styles.dropdown, isFocus && { borderColor: "blue" }]}
+        style={[styles.dropdown, isFocus && { borderColor: "blue" }, errors.province && styles.borderError]}
         placeholderStyle={styles.placeholderStyle}
         selectedTextStyle={styles.selectedTextStyle}
         inputSearchStyle={styles.inputSearchStyle}
@@ -95,11 +114,11 @@ export default function DropDownLocation() {
         valueField="value"
         placeholder={!isFocus ? "Chọn tỉnh" : "Tỉnh"}
         searchPlaceholder="Search..."
-        value={selectedCity}
+        value={selectedProvince}
         onFocus={() => setIsFocus(true)}
         onBlur={() => setIsFocus(false)}
         onChange={(item) => {
-          setSelectedCity(item.value);
+          onSetSelectedProvince(item.value);
           setIsFocus(false);
         }}
         renderLeftIcon={() => (
@@ -115,7 +134,7 @@ export default function DropDownLocation() {
 
       {/* QUAN, HUYEN */}
       <Dropdown
-        style={[styles.dropdown, isFocus && { borderColor: "blue" }]}
+        style={[styles.dropdown, isFocus && { borderColor: "blue" }, errors.district && styles.borderError]}
         placeholderStyle={styles.placeholderStyle}
         selectedTextStyle={styles.selectedTextStyle}
         inputSearchStyle={styles.inputSearchStyle}
@@ -131,7 +150,7 @@ export default function DropDownLocation() {
         onFocus={() => setIsFocus(true)}
         onBlur={() => setIsFocus(false)}
         onChange={(item) => {
-          setSelectedDistrict(item.value);
+          onSetSelectedDistrict(item.value);
           setIsFocus(false);
         }}
         renderLeftIcon={() => (
@@ -146,7 +165,7 @@ export default function DropDownLocation() {
       />
       {/* XA */}
       <Dropdown
-        style={[styles.dropdown, isFocus && { borderColor: "blue" }]}
+        style={[styles.dropdown, isFocus && { borderColor: "blue" }, , errors.ward && styles.borderError]}
         placeholderStyle={styles.placeholderStyle}
         selectedTextStyle={styles.selectedTextStyle}
         inputSearchStyle={styles.inputSearchStyle}
@@ -162,7 +181,7 @@ export default function DropDownLocation() {
         onFocus={() => setIsFocus(true)}
         onBlur={() => setIsFocus(false)}
         onChange={(item) => {
-          setSelectedWard(item.value);
+          onSetSelectedWard(item.value);
           setIsFocus(false);
         }}
         renderLeftIcon={() => (
@@ -246,4 +265,7 @@ const styles = StyleSheet.create({
     color: "blue",
     fontWeight: "bold",
   },
+  borderError: {
+    borderColor: BackgroundColor.danger,
+  }
 });

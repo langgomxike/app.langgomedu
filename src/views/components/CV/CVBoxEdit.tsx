@@ -3,18 +3,12 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  Button,
-  ActivityIndicator,
   Image,
   ScrollView,
 } from "react-native";
 import HLine, { HLineType } from "../HLine";
-import { Children, ReactNode, useState } from "react";
-import {
-  BackgroundColor,
-  BorderColor,
-  TextColor,
-} from "../../../configs/ColorConfig";
+import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
+import { BackgroundColor, TextColor, } from "../../../configs/ColorConfig";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import Education from "../../../models/Education";
 import Experience from "../../../models/Experience";
@@ -23,25 +17,168 @@ import Modal from "react-native-modal";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import Input from "../Inputs/CVInput";
 import * as ImagePicker from "expo-image-picker";
+import DropDownLocation from "../dropdown/DropDownLocation";
+import Address from "../../../models/Address";
+import UploadFile from "../../../models/uploadFile";
 
 export type CvBoxProps = {
   title: string;
+  typeItem: "education" | "experience" | "certificate";
   children?: ReactNode;
-  onAddItem?: (item: Education | Experience | Certificate) => void;
-  typeItem: "education" | "experience" | "skills" | "certificate";
+  onAddItem: (item: any) => void;
+  onAddImage: (item: any, type: "education" | "experience" | "certificate") => void;
 };
 
-const CvBoxEdit = ({ title, children, onAddItem }: CvBoxProps) => {
+function convertDateStringToMilliseconds(dateString: string) {
+  if (!dateString) {
+    return 0;
+  }
+  const [day, month, year] = dateString.split("/").map(Number);
+  return new Date(year, month - 1, day).getTime();
+}
+
+const CvBoxEdit = ({ title, typeItem, children, onAddItem , onAddImage}: CvBoxProps) => {
+  //CONTEXTS, REFS >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+  const isFirstRender = useRef(true);
+
   //state
-  const [modalVisible, setModalVisible] = useState<string | null>("");
-  const [textValue, setTextValue] = useState<string>("");
+  const [modalVisible, setModalVisible] = useState<boolean>(false);
+  const [name, setName] = useState<string>("");
+  const [note, setNote] = useState<string>("");
+  const [startedAt, setStartedAt] = useState<string>("");
+  const [endedAt, setEndedAt] = useState<string>("");
+  const [score, setScore] = useState<string>("");
   const [selectedImage, setSelectedImage] = useState<any>(null);
 
-  //handler
-  const handleClickAddItem = () => {
-    // onAddItem();
-  };
+  //address
+  const [province, setProvince] = useState<string>('');
+  const [district, setDistrict] = useState<string>('');
+  const [ward, setWard] = useState<string>('');
+  const [detail, setDetail] = useState<string>('');
 
+  const [resetKey, setResetKey] = useState(0);
+
+  const [errors, setErrors] = useState({
+    name: false,
+    note: false,
+    startedAt: false,
+    endedAt: false,
+    address: false,
+    evidence: false,
+    score: false,
+  });
+  const [addressErrors, setAddressErrors] = useState({
+    province: false,
+    district: false,
+    ward: false,
+  })
+
+  // HANDLER >>>>>>>>>>>>>>>>>>>>>>>
+  const handleClickAccept = () => {
+    // console.log(addressErrors, );
+    
+    if (!validateInputs()) {
+      return; // Dừng lại nếu có lỗi
+    }
+    // prepare
+    const address = new Address(-1, province, district, ward, detail);
+    const started_at = convertDateStringToMilliseconds(startedAt);
+    const ended_at = convertDateStringToMilliseconds(endedAt);
+    const uploadFile = new UploadFile(selectedImage.uri, selectedImage.fileName, selectedImage.mimeType);
+    onAddImage(uploadFile, typeItem);
+    switch (typeItem) {
+      case "education":
+        const edu: Education = new Education(-1, name, note, address, started_at, ended_at, uploadFile);
+        console.log(JSON.stringify(edu, null, 2));
+        onAddItem(edu);
+        handleClearItem();
+        break;
+      case "experience":
+        const exp: Experience = new Experience(-1, name, note, address, started_at, ended_at, uploadFile);
+        console.log(exp);
+        onAddItem(exp);
+        handleClearItem();
+        break;
+      case "certificate":
+        const cer: Certificate = new Certificate(-1, name, note, score, started_at, ended_at, uploadFile);
+        console.log(cer);
+        onAddItem(cer)
+        handleClearItem()
+        break;
+      default:
+        break;
+    }
+    // onAddItem();
+    setModalVisible(false)
+  };
+  const handleClearItem = useCallback(() => {
+    setName('');
+    setNote('');
+    setStartedAt('');
+    setEndedAt('');
+    setScore('');
+    setProvince('');
+    setDistrict('');
+    setWard('');
+    setDetail('');
+    setSelectedImage(null);
+    isFirstRender.current = true;
+  }, [])
+  const handleCloseModal = useCallback(() => {
+    // console.log("handleCloseModal");
+    setModalVisible(false);
+    resetValidate();
+    handleClearItem(); // Reset các giá trị trong modal
+    setResetKey((prevKey) => prevKey + 1);
+  }, [])
+
+  const validateInputs = () => {
+    const newErrors = {
+      name: name.trim() === "",
+      note: note.trim() === "",
+      startedAt: startedAt.trim() === "",
+      endedAt: endedAt.trim() === "",
+      address: typeItem === "certificate" ? false : detail.trim() === "",
+      evidence: selectedImage === null,
+      score: typeItem !== "certificate" ? false : score.trim() === "",
+    };
+    let newAddressErrors = {
+      province : false,
+      district : false,
+      ward : false,
+    }
+    if(typeItem !== "certificate"){
+      newAddressErrors = {
+        province: province.trim() === "",
+        district: district.trim() === "",
+        ward: ward.trim() === "",
+      }
+    }
+    
+    setErrors(newErrors);
+    setAddressErrors(newAddressErrors);
+
+    // Trả về true nếu không có lỗi
+    return !Object.values(newErrors).some((error) => error);
+  };
+  const resetValidate = () => {
+    const errors = {
+      name: false,
+      note: false,
+      startedAt: false,
+      endedAt: false,
+      address: false,
+      evidence: false,
+      score: false,
+    }
+    const addressErrors = {
+      province: false,
+      district: false,
+      ward: false,
+    }
+    setErrors(errors);
+    setAddressErrors(addressErrors);
+  }
   const selectImage = async () => {
     // Request permission to access photos
     const permissionResult =
@@ -61,10 +198,21 @@ const CvBoxEdit = ({ title, children, onAddItem }: CvBoxProps) => {
 
     if (!pickerResult.canceled) {
       setSelectedImage(pickerResult.assets[0]);
-      console.log("Image selected:", pickerResult.assets[0]);
+      // console.log("Image selected:", pickerResult.assets[0]);
       // Handle the selected image URI, e.g., save or display it
     }
   }
+
+  // EFFECTS >>>>>>>>>>>>>>>>>>>>>>>>
+  //Revalidate Inputs
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return
+    }
+    validateInputs()
+  }, [isFirstRender])
+
 
   return (
     <View style={styles.container}>
@@ -78,7 +226,7 @@ const CvBoxEdit = ({ title, children, onAddItem }: CvBoxProps) => {
       <View style={styles.addButtonBox}>
         <TouchableOpacity
           onPress={() => {
-            setModalVisible("modalInputCV");
+            setModalVisible(true);
           }}
           style={styles.addButton}
         >
@@ -87,44 +235,92 @@ const CvBoxEdit = ({ title, children, onAddItem }: CvBoxProps) => {
       </View>
 
       <Modal
-        isVisible={modalVisible === "modalInputCV"}
+        key={resetKey}
+        isVisible={modalVisible === true}
         animationIn={"slideInUp"}
         animationOut={"slideOutDown"}
-        onBackdropPress={() => setModalVisible(null)}
+        onBackdropPress={() => { handleCloseModal() }}
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalHeader}>
             <Text style={styles.headerTitle}>Nhập thông tin</Text>
             <TouchableOpacity
-              onPress={() => setModalVisible(null)}
+              onPress={() => { handleCloseModal() }}
               style={styles.btnClose}
             >
               <Ionicons name="close" size={24} color="black" />
             </TouchableOpacity>
           </View>
-          
-          <ScrollView 
-          // showsHorizontalScrollIndicator={false}
-          showsVerticalScrollIndicator={false}
-          style={styles.modalBody}>
+
+          <ScrollView
+            // showsHorizontalScrollIndicator={false}
+            showsVerticalScrollIndicator={false}
+            style={styles.modalBody}>
             <Input
               label="Tên"
-              onTextChange={setTextValue}
-              placeholder={"Tên"}
-              value={textValue}
+              onTextChange={setName}
+              value={name}
               require={true}
               editable={true}
+              error={errors.name}
             />
 
             <Input
               label="Ghi chú"
-              onTextChange={setTextValue}
-              placeholder={"Ghi chú..."}
-              value={textValue}
+              onTextChange={setNote}
+              value={note}
               require={true}
               editable={true}
+              error={errors.note}
             />
-
+            <View style={[styles.dateInputBox]}>
+              <Input
+                label={typeItem === "certificate" ? "Có Giá trị tại: " : "Ngày bắt đầu :"}
+                onTextChange={setStartedAt}
+                value={startedAt}
+                require={true}
+                editable={true}
+                datePicker={true}
+                error={errors.startedAt}
+              />
+              <Input
+                label={typeItem === "certificate" ? "Hết hạn lúc: " : "Ngày Kết thúc :"}
+                onTextChange={setEndedAt}
+                value={endedAt}
+                require={true}
+                editable={true}
+                datePicker={true}
+                error={errors.endedAt}
+              />
+            </View>
+            {typeItem === "certificate" ? <Input
+                label={"Bậc điểm đạt được"}
+                onTextChange={setScore}
+                value={score}
+                require={true}
+                editable={true}
+                error={errors.score}
+              /> :
+              <View>
+              <Text style={styles.label}>Địa chỉ</Text>
+              <DropDownLocation
+                onSetSelectedProvince={setProvince}
+                onSetSelectedDistrict={setDistrict}
+                onSetSelectedWard={setWard}
+                selectedProvince={province}
+                selectedDistrict={district}
+                selectedWard={ward}
+                errors={addressErrors} />
+              <Input
+                label="Địa Chỉ Chi Tiết"
+                onTextChange={setDetail}
+                value={detail}
+                editable={true}
+                error={errors.address}
+              />
+            </View>
+            }
+            
             <View>
               <Text>Tải mình chứng</Text>
 
@@ -132,7 +328,7 @@ const CvBoxEdit = ({ title, children, onAddItem }: CvBoxProps) => {
               <View style={styles.uploadPaymentContainer}>
                 <TouchableOpacity
                   onPress={selectImage}
-                  style={[styles.uploadImageButton, styles.boxShadow]}
+                  style={[styles.uploadImageButton, styles.boxShadow, errors.evidence && styles.errorImageButton]}
                 >
                   <Ionicons name="image-outline" size={24} color="black" />
                   <Text style={styles.buttonText}>Chọn hình</Text>
@@ -140,7 +336,7 @@ const CvBoxEdit = ({ title, children, onAddItem }: CvBoxProps) => {
 
                 <View style={styles.textContainer}>
                   <Text style={styles.uploadText}>
-                    Tải ảnh minh chứng 
+                    Tải ảnh minh chứng
                   </Text>
                   <Text style={styles.subText}>
                     Vui lòng tải lên ảnh chụp minh chứng.
@@ -160,7 +356,7 @@ const CvBoxEdit = ({ title, children, onAddItem }: CvBoxProps) => {
           </ScrollView>
           <View style={[styles.btnContainer]}>
             <TouchableOpacity
-              onPress={() => setModalVisible(null)}
+              onPress={() => handleClickAccept()}
               style={[styles.btn, styles.btnSave, styles.boxShadow]}
             >
               <Text style={styles.btnSaveText}>Ok</Text>
@@ -285,6 +481,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
   },
+  errorImageButton: {
+    borderWidth: 0.5,
+    borderColor: BackgroundColor.danger,
+    backgroundColor: BackgroundColor.sub_danger,
+  },
 
   buttonText: {
     marginLeft: 8,
@@ -307,7 +508,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
     paddingHorizontal: 10, // Để văn bản không tràn khi có nhiều nội dung
   },
-
+  //button
   btnContainer: {
     flexDirection: "row",
     alignItems: "center",
@@ -330,4 +531,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: "center",
   },
+
+  //input modal text
+  dateInputBox: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 10,
+  },
+  label: {
+    fontWeight: 'bold',
+    fontSize: 16,
+    paddingLeft: 5
+  }
 });
