@@ -34,6 +34,11 @@ export type ClassDetailRoute = {
   classId: number;
 }
 
+export type UpdateClassRoute = {
+  classData: Class;
+}
+
+
 export type AttendedForLearner = {
   lesson: Lesson;
   user: User;

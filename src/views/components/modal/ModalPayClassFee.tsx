@@ -13,11 +13,9 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import Modal from "react-native-modal";
 import { BackgroundColor } from "../../../configs/ColorConfig";
 import { Image } from "react-native";
-import Animated, { useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import * as ImagePicker from "expo-image-picker";
 import * as MediaLibrary from "expo-media-library";
 import * as FileSystem from "expo-file-system";
-import User from "../../../models/User";
 
 
 type ModalDialogForClassProps = {
