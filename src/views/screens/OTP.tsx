@@ -89,7 +89,7 @@ export default function OTPScreen() {
       Toast.show(languageContext.language.OTP_FAILED, 1000);
     }, 10000);
 
-    AUser.auth(data.id + "", data.phone_number, () => {
+    AUser.auth(data.phone_number, () => {
       setLoading(false);
       clearTimeout(timeId);
     });

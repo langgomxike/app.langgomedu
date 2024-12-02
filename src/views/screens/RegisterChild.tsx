@@ -7,19 +7,21 @@ import {NavigationContext} from "@react-navigation/native";
 import ScreenName from "../../constants/ScreenName";
 import {BackgroundColor, TextColor} from "../../configs/ColorConfig";
 import {LanguageContext} from "../../configs/LanguageConfig";
-import {RegisterType} from "../../configs/NavigationRouteTypeConfig";
+import {OTPNavigationType, RegisterType} from "../../configs/NavigationRouteTypeConfig";
 import Spinner from "react-native-loading-spinner-overlay";
 import Toast from "react-native-simple-toast";
 import AUser from "../../apis/AUser";
 import {AccountContext} from "../../configs/AccountConfig";
 import User from "../../models/User";
 import BackLayout from "../layouts/Back";
+import {AuthContext} from "../../configs/AuthContext";
 
 export default function RegisterChildScreen() {
   //contexts, refs
   const navigation = useContext(NavigationContext);
   const languageContext = useContext(LanguageContext);
   const accountContext = useContext(AccountContext);
+  const authContext = useContext(AuthContext);
 
   //states
   const [fullname, setFullname] = useState("");
@@ -30,7 +32,37 @@ export default function RegisterChildScreen() {
   const [loading, setLoading] = useState(false);
 
   // kiem tra du lieu khi nhan nut tiep tuc
-  const handleSubmit = useCallback(() => {
+  const handleSubmit = useCallback((otp: number, onComplete: () => void) => {
+    const child = new User();
+    child.full_name = fullname;
+    child.username = username;
+    child.password = password;
+
+    if (!accountContext.account) {
+      Toast.show(languageContext.language.REGISTER_FAILED, 1000);
+      return;
+    }
+
+    AUser.registerChild(otp, child, accountContext.account,
+      (result) => {
+        if (result) {
+          Alert.alert(languageContext.language.REGISTER, languageContext.language.REGISTER_FOR_CHILD_SUCCESS, [
+            {
+              onPress: () => {
+                navigation?.goBack();
+              }
+            }
+          ]);
+        } else {
+          Toast.show(languageContext.language.REGISTER_FAILED, 1000);
+        }
+      },
+      onComplete
+    );
+
+  }, [password, fullname, username, confirmPassword, accountContext.account]);
+
+  const handleAuth = useCallback(() => {
     if (!fullname) {
       Alert.alert(languageContext.language.FULL_NAME, languageContext.language.INVALID_FULL_NAME);
       return;
@@ -56,45 +88,18 @@ export default function RegisterChildScreen() {
       return;
     }
 
-    setLoading(true);
-    const timeId = setTimeout(() => {
-      setLoading(false);
-      Toast.show(languageContext.language.REGISTER_FAILED, 1000);
-    }, 10000);
+    const data: OTPNavigationType = {
+      phone_number: accountContext.account?.phone_number ?? "-1",
+    }
 
-    const child = new User();
-    child.full_name = fullname;
-    child.username = username;
-    child.password = password;
-
-    AUser.registerChild(child, accountContext.account,
-      (result) => {
-        if (result) {
-          Alert.alert(languageContext.language.REGISTER, languageContext.language.REGISTER_FOR_CHILD_SUCCESS, [
-            {
-              onPress: () => {
-                navigation?.goBack();
-              }
-            }
-          ]);
-        } else {
-          Toast.show(languageContext.language.REGISTER_FAILED, 1000);
-        }
-      },
-      () => {
-        setLoading(false);
-        clearTimeout(timeId);
-      }
-    );
-
-  }, [password, fullname, username, confirmPassword, accountContext.account]);
+    navigation?.navigate(ScreenName.OTP, data);
+    authContext.setOnAfterAuth(() => handleSubmit);
+  }, [password, fullname, username, confirmPassword, accountContext.account])
 
   return (
     <BackLayout>
       <ScrollView>
         <View style={styles.container}>
-
-          <Spinner visible={loading}/>
 
           {/* illustration image*/}
           <Image
@@ -170,7 +175,7 @@ export default function RegisterChildScreen() {
               title={languageContext.language.SUBMIT}
               textColor="white"
               backgroundColor={BackgroundColor.primary}
-              onPress={handleSubmit}
+              onPress={handleAuth}
             />
           </>
         </View>

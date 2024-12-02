@@ -136,7 +136,7 @@ export default function ButtonNavBar() {
           name={ScreenName.CHAT}
           component={ChatScreen}
           options={(hasNoti + hasNewMessages > 0) && {
-            tabBarBadge: hasNoti + hasNewMessages + hasNewClassMessages,
+            tabBarBadge: hasNoti + hasNewMessages + hasNewClassMessages > 9 ? "9+" : hasNoti + hasNewMessages + hasNewClassMessages,
             tabBarBadgeStyle: styles.badge
           } || {}}
         />

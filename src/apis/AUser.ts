@@ -8,11 +8,10 @@ import axios from "axios";
 export default class AUser {
   private static BASE_URL = ReactAppUrl.API_BASE_URL + "/users";
 
-  public static auth(id: string, phoneNumber: string, onComplete: () => void) {
+  public static auth(phoneNumber: string, onComplete: () => void) {
     const url = this.BASE_URL + "/auth";
     const data = {
       user: {
-        id: id,
         phone_number: phoneNumber,
       }
     }
@@ -179,6 +178,7 @@ export default class AUser {
   }
 
   public static registerChild(
+    otp: number,
     user: User,
     parent: User,
     onNext: (result: boolean) => void,
@@ -186,7 +186,7 @@ export default class AUser {
   ) {
     //prepare parameters
     const url = this.BASE_URL + "/register/child";
-    const data = {user, parent};
+    const data = {user, parent, otp};
 
     //process login with parameters
     axios.post<Response>(url, data)
@@ -225,6 +225,7 @@ export default class AUser {
 
   public static changePassword(
     userId: string,
+    phoneNumber: string,
     newPassword: string,
     otp: number,
     onNext: (result: boolean) => void,
@@ -235,6 +236,7 @@ export default class AUser {
     const data = {
       user: {
         id: userId,
+        phone_number: phoneNumber,
       },
       new_password: newPassword,
       otp
@@ -248,6 +250,36 @@ export default class AUser {
       })
       .catch((error) => {
         SLog.log(LogType.Info, "changePassword", "Found error", error);
+        onNext(false);
+      })
+      .finally(onComplete);
+  }
+
+  public static resetPassword(
+    phoneNumber: string,
+    newPassword: string,
+    otp: number,
+    onNext: (result: boolean) => void,
+    onComplete?: () => void,
+  ) {
+    //prepare parameters
+    const url = this.BASE_URL + "/reset-password";
+    const data = {
+      user: {
+        phone_number: phoneNumber,
+      },
+      new_password: newPassword,
+      otp
+    };
+
+    //process login with parameters
+    axios.put<Response>(url, data)
+      .then((response) => {
+        SLog.log(LogType.Info, "resetPassword", response.data.message, response.data.status);
+        onNext(response.data.status_code === 200);
+      })
+      .catch((error) => {
+        SLog.log(LogType.Info, "resetPassword", "Found error", error);
         onNext(false);
       })
       .finally(onComplete);
