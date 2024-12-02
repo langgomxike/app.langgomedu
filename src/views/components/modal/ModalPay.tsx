@@ -32,7 +32,7 @@ type ModalDialogForClassProps = {
   onPay: () => void;
 };
 
-const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH} = Dimensions.get("window");
+const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH} = Dimensions.get("screen");
 export default function ModalPay({
   confirmTitle,
   visiable,

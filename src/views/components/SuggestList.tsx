@@ -27,22 +27,24 @@ import Feather from '@expo/vector-icons/Feather';
 import Values from "../../constants/Values";
 import Pagination from "../../models/Pagination";
 import Filters from "../../models/Filters";
+import { AccountContext } from "../../configs/AccountConfig";
 
 const TAB = {
   SUGGEST_CLASS: "suggestClass",
   SUGGEST_CV: "suggestCV",
 };
 
-const { width: SCREEN_WIDTH } = Dimensions.get("window");
+const { width: SCREEN_WIDTH } = Dimensions.get("screen");
 const URL = ReactAppUrl.PUBLIC_URL;
 const PERPAGE = Values.PERPAGE
 export default function SuggestList() {
   //contexts, refs
   const navigation = useContext(NavigationContext);
-  const { user, setUser } = useContext(UserContext);
+  const user = useContext(UserContext).user;
+  const account= useContext(AccountContext).account;
   
 
-  // states ////////////////////////////////////////////////////////////////////////
+  // states ----------------------------------------------------------------
   const [userId, setUserId] = useState<string | undefined>(undefined);
   const [activeTab, setActiveTab] = useState(TAB.SUGGEST_CLASS);
   const [loading, setLoading] = useState(false);
@@ -55,7 +57,7 @@ export default function SuggestList() {
   const [paginations, setPaginations] = useState(new Pagination);
   const [filterValues, setFilterValues] = useState<Filters>();
 
-  // handle /////////////////////////////////////////////////////////////////////////
+  // handle ----------------------------------------------------------------
 
   // Hàm gọi get danh sách lớp học gợi ý từ api
   const fetchSuggestedClasses = (currentPage: number, loading: (isloading: boolean) => void, reset = false, filterValues?: Filters ) => {
@@ -107,7 +109,7 @@ export default function SuggestList() {
     }
   };
 
-  // effect ///////////////////////////////////////////////////////
+  // effect ----------------------------------------------------------------
 
   // Lấy danh sách lớp học gợi ý lần đầu tiên
   useEffect(() => {
@@ -131,9 +133,12 @@ export default function SuggestList() {
   }, [filterValues]);
 
   useEffect(() => {
-    setUserId(user.ID);
-    console.log(">>> user id: ", user.ID);
-  }, [user]);
+    if(account){
+      setUserId(account.id);
+      console.log(">>> user id: ", account.id);
+
+    }
+  }, [account]);
 
 
   // render ////////////////////////////////////////////////////////////
