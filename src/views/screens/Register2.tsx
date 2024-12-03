@@ -97,7 +97,6 @@ export default function RegisterStep2Screen() {
     }
 
     const data: OTPNavigationType = {
-      id: id,
       phone_number: phone_number,
     }
 

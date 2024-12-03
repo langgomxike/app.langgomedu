@@ -129,7 +129,7 @@ export default function ModalInputReason({
 
 const styles = StyleSheet.create({
   container: {
-    height: "80%",
+    height: "65%",
     marginTop: 10,
     backgroundColor: "#fff",
     borderRadius: 10,

@@ -14,6 +14,7 @@ import AClass from "../../../apis/AClass";
 import { UserContext, UserType } from "../../../configs/UserContext";
 import ModalDialogForClass from "./ModalDialogForClass";
 import User from "../../../models/User";
+import { AccountContext } from "../../../configs/AccountConfig";
 
 type ModalJoinClassProps = {
   confirmContent: string;
@@ -38,7 +39,8 @@ export default function ModalConfirmJoinClass({
   onResultValue
 }: ModalJoinClassProps) {
   //context 
-  const {user} = useContext(UserContext);
+  const account = useContext(AccountContext).account;
+  const user = useContext(UserContext).user;
 
   // states 
   const [isConfirming, setIsConfirming] = useState<string | null>("");
@@ -51,12 +53,19 @@ export default function ModalConfirmJoinClass({
 
   
   // Handles
+
+  // Xử lý tham gia lớp học
   const handleJoinClass = useCallback(() => {
+    if(account && userIds.length === 0){
+      userIds.push(account.id);
+    }
+    
     AClass.joinClass(
       classId, 
       userIds ,
       (data) => {
-        setIsConfirming("modalDialogForClass"); // mở modalDialogForClass
+         // mở modalDialogForClass
+        setIsConfirming("modalDialogForClass");
         onRequestClose();
         if(data.result){
           onResultValue(data.result)
@@ -75,35 +84,40 @@ export default function ModalConfirmJoinClass({
       },
       setLoading
      )
+    
 
   }, [userIds, classId,]);
 
+  // Xử lý nhận lớp cho gia sư
   const handleAcceptClassToTeach = useCallback(() => {
-    AClass.acceptClassToTeach(
-      classId, 
-      user.ID,
-      (data) => {
-        setIsConfirming("modalDialogForClass"); // mở modalDialogForClass
-        onRequestClose();
-        if(data.result){
-          onResultValue(data.result)
-          setModalDialog({
-            confirmContent: "Nhận lớp thành công. Vui lòng chờ duyệt!",
-            confirmStatus: "success"
-          });
-        }
-        else {
-          setModalDialog({
-            confirmContent: "Không thể nhận lớp. Vui lòng thử lại.",
-            confirmStatus: "failure"
-          });
-        }
-      },
-      setLoading
-     )
-  }, [classId])
+    if(account){
+      AClass.acceptClassToTeach(
+        classId, 
+        account.id,
+        (data) => {
+          setIsConfirming("modalDialogForClass"); // mở modalDialogForClass
+          onRequestClose();
+          if(data.result){
+            onResultValue(data.result)
+            setModalDialog({
+              confirmContent: "Nhận lớp thành công. Vui lòng chờ duyệt!",
+              confirmStatus: "success"
+            });
+          }
+          else {
+            setModalDialog({
+              confirmContent: "Không thể nhận lớp. Vui lòng thử lại.",
+              confirmStatus: "failure"
+            });
+          }
+        },
+        setLoading
+       )
+    }
+  }, [classId, account])
 
   // effects 
+  // Xử lấy danh sách con của người dùng được chọn
   useEffect(() => {
       if (selectedStudents) {
         setUserIds(selectedStudents.map((student) => student.id))
@@ -167,7 +181,7 @@ export default function ModalConfirmJoinClass({
             <View style={[styles.btnContainer]}>
               <TouchableOpacity
                 style={[styles.btn, styles.btnDeny]}
-                onPress={() => onRequestClose()}
+                onPress={() => onRequestClose() }
               >
                 <Text style={styles.btnDenyText}>Từ chối</Text>
               </TouchableOpacity>

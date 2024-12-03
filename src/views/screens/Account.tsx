@@ -1,4 +1,4 @@
-import {Image, Linking, ScrollView, StyleSheet, Text, TouchableOpacity, View,} from "react-native";
+import {Image, Linking, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View,} from "react-native";
 import BackWithDetailLayout from "../layouts/BackWithDetail";
 import {ListItemVietnamese, ListItemEnglish, ListItemJapanese} from "../../configs/AccountListItemConfig";
 import AccountItem, {AccountItemProps} from "../components/AccountItem";
@@ -38,7 +38,6 @@ function FlatListItem({item, index}: FlatListItemProps) {
   //states
   const [handlers, setHandler] = useState<Array<any>>([]);
   const [showConfirmLogout, setShowConfirmLogout] = useState(false);
-  const [showConfirmDeleteAccount, setShowConfirmDeleteAccount] = useState(false);
 
   //handlers
   const goToPersonalInfoScreen = useCallback(() => {
@@ -46,8 +45,12 @@ function FlatListItem({item, index}: FlatListItemProps) {
   }, []);
 
   const goToRegisterChileScreen = useCallback(() => {
-    navigation?.navigate(ScreenName.REGISTER_STEP_CHILD);
-  }, []);
+    if (accountContext.account?.parent_id && accountContext.account?.parent_id.length > 8) {
+      Toast.show(languageContext.language.CHILDREN_CANNOT_CREATE_CHILDREN, 1000);
+    } else {
+      navigation?.navigate(ScreenName.REGISTER_STEP_CHILD);
+    }
+  }, [accountContext.account]);
 
   const goToCVScreen = useCallback(() => {
     navigation?.navigate(ScreenName.SETTING_PERSONAL_CV);
@@ -66,13 +69,17 @@ function FlatListItem({item, index}: FlatListItemProps) {
     navigation?.navigate(ScreenName.CHANGE_PASSWORD);
   }, []);
 
-  const handleDeleteAccount = useCallback(() => {
-    setShowConfirmDeleteAccount(false);
-    alert("handleDeleteAccount");
-  }, []);
-
   const handleOpenWebsite = useCallback(() => {
     Linking.openURL(appInfos.webiste_link);
+  }, []);
+
+  const handleOpenInAppPackager = useCallback(() => {
+    const appStoreUrl = `https://apps.apple.com/app/id${appInfos.apple_store_app_id}`;
+    const playStoreUrl = `https://play.google.com/store/apps/details?id=${appInfos.play_store_app_id}`;
+
+    const url = Platform.OS === 'ios' ? appStoreUrl : playStoreUrl;
+
+    Linking.openURL(url);
   }, []);
 
   const handleChangeLanguage = useCallback((language: typeof vn) => {
@@ -104,6 +111,7 @@ function FlatListItem({item, index}: FlatListItemProps) {
       sendEmail,
       goToChangePasswordScreen,
       handleOpenWebsite,
+      handleOpenInAppPackager,
       refRBSheet.current?.open,
       () => setShowConfirmLogout(true),
     ];
@@ -146,15 +154,6 @@ function FlatListItem({item, index}: FlatListItemProps) {
                      cancel={languageContext.language.CANCEL}
                      onConfirm={handleLogout}
                      onCancel={() => setShowConfirmLogout(false)}/>
-
-      {/*confirm dialog for delete account*/}
-      <ConfirmDialog title={languageContext.language.DELETE_ACCOUNT}
-                     content={languageContext.language.DELETE_ACCOUNT_HINT} open={showConfirmDeleteAccount}
-                     confirm={languageContext.language.CONFIRM}
-                     cancel={languageContext.language.CANCEL}
-                     onConfirm={handleDeleteAccount}
-                     onCancel={() => setShowConfirmDeleteAccount(false)}/>
-
     </>
   );
 }
@@ -162,7 +161,7 @@ function FlatListItem({item, index}: FlatListItemProps) {
 export default function AccountScreen() {
   //contexts
   const languageContext = useContext(LanguageContext);
- 
+
   //states
   const [ListItem, setListItem] = useState<AccountItemProps[]>(ListItemVietnamese);
 
@@ -182,8 +181,6 @@ export default function AccountScreen() {
 
     //save language into storage
     SAsyncStorage.setData(AsyncStorageKeys.LANGUAGE, languageContext.language.TYPE + "");
-
-    Toast.show(languageContext.language.CHANGE_LANGUAGE, 2000);
   }, [languageContext.language]);
 
   //tsx

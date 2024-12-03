@@ -15,16 +15,16 @@ import Spinner from "react-native-loading-spinner-overlay";
 import {BackgroundColor, TextColor} from "../../configs/ColorConfig";
 import {AuthContext} from "../../configs/AuthContext";
 import {AccountContext} from "../../configs/AccountConfig";
+import Toast from "react-native-simple-toast";
 
-export default function ChangePasswordScreen() {
+export default function ResetPasswordScreen() {
   //contexts
   const navigation = useContext(NavigationContext);
   const languageContext = useContext(LanguageContext);
   const authContext = useContext(AuthContext);
-  const accountContext = useContext(AccountContext);
 
   //states
-  const [currentPassword, setCurrentPassword] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
@@ -34,28 +34,29 @@ export default function ChangePasswordScreen() {
   }, []);
 
   const handleSubmit = useCallback((otp: number, onComplete: () => void) => {
-    AUser.changePassword(accountContext.account?.id ?? "-1", accountContext.account?.phone_number ?? "-1", newPassword, otp,
+    AUser.resetPassword(phoneNumber, newPassword, otp,
       (result) => {
         if (result) {
+          Toast.show(languageContext.language.PASSWORD_RESET_ALREADY, 1000);
           navigation?.reset({
             index: 0,
             routes: [{name: ScreenName.LOGIN}],
           });
         } else {
-          Alert.alert(languageContext.language.CHANGE_PASSWORD, languageContext.language.INVALID_CHANGE_PASSWORD);
+          Alert.alert(languageContext.language.RESET_PASSWORD, languageContext.language.INVALID_RESET_PASSWORD);
         }
       },
       onComplete
     );
-  }, [newPassword, authContext.onAfterAuth, accountContext.account]);
+  }, [newPassword, phoneNumber, authContext.onAfterAuth]);
 
   const handleAuth = useCallback(() => {
-    if (!currentPassword) {
-      Alert.alert(languageContext.language.OLD_PASSWORD, languageContext.language.INVALID_PASSWORD);
+    if (!phoneNumber) {
+      Alert.alert(languageContext.language.PHONE_NUMBER, languageContext.language.INVALID_PHONE_NUMBER);
       return;
     }
 
-    if (!newPassword || newPassword === currentPassword) {
+    if (!newPassword) {
       Alert.alert(languageContext.language.NEW_PASSWORD, languageContext.language.INVALID_PASSWORD);
       return;
     }
@@ -66,12 +67,12 @@ export default function ChangePasswordScreen() {
     }
 
     const data: OTPNavigationType = {
-      phone_number: accountContext.account?.phone_number?? "",
+      phone_number:phoneNumber,
     }
     navigation?.navigate(ScreenName.OTP, data);
 
     authContext.setOnAfterAuth(() => handleSubmit);
-  }, [handleSubmit, newPassword, confirmPassword, currentPassword, accountContext.account]);
+  }, [handleSubmit, newPassword, confirmPassword, phoneNumber]);
 
   return (
     <View style={styles.container}>
@@ -87,20 +88,20 @@ export default function ChangePasswordScreen() {
 
       {/* screen title */}
       <View>
-        <Text style={styles.title}>{languageContext.language.CHANGE_PASSWORD}</Text>
-        <Text style={styles.content}>{languageContext.language.CHANGE_PASSWORD_HINT}</Text>
+        <Text style={styles.title}>{languageContext.language.RESET_PASSWORD}</Text>
+        <Text style={styles.content}>{languageContext.language.RESET_PASSWORD_HINT}</Text>
       </View>
 
       {/* current password*/}
       <View style={styles.input}>
         <InputRegister
-          label={languageContext.language.OLD_PASSWORD}
+          label={languageContext.language.PHONE_NUMBER}
           required={true}
-          value={currentPassword}
-          onChangeText={setCurrentPassword}
-          placeholder={languageContext.language.OLD_PASSWORD}
-          type="password"
-          iconName="password"
+          value={phoneNumber}
+          onChangeText={setPhoneNumber}
+          placeholder={languageContext.language.PHONE_NUMBER}
+          type="phone"
+          iconName="phone"
         />
       </View>
 
@@ -132,7 +133,7 @@ export default function ChangePasswordScreen() {
 
       {/* submit button*/}
       <View style={styles.btn}>
-        <Button title={languageContext.language.CHANGE_PASSWORD} textColor={TextColor.white}
+        <Button title={languageContext.language.RESET_PASSWORD} textColor={TextColor.white}
                 backgroundColor={BackgroundColor.primary} onPress={handleAuth}/>
       </View>
     </View>

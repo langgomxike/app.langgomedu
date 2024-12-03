@@ -9,7 +9,6 @@ export type IdNavigationType = {
 }
 
 export type OTPNavigationType = {
-  id: number | string;
   phone_number: string;
 }
 
@@ -34,6 +33,11 @@ export type RootStackParamListFilter = {
 export type ClassDetailRoute = {
   classId: number;
 }
+
+export type UpdateClassRoute = {
+  classData: Class;
+}
+
 
 export type AttendedForLearner = {
   lesson: Lesson;
