@@ -28,6 +28,7 @@ import Values from "../../constants/Values";
 import Pagination from "../../models/Pagination";
 import Filters from "../../models/Filters";
 import { AccountContext } from "../../configs/AccountConfig";
+import { LanguageContext } from "../../configs/LanguageConfig";
 
 const TAB = {
   SUGGEST_CLASS: "suggestClass",
@@ -42,7 +43,7 @@ export default function SuggestList() {
   const navigation = useContext(NavigationContext);
   const user = useContext(UserContext).user;
   const account= useContext(AccountContext).account;
-  
+  const language = useContext(LanguageContext).language;
 
   // states ----------------------------------------------------------------
   const [userId, setUserId] = useState<string | undefined>(undefined);
@@ -127,9 +128,9 @@ export default function SuggestList() {
   // Khi filter thay đổi, reset danh sách và page
   useEffect(() => {
     setPage(1);
-    console.log("Filter thay đổi");
-    
-    fetchSuggestedClasses(1, setLoading, true ,filterValues); // Reset danh sách khi filter thay đổi
+
+     // Reset danh sách khi filter thay đổi
+    fetchSuggestedClasses(1, setLoading, true ,filterValues);
   }, [filterValues]);
 
   useEffect(() => {
@@ -141,7 +142,7 @@ export default function SuggestList() {
   }, [account]);
 
 
-  // render ////////////////////////////////////////////////////////////
+  // render ----------------------------------------------------------------
 
   return (
     <View style={styles.container}>
@@ -155,7 +156,7 @@ export default function SuggestList() {
                 activeTab === TAB.SUGGEST_CLASS && styles.headerTextActive,
               ]}
             >
-              Gợi ý lớp học
+             {language.CLASS_SUGGESTIONS}
             </Text>
           </TouchableOpacity>
         </View>
@@ -168,7 +169,7 @@ export default function SuggestList() {
                 activeTab === TAB.SUGGEST_CV && styles.headerTextActive,
               ]}
             >
-              Gợi ý gia sư
+              {language.TUTOR_SUGGESTIONS}
             </Text>
           </TouchableOpacity>
         </View>
@@ -176,15 +177,15 @@ export default function SuggestList() {
 
       <View style={styles.btnFilterContainer}>
       { activeTab === TAB.SUGGEST_CLASS && filterValues &&
-        <Text style={styles.totalTitle}>Tổng số lớp học: {paginations.total_items}</Text>
+        <Text style={styles.totalTitle}>{language.TOTAL_CLASSES}: {paginations.total_items}</Text>
       }
       { activeTab === TAB.SUGGEST_CV && 
-        <Text style={styles.totalTitle}>Tổng số gia sư: {paginations.total_items}</Text>
+        <Text style={styles.totalTitle}>{language.TOTAL_TUTORS}: {paginations.total_items}</Text>
       }
       <Text></Text>
         <TouchableOpacity onPress={() => setShowingFilter(true)} style={[styles.btnFilter, styles.boxShadow]}>
         <Feather name="filter" size={18} color="gray" />
-        <Text style={styles.btnFilterText}>Lọc</Text>
+        <Text style={styles.btnFilterText}>{language.FILTER}</Text>
         </TouchableOpacity>
       </View>
 

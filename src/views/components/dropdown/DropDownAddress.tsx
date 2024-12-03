@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { StyleSheet, View, TouchableOpacity, Text } from "react-native";
 import { MultiSelect } from "react-native-element-dropdown";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import vietnamData from "../../../data/vietnam.json";
 import Feather from '@expo/vector-icons/Feather';
+import { LanguageContext } from "../../../configs/LanguageConfig";
 
 // Định nghĩa kiểu dữ liệu cho JSON
 type Dropdown  = {
@@ -30,14 +31,13 @@ export default function DropDownAddress({
   onSetSelectedDistricts,
   onSetSelectedWards,
 }: DropDownAddressProps) {
-  // states //////////////////////////////////////////////
+  // conntext --------------------------------------------------------------
+  const language = useContext(LanguageContext).language;
+  // states ----------------------------------------------------------------
   const [districts, setDistricts] = useState<Dropdown[]>([]);
   const [wards, setWards] = useState<Dropdown[]>([]);
 
-  // handle /////////////////////////////////////////////
-
-  // effect ////////////////////////////////////////////
-
+  // effect  ----------------------------------------------------------------
   // Lấy danh sách quận huyện
   useEffect(() => {
     // Cập nhật danh sách quận/huyện khi thay đổi danh sách thành phố
@@ -116,7 +116,7 @@ export default function DropDownAddress({
   return (
     <View style={styles.container}>
       <View>
-        <Text style={styles.titleDropdown}>Tỉnh/TP:</Text>
+        <Text style={styles.titleDropdown}>{language.CITY_PROVINCE}:</Text>
         <MultiSelect
           style={styles.dropdown}
           placeholderStyle={styles.placeholderStyle}
@@ -129,10 +129,10 @@ export default function DropDownAddress({
           }))}
           labelField="label"
           valueField="value"
-          placeholder="Chọn..."
+          placeholder={language.SELECT}
           value={selectedCities}
           search
-          searchPlaceholder="Search..."
+          searchPlaceholder={language.SEARCH_P}
           onChange={(item) => {
             onSetSelectedCities(item);
           }}
@@ -157,7 +157,7 @@ export default function DropDownAddress({
       </View>
 
       <View>
-        <Text style={styles.titleDropdown}>Quận/ huyện:</Text>
+        <Text style={styles.titleDropdown}>{language.DISTRICT}:</Text>
         <MultiSelect
           style={styles.dropdown}
           placeholderStyle={styles.placeholderStyle}
@@ -167,10 +167,10 @@ export default function DropDownAddress({
           data={districts}
           labelField="label"
           valueField="value"
-          placeholder="Chọn..."
+          placeholder={language.SELECT}
           value={selectedDistricts}
           search
-          searchPlaceholder="Search..."
+          searchPlaceholder={language.SEARCH_P}
           onChange={(items) => {
              // Cập nhật danh sách quận/huyện đã chọn
             onSetSelectedDistricts(items);
@@ -196,7 +196,7 @@ export default function DropDownAddress({
       </View>
 
       <View>
-        <Text style={styles.titleDropdown}>Xã/phường</Text>
+        <Text style={styles.titleDropdown}>{language.COMMUNE_WARD}</Text>
         <MultiSelect
           style={styles.dropdown}
           placeholderStyle={styles.placeholderStyle}
@@ -206,10 +206,10 @@ export default function DropDownAddress({
           data={wards}
           labelField="label"
           valueField="value"
-          placeholder="Chọn..."
+           placeholder={language.SELECT}
           value={selectedWards}
           search
-          searchPlaceholder="Search..."
+          searchPlaceholder={language.SEARCH_P}
           onChange={(item) => {
             onSetSelectedWards(item);
           }}

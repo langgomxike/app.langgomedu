@@ -1,18 +1,23 @@
-import { LinearGradient } from "expo-linear-gradient";
-import React from "react";
-import { Image, StyleSheet, Text, View } from "react-native";
-import { BackgroundColor } from "../../configs/ColorConfig";
+import {LinearGradient} from "expo-linear-gradient";
+import React, {useContext} from "react";
+import {Image, StyleSheet, Text, View} from "react-native";
+import {BackgroundColor} from "../../configs/ColorConfig";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import Feather from '@expo/vector-icons/Feather';
 import Class from "../../models/Class";
 import ReactAppUrl from "../../configs/ConfigUrl";
 import moment from "moment";
+import {LanguageContext} from "../../configs/LanguageConfig";
 
 type CourseItemProps = {
   classData: Class;
 };
 const URL = ReactAppUrl.PUBLIC_URL;
 const colorItem = "#666";
-export default function CourseItem({ classData }: CourseItemProps) {
+export default function CourseItem({classData}: CourseItemProps) {
+  //contexts
+  const language = useContext(LanguageContext).language;
+
   //handler
   function formatCurrency(amount: number, locale = "vi-VN", currency = "VND") {
     // Kiểm tra nếu không phải số, trả về chuỗi lỗi
@@ -37,7 +42,7 @@ export default function CourseItem({ classData }: CourseItemProps) {
           style={styles.header}
         >
           <Image
-            source={{ uri: `${URL}${classData.major?.icon}` }}
+            source={{uri: `${URL}${classData.major?.icon}`}}
             style={styles.courseImage}
           />
           <Text
@@ -56,12 +61,16 @@ export default function CourseItem({ classData }: CourseItemProps) {
             style={[
               styles.contentItem,
               styles.twoSection,
-              { paddingVertical: 5 },
+              {paddingVertical: 5},
             ]}
           >
             <Ionicons name="book-outline" size={20} color={colorItem} />
             <Text style={styles.contentText}>
-              {classData.class_level?.vn_name}
+              {language.TYPE === "vi"
+                ? classData.class_level?.vn_name
+                : language.TYPE === "en"
+                ? classData.class_level?.en_name
+                : classData.class_level?.ja_name}
             </Text>
           </View>
 
@@ -69,7 +78,7 @@ export default function CourseItem({ classData }: CourseItemProps) {
             style={[
               styles.contentItem,
               styles.twoSection,
-              { justifyContent: "flex-end" },
+              {justifyContent: "flex-end"},
             ]}
           >
             <Ionicons name="calendar-outline" size={20} color={colorItem} />
@@ -85,33 +94,33 @@ export default function CourseItem({ classData }: CourseItemProps) {
           style={[
             styles.contentItemContainer,
             styles.marginButtom,
-            { paddingTop: 10 },
+            {paddingTop: 10},
           ]}
         >
           <View style={styles.item}>
-            <Ionicons name="time-outline" size={20} color={colorItem} />
-            <Text style={{ color: colorItem }}>Thời lượng</Text>
+          <Feather name="users" size={20} color={colorItem} />
+            <Text style={{color: colorItem}}>{language.QUANTITY}</Text>
           </View>
-          <Text style={styles.contentText}>11 giờ/Buổi</Text>
+          <Text style={styles.contentText}>{classData.max_learners} {language.PERSON}</Text>
         </View>
 
         <View style={[styles.contentItemContainer, styles.marginButtom]}>
           <View style={styles.item}>
             <Ionicons name="git-commit-outline" size={20} color={colorItem} />
-            <Text style={{ color: colorItem }}>Hình thức</Text>
+            <Text style={{color: colorItem}}>{language.FORM}</Text>
           </View>
           <Text style={styles.contentText}>{classData.type}</Text>
         </View>
 
         <View
           style={[
-            { flexDirection: "column", justifyContent: "space-between" },
+            {flexDirection: "column", justifyContent: "space-between"},
             styles.marginButtom,
           ]}
         >
           <View style={styles.item}>
             <Ionicons name="location-outline" size={20} color={colorItem} />
-            <Text style={{ color: colorItem }}>Địa chỉ</Text>
+            <Text style={{color: colorItem}}>{language.ADDRESS}</Text>
           </View>
           <Text
             style={[styles.contentAddress]}
@@ -121,7 +130,7 @@ export default function CourseItem({ classData }: CourseItemProps) {
 
         <View>
           <Text style={styles.footerText}>
-            {formatCurrency(classData.price)}/Buổi
+            {formatCurrency(classData.price)}/{language.SESSION}
           </Text>
         </View>
       </View>
