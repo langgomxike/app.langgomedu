@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { StyleSheet, View, TouchableOpacity, Text } from "react-native";
 import { Dropdown, MultiSelect } from "react-native-element-dropdown";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import vietnamData from "../../../data/vietnam.json";
 import Feather from "@expo/vector-icons/Feather";
+import { LanguageContext } from "../../../configs/LanguageConfig";
 
 // Định nghĩa kiểu dữ liệu cho JSON
 interface Dropdown {
@@ -29,6 +30,9 @@ export default function DropDownLocation(
     onSetSelectedDistrict,
     onSetSelectedWard,
   }: DropDownAddressProps){
+
+    // context
+    const languageContext = useContext(LanguageContext).language;
     
   // states //////////////////////////////////////////////
   const [district, setDistrict] = useState<Dropdown[]>([]); // quan
@@ -106,8 +110,8 @@ export default function DropDownLocation(
         maxHeight={300}
         labelField="label"
         valueField="value"
-        placeholder={!isFocus ? "Chọn tỉnh" : "Tỉnh"}
-        searchPlaceholder="Search..."
+        placeholder={!isFocus ? languageContext.PROVICE : languageContext.PROVICE_PLACEHOLDER}
+        searchPlaceholder={languageContext.SEARCH}
         value={selectedCity}
         onFocus={() => setIsFocus(true)}
         onBlur={() => setIsFocus(false)}
@@ -138,8 +142,8 @@ export default function DropDownLocation(
         maxHeight={300}
         labelField="label"
         valueField="value"
-        placeholder={!isFocus ? "Chọn quận/ huyện" : "Quận/ huyện"}
-        searchPlaceholder="Search..."
+        placeholder={!isFocus ? languageContext.DISTRICT : languageContext.DISTRICT_PLACEHOLDER}
+        searchPlaceholder={languageContext.SEARCH}
         value={selectedDistrict}
         onFocus={() => setIsFocus(true)}
         onBlur={() => setIsFocus(false)}
@@ -169,8 +173,8 @@ export default function DropDownLocation(
         maxHeight={300}
         labelField="label"
         valueField="value"
-        placeholder={!isFocus ? "Chọn xã" : "Xã"}
-        searchPlaceholder="Search..."
+        placeholder={!isFocus ? languageContext.WARD : languageContext.WARD_PLACEHOLDER}
+        searchPlaceholder={languageContext.SEARCH}
         value={selectedWard}
         onFocus={() => setIsFocus(true)}
         onBlur={() => setIsFocus(false)}
