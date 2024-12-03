@@ -253,7 +253,7 @@
   "SCHEDULE_CONFLICT": "Bị trùng lịch",
   "CANNOT_JOIN_CLASS": "Bạn này không thể tham gia lớp học.\nDo đã có buổi học bị trùng!",
   "CAN_JOIN_CLASS": "Bạn này có thể tham gia lớp học",
-   "CONFIRM_JOIN_CLASS": "Bạn chắc chắn muốn tham gia lớp học này!",
+  "CONFIRM_JOIN_CLASS": "Bạn chắc chắn muốn tham gia lớp học này!",
   "CONFIRM_JOIN_CLASS_WITH_SELECTED_LEARNERS": "Bạn có chắc chắn muốn tham gia lớp học với các học sinh đã chọn không?",
   "JOIN_CLASS_SUCCESS": "Tham gia lớp thành công",
   "JOIN_CLASS_FAILED": "Không thể tham gia lớp. Vui lòng thử lại",

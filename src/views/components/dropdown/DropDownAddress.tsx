@@ -157,7 +157,7 @@ export default function DropDownAddress({
       </View>
 
       <View>
-        <Text style={styles.titleDropdown}>{language.DISTRICT}:</Text>
+        <Text style={styles.titleDropdown}>{language.DISTRICT_A}:</Text>
         <MultiSelect
           style={styles.dropdown}
           placeholderStyle={styles.placeholderStyle}
