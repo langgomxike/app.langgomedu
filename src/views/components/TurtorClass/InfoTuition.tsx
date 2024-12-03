@@ -10,6 +10,7 @@ import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { useContext, useState, useEffect } from "react";
 import DropDownLocation from "../dropdown/DropDownLocation";
 import { AppInfoContext } from "../../../configs/AppInfoContext";
+import { LanguageContext } from "../../../configs/LanguageConfig";
 
 type props = {
   onNext: (
@@ -26,6 +27,7 @@ type props = {
 const InfoTuition = ({ onNext }: props) => {
   // context
   const appInfos = useContext(AppInfoContext);
+  const languageContext = useContext(LanguageContext).language;
   // console.log("code: ", appInfos.infos.banking_code);
   // console.log("number: ", appInfos.infos.banking_number);
 
@@ -51,7 +53,7 @@ const InfoTuition = ({ onNext }: props) => {
     const endDate = new Date(end).getTime();
 
     if (startDate > endDate) {
-      setError("Ngày kết thúc phải lớn hơn hoặc bằng ngày bắt đầu.");
+      setError(languageContext.ERROR_DATE);
       setDateEnd("");
       return false;
     }
@@ -121,9 +123,9 @@ const InfoTuition = ({ onNext }: props) => {
     // Kiểm tra nếu giá trị là số hợp lệ
     if (!isNaN(numericValue)) {
       if (numericValue < 0) {
-        setError("Mức học phí phải là số dương và không được âm.");
+        setError(languageContext.ERROR_TUITION);
       } else if (numericValue < 10000) {
-        setError("Mức học phí phải từ 10,000 trở lên.");
+        setError(languageContext.ERROR_TUITION_1);
       } else {
         setError(""); // Reset lỗi nếu hợp lệ
       }
@@ -144,7 +146,7 @@ const InfoTuition = ({ onNext }: props) => {
         detail
       );
     } else {
-      setError("Giá trị không hợp lệ. Vui lòng nhập số.");
+      setError(languageContext.ERROR_TUITION_2);
     }
   };
 
@@ -182,11 +184,11 @@ const InfoTuition = ({ onNext }: props) => {
       {/* Học phí */}
       <View style={styles.marginInput}>
         <Text style={styles.label}>
-          Học phí <Text style={styles.required}>*</Text>
+          {languageContext.TUITION} <Text style={styles.required}>*</Text>
         </Text>
         <TextInput
           style={styles.input}
-          placeholder="Nhập mức học phí"
+          placeholder={languageContext.TUITION_PLACEHOLDER}
           keyboardType="numeric"
           value={formattedTuition}
           onChangeText={handleChangeTuition}
@@ -196,26 +198,26 @@ const InfoTuition = ({ onNext }: props) => {
       {/* Ngày bắt đầu */}
       <View style={styles.marginInput}>
         <Text style={styles.label}>
-          Ngày bắt đầu <Text style={styles.required}>*</Text>
+          {languageContext.DATE_START_PLACEHOLDER} <Text style={styles.required}>*</Text>
         </Text>
         <TouchableOpacity
           style={styles.input}
           onPress={() => showDatePicker("start")}
         >
-          <Text>{dateStart || "Chọn ngày bắt đầu"}</Text>
+          <Text>{dateStart || languageContext.DATE_START_PLACEHOLDER}</Text>
         </TouchableOpacity>
       </View>
 
       {/* Ngày kết thúc */}
       <View style={styles.marginInput}>
         <Text style={styles.label}>
-          Ngày kết thúc <Text style={styles.required}>*</Text>
+          {languageContext.DATE_END} <Text style={styles.required}>*</Text>
         </Text>
         <TouchableOpacity
           style={styles.input}
           onPress={() => showDatePicker("end")}
         >
-          <Text>{dateEnd || "Chọn ngày kết thúc"}</Text>
+          <Text>{dateEnd || languageContext.DATE_END_PLACEHOLDER}</Text>
         </TouchableOpacity>
       </View>
 
@@ -232,7 +234,7 @@ const InfoTuition = ({ onNext }: props) => {
       {/* Địa chỉ */}
       <View style={styles.marginInput}>
         <Text style={styles.label}>
-          Địa chỉ <Text style={styles.required}>*</Text>
+          {languageContext.ADDRESS} <Text style={styles.required}>*</Text>
         </Text>
         <DropDownLocation
           selectedCity={selectedProvince}
@@ -245,11 +247,11 @@ const InfoTuition = ({ onNext }: props) => {
       </View>
       <View>
         <Text style={styles.label}>
-          Địa chỉ cụ thể <Text style={styles.required}>*</Text>
+          {languageContext.DETAIL_ADDRESS} <Text style={styles.required}>*</Text>
         </Text>
         <TextInput
           style={styles.input}
-          placeholder="Thêm địa chỉ cụ thể của bạn ..."
+          placeholder={languageContext.DETAIL_ADDRESS_PLACEHOLDER}
           value={detail}
           onChangeText={(text) => {
             setDetail(text);
@@ -268,10 +270,10 @@ const InfoTuition = ({ onNext }: props) => {
 
       {/* LINK ZALO */}
       <View style={{ marginTop: 25 }}>
-        <Text style={styles.label}>Địa chỉ Zalo</Text>
+        <Text style={styles.label}>{languageContext.ZALO}</Text>
         <TextInput
           style={styles.input}
-          placeholder="Thêm địa chỉ Zalo của bạn"
+          placeholder={languageContext.ZALO_PLACEHOLDER}
           value={zalo}
           onChangeText={(text) => {
             setZalo(text);

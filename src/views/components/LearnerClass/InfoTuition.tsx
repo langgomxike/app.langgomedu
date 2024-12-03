@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -13,6 +13,7 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import AStudent from "../../../apis/AStudent";
 import User from "../../../models/User";
 import DropDownLocation from "../dropdown/DropDownLocation";
+import { LanguageContext } from "../../../configs/LanguageConfig";
 
 type Props = {
   onNext: (
@@ -29,6 +30,10 @@ type Props = {
 };
 
 const InfoTuition = ({ onNext, userId }: Props) => {
+
+  // context
+  const languageContext = useContext(LanguageContext).language;
+
   const [tuition, setTuition] = useState<number | null>(null); // Giá trị gốc dạng số
   const [formattedTuition, setFormattedTuition] = useState<string>(""); // Giá trị hiển thị
   const [dateStart, setDateStart] = useState("");
@@ -59,7 +64,7 @@ const InfoTuition = ({ onNext, userId }: Props) => {
     const endDate = new Date(end).getTime();
 
     if (startDate > endDate) {
-      setError("Ngày kết thúc phải lớn hơn hoặc bằng ngày bắt đầu.");
+      setError(languageContext.ERROR_DATE);
       setDateEnd("");
       return false;
     }
@@ -132,9 +137,9 @@ const InfoTuition = ({ onNext, userId }: Props) => {
     // Kiểm tra nếu giá trị là số hợp lệ
     if (!isNaN(numericValue)) {
       if (numericValue < 0) {
-        setError("Mức học phí phải là số dương và không được âm.");
+        setError(languageContext.ERROR_TUITION);
       } else if (numericValue < 10000) {
-        setError("Mức học phí phải từ 10,000 trở lên.");
+        setError(languageContext.ERROR_TUITION_1);
       } else {
         setError(""); // Reset lỗi nếu hợp lệ
       }
@@ -156,7 +161,7 @@ const InfoTuition = ({ onNext, userId }: Props) => {
         detail
       );
     } else {
-      setError("Giá trị không hợp lệ. Vui lòng nhập số.");
+      setError(languageContext.ERROR_TUITION_2);
     }
   };
 
@@ -246,7 +251,7 @@ const InfoTuition = ({ onNext, userId }: Props) => {
             />
           </Text>
           <Text style={styles.description}>
-            {isJoined ? "Đã tham gia lớp này" : "Chưa tham gia lớp này"}
+            {isJoined ? languageContext.JOINED : languageContext.JOIN}
           </Text>
           <TouchableOpacity
             style={[
@@ -261,7 +266,7 @@ const InfoTuition = ({ onNext, userId }: Props) => {
                 isJoined ? styles.textCancel : styles.textJoin, // Thay đổi màu chữ
               ]}
             >
-              {isJoined ? "Hủy chọn" : "Tham gia"}
+              {isJoined ? languageContext.BTN_HUY : languageContext.BTN_THAM_GIA}
             </Text>
           </TouchableOpacity>
         </View>
@@ -274,11 +279,11 @@ const InfoTuition = ({ onNext, userId }: Props) => {
       {/* Học phí */}
       <View style={styles.marginInput}>
         <Text style={styles.label}>
-          Học phí <Text style={styles.required}>*</Text>
+        {languageContext.TUITION} <Text style={styles.required}>*</Text>
         </Text>
         <TextInput
           style={styles.input}
-          placeholder="Nhập mức học phí"
+          placeholder={languageContext.TUITION_PLACEHOLDER}
           keyboardType="numeric"
           value={formattedTuition}
           onChangeText={handleChangeTuition}
@@ -288,26 +293,26 @@ const InfoTuition = ({ onNext, userId }: Props) => {
       {/* Ngày bắt đầu */}
       <View style={styles.marginInput}>
         <Text style={styles.label}>
-          Ngày bắt đầu <Text style={styles.required}>*</Text>
+          {languageContext.DATE_START_PLACEHOLDER} <Text style={styles.required}>*</Text>
         </Text>
         <TouchableOpacity
           style={styles.input}
           onPress={() => showDatePicker("start")}
         >
-          <Text>{dateStart || "Chọn ngày bắt đầu"}</Text>
+          <Text>{dateStart || languageContext.DATE_START_PLACEHOLDER}</Text>
         </TouchableOpacity>
       </View>
 
       {/* Ngày kết thúc */}
       <View style={styles.marginInput}>
         <Text style={styles.label}>
-          Ngày kết thúc <Text style={styles.required}>*</Text>
+          {languageContext.DATE_END} <Text style={styles.required}>*</Text>
         </Text>
         <TouchableOpacity
           style={styles.input}
           onPress={() => showDatePicker("end")}
         >
-          <Text>{dateEnd || "Chọn ngày kết thúc"}</Text>
+          <Text>{dateEnd || languageContext.DATE_END_PLACEHOLDER}</Text>
         </TouchableOpacity>
       </View>
 
@@ -338,11 +343,11 @@ const InfoTuition = ({ onNext, userId }: Props) => {
 
       <View>
         <Text style={styles.label}>
-          Địa chỉ cụ thể <Text style={styles.required}>*</Text>
+        {languageContext.DETAIL_ADDRESS} <Text style={styles.required}>*</Text>
         </Text>
         <TextInput
           style={styles.input}
-          placeholder="Thêm địa chỉ cụ thể của bạn ..."
+          placeholder={languageContext.DETAIL_ADDRESS_PLACEHOLDER}
           value={detail}
           onChangeText={(text) => {
             setDetail(text);
@@ -362,10 +367,10 @@ const InfoTuition = ({ onNext, userId }: Props) => {
 
       {/* LINK ZALO */}
       <View style={{ marginTop: 25 }}>
-        <Text style={styles.label}>Địa chỉ Zalo</Text>
+        <Text style={styles.label}>{languageContext.ZALO}</Text>
         <TextInput
           style={styles.input}
-          placeholder="Thêm địa chỉ Zalo của bạn"
+          placeholder={languageContext.ZALO_PLACEHOLDER}
           value={zalo}
           onChangeText={(text) => {
             setZalo(text);
