@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import {
   StyleSheet,
   View,
@@ -14,6 +14,7 @@ import User from "../../../models/User";
 import LearnerAtendance from "../../../models/LearnerAtendance";
 import AAttendance from "../../../apis/AAttendance";
 import ModalDialogForClass from "./ModalDialogForClass";
+import { LanguageContext } from "../../../configs/LanguageConfig";
 
 type StudentCheckboxProps = {
   visible: string | null;
@@ -30,6 +31,8 @@ export default function StudentCheckbox({
   onRequestClose,
   onAttendanceResult
 }: StudentCheckboxProps) {
+  // context
+  const language = useContext(LanguageContext).language;
   // States
   const [modalVisible, setModalVisible] = React.useState<string | null>("");
   const [studentList, setStudentList] = useState<LearnerAtendance[]>([]);
@@ -59,33 +62,20 @@ export default function StudentCheckbox({
   }, [studentList]);
 
   useEffect(() => {
-    // Tạo danh sách học sinh từ learners, bao gồm cả người học nếu họ không có con
+    // Tạo danh sách học sinh từ learners
     const generatedStudentList: LearnerAtendance[] = [];
 
     for (const learner of learners) {
-      if (learner.students) {
-        // Người học có con, lấy từng con trong danh sách và gán thêm thông tin của người học
-        for (const student of learner.students) {
-          generatedStudentList.push({
-            id: student.id.toString(),
-            full_name: student.full_name,
-            parent_id: learner.id,
-            attended: false,
-            confirm_attendance: false,
-            lesson_id: lessonId,
-          });
-        }
-      } else {
-       // Người học không có con, thêm chính họ vào danh sách mà không có thông tin parent
-        generatedStudentList.push({
-          id: learner.id,
-          full_name: learner.full_name,
-          parent_id: null,
-          attended: false,
-          confirm_attendance: false,
-          lesson_id: lessonId,
-        });
-      }
+      generatedStudentList.push({
+        id: learner.id,
+        full_name: learner.full_name,
+        attended: false,
+        confirm_attendance: false,
+        lesson_id: lessonId,
+        parent_id: null, 
+        attended_at: null,
+        confirmed_at: null,
+      });
     }
 
     // Update state with the generated student list
@@ -104,7 +94,7 @@ export default function StudentCheckbox({
           {/* Show the popup */}
           <View style={styles.container}>
             <View>
-              <Text style={styles.modalTitle}>Danh sách học sinh</Text>
+              <Text style={styles.modalTitle}>{language.STUDENT_LIST}</Text>
             </View>
             <View>
               <FlatList
@@ -136,13 +126,13 @@ export default function StudentCheckbox({
                 onPress={onRequestClose}
                 style={[styles.btn, styles.btnCancel]}
               >
-                <Text style={styles.btnCancelText}>Hủy</Text>
+                <Text style={styles.btnCancelText}>{language.CANCEL_A}</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={handleAttendanceStudent}
                 style={[styles.btn, styles.btnSave]}
               >
-                <Text style={styles.btnSaveText}>Lưu</Text>
+                <Text style={styles.btnSaveText}>{language.SAVE_A}</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -150,8 +140,8 @@ export default function StudentCheckbox({
       </Modal>
   
       <ModalDialogForClass
-        confirmTitle="Điểm danh"
-        confirmContent="Điểm danh thành công"
+        confirmTitle={language.ATTENDANCE}
+        confirmContent={language.ATTENDANCE_SUCCESS}
         imageStatus="success"
         visiable={modalVisible}
         onRequestCloseDialog={() => setModalVisible(null)}

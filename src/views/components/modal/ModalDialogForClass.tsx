@@ -10,6 +10,7 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import Modal from "react-native-modal";
 import { BackgroundColor } from "../../../configs/ColorConfig";
 import { Image } from "react-native";
+import { LanguageContext } from "../../../configs/LanguageConfig";
 
 type ModalDialogForClassProps = {
   confirmTitle: string;
@@ -44,6 +45,8 @@ export default function ModalDialogForClass({
   loading = false
 }: ModalDialogForClassProps) {
 
+  const language = useContext(LanguageContext).language;
+
   const getImageSource = (iconName: string) => {
     const image = images.find((img) => img.name === iconName);
     return image ? image.source : null;
@@ -62,7 +65,7 @@ export default function ModalDialogForClass({
       {loading ? (
         <View style={styles.containerLoading} >
           <ActivityIndicator size={50} />
-          <Text style={styles.loadingText}>Đang xử lý...</Text>
+          <Text style={styles.loadingText}>{language.PROCESSING}</Text>
         </View>
       ) : (
         <View style={styles.container} >

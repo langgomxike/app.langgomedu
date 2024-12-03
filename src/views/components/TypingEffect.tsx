@@ -1,37 +1,45 @@
 import { View, Text, StyleSheet } from 'react-native'
 import React, { useContext, useEffect, useState} from 'react'
-type TypingEffectProps = {
-  typingText: string,
-}
-export default function TypingEffect({typingText}: TypingEffectProps) {
-  const text = typingText;
+export default function TypingEffect() {
   const [displayText, setDisplayText] = useState("");
-  const typingSpeed = 150; 
-  const resetDelay = 10000;
+  const typingSpeed = 120; 
+  const resetDelay = 5000;
+  const texts = ["Chào mừng!", "Welcome!", "ようこそ！"];
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
     let index = 0;
-    setDisplayText("");
+    let interval: NodeJS.Timeout | null = null;
 
-    // Hàm để thực hiện gõ chữ
     const typeText = () => {
-      index = 0;
       setDisplayText("");
+      index = 0;
 
-      const interval = setInterval(() => {
-        if (index < text.length) {
-          setDisplayText((prev) => prev + text[index]);
+      interval = setInterval(() => {
+        if (index < texts[currentIndex].length) {          
+          setDisplayText((prev) => prev + texts[currentIndex][index]);
           index++;
         } else {
-          clearInterval(interval);
-          setTimeout(typeText, resetDelay);
+          clearInterval(interval!);
+          interval = null;
+          
+          // Sau khi gõ xong một chuỗi, chuyển sang chuỗi tiếp theo sau `resetDelay`
+          setTimeout(() => {
+            setCurrentIndex((prevIndex) => (prevIndex + 1) % texts.length);
+          }, resetDelay);
         }
       }, typingSpeed);
     };
 
     typeText();
 
-  }, []);
+    // Clear interval khi component unmount
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
+  }, [currentIndex]);
 
   return (
     <View style={styles.container}>

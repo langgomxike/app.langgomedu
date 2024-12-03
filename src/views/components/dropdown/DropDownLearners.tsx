@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
 import User from "../../../models/User";
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { LanguageContext } from "../../../configs/LanguageConfig";
 
 type DropdownLearnersProps = {
   learners: User[];
@@ -13,6 +14,7 @@ export default function DropdownLearners ({
   learners,
   onSlectedLeanerId,
 }: DropdownLearnersProps) {
+  const language = useContext(LanguageContext).language;
   const [value, setValue] = useState("");
   const [isFocus, setIsFocus] = useState(false);
 
@@ -50,8 +52,8 @@ export default function DropdownLearners ({
         maxHeight={300}
         labelField="full_name"
         valueField="id"
-        placeholder={!isFocus ? "Chọn học sinh..." : "..."}
-        searchPlaceholder="Search..."
+        placeholder={!isFocus ? `${language.SELECT_STUDENT}...` : "..."}
+        searchPlaceholder={language.SEARCH_P}
         value={value}
         onFocus={() => setIsFocus(true)}
         onBlur={() => setIsFocus(false)}
