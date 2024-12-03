@@ -10,12 +10,14 @@ type IconReport = {
   userAvatar?: string;
   userName: string;
   credibility?: number;
+  onPress: () => void;
 };
 
 export default function IconRepor ({
   userAvatar,
   userName,
   credibility,
+  onPress
 }:IconReport)  {
   console.log("userAvatar", `${URL}/${userAvatar}`);
   return (
@@ -34,7 +36,7 @@ export default function IconRepor ({
       </View>
 
       <View style={styles.containerRight}>
-        <Text style={styles.credibility}>{credibility}</Text>
+        <Text style={styles.credibility}>{credibility ? (credibility < 0 ? 0 : credibility) : 0}</Text>
         <View style={styles.diemuytin}>
           {/* <MyIcon icon={AppIcon.ic_diemuytin}></MyIcon> */}
           <Image
@@ -43,7 +45,7 @@ export default function IconRepor ({
           />
         </View>
         <View style={styles.iconBack}>
-          <Ionicons name="chevron-forward" size={20} color="black" />
+          <Ionicons onPress={onPress} name="chevron-forward" size={20} color="black" />
         </View>
       </View>
     </View>

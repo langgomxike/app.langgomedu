@@ -1,43 +1,29 @@
-import React, {useCallback, useContext} from "react";
-import {
-  StyleSheet,
-  ScrollView,
-  Text,
-  View,
-  Image,
-  Touchable,
-  TouchableOpacity,
-  FlatList,
-  Pressable,
-} from "react-native";
+import React, {useCallback, useContext, useEffect, useState} from "react";
+import {Alert, Image, StyleSheet, Text, TouchableOpacity, View,} from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import Octicons from "@expo/vector-icons/Octicons";
 import {BackgroundColor} from "../../../configs/ColorConfig";
-import ModalStudentList from "../../components/modal/ModalStudentList";
-import ModalAttended from "../../components/modal/ModalAttended";
-import Animated, {
-  Extrapolation,
-  interpolate,
-  useAnimatedRef,
-  useAnimatedStyle,
-  useDerivedValue,
-  useSharedValue,
-  withTiming,
-} from "react-native-reanimated";
-import ModalPaidResult from "../../components/modal/ModalPaidResult";
-import ClassInfo from "../../components/ClassInfo";
-import MyIcon, {AppIcon} from "../../components/MyIcon";
 import {NavigationContext} from "@react-navigation/native";
 import ScreenName from "../../../constants/ScreenName";
 import {LanguageContext} from "../../../configs/LanguageConfig";
 import {AccountContext} from "../../../configs/AccountConfig";
 import {RoleList} from "../../../models/Role";
-import {IdNavigationType} from "../../../configs/NavigationRouteTypeConfig";
+import SLog, {LogType} from "../../../services/SLog";
+import {PermissionList} from "../../../models/Permission";
+import ARole from "../../../apis/ARole";
+import APermission from "../../../apis/APermission";
+import SFirebase, {FirebaseNode} from "../../../services/SFirebase";
+import User from "../../../models/User";
 
 export default function AdminHome() {
   const navigation = useContext(NavigationContext);
   const language = useContext(LanguageContext).language;
   const accountContext = useContext(AccountContext);
+
+  //states
+  const [canManagePermissions, setCanManagePermissions] = useState(false);
+  const [canManageAppInfo, setCanManageAppInfo] = useState(false);
+  const [canManageUsers, setCanManageUsers] = useState(false);
+  const [canManageClasses, setCanManageClasses] = useState(false);
 
   // handler
   const gotToUserManager = useCallback(() => {
@@ -58,7 +44,71 @@ export default function AdminHome() {
 
   const goToSetting = useCallback(() => {
     navigation?.navigate(ScreenName.SETTING_INFO_PERSONAL);
-  }, []); 
+  }, []);
+
+  //effects
+  useEffect(() => {
+    if (!accountContext.account || !accountContext.setAccount) return;
+
+    SFirebase.track(FirebaseNode.Roles, [], () => {
+      SFirebase.track(FirebaseNode.Permissions, [], () => {
+        if (!accountContext.account || !accountContext.setAccount) return;
+
+        APermission.getPermissionsOfUser(accountContext.account, (permissions) => {
+          if (!accountContext.account || !accountContext.setAccount) return;
+
+
+          const user: User = {...accountContext.account};
+          user.permissions = permissions;
+
+          accountContext.setAccount(user);
+          SLog.log(LogType.Info, "update permissions", "reload", user.permissions.length);
+        }, () => {
+        });
+      });
+    });
+
+  }, [accountContext.account?.permissions?.map(p => p.id).sort((a, b) => a - b).toString()]);
+
+  useEffect(() => {
+    SFirebase.track(FirebaseNode.Roles, [], () => {
+      if (!accountContext.account || !accountContext.setAccount) return;
+
+      ARole.getAllRolesOfUser(accountContext.account, (roles) => {
+        SLog.log(LogType.Info, "getAllRolesOfUser", "check roles", roles);
+        let isAdmin = false;
+
+        //is super admin
+        isAdmin = isAdmin || roles?.map(role => role.id).includes(RoleList.SUPER_ADMIN);
+        isAdmin = isAdmin || roles?.map(role => role.id).includes(RoleList.ADMIN);
+
+        if (!isAdmin) {
+          Alert.alert(language.ADMINISTRATION, language.HAVE_NO_ADMINISTRATION, [
+            {
+              onPress: () => {
+                navigation?.reset({
+                  index: 0,
+                  routes: [{name: ScreenName.LOGIN}],
+                });
+              }
+            }
+          ]);
+        }
+      }, () => {
+      });
+    });
+  }, [accountContext.account?.roles?.map(r => r.id).sort((a, b) => a - b).toString()]);
+
+  useEffect(() => {
+    if (!accountContext.account) return;
+
+    const isSupperAdmin = !!accountContext.account.roles?.map(r => r.id).includes(RoleList.SUPER_ADMIN);
+
+    setCanManagePermissions(isSupperAdmin);
+    setCanManageAppInfo(isSupperAdmin || !!accountContext.account.permissions?.map(p => p.id).includes(PermissionList.VIEW_APP_COMMON_INFORMATION));
+    setCanManageUsers(isSupperAdmin || !!accountContext.account.permissions?.map(p => p.id).includes(PermissionList.VIEW_USER_INFORMATION_LIST));
+    setCanManageClasses(isSupperAdmin || !!accountContext.account.permissions?.map(p => p.id).includes(PermissionList.VIEW_OTHER_USER_CLASS_LIST));
+  }, [accountContext.account, accountContext.account?.permissions]);
 
   return (
     <View>
@@ -77,30 +127,62 @@ export default function AdminHome() {
       </View>
 
       <View style={styles.container}>
-        {accountContext.account?.roles.map(r => r.id).includes(RoleList.SUPER_ADMIN) && (
+        {canManagePermissions ? (
           <TouchableOpacity style={styles.group} onPress={goToPermissionManager}>
+            <Image style={styles.iconInGroup} source={require('../../../../assets/icons/ic_admin_rule.png')}></Image>
+            <Text style={styles.nameInGroup}>{language.PERMISSION_MANAGEMENT}</Text>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity style={[styles.group, styles.groupNoPers]}>
             <Image style={styles.iconInGroup} source={require('../../../../assets/icons/ic_admin_rule.png')}></Image>
             <Text style={styles.nameInGroup}>{language.PERMISSION_MANAGEMENT}</Text>
           </TouchableOpacity>
         )}
 
-        <TouchableOpacity
-          onPress={gotToUserManager}
-          style={styles.group}>
-          <Image style={styles.iconInGroup} source={require('../../../../assets/icons/ic_account_manage.png')}></Image>
-          <Text style={styles.nameInGroup}>{language.USER_MANAGEMENT}</Text>
-        </TouchableOpacity>
+        {canManageUsers ? (
+          <TouchableOpacity
+            onPress={gotToUserManager}
+            style={styles.group}>
+            <Image style={styles.iconInGroup}
+                   source={require('../../../../assets/icons/ic_account_manage.png')}></Image>
+            <Text style={styles.nameInGroup}>{language.USER_MANAGEMENT}</Text>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity
+            style={[styles.group, styles.groupNoPers]}>
+            <Image style={styles.iconInGroup}
+                   source={require('../../../../assets/icons/ic_account_manage.png')}></Image>
+            <Text style={styles.nameInGroup}>{language.USER_MANAGEMENT}</Text>
+          </TouchableOpacity>
+        )}
 
-        <TouchableOpacity onPress={gotToClassManager} style={styles.group}>
-          <Image style={styles.iconInGroup}
-                 source={require('../../../../assets/icons/ic_class_pending_approval.png')}></Image>
-          <Text style={styles.nameInGroup}>{language.CLASS_MANAGEMENT}</Text>
-        </TouchableOpacity>
+        {canManageClasses ? (
+          <TouchableOpacity onPress={gotToClassManager} style={styles.group}>
+            <Image style={styles.iconInGroup}
+                   source={require('../../../../assets/icons/ic_class_pending_approval.png')}></Image>
+            <Text style={styles.nameInGroup}>{language.CLASS_MANAGEMENT}</Text>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity style={[styles.group, styles.groupNoPers]}>
+            <Image style={styles.iconInGroup}
+                   source={require('../../../../assets/icons/ic_class_pending_approval.png')}></Image>
+            <Text style={styles.nameInGroup}>{language.CLASS_MANAGEMENT}</Text>
+          </TouchableOpacity>
+        )}
 
-        <TouchableOpacity style={styles.group} onPress={goToGeneralManager}>
-          <Image style={styles.iconInGroup} source={require('../../../../assets/icons/ic_account_manage.png')}></Image>
-          <Text style={styles.nameInGroup}>{language.GENERAL_MANAGEMENT}</Text>
-        </TouchableOpacity>
+        {canManageAppInfo ? (
+          <TouchableOpacity style={styles.group} onPress={goToGeneralManager}>
+            <Image style={styles.iconInGroup}
+                   source={require('../../../../assets/icons/ic_account_manage.png')}></Image>
+            <Text style={styles.nameInGroup}>{language.GENERAL_MANAGEMENT}</Text>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity style={[styles.group, styles.groupNoPers]}>
+            <Image style={styles.iconInGroup}
+                   source={require('../../../../assets/icons/ic_account_manage.png')}></Image>
+            <Text style={styles.nameInGroup}>{language.GENERAL_MANAGEMENT}</Text>
+          </TouchableOpacity>
+        )}
       </View>
     </View>
   );
@@ -142,19 +224,24 @@ const styles = StyleSheet.create({
   group: {
     backgroundColor: "#fff",
     borderRadius: 8,
-    shadowColor: "#000",
+    shadowColor: BackgroundColor.gray_c6,
     shadowOffset: {
       width: 0,
       height: 2,
     },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
-    elevation: 5,
+    elevation: 10,
 
     flexDirection: "row",
     gap: 10,
-    paddingVertical: 15,
-    paddingHorizontal: 10,
+    paddingVertical: 30,
+    paddingHorizontal: 20,
+  },
+
+  groupNoPers: {
+    shadowColor: BackgroundColor.black,
+    backgroundColor: "#eee",
   },
 
   iconInGroup: {

@@ -1,4 +1,4 @@
-import {createRef, useContext, useEffect, useRef} from "react";
+import {createRef, useContext, useEffect} from "react";
 // @ts-ignore
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {NavigationContainer, NavigationContainerRef, ParamListBase} from "@react-navigation/native";
@@ -32,23 +32,21 @@ import ClassManager from "./src/views/screens/admin/ClassManager";
 import GeneralManager from "./src/views/screens/admin/GeneralManager";
 import CreatAcountAdmin from "./src/views/screens/admin/CreatAccountAdmin";
 import PersonalCV from "./src/views/screens/settings/PersonalCV";
-import {PermissionsAndroid, Text, TouchableOpacity} from "react-native";
+import {PermissionsAndroid, TouchableOpacity} from "react-native";
 import Octicons from '@expo/vector-icons/Octicons';
 import LeanerAttendance from "./src/views/screens/attendance/LeanerAttendance";
 import HistoryAttendance from "./src/views/screens/attendance/HistoryAttendance";
 import TutorAttendance from "./src/views/screens/attendance/TutorAttendance";
 import AdminHome from "./src/views/screens/admin/AdminHome";
 import SFirebase, {FirebaseNode} from "./src/services/SFirebase";
-import { LanguageContext } from "./src/configs/LanguageConfig";
 import AccountScreen from "./src/views/screens/Account";
 import WelcomeScreen from "./src/views/screens/Welcome";
-import Notification from "./src/views/components/Notification";
-import ChatScreen from "./src/views/screens/Chat";
 import GroupMessageScreen from "./src/views/screens/GroupMessage";
 import CreateReport from "./src/views/screens/CreateReport";
 import UserPermissionManagementScreen from "./src/views/screens/admin/UserPermissionManagement";
 import RegisterChildScreen from "./src/views/screens/RegisterChild";
 import ResetPasswordScreen from "./src/views/screens/ResetPassword";
+import UpdateReportedUser from "./src/views/screens/admin/UpdateReportedUser";
 
 PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS);
 
@@ -68,7 +66,7 @@ export default function App() {
                 headerShown: false,
                 title: "",
                 contentStyle: {
-                  backgroundColor: BackgroundColor.white, 
+                  backgroundColor: BackgroundColor.white,
                 },
               }}
             >
@@ -226,7 +224,7 @@ export default function App() {
               <Stack.Screen
                 name={ScreenName.CREATE_REPORT}
                 component={CreateReport}
-              />  
+              />
 
               <Stack.Screen
                 name={ScreenName.APP_INFO_MANAGEMENT}
@@ -253,12 +251,17 @@ export default function App() {
               />
 
               <Stack.Screen
+                name={ScreenName.UPDATE_REPORT_USER}
+                component={UpdateReportedUser}
+              />
+
+              <Stack.Screen
                 name={ScreenName.SETTING_INFO_PERSONAL}
                 component={AccountScreen}
                 options={{
                   headerShown: true,
                   title: "",
-                  headerStyle: {backgroundColor: BackgroundColor.primary }
+                  headerStyle: {backgroundColor: BackgroundColor.primary}
                 }}
               />
               {/* END ADMIN SCREENS */}
