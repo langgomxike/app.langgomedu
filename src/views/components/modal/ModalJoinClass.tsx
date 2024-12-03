@@ -22,6 +22,7 @@ import Animated, {
 } from "react-native-reanimated";
 import ReactAppUrl from "../../../configs/ConfigUrl";
 import { AccountContext } from "../../../configs/AccountConfig";
+import { LanguageContext } from "../../../configs/LanguageConfig";
 
 type ModalJoinClassProps = {
   classId: number;
@@ -47,13 +48,14 @@ export default function ModalJoinClass({
 }: ModalJoinClassProps) {
   // context
   const account = useContext(AccountContext).account;
+  const language = useContext(LanguageContext).language;
   // states
   const [selectedStudents, setSelectedStudents] = useState<User[]>([]);
   const [isConfirmingJoin, setIsConfirmingJoin] = useState<string | null>("");
   const [learnerType, setLearnerType] = useState("me");
   const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
   const [targetUser, setTargetUser] = useState<User>();
-  const [modalText, setModalText] = useState("Bạn chắc chắn muốn tham gia lớp học này!")
+  const [modalText, setModalText] = useState(language.CONFIRM_JOIN_CLASS)
 
   // Shared value for height
   const modalHeight = useSharedValue(0.45);
@@ -72,10 +74,10 @@ export default function ModalJoinClass({
 
   const handleConfirmJoinClass = () => {
     if(selectedStudents.length > 0) {
-      setModalText("Bạn có chắc chắn muốn tham gia lớp học với các học sinh đã chọn không?")
+      setModalText(language.CONFIRM_JOIN_CLASS_WITH_SELECTED_LEARNERS)
     }
     else {
-      setModalText("Bạn chắc chắn muốn tham gia lớp học này!")
+      setModalText(language.CONFIRM_JOIN_CLASS)
     }
     setIsConfirmingJoin("modalConfirmJoinClass");
     onRequestClose();
@@ -110,7 +112,7 @@ export default function ModalJoinClass({
       >
         <Animated.View style={[styles.container, animatedStyle]}>
           <View style={styles.modalHeader}>
-            <Text style={styles.headerTitle}>Thanh toán</Text>
+            <Text style={styles.headerTitle}>{language.JOIN}</Text>
             <TouchableOpacity onPress={onRequestClose} style={styles.btnClose}>
               <Ionicons name="close" size={24} color="black" />
             </TouchableOpacity>
@@ -120,7 +122,7 @@ export default function ModalJoinClass({
             <View style={{ flex: 7 }}>
               {/* Chọn người học cho lớp */}
               <View style={styles.learnerSelectionContainer}>
-                <Text style={styles.titleContainer}> Chọn người học </Text>
+                <Text style={styles.titleContainer}> {language.SELECT_LEARNER} </Text>
 
                 {/* Cho tôi học */}
                 <TouchableOpacity
@@ -132,7 +134,7 @@ export default function ModalJoinClass({
                     size={24}
                     color={learnerType === LEARNR_TYPE.ME ? "green" : "gray"}
                   />
-                  <Text style={styles.learnerOptionText}>Cho tôi học</Text>
+                  <Text style={styles.learnerOptionText}>{language.LEARN_FOR_ME}</Text>
                   {learnerType === LEARNR_TYPE.ME && (
                     <Ionicons name="checkmark" size={24} color="green" />
                   )}
@@ -148,7 +150,7 @@ export default function ModalJoinClass({
                     size={24}
                     color={learnerType === LEARNR_TYPE.CHILD ? "green" : "gray"}
                   />
-                  <Text style={styles.learnerOptionText}>Cho con học</Text>
+                  <Text style={styles.learnerOptionText}>{language.LEARN_FOR_CHILD}</Text>
                   {learnerType === LEARNR_TYPE.CHILD && (
                     <Ionicons name="checkmark" size={24} color="green" />
                   )}
@@ -213,7 +215,7 @@ export default function ModalJoinClass({
                                   color={BackgroundColor.warning}
                                 />
                                 <Text style={styles.notificationText}>
-                                  {`Bạn này không thể tham gia lớp học.\n Do đã có buổi học bị trùng!`}
+                                  {language.CANNOT_JOIN_CLASS}
                                 </Text>
                               </View>
                             )}
@@ -226,7 +228,7 @@ export default function ModalJoinClass({
                                     color="green"
                                   />
                                   <Text style={styles.notificationText}>
-                                    Bạn này có thể tham gia lớp học
+                                   {language.CAN_JOIN_CLASS}
                                   </Text>
                                 </View>
                               )}
@@ -252,7 +254,7 @@ export default function ModalJoinClass({
                   onPress={() => handleConfirmJoinClass()}
                   style={[styles.btn, styles.btnSaveDisable, styles.boxShadow]}
                 >
-                  <Text style={styles.btnSaveText}>Bị trùng lịch</Text>
+                  <Text style={styles.btnSaveText}>{language.CAN_JOIN_CLASS}</Text>
                 </TouchableOpacity>
               )}
 
@@ -261,7 +263,7 @@ export default function ModalJoinClass({
                 onPress={() => handleConfirmJoinClass()}
                 style={[styles.btn, styles.btnSave, styles.boxShadow]}
               >
-                <Text style={styles.btnSaveText}>Tham gia</Text>
+                <Text style={styles.btnSaveText}>{language.JOIN}</Text>
               </TouchableOpacity>
             )}
             </View>
@@ -274,7 +276,7 @@ export default function ModalJoinClass({
            onPress={() => handleConfirmJoinClass()}
            style={[styles.btn, selectedStudents.length === 0 ? styles.btnSaveDisable : styles.btnSave, styles.boxShadow]}
          >
-           <Text style={styles.btnSaveText}>Tham gia</Text>
+           <Text style={styles.btnSaveText}>{language.JOIN}</Text>
          </TouchableOpacity>
          </View>
         )}

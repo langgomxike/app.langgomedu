@@ -19,6 +19,7 @@ import ScreenName from "../../../constants/ScreenName";
 import {MessageNavigationType} from "../../../configs/NavigationRouteTypeConfig";
 import ModalDialogForClass from "../modal/ModalDialogForClass";
 import ButtonDisableInClassDetail from "./ButtonDisableInClassDetail";
+import { LanguageContext } from "../../../configs/LanguageConfig";
 
 type ButtonsInDetailClassProps = {
   classDetail: Class;
@@ -35,6 +36,7 @@ export default function ButtonsInDetailClass({
   const user = useContext(UserContext).user;
   const account = useContext(AccountContext).account;
   const navigation = useContext(NavigationContext);
+  const language = useContext(LanguageContext).language;
 
   const isAuthor = classDetail?.user_status === "author";
   const isMember = classDetail?.user_status === "member";
@@ -78,8 +80,8 @@ export default function ButtonsInDetailClass({
     }
 
     setModalContent({
-      title: "Thanh toán",
-      message: "Chúng tôi đã ghi nhận thanh toán của bạn!",
+      title: language.PAYMENT,
+      message: language.PAYMENT_RECORDED,
     });
     setModalVisible("modalDialogForClass");
     AClass.payFeeForClass(
@@ -102,13 +104,13 @@ export default function ButtonsInDetailClass({
     setModalVisible("modalDialogForClass");
     if (authorAccepted) {
       setModalContent({
-        title: "Xác nhận",
-        message: "Xác nhận cho gia sư nhận lớp thành công!",
+        title: language.CONFIRM,
+        message: language.CONFIRM_TUTOR_SUCCESS,
       });
     } else {
       setModalContent({
-        title: "Từ chối",
-        message: "Từ chối gia sư này thành công!",
+        title: language.DECLINE,
+        message: language.REJECT_TUTOR_SUCCESS,
       });
     }
 
@@ -122,21 +124,21 @@ export default function ButtonsInDetailClass({
 
   const getButtonText = () => {
     if (isLeaner) {
-      if (isMember) return "Bạn đã tham gia lớp học";
-      if (isTutor) return "Bạn đã dạy lớp này";
-      if (isAuthor) return "Bạn đã tạo lớp này";
-      if (notJoin) return "Tham gia lớp học";
+      if (isMember) return language.JOINED_CLASS;
+      if (isTutor) return language.TAUGHT_CLASS;
+      if (isAuthor) return language.CREATED_CLASS_D;
+      if (notJoin) return language.JOIN_CLASS;
     }
 
     if (isTutor && !classDetail.author_accepted) {
-      return "Vui lòng chờ chấp nhận";
+      return language.PLEASE_WAIT_ACCEPTANCE;
     }
 
     if (isAuthorTutor && classDetail.admin_accepted && classDetail.paid)
-      return "Bạn đã tạo lớp này";
-    if (isMember) return "Bạn đã tham gia lớp này";
+      return language.CREATED_CLASS_D;
+    if (isMember) return language.JOINED_CLASS;
 
-    if (notJoin && !isLeaner) return "Nhận dạy lớp";
+    if (notJoin && !isLeaner) return language.TAKE_CLASS;
   };
 
   // effects ----------------------------------------------------------------
@@ -180,7 +182,7 @@ export default function ButtonsInDetailClass({
       {/* Lớp mình tham gia để dạy và chờ người tạo chấp nhận */}
       {!isAuthor && isTutorNotAccept && (
         <View style={[styles.buttonContainer, styles.boxShadow]}>
-          <ButtonDisableInClassDetail content="Vui lòng chờ xác nhận" />
+          <ButtonDisableInClassDetail content={language.PLEASE_WAIT_CONFIRMATION}/>
         </View>
       )}
 
@@ -191,7 +193,7 @@ export default function ButtonsInDetailClass({
             onPress={() => setModalVisible("modalPayClassFee")}
             style={[styles.btn, styles.btnAccept, styles.boxShadowBlue]}
           >
-            <Text style={styles.btnAcceptText}>Thanh toán phí tạo lớp</Text>
+            <Text style={styles.btnAcceptText}>{language.PAY_CLASS_CREATION_FEE}</Text>
           </TouchableOpacity>
         </View>
       )}
@@ -203,13 +205,13 @@ export default function ButtonsInDetailClass({
             onPress={() => handleAcceptTutorForClass(false)}
             style={[styles.btn, styles.btnAccept, styles.boxShadowBlue]}
           >
-            <Text style={styles.btnDenyText}>Từ chối</Text>
+            <Text style={styles.btnDenyText}>{language.DECLINE}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => handleAcceptTutorForClass(true)}
             style={[styles.btn, styles.btnAccept, styles.boxShadowBlue]}
           >
-            <Text style={styles.btnAcceptText}>Chấp nhận</Text>
+            <Text style={styles.btnAcceptText}>{language.ACCEPT}</Text>
           </TouchableOpacity>
         </View>
       )}
@@ -217,7 +219,7 @@ export default function ButtonsInDetailClass({
       {/* Chờ admin duyệt lớp mà mình tạo ra */}
       {isAuthorTutor && !classDetail.admin_accepted && (
         <View style={[styles.buttonContainer, styles.boxShadow]}>
-          <ButtonDisableInClassDetail content="Vui lòng chờ duyệt lớp" />
+          <ButtonDisableInClassDetail content={language.PLEASE_WAIT_CLASS_APPROVAL} />
         </View>
       )}
 
@@ -226,7 +228,7 @@ export default function ButtonsInDetailClass({
         !classDetail.paid &&
         classDetail.paid_path && (
           <View style={[styles.buttonContainer, styles.boxShadow]}>
-            <ButtonDisableInClassDetail content="Vui lòng chờ xác nhận thanh toán" />
+            <ButtonDisableInClassDetail content={language.PLEASE_WAIT_PAYMENT_CONFIRMATION} />
           </View>
         )}
 
@@ -237,13 +239,13 @@ export default function ButtonsInDetailClass({
             onPress={() => setModalVisible("modalPayClassFee")}
             style={[styles.btn, styles.btnAccept, styles.boxShadowBlue]}
           >
-            <Text style={styles.btnAcceptText}>Thanh toán phí tạo lớp</Text>
+            <Text style={styles.btnAcceptText}>{language.PAY_CLASS_CREATION_FEE}</Text>
           </TouchableOpacity>
         </View>
       )}
 
       <ModalPayClassFee
-        confirmTitle="Thanh toán"
+        confirmTitle={language.PAYMENT}
         visiable={modalVisible}
         onRequestCloseDialog={() => setModalVisible(null)}
         onSelectedImage={setSelectedImage}

@@ -58,7 +58,7 @@ export default function HomeScreen() {
   const navigation = useContext(NavigationContext);
   const accountContext = useContext(AccountContext);
   const appInfoContext = useContext(AppInfoContext);
-  const languageContext = useContext(LanguageContext);
+  const language = useContext(LanguageContext).language;
   const { user, setUser } = useContext(UserContext);
   const { refresh, setRefresh } = useContext(UserContext);
   const majors = useContext(MajorsLevelsContext)?.majors;
@@ -67,16 +67,12 @@ export default function HomeScreen() {
   const [searchKey, setSearchKey] = useState<string>("");
   const [loading, setLoading] = useState(false);
 
-  const [userTypeName, setUserTypeName] = useState("Leaner");
-
   // handlers
   const handleChangeUserType = () => {
     setUser({
       ...user, // Giữ nguyên các thông tin cũ
       TYPE: user.TYPE === UserType.LEANER ? UserType.TUTOR : UserType.LEANER,
     });
-
-    setUserTypeName(user.TYPE === UserType.LEANER ? "Tutor" : "Leaner");
   };
 
   const goToScan = useCallback(() => {
@@ -133,7 +129,7 @@ export default function HomeScreen() {
           </View>
 
           <View style={styles.headerContentContainer}>
-            <TypingEffect typingText={`${languageContext.language.WELCOME}!`}/>
+            <TypingEffect/>
             <Text style={[styles.headerTitle, styles.title2]}>
               {accountContext.account?.full_name}
             </Text>
@@ -144,7 +140,7 @@ export default function HomeScreen() {
               onPress={handleChangeUserType}
               style={[styles.btnSwitchRole, styles.boxShadow]}
             >
-              <Text>{userTypeName}</Text>
+              <Text>{user.TYPE === UserType.LEANER ? language.TUTOR : language.LEARNER}</Text>
             </TouchableOpacity>
           </View>
 
@@ -157,10 +153,7 @@ export default function HomeScreen() {
           {/* Major list header*/}
           <View style={styles.majorContainer}>
             <View style={styles.titleContainer}>
-              <Text style={styles.title}>Danh sách môn học</Text>
-              <TouchableOpacity>
-                <Text style={styles.showAllText}>Xem tất cả</Text>
-              </TouchableOpacity>
+              <Text style={styles.title}>{language.SUBJECT_LIST}</Text>
             </View>
           </View>
 
@@ -185,7 +178,11 @@ export default function HomeScreen() {
                         numberOfLines={2}
                         ellipsizeMode="tail"
                       >
-                        {major.vn_name}
+                      {language.TYPE === "vi"
+                        ? major.vn_name
+                        : language.TYPE === "en"
+                        ? major.en_name
+                        : major.ja_name}
                       </Text>
                     </View>
                   </View>
@@ -265,9 +262,9 @@ const styles = StyleSheet.create({
   btnSwitchRole: {
     backgroundColor: BackgroundColor.white,
     paddingHorizontal: 15,
-    paddingVertical: 5,
+    paddingVertical: 10,
     borderRadius: 7,
-    width: 80,
+    width: SCREEN_WIDTH * 0.3,
     alignItems: "center",
   },
 
