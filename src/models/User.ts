@@ -5,6 +5,7 @@ import Gender from "./Gender";
 import ClassLevel from "./ClassLevel";
 import Major from "./Major";
 import Attendance from "./Attendance";
+import Permission from "./Permission";
 import Lesson from "./Lesson";
 
 export default class User {
@@ -34,6 +35,7 @@ export default class User {
     public cv_id: string | undefined;
     public lessons: Lesson[] | [];
     public parent_id: string = "";
+    public permissions: Permission[]  = [];
 
     constructor(
         id = "",

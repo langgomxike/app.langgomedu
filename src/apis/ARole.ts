@@ -5,6 +5,7 @@ import Response from "../models/Response";
 import SAsyncStorage, {AsyncStorageKeys} from "../services/SAsyncStorage";
 import SLog, {LogType} from "../services/SLog";
 import Permission from "../models/Permission";
+import User from "../models/User";
 
 
 const role_txt = `[
@@ -64,6 +65,36 @@ export default class ARole {
       },
       (error) => {
         SLog.log(LogType.Error, "setAllRoles", "cannot get roles", error);
+        onNext([]);
+        onComplete && onComplete();
+      }
+    );
+  }
+
+  public static getAllRolesOfUser(user: User, onNext: (roles: Role[]) => void, onComplete?: () => void) {
+    const url = this.BASE_URL + "/of-user";
+    const data = {user};
+
+    SAsyncStorage.getData(AsyncStorageKeys.TOKEN,
+      (token) => {
+        axios.post<Response>(url, data, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          }
+        })
+          .then(response => {
+            const roles = response.data.data as Role[] ?? [];
+            SLog.log(LogType.Error, "getAllRolesOfUser", "get roles successfully", roles.length);
+            onNext(roles);
+          })
+          .catch(error => {
+            SLog.log(LogType.Error, "getAllRolesOfUser", "cannot get roles", error);
+            onNext([]);
+          })
+          .finally(onComplete)
+      },
+      (error) => {
+        SLog.log(LogType.Error, "getAllRolesOfUser", "cannot get roles", error);
         onNext([]);
         onComplete && onComplete();
       }

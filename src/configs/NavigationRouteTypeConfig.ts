@@ -66,3 +66,7 @@ export type RatingNavigationType = {
   id: string;
   class: Class;
 }
+export type ReportNavigationType = {
+  id: number;
+  reporter: User;
+}

@@ -19,6 +19,7 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import {BackgroundColor, TextColor} from "../../configs/ColorConfig";
 import ConfirmDialog from "../components/ConfirmDialog";
 import {AppInfoContext} from "../../configs/AppInfoContext";
+import {RoleList} from "../../models/Role";
 
 type FlatListItemProps = {
   item: AccountItemProps;
@@ -45,15 +46,31 @@ function FlatListItem({item, index}: FlatListItemProps) {
   }, []);
 
   const goToRegisterChileScreen = useCallback(() => {
-    if (accountContext.account?.parent_id && accountContext.account?.parent_id.length > 8) {
-      Toast.show(languageContext.language.CHILDREN_CANNOT_CREATE_CHILDREN, 1000);
-    } else {
+    let canOpen = false;
+
+    canOpen = !(accountContext.account?.parent_id ?? false);
+
+    canOpen = canOpen || !(accountContext.account?.roles?.map(role => role.id).includes(RoleList.SUPER_ADMIN) ?? false);
+    canOpen = canOpen || !(accountContext.account?.roles?.map(role => role.id).includes(RoleList.ADMIN) ?? false);
+
+    if (canOpen) {
       navigation?.navigate(ScreenName.REGISTER_STEP_CHILD);
+    } else {
+      Toast.show(languageContext.language.HAVE_NO_PERMISSION_TO_CREATE_CHILD, 1000);
     }
   }, [accountContext.account]);
 
   const goToCVScreen = useCallback(() => {
-    navigation?.navigate(ScreenName.SETTING_PERSONAL_CV);
+    let canOpen = false;
+
+    canOpen = canOpen || !(accountContext.account?.roles?.map(role => role.id).includes(RoleList.SUPER_ADMIN) ?? false);
+    canOpen = canOpen || !(accountContext.account?.roles?.map(role => role.id).includes(RoleList.ADMIN) ?? false);
+
+    if (canOpen) {
+      navigation?.navigate(ScreenName.SETTING_PERSONAL_CV);
+    } else {
+      Toast.show(languageContext.language.HAVE_NO_PERMISSION_TO_MANAGE_CV, 1000);
+    }
   }, []);
 
   const sendEmail = useCallback(() => {
@@ -161,9 +178,11 @@ function FlatListItem({item, index}: FlatListItemProps) {
 export default function AccountScreen() {
   //contexts
   const languageContext = useContext(LanguageContext);
+  const accountContext = useContext(AccountContext);
 
   //states
   const [ListItem, setListItem] = useState<AccountItemProps[]>(ListItemVietnamese);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   //effects
   useEffect(() => {
@@ -183,10 +202,20 @@ export default function AccountScreen() {
     SAsyncStorage.setData(AsyncStorageKeys.LANGUAGE, languageContext.language.TYPE + "");
   }, [languageContext.language]);
 
+  useEffect(() => {
+    let isAdmin = false;
+
+    //is super admin
+    isAdmin = isAdmin || (accountContext.account?.roles?.map(role => role.id).includes(RoleList.SUPER_ADMIN) ?? false);
+    isAdmin = isAdmin || (accountContext.account?.roles?.map(role => role.id).includes(RoleList.ADMIN) ?? false);
+
+    setIsAdmin(isAdmin);
+  }, []);
+
   //tsx
   return (
     <>
-      <QRInfo id={123} type={QRItems.USER}/>
+      {!isAdmin && <QRInfo id={accountContext.account?.id ?? ""} type={QRItems.USER}/>}
       <BackWithDetailLayout icName="Back">
         <ScrollView showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false}>
           {ListItem.map((item, index) => (
