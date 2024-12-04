@@ -20,6 +20,7 @@ import {BackgroundColor, TextColor} from "../../configs/ColorConfig";
 import ConfirmDialog from "../components/ConfirmDialog";
 import {AppInfoContext} from "../../configs/AppInfoContext";
 import {RoleList} from "../../models/Role";
+import {AttendanceNavigationType} from "../../configs/NavigationRouteTypeConfig";
 
 type FlatListItemProps = {
   item: AccountItemProps;
@@ -73,6 +74,16 @@ function FlatListItem({item, index}: FlatListItemProps) {
     }
   }, []);
 
+  const goToAttendanceHistories = useCallback(() => {
+
+    const data: AttendanceNavigationType = {
+      userId: accountContext.account?.id ?? "-1",
+      classId: -1,
+    }
+
+    navigation?.navigate(ScreenName.ATTENDANCE_HISTORY, data);
+  }, [accountContext.account]);
+
   const sendEmail = useCallback(() => {
     const email = appInfos.contact_email;
     const subject = languageContext.language.TO_ADMIN_EMAIL_SUBJECT;
@@ -102,7 +113,7 @@ function FlatListItem({item, index}: FlatListItemProps) {
   const handleChangeLanguage = useCallback((language: typeof vn) => {
     languageContext.setLanguage && languageContext.setLanguage(language);
 
-    refRBSheet.current?.close();
+    refRBSheet.current?.close(); 
   }, []);
 
   const handleLogout = useCallback(() => {
@@ -125,6 +136,7 @@ function FlatListItem({item, index}: FlatListItemProps) {
       goToPersonalInfoScreen,
       goToRegisterChileScreen,
       goToCVScreen,
+      goToAttendanceHistories,
       sendEmail,
       goToChangePasswordScreen,
       handleOpenWebsite,
