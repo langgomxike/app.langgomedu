@@ -1,8 +1,9 @@
 import { View, Text, StyleSheet, Image } from 'react-native'
-import React from 'react'
+import React, { useContext } from 'react'
 import { BackgroundColor } from '../../configs/ColorConfig'
 import Class from '../../models/Class'
 import ReactAppUrl from '../../configs/ConfigUrl'
+import { LanguageContext } from '../../configs/LanguageConfig'
 
 type AuthorTuorInClassProps = {
     classDetail: Class,
@@ -10,6 +11,7 @@ type AuthorTuorInClassProps = {
 
 const URL = ReactAppUrl.PUBLIC_URL
 export default function AuthorTuorInClass({classDetail}: AuthorTuorInClassProps) {
+  const language = useContext(LanguageContext).language
   return (
     <View>
       {/* Author info */}
@@ -27,7 +29,7 @@ export default function AuthorTuorInClass({classDetail}: AuthorTuorInClassProps)
                       </View>
                         <View style={styles.authorStatusContainer}>
                           <Text style={[styles.authorStatus, styles.tutorStatus]}>
-                            Người tạo
+                            {language.CREATOR}
                           </Text>
                         </View>
                     </View>
@@ -44,7 +46,7 @@ export default function AuthorTuorInClass({classDetail}: AuthorTuorInClassProps)
                       </View>
                         <View style={styles.authorStatusContainer}>
                           <Text style={[styles.authorStatus, styles.tutorStatus]}>
-                            Gia sư
+                            {language.TUTOR}
                           </Text>
                         </View>
                     </View>
@@ -66,10 +68,10 @@ export default function AuthorTuorInClass({classDetail}: AuthorTuorInClassProps)
                   </View>
                     <View style={styles.authorStatusContainer}>
                       <Text style={[styles.authorStatus, styles.tutorStatus]}>
-                        Gia sư
+                        {language.TUTOR}
                       </Text>
                       <Text style={[styles.authorStatus, styles.tutorStatus]}>
-                        Người tạo
+                        {language.CREATOR}
                       </Text>
                     </View>
                 </View>

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import {
   Modal,
   View,
@@ -9,6 +9,7 @@ import {
   ScrollView,
 } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { LanguageContext } from "../../../configs/LanguageConfig";
 
 type ModalPaidResultProps = {
   visiable: string | null,
@@ -19,12 +20,13 @@ type ModalPaidResultProps = {
 export default function (
   {visiable, onRequestClose, image_uri}: ModalPaidResultProps
 ) {
+  const language = useContext(LanguageContext).language
   return (
     <Modal visible={visiable === "modal_paid_result"} transparent={true} animationType="slide">
       <View style={styles.overlay}>
         <View style={styles.container}>
           <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>Hình ảnh chuyển khoản</Text>
+            <Text style={styles.modalTitle}>{language.TRANSFER_IMAGE}</Text>
             <TouchableOpacity onPress={onRequestClose}>
               <Ionicons name="close" size={24} color="black" />
             </TouchableOpacity>

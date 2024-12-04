@@ -26,18 +26,19 @@ import ModalPay from "../../components/modal/ModalPay";
 import { AccountContext } from "../../../configs/AccountConfig";
 import User from "../../../models/User";
 import SFirebase, { FirebaseNode } from "../../../services/SFirebase";
+import { LanguageContext } from "../../../configs/LanguageConfig";
 
 const URL = ReactAppUrl.PUBLIC_URL;
 
 export default function LeanerAttendance() {
   // contexts
   const route = useContext(NavigationRouteContext);
-  // Get class id
   const param = route?.params as AttendedForLearner || {lesson: new Lesson, user: new User};
 
   //context
   const account = useContext(AccountContext).account;
   const navigation = useContext(NavigationContext);
+  const language = useContext(LanguageContext).language;
 
   // states
   const [modalVisible, setModalVisible] = useState<string | null>("");
@@ -161,17 +162,17 @@ export default function LeanerAttendance() {
                 {/* <ClassInfo/> */}
                 <View style={styles.userStatusInLessonContainer}>
                   {attendance?.attended ? (
-                       <Text style={[styles.userStatus, styles.userStatusInLesson]}>Đã điểm danh</Text>
+                       <Text style={[styles.userStatus, styles.userStatusInLesson]}>{language.ALREADY_ATTENDED}</Text>
                   ) : (
-                    <Text style={[styles.userStatus, styles.userStatusNotInLesson]}>Vắng mặt</Text>
+                    <Text style={[styles.userStatus, styles.userStatusNotInLesson]}>{language.ABSENT}</Text>
                   )}
 
                   {attendance?.confirm_paid && (
-                       <Text style={[styles.userStatus, styles.userStatusConfirmPay]}>Đã xác nhận thanh toán</Text>
+                       <Text style={[styles.userStatus, styles.userStatusConfirmPay]}>{language.PAYMENT_CONFIRMED}</Text>
                   ) }
 
                   {attendance?.confirm_deferred && (
-                    <Text style={[styles.userStatus, styles.userStatusConfirmPay]}>Đã xác nhận trì hoàn</Text>
+                    <Text style={[styles.userStatus, styles.userStatusConfirmPay]}>{language.DELAY_CONFIRMED}</Text>
                   )}
                  
                 </View>
@@ -180,7 +181,7 @@ export default function LeanerAttendance() {
 
               {/* Other user */}
               <View style={styles.otherUserContainer}>
-                <Text style={styles.titleContainer}>Gia sư</Text>
+                <Text style={styles.titleContainer}>{language.TUTOR}</Text>
                 <View style={[styles.otherUserBox, styles.boxShadow]}>
                   <View style={styles.otherUserAvatarContainer}>
                     <Image
@@ -200,7 +201,7 @@ export default function LeanerAttendance() {
               <TouchableOpacity onPress={handleNavigateAttendanceHistory}>
                 <View style={styles.historyListContainer}>
                   <Octicons name="history" size={22} color="black" />
-                  <Text style={styles.historyTitle}>Lịch sử điểm danh</Text>
+                  <Text style={styles.historyTitle}>{language.ATTENDANCE_HISTORY}</Text>
                 </View>
               </TouchableOpacity>
             </View>

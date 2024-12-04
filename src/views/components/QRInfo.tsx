@@ -1,12 +1,15 @@
-import { Modal, StyleSheet, TouchableOpacity, View } from "react-native";
+import {Alert, Linking, Modal, NativeModules, Platform, StyleSheet, TouchableOpacity, View} from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { BackgroundColor, TextColor } from "../../configs/ColorConfig";
-import { useCallback, useEffect, useRef, useState } from "react";
+import {useCallback, useContext, useEffect, useRef, useState} from "react";
 import QRCode from "react-native-qrcode-svg";
 import SLog, { LogType } from "../../services/SLog";
 import * as MediaLibrary from "expo-media-library";
 import * as FileSystem from "expo-file-system";
 import QRItemType, { QRItems } from "../../configs/QRConfig";
+import {AppInfoContext} from "../../configs/AppInfoContext";
+import {LanguageContext} from "../../configs/LanguageConfig";
+import Toast from "react-native-simple-toast";
 
 type QRInfoProps = {
   id: string | number;
@@ -14,6 +17,10 @@ type QRInfoProps = {
 };
 
 export default function QRInfo({ id, type }: QRInfoProps) {
+  //contexts
+  const appInfo = useContext(AppInfoContext).infos;
+  const language = useContext(LanguageContext).language;
+
   //states
   const [showingQR, setShowing] = useState(false);
   const [qrRef, setQRRef] = useState<any>();
@@ -23,14 +30,8 @@ export default function QRInfo({ id, type }: QRInfoProps) {
   //handlers
   const handleCapturedImage = useCallback(() => {
     qrRef?.toDataURL((data: any) => {
-      //   SLog.log(LogType.Info, "Captured image from logo", "base64", data);
-
       //save the image into media storage
-      const uri =
-        FileSystem.cacheDirectory +
-        (new Date().getTime() + "") +
-        "_qr_info" +
-        ".png";
+      const uri = `${FileSystem.cacheDirectory}${appInfo.app_name}_${new Date().getTime()}_${type}_qr_info.png`;
 
       FileSystem.writeAsStringAsync(uri, data, {
         encoding: FileSystem.EncodingType.Base64,
@@ -46,7 +47,21 @@ export default function QRInfo({ id, type }: QRInfoProps) {
             result
           );
 
-          alert("Save QR successfully");
+          Alert.alert(language.QR_INFO, language.SAVED_QR, [
+            {
+              text: language.OPEN_IMAGE_LIBRARY,
+              onPress: () => {
+                if (Platform.OS === 'android') {
+                  Linking.openURL('content://media/external/images/media/');
+                } else {
+                  Toast.show(language.FEATURE_DISABLED_IN_IOS, 1000);
+                }
+              }
+            },
+            {
+              text: "OK",
+            },
+          ]);
         })
         .catch((error) => {
           SLog.log(
@@ -55,6 +70,8 @@ export default function QRInfo({ id, type }: QRInfoProps) {
             "save image failed",
             error
           );
+
+          Alert.alert(language.QR_INFO, language.CANNOT_SAVE_QR);
         });
     });
   }, [qrRef]);
@@ -89,9 +106,11 @@ export default function QRInfo({ id, type }: QRInfoProps) {
             <QRCode
               getRef={(c) => setQRRef(c)}
               value={JSON.stringify(data)}
-              logoSize={200}
-              quietZone={10}
+              logoSize={100}
+              quietZone={20}
               size={300}
+              logo={require("../../../assets/logo.png")}
+              logoMargin={10}
             />
           </TouchableOpacity>
 

@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Button, StyleSheet, Text, TextInput, View } from "react-native";
 import CustomInput from "./Inputs/CustomInput";
 import { Picker } from "@react-native-picker/picker";
 import AClassLevel from "../../apis/AClassLevel";
 import ClassLevel from "../../models/ClassLevel";
 import AMajor from "../../apis/AMajor";
+import { LanguageContext } from "../../configs/LanguageConfig";
 
 type props = {
   onNext: (
@@ -16,15 +17,16 @@ type props = {
   ) => void;
 };
 
-const InfoClass = ({
-  onNext,
-}: props) => {
+const InfoClass = ({ onNext }: props) => {
+  // context
+  const languageContext = useContext(LanguageContext).language;
+
+  // state
   const [title, setTitle] = useState("");
   const [desc, setDesc] = useState("");
   const [capHocList, setCapHocList] = useState<ClassLevel[]>([]); // đặt select
   const [selectedCapHoc, setSelectedCapHoc] = useState<number>(-1);
   const [maxLearners, setMaxLearners] = useState<number>(0);
-
   // useState MÔN HỌC, FETCH DATA
   const [monHoc, setMonHoc] = useState<number>(-1); // đặt select
   const [isOtherSelected, setIsOtherSelected] = useState(false); // Kiểm tra khi chọn "Khác"
@@ -38,23 +40,29 @@ const InfoClass = ({
   useEffect(() => {
     AMajor.getAllMajors((majors) => {
       const majorItems = majors.map((major) => ({
-        label: major.vn_name,
+        label:
+          languageContext.TYPE === "vi"
+            ? major.vn_name
+            : languageContext.TYPE === "en"
+            ? major.en_name
+            : major.ja_name,
         value: major.id,
       }));
-      setPickerItems((prevItems) => {
-        const existingIds = new Set(prevItems.map((item) => item.value));
-        const uniqueMajorItems = majorItems.filter(
-          (item) => !existingIds.has(item.value)
-        );
-        return [...uniqueMajorItems, ...prevItems];
-      });
+      // setPickerItems((prevItems) => {
+      //   const existingIds = new Set(prevItems.map((item) => item.value));
+      //   const uniqueMajorItems = majorItems.filter(
+      //     (item) => !existingIds.has(item.value)
+      //   );
+      //   return [...uniqueMajorItems, ...prevItems];
+      // });
+      setPickerItems([...majorItems, { label: "Khác", value: "other" }]);
+      
     }, setIsLoading);
-  }, []);
+  }, [languageContext.TYPE]);
 
   useEffect(() => {
     AClassLevel.getAllClassLevels((classLevels) => {
       setCapHocList(classLevels);
-      // console.log("hihi ", classLevels);
     });
   }, []);
 
@@ -114,15 +122,14 @@ const InfoClass = ({
     setMaxLearners(value); // Cập nhật state của component con
     onNext(undefined, undefined, undefined, undefined, value);
   };
-  
 
   return (
     <View style={styles.container}>
       <View style={styles.marginInput}>
         <CustomInput
-          placeholder="Nhập tiêu đề..."
+          placeholder={languageContext.TITLE_PLACEHOLDER}
           type="text"
-          label="Tiêu đề"
+          label={languageContext.TITLE}
           onChangeText={handleChangeTitle}
           required
           value={title}
@@ -130,9 +137,9 @@ const InfoClass = ({
       </View>
       <View style={styles.marginInput}>
         <CustomInput
-          placeholder="Nhập mô tả..."
+          placeholder={languageContext.DESCRIPTION_PLACEHOLDER}
           type="textarea"
-          label="Mô tả"
+          label={languageContext.DESCRIPTION}
           onChangeText={handleChangeDesc}
           required
           value={desc}
@@ -141,7 +148,7 @@ const InfoClass = ({
       <View style={[styles.marginInput]}>
         <View style={[styles.inputContainer]}>
           <Text style={styles.label}>
-            Chọn môn học cho lớp <Text style={styles.required}>*</Text>
+            {languageContext.MAJOR} <Text style={styles.required}>*</Text>
           </Text>
 
           {isLoading ? (
@@ -162,6 +169,7 @@ const InfoClass = ({
                 selectedValue={monHoc}
                 onValueChange={(itemValue) => handleSelectChange(itemValue)}
                 style={styles.picker}
+                key={languageContext.TYPE}
               >
                 {pickerItems.map((item) => (
                   <Picker.Item
@@ -178,7 +186,7 @@ const InfoClass = ({
         {/* CẤP HOC */}
         <View style={[styles.inputContainer]}>
           <Text style={styles.label}>
-            Cấp học <Text style={styles.required}>*</Text>
+            {languageContext.CLASS_LEVEL} <Text style={styles.required}>*</Text>
           </Text>
           <View style={styles.pickerContainer}>
             <Picker
@@ -188,7 +196,13 @@ const InfoClass = ({
             >
               {capHocList.map((classLevel) => (
                 <Picker.Item
-                  label={classLevel.vn_name}
+                  label={
+                    languageContext.TYPE === "vi"
+                      ? classLevel.vn_name
+                      : languageContext.TYPE === "en"
+                      ? classLevel.en_name
+                      : classLevel.ja_name
+                  }
                   value={classLevel.id}
                   key={classLevel.id}
                 />
@@ -199,7 +213,7 @@ const InfoClass = ({
 
         {/* MAX LEARNER */}
         <Text style={styles.label}>
-          Số lượng người học <Text style={styles.required}>*</Text>
+          {languageContext.MAX_LEARNER} <Text style={styles.required}>*</Text>
         </Text>
         <TextInput
           style={styles.input}

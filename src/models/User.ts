@@ -5,6 +5,8 @@ import Gender from "./Gender";
 import ClassLevel from "./ClassLevel";
 import Major from "./Major";
 import Attendance from "./Attendance";
+import Permission from "./Permission";
+import Lesson from "./Lesson";
 
 export default class User {
     public id: string;
@@ -31,7 +33,9 @@ export default class User {
     public attendance: Attendance | undefined;
     public is_reported: boolean;
     public cv_id: string | undefined;
+    public lessons: Lesson[] | [];
     public parent_id: string = "";
+    public permissions: Permission[]  = [];
 
     constructor(
         id = "",
@@ -58,6 +62,8 @@ export default class User {
         attendance: Attendance | undefined = undefined,
         is_reported = false,
         cv_id: string | undefined = undefined,
+        lessons: Lesson[] | [] = [],
+        parent_id = ""
     ) {
         this.id = id;
         this.full_name = full_name;
@@ -83,5 +89,7 @@ export default class User {
         this.attendance = attendance;
         this.is_reported = is_reported;
         this.cv_id = cv_id;
+        this.lessons = lessons;
+        this.parent_id = parent_id;
     }
 }

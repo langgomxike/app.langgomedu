@@ -11,11 +11,13 @@ import { NavigationContext } from "@react-navigation/native";
 import ScreenName from "../../constants/ScreenName";
 import { AccountContext } from "../../configs/AccountConfig";
 import { RoleList } from "../../models/Role";
+import { LanguageContext } from "../../configs/LanguageConfig";
 
 const TurtorClass = () => {
   // context
   const navigation = useContext(NavigationContext);
   const user = useContext(AccountContext); // get account info
+  const languageContext = useContext(LanguageContext).language;
 
   if (!user || !user.account) {
     return <Text>Error: User not found</Text>; // handle case where user data is not available
@@ -164,36 +166,27 @@ const TurtorClass = () => {
     console.log("detail: ", dataDetail);
 
     if (!dataTitle.trim()) {
-      setErrorMessage("Vui lòng nhập tiêu đề.");
+      setErrorMessage(languageContext.ERR_MESSAGE_TITLE);
       return;
     }
-
     if (!dataDesc.trim()) {
-      setErrorMessage("Vui lòng nhập mô tả.");
+      setErrorMessage(languageContext.ERR_MESSAGE_DESCRIPTION);
       return;
     }
-
     if (dataMajorId === -1) {
-      setErrorMessage("Vui lòng chọn môn học.");
+      setErrorMessage(languageContext.ERR_MESSAGE_MAJOR);
       return;
     }
-
     if (dataClassLevel === -1) {
-      setErrorMessage("Vui lòng chọn cấp học.");
+      setErrorMessage(languageContext.ERR_MESSAGE_CLASS_LEVEL);
       return;
     }
-
-    if (dataMaxLearner === 0) {
-      setErrorMessage("Vui lòng nhập số lượng người học");
-    }
-
     if (dataPrice === null || dataPrice === 0 || isNaN(dataPrice)) {
-      setErrorMessage("Vui lòng nhập học phí hợp lệ.");
+      setErrorMessage(languageContext.ERR_MESSAGE_PRICE);
       return;
     }
-
     if (!dataDateStart.trim() || !dataDateEnd.trim()) {
-      setErrorMessage("Vui lòng chọn ngày bắt đầu và ngày kết thúc.");
+      setErrorMessage(languageContext.ERR_MESSAGE_DATE_START_END);
       return;
     }
 
@@ -271,16 +264,16 @@ const TurtorClass = () => {
       <InfoTuition onNext={handleDataChangeTuition} />
 
       <TouchableOpacity style={styles.btnNext} onPress={handleSaveClass}>
-        <Text style={styles.txtNext}>Tạo Lớp</Text>
+        <Text style={styles.txtNext}>{languageContext.BTN_TAO_LOP}</Text>
       </TouchableOpacity>
 
       {errorMessage && <Text style={styles.errorText}>{errorMessage}</Text>}
 
       {/* Dialog thông báo thành công */}
       <Dialog.Container visible={isDialogVisible}>
-        <Dialog.Title>Thành Công!</Dialog.Title>
+        <Dialog.Title>{languageContext.DIALOG_TITLE}</Dialog.Title>
         <Dialog.Description>
-          Lớp học của bạn đã được tạo thành công với ID: {createClassId}.
+          {languageContext.DIALOG_DESC}: {createClassId}.
         </Dialog.Description>
         <Dialog.Button
           label="OK"

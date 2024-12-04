@@ -14,6 +14,7 @@ import Modal from "react-native-modal";
 import { BackgroundColor } from "../../../configs/ColorConfig";
 import { Image } from "react-native";
 import CustomInput from "../Inputs/CustomInput";
+import { LanguageContext } from "../../../configs/LanguageConfig";
 
 type ModalInputReasonProps = {
   confirmTitle: string;
@@ -47,6 +48,8 @@ export default function ModalInputReason({
   onRequestCloseDialog,
   loading = false,
 }: ModalInputReasonProps) {
+  const language = useContext(LanguageContext).language;
+
   const getImageSource = (iconName: string) => {
     const image = images.find((img) => img.name === iconName);
     return image ? image.source : null;
@@ -66,7 +69,7 @@ export default function ModalInputReason({
       {loading ? (
         <View style={styles.containerLoading}>
           <ActivityIndicator size={50} />
-          <Text style={styles.loadingText}>Đang xử lý...</Text>
+          <Text style={styles.loadingText}>{language.PROCESSING}</Text>
         </View>
       ) : (
         <KeyboardAvoidingView
@@ -100,8 +103,8 @@ export default function ModalInputReason({
 
                 <View style={{ padding: 10 }}>
                   <CustomInput
-                    label="Lý do"
-                    placeholder="Nhập lý do..."
+                    label={language.REASON}
+                    placeholder={language.ENTER_REASON}
                     value={reason}
                     type="textarea"
                     onChangeText={setReason}
@@ -129,7 +132,7 @@ export default function ModalInputReason({
 
 const styles = StyleSheet.create({
   container: {
-    height: "80%",
+    height: "65%",
     marginTop: 10,
     backgroundColor: "#fff",
     borderRadius: 10,

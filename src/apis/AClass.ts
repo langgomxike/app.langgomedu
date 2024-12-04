@@ -16,7 +16,7 @@ export default class AClass {
     onNext: (course: Class) => void,
     onLoading: (loading: boolean) => void
   ) {
-    console.log("Đã vào đây", `${this.API_URL}/classes/detail/${classId}?user_id=${userId}` );
+
     onLoading(true);
     
     axios
@@ -29,6 +29,36 @@ export default class AClass {
       .catch((err) => {
         console.log("Error: ", err);
         onNext(new Class());
+        onLoading(true);
+      });
+  }
+
+  public static getconflictingLessonsWithClassUsers(
+    classId: number,
+    userId: string,
+    onNext: (data: User[]) => void,
+    onLoading: (loading: boolean) => void
+  ) {
+    
+    onLoading(true);
+    
+    axios
+      .post(`${this.API_URL}/classes/conflicting`, {class_id: classId, user_id: userId})
+      .then((response) => {
+        const datas:any[] = response.data.data;
+        const mergedData = datas.map(item => {
+          return {
+            ...item,
+            lessons: item.conflicts || [] 
+          };
+        });
+
+        onNext(mergedData);
+        onLoading(false);
+      })
+      .catch((err) => {
+        console.log("Error: ", err);
+        onNext([]);
         onLoading(true);
       });
   }
@@ -316,6 +346,7 @@ export default class AClass {
       }
     })
     .then((response) => {
+      onLoading(false);
       console.log(">>> pay fee for class: ", response.data.data);
       onNext(response.data.data);
     })
@@ -323,6 +354,30 @@ export default class AClass {
       console.log("Error: ", err);
       console.log(err.message);
     });
+  }
+
+  public static acceptTutorForClass(
+    classId: number,
+    authorAccepted: boolean,
+    onNext: (data: any) => void,
+    onLoading: (loading: boolean) => void
+  ) {
+    onLoading(true);
+
+    axios
+      .put(`${this.API_URL}/classes/accept-tutor`, {
+        class_id: classId, author_accepted: authorAccepted
+      })
+      .then((response) => {
+        onNext(response.data.data);
+        onLoading(false);
+      })
+      .catch((err) => {
+        console.error("Error enrolling in class:", err);
+        console.log(">>> title", "Xác nhận gia sư cho lớp không thành công");
+        onNext(err);
+        onLoading(false);
+      });
   }
   
   //khoá lớp học

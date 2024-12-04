@@ -411,7 +411,7 @@ export default function InputCVScreen() {
           />
 
           <Input
-            label={languageContext.language.MAJOR}
+            label={languageContext.language.INTERESTED_MAJOR}
             onTextChange={() => { }}
             placeholder={interestedMajor?.vn_name}
           />

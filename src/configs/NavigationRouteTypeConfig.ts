@@ -34,6 +34,11 @@ export type ClassDetailRoute = {
   classId: number;
 }
 
+export type UpdateClassRoute = {
+  classData: Class;
+}
+
+
 export type AttendedForLearner = {
   lesson: Lesson;
   user: User;
@@ -60,4 +65,8 @@ export type AuthType = {
 export type RatingNavigationType = {
   id: string;
   class: Class;
+}
+export type ReportNavigationType = {
+  id: number;
+  reporter: User;
 }

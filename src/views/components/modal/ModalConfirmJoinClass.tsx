@@ -14,6 +14,8 @@ import AClass from "../../../apis/AClass";
 import { UserContext, UserType } from "../../../configs/UserContext";
 import ModalDialogForClass from "./ModalDialogForClass";
 import User from "../../../models/User";
+import { AccountContext } from "../../../configs/AccountConfig";
+import { LanguageContext } from "../../../configs/LanguageConfig";
 
 type ModalJoinClassProps = {
   confirmContent: string;
@@ -38,7 +40,9 @@ export default function ModalConfirmJoinClass({
   onResultValue
 }: ModalJoinClassProps) {
   //context 
-  const {user} = useContext(UserContext);
+  const account = useContext(AccountContext).account;
+  const user = useContext(UserContext).user;
+  const language = useContext(LanguageContext).language;
 
   // states 
   const [isConfirming, setIsConfirming] = useState<string | null>("");
@@ -51,59 +55,71 @@ export default function ModalConfirmJoinClass({
 
   
   // Handles
+
+  // Xử lý tham gia lớp học
   const handleJoinClass = useCallback(() => {
+    if(account && userIds.length === 0){
+      userIds.push(account.id);
+    }
+    
     AClass.joinClass(
       classId, 
       userIds ,
       (data) => {
-        setIsConfirming("modalDialogForClass"); // mở modalDialogForClass
+         // mở modalDialogForClass
+        setIsConfirming("modalDialogForClass");
         onRequestClose();
         if(data.result){
           onResultValue(data.result)
 
           setModalDialog({
-            confirmContent: "Tham gia lớp thành công",
+            confirmContent: language.JOIN_CLASS_SUCCESS,
             confirmStatus: "success"
           });
         }
         else {
           setModalDialog({
-            confirmContent: "Không thể tham gia lớp. Vui lòng thử lại.",
+            confirmContent: language.JOIN_CLASS_FAILED,
             confirmStatus: "failure"
           });
         }
       },
       setLoading
      )
+    
 
   }, [userIds, classId,]);
 
+  // Xử lý nhận lớp cho gia sư
   const handleAcceptClassToTeach = useCallback(() => {
-    AClass.acceptClassToTeach(
-      classId, 
-      user.ID,
-      (data) => {
-        setIsConfirming("modalDialogForClass"); // mở modalDialogForClass
-        onRequestClose();
-        if(data.result){
-          onResultValue(data.result)
-          setModalDialog({
-            confirmContent: "Nhận lớp thành công. Vui lòng chờ duyệt!",
-            confirmStatus: "success"
-          });
-        }
-        else {
-          setModalDialog({
-            confirmContent: "Không thể nhận lớp. Vui lòng thử lại.",
-            confirmStatus: "failure"
-          });
-        }
-      },
-      setLoading
-     )
-  }, [classId])
+    if(account){
+      AClass.acceptClassToTeach(
+        classId, 
+        account.id,
+        (data) => {
+          setIsConfirming("modalDialogForClass"); // mở modalDialogForClass
+          onRequestClose();
+          if(data.result){
+            onResultValue(data.result)
+            setModalDialog({
+              confirmContent: language.ACCEPT_CLASS_SUCCESS,
+              confirmStatus: "success"
+            });
+          }
+          else {
+            setModalDialog({
+              confirmContent: language.ACCEPT_CLASS_FAILED,
+              confirmStatus: "failure"
+            });
+          }
+        },
+        setLoading
+       )
+    }
+  }, [classId, account])
 
   // effects 
+  // Xử lấy danh sách con của người dùng được chọn
   useEffect(() => {
       if (selectedStudents) {
         setUserIds(selectedStudents.map((student) => student.id))
@@ -132,7 +148,7 @@ export default function ModalConfirmJoinClass({
           ]}
         >
           <View style={styles.modalHeader}>
-            <Text style={styles.headerTitle}>Xác nhận tham gia</Text>
+            <Text style={styles.headerTitle}>{language.CONFIRM_JOIN}</Text>
           </View>
 
           <View style={styles.modalBody}>
@@ -167,16 +183,16 @@ export default function ModalConfirmJoinClass({
             <View style={[styles.btnContainer]}>
               <TouchableOpacity
                 style={[styles.btn, styles.btnDeny]}
-                onPress={() => onRequestClose()}
+                onPress={() => onRequestClose() }
               >
-                <Text style={styles.btnDenyText}>Từ chối</Text>
+                <Text style={styles.btnDenyText}>{language.DECLINE}</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
                 onPress={user.TYPE === UserType.LEANER ? handleJoinClass: handleAcceptClassToTeach}
                 style={[styles.btn, styles.btnSave, styles.boxShadow]}
               >
-                <Text style={styles.btnSaveText}>Xác nhận</Text>
+                <Text style={styles.btnSaveText}>{language.CONFIRM}</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -185,7 +201,7 @@ export default function ModalConfirmJoinClass({
 
       {/* Modal hiển thị tham gia lớp học thành công */}
       <ModalDialogForClass
-        confirmTitle="Thông báo"
+        confirmTitle={language.NOTIFICATION}
         confirmContent={modalDialog.confirmContent}
         imageStatus={modalDialog.confirmStatus}
         visiable={isConfirming}

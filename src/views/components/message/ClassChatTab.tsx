@@ -82,7 +82,11 @@ const classChatTab: TabItem = {
 
         {loading && chatMessages.length < 1 && (
           fakeChats.map(i => (
-            <CustomShimmer key={i} height={65} style={styles.item}/>
+            <View key={i} style={{flexDirection: "row", gap: 10}}>
+              <CustomShimmer height={60} style={styles.avatar}/>
+
+              <CustomShimmer height={60} style={styles.item}/>
+            </View>
           ))
         )}
 
@@ -103,7 +107,15 @@ const styles = StyleSheet.create({
     flex: 1,
     marginVertical: 5,
     borderRadius: 10,
-    minHeight: 70,
+    minHeight: 60,
     width: "100%"
+  },
+
+  avatar: {
+    marginVertical: 10,
+    borderRadius: 100,
+    minHeight: 60,
+    width: 60,
+    height: 60,
   }
 });

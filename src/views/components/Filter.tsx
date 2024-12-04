@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import {
   Alert,
   KeyboardAvoidingView,
@@ -20,6 +20,7 @@ import DropDownMajors from "./dropdown/DropDownMajors";
 import { TextInput } from "react-native-gesture-handler";
 import Filters from "../../models/Filters";
 import { startAt } from "firebase/database";
+import { LanguageContext } from "../../configs/LanguageConfig";
 
 type FilterProps = {
   isVisible: boolean;
@@ -45,6 +46,8 @@ const customBorderBottomLeftRadius = 30;
 const customOverlayHeight = "100%";
 
 const Filter = ({ isVisible, onRequestClose, onSetFilterValues }: FilterProps) => {
+  // context
+  const language = useContext(LanguageContext).language;
   // USESTATE
   // CHECK BOX
   const [selectedType, setSelectedType] = useState<string[]>([]);
@@ -90,7 +93,7 @@ const Filter = ({ isVisible, onRequestClose, onSetFilterValues }: FilterProps) =
     const minVal = parseFloat(min.replace(/\,/g, ""));
     const maxVal = parseFloat(max.replace(/\,/g, ""));
     if (!isNaN(minVal) && !isNaN(maxVal) && minVal > maxVal) {
-      setError("Giá tối thiểu không được lớn hơn giá tối đa.");
+      setError(language.MIN_PRICE_LESS_THAN_MAX);
     }else {
       setError(null);
     }
@@ -233,15 +236,9 @@ const Filter = ({ isVisible, onRequestClose, onSetFilterValues }: FilterProps) =
                 onSetSelectedClassLevels={setSelectedClassLevels}/>
               </View>
 
-              {/* HINH THUC */}
-              <Text style={styles.textSection}>Hình thức:</Text>
-              <View style={{ paddingLeft: 20 }}>
-                <RadioButton onSelect={handleSelect} options={optionForms} />
-              </View>
-
               {/* SAP XEP THEO GIA */}
               <View style={[styles.section, styles.paddingCustom]}>
-                <Text style={styles.textSection}>Sắp xếp theo giá:</Text>
+                <Text style={styles.textSection}>{language.SORT_BY_PRICE}:</Text>
                 <TouchableOpacity style={styles.iconDESC} onPress={() => setSortValues(SORT.priceDESC)}>
                   <Octicons name="sort-desc" size={24} color={sortValues === SORT.priceDESC ? BackgroundColor.primary : "black"} />
                 </TouchableOpacity>
@@ -253,14 +250,14 @@ const Filter = ({ isVisible, onRequestClose, onSetFilterValues }: FilterProps) =
 
               {/* GIA NHO NHAT */}
               <View style={styles.paddingCustom}>
-                <Text style={styles.textSection}>Giá</Text>
+                <Text style={styles.textSection}>{language.PRICE_FILTER}</Text>
                 <View style={styles.inputPriceContainer}>
                   <TextInput
                     style={[
                       styles.inputPrice, styles.boxShadow,
                       error &&  parseFloat(minPrice) > parseFloat(maxPrice) ? styles.errorBorder: null,
                     ]}
-                    placeholder="Tối thiểu"
+                    placeholder={language.MINIMUM}
                     keyboardType="numeric"
                     value={minPrice}
                     onChangeText={handleMinPriceChange}
@@ -276,7 +273,7 @@ const Filter = ({ isVisible, onRequestClose, onSetFilterValues }: FilterProps) =
                         ? styles.errorBorder
                         : null,
                     ]}
-                    placeholder="Tối đa"
+                    placeholder={language.MAXIMUM}
                     keyboardType="numeric"
                     value={maxPrice}
                     onChangeText={handleMaxPriceChange}
@@ -289,8 +286,8 @@ const Filter = ({ isVisible, onRequestClose, onSetFilterValues }: FilterProps) =
               {/* SO LUONG */}
               <View style={styles.paddingCustom}>
                 <CustomInput
-                  label="Số lượng học sinh:"
-                  placeholder="Nhập số lượng"
+                  label={language.NUMBER_OF_STUDENTS}
+                  placeholder={language.ENTER_QUANTITY}
                   required={false}
                   onChangeText={handleQuantity}
                   type={"number"}
@@ -302,8 +299,8 @@ const Filter = ({ isVisible, onRequestClose, onSetFilterValues }: FilterProps) =
               <View style={[styles.queryDateBlock]}>
             <View style={{ flex: 1 }}>
               <CustomInput
-                label="Từ ngày"
-                placeholder="Chọn ngày..."
+                label={language.START}
+                placeholder={language.SELECT_DATE}
                 required={false}
                 value={fromDate}
                 onChangeText={setFromDate}
@@ -312,8 +309,8 @@ const Filter = ({ isVisible, onRequestClose, onSetFilterValues }: FilterProps) =
             </View>
             <View style={{ flex: 1 }}>
               <CustomInput
-                label="Đến ngày"
-                placeholder="Chọn ngày..."
+                label={language.END}
+                placeholder={language.SELECT_DATE}
                 required={false}
                 value={toDate}
                 onChangeText={setToDate}
@@ -327,10 +324,10 @@ const Filter = ({ isVisible, onRequestClose, onSetFilterValues }: FilterProps) =
             <View style={[styles.btnContainer]}>
               {/* BUTTON QUAY LAI */}
               <TouchableOpacity style={styles.btnReset} onPress={handleResetFilter}>
-                <Text style={styles.textReset}>Thiết lập lại</Text>
+                <Text style={styles.textReset}>{language.RESET}</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.btnApply} onPress={handleApply}>
-                <Text style={styles.textApply}>Áp dụng</Text>
+                <Text style={styles.textApply}>{language.APPLY}</Text>
               </TouchableOpacity>
             </View>
             {/* <TouchableOpacity

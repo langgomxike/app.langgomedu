@@ -16,11 +16,13 @@ import {UserContext, UserType} from "../../configs/UserContext";
 import {RoleList} from "../../models/Role";
 import Toast from "react-native-simple-toast";
 import {ProgressBar} from "@react-native-community/progress-bar-android";
-import { MajorsLevelsContext } from "../../configs/MajorsLevelsContext";
+import {MajorsLevelsContext} from "../../configs/MajorsLevelsContext";
 import AMajor from "../../apis/AMajor";
 import AClassLevel from "../../apis/AClassLevel";
 import AGender from "../../apis/AGender";
-import { GenderContext } from "../../configs/GenderContext";
+import {GenderContext} from "../../configs/GenderContext";
+import APermission from "../../apis/APermission";
+import {PermissionList} from "../../models/Permission";
 
 export default function WelcomeScreen() {
   // context
@@ -33,11 +35,6 @@ export default function WelcomeScreen() {
   const genderContext = useContext(GenderContext);
 
   const [loading, setLoading] = useState(false);
-
-  //handlers
-  const openLink = useCallback((link: string) => {
-    Linking.openURL(link);
-  }, []);
 
   //effects
   //get all information
@@ -74,31 +71,44 @@ export default function WelcomeScreen() {
         if (!user) {
           navigation?.reset({
             index: 0,
-            routes: [{ name: ScreenName.LOGIN }],
+            routes: [{name: ScreenName.LOGIN}],
           });
         } else {
           //store new token into async storage
           SAsyncStorage.setData(AsyncStorageKeys.TOKEN, user.token);
 
-          if (accountContext.setAccount) {
-            accountContext.setAccount(user);
-            setUser({ID: user.id, TYPE: UserType.LEANER});
+          APermission.getPermissionsOfUser(user, (permissions) => {
+            user.permissions = permissions;
 
-            //check if admin/superadmin or not
-            if (user.roles?.map(role => role.id).includes(RoleList.ADMIN) || user.roles?.map(role => role.id).includes(RoleList.SUPER_ADMIN)) {
-              navigation?.reset({
-                index: 0,
-                routes: [{ name: ScreenName.HOME_ADMIN }],
-              });
-            } else {
-              navigation?.reset({
-                index: 0,
-                routes: [{ name: ScreenName.NAV_BAR }],
-              });
+            if (accountContext.setAccount) {
+              accountContext.setAccount(user);
+              setUser({ID: user.id, TYPE: UserType.LEANER});
+
+              //check if admin/superadmin or not
+              let isAdmin = false;
+
+              //is super admin
+              isAdmin = isAdmin || user.roles?.map(role => role.id).includes(RoleList.SUPER_ADMIN);
+              isAdmin = isAdmin || user.roles?.map(role => role.id).includes(RoleList.ADMIN);
+
+              if (isAdmin) {
+                navigation?.reset({
+                  index: 0,
+                  routes: [
+                    {name: ScreenName.HOME_ADMIN}
+                  ],
+                });
+              } else {
+                navigation?.reset({
+                  index: 0,
+                  routes: [{name: ScreenName.NAV_BAR}],
+                });
+              }
+
+              Toast.show(languageContext.language.WELCOME + " " + user.full_name, 2000);
             }
-
-            Toast.show(languageContext.language.WELCOME + " " + user.full_name, 2000);
-          }
+          }, () => {
+          });
         }
       });
     }, 5000);
@@ -121,11 +131,11 @@ export default function WelcomeScreen() {
       genderContext?.setGenders(data)
     })
 
-}, [accountContext.setAccount]);
+  }, [accountContext.setAccount]);
 
-  return(
+  return (
     <View style={styles.container}>
-      <Image style={styles.logo} source={require("../../../assets/logo.png")} />
+      <Image style={styles.logo} source={require("../../../assets/logo.png")}/>
       <Text style={styles.appName}>{appInfoContext.infos.app_name}</Text>
 
       <Text style={styles.text}>Welcome to {appInfoContext.infos.app_name} 👋</Text>
@@ -177,8 +187,8 @@ const styles = StyleSheet.create({
   },
 
   link: {
-   fontSize: 14,
-   color: TextColor.sub_primary,
+    fontSize: 14,
+    color: TextColor.sub_primary,
     backgroundColor: "rgba(255, 255, 255, 0.95)",
     paddingVertical: 8,
     paddingHorizontal: 15,

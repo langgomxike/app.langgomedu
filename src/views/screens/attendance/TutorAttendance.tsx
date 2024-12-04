@@ -44,6 +44,7 @@ import ChildItem from "../../components/attendance/ChildItem";
 import DropdownLearners from "../../components/dropdown/DropDownLearners";
 import moment from "moment";
 import { ActivityIndicator } from "react-native";
+import { LanguageContext } from "../../../configs/LanguageConfig";
 
 const URL = ReactAppUrl.PUBLIC_URL;
 const { width: SCREEN_WIDTH } = Dimensions.get("screen");
@@ -54,6 +55,7 @@ export default function TutorAttendance() {
   //context----------------------------------------------------------------
   const account = useContext(AccountContext).account
   const navigation = useContext(NavigationContext);
+  const language = useContext(LanguageContext).language;
   
   // state ----------------------------------------------------------------
   const [modalVisible, setModalVisible] = React.useState<string | null>("");
@@ -167,15 +169,15 @@ export default function TutorAttendance() {
               {learners && 
               <View style={styles.childrenComponent}>
                 <View style={styles.childrenComponentTitleContainer}>
-                  <Text style={styles.childrenComponentTitle}>Dánh sách học sinh</Text>
+                  <Text style={styles.childrenComponentTitle}>{language.STUDENT_LIST}</Text>
                   <View style={styles.colorInfo}>
                         <View style={styles.colorContainer}>
                           <View style={[styles.color, {backgroundColor: BackgroundColor.green_light}]}></View>
-                          <Text style={styles.textColor}>Đã học</Text>
+                          <Text style={styles.textColor}>{language.ATTENDED}</Text>
                         </View>
                         <View style={styles.colorContainer}>
                           <View style={[styles.color, {backgroundColor: BackgroundColor.gray_c6}]}></View>
-                          <Text style={styles.textColor}>Vắng</Text>
+                          <Text style={styles.textColor}>{language.ABSENT}</Text>
                         </View>
                   </View>
 
@@ -195,7 +197,7 @@ export default function TutorAttendance() {
 
                 <View style={styles.btnNotifyAllCContainer}>
                   <TouchableOpacity style={styles.btnNotifyAll} >
-                    <Text style={styles.btnNotifyAllText} >Gửi nhắc nhở cho tất cả</Text>
+                    <Text style={styles.btnNotifyAllText} >{language.SEND_REMINDERS_TO_ALL}</Text>
                     <ActivityIndicator color={"#fff"}/>
                   </TouchableOpacity>
                 </View>
@@ -206,7 +208,7 @@ export default function TutorAttendance() {
               <TouchableOpacity onPress={handleNavigateAttendanceHistory}>
                 <View style={styles.historyListContainer}>
                   <Octicons name="history" size={22} color="black" />
-                  <Text style={styles.historyTitle}>Lịch sử điểm danh</Text>
+                  <Text style={styles.historyTitle}>{language.ATTENDANCE_HISTORY}</Text>
                 </View>
               </TouchableOpacity>
             </View>
@@ -225,7 +227,7 @@ export default function TutorAttendance() {
           ]}
         >
           <Text style={styles.btnAttendceText}>
-            {attendanceStatus ? " Đã điểm danh" : "Điểm danh"}
+            {attendanceStatus ? `${language.ALREADY_ATTENDED}` : `${language.ATTEND}`}
           </Text>
         </TouchableOpacity>
       </View>
@@ -242,9 +244,9 @@ export default function TutorAttendance() {
       )}
 
       <ModalConfirmAttendClass
-        confirmTitle="Xác nhận thành công"
+        confirmTitle={language.CONFIRM_SUCCESS}
         confirmContent={
-          "Xác nhận thanh toán thành công!"
+         language.CONFIRM_PAYMENT_SUCCESS
         }
         imageStatus={"success"}
         visiable={modalVisible}
