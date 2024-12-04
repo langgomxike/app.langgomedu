@@ -48,3 +48,6 @@ src/configs/ConfigUrl.ts
 
 # .idea in inteliji
 .idea
+
+# .vscode in Visual studio code
+.vscode

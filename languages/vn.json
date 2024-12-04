@@ -359,5 +359,19 @@
   "ERR_MESSAGE_DATE_START_END": "Vui lòng chọn ngày bắt đầu và ngày kết thúc.",
   "ERR_MESSAGE_AUTHOR": "Không phải là tác giả.",
 
-  "MESSAGE": "Bạn không có quyền truy cập tab này!"
+  "MESSAGE": "Bạn không có quyền truy cập tab này!",
+
+  "KHANG": "KHANG",
+  "CHOOSE":"chọn ...",
+  "LEARNING_CLASS": "Lớp đang học",
+  "EMPTY_TODAY_CLASS": "Hôm nay không có lớp học",
+  "EDUCATION": "Bằng Cấp",
+  "WORK_EXPERIENCE": "Kinh nghiệm làm việc",
+  "CERTIFICATE": "Chứng chỉ",
+  "WORKING_TITLE": "Tiêu đề công việc",
+  "NAME": "Tên",
+  "INTERESTED_MAJOR": "Chuyên Ngành",
+  "BIRTHDAY": "Ngày sinh",
+  "BIOGRAPHY": "Mô tả bản thân",
+  "PLACEHOLDER_BIO": "Nhập mô tả bản thân của bạn tại đây"
 }

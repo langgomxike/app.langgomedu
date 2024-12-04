@@ -2,11 +2,12 @@ import { Text, View, StyleSheet, FlatList, Image } from "react-native";
 import { BackgroundColor, TextColor } from "../../../configs/ColorConfig";
 import LessionItem, { LessionItemProps } from "./LessionItem";
 import Lesson from "../../../models/Lesson";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import User from "../../../models/User";
+import { LanguageContext } from "../../../configs/LanguageConfig";
 export type timeLineProp = {
-  selectedUser: User;
+  selectedUser?: User;
   lessons: Lesson[];
   selectedDate: Date;
   type: number;
@@ -21,7 +22,7 @@ export type timeLineProp = {
 export default function TimeLine({ selectedUser, lessons, selectedDate, type, onChangeType }: timeLineProp) {
   //State >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   const [activeTab, setActiveTab] = useState(type);
-
+  const languageContext = useContext(LanguageContext);
   //HANDLER >>>>>>>>>>>>>>>>>>>>>>>>>>
   const handleChangeType = useCallback((type: number) => {
     setActiveTab(type);
@@ -43,7 +44,7 @@ export default function TimeLine({ selectedUser, lessons, selectedDate, type, on
                 activeTab === 0 && styles.headerTextActive,
               ]}
             >
-              Lớp đang học
+              {languageContext.language.LEARNING_CLASS}
             </Text>
           </TouchableOpacity>
         </View>
@@ -56,7 +57,7 @@ export default function TimeLine({ selectedUser, lessons, selectedDate, type, on
                 activeTab === 1 && styles.headerTextActive,
               ]}
             >
-              Lớp đang dạy
+              {languageContext.language.TEACHING_CLASS}
             </Text>
           </TouchableOpacity>
         </View>
@@ -67,7 +68,7 @@ export default function TimeLine({ selectedUser, lessons, selectedDate, type, on
             style={styles.imageEmpty}
             source={require("../../../../assets/images/alarm-off.png")}
           />
-          <Text style={styles.textEmpty}> Hôm nay không có lớp học </Text>
+          <Text style={styles.textEmpty}> {languageContext.language.EMPTY_TODAY_CLASS} </Text>
         </View>
       ) : (
         <FlatList
