@@ -13,7 +13,7 @@ import DateTimePicker, {
 } from "@react-native-community/datetimepicker";
 
 type CustomInputProps = {
-  label: string;
+  label?: string;
   required: boolean;
   value?: string;
   onChangeText: (text: string) => void;

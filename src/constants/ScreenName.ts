@@ -52,13 +52,13 @@ enum ScreenName {
     CLASS_APPROVAL = "CLASSAPPROVAL",
 
     SETTING_INFO_PERSONAL = "SETTINGINFORMATIONPERSONAL",
-    SETTING_INFORMATION = "Setting information personal",
-    SETTING_PERSONAL_CV = "Setting personal CV",
-    SETTING_PERSONAL_CLASSES = "Setting personal classes",
-    SETTING_PERSONAL_RATINGS = "Setting personal ratings",
-    CREATE_ACCOUNT_ADMIN = 'Create admin',
-    CREATE_REPORT='create report',
-    UPDATE_REPORT_USER = 'Update report'
+    SETTING_INFORMATION = "SettingInformationPersonal",
+    SETTING_PERSONAL_CV = "SettingPersonalCV",
+    SETTING_PERSONAL_CLASSES = "SettingPersonalClasses",
+    SETTING_PERSONAL_RATINGS = "SettingPersonalRatings",
+    CREATE_ACCOUNT_ADMIN = 'CreateAdmin',
+    CREATE_REPORT ='createReport',
+    UPDATE_REPORT_USER = 'UpdateReport'
 }
 
 export default ScreenName;

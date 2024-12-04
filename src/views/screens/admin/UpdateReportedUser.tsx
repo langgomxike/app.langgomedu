@@ -313,7 +313,10 @@ export default function UpdateReportedUser() {
       </View>
       <View style={styles.component1}>
         <Text style={styles.smallTitle3}>
-          Đã bị báo cáo {userReport?.reports_before?.filter(report => report.content).length || 0} lần
+          Đã bị báo cáo{" "}
+          {userReport?.reports_before?.filter((report) => report.content)
+            .length || 0}{" "}
+          lần
         </Text>
         {userReport?.reports_before.map((report, index) => (
           <View key={index} style={styles.itemlCenter}>

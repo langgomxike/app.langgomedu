@@ -2,11 +2,15 @@ import File from "./File";
 import Role from "./Role";
 import Address from "./Address";
 import Gender from "./Gender";
+import Major from "./Major";
+import Class from "./Class";
+import ClassLevel from "./ClassLevel";
 
 export default class User {
     public id: string;
     public full_name: string;
     public username: string;
+    public email: string;
     public phone_number: string;
     public password: string;
     public token: string;
@@ -22,11 +26,15 @@ export default class User {
     public created_at: number;
     public updated_at: number;
     public roles: Role[];
+    public interested_majors: Major[] = [];
+    public interested_class_levels: ClassLevel[] = [];
+
 
     constructor(
         id = "",
         full_name = "",
         username = "",
+        email="",
         phone_number = "",
         password = "",
         token = "",
@@ -41,11 +49,14 @@ export default class User {
         bankingCode: string = "",
         created_at = 0,
         updated_at = 0,
-        roles = []
+        roles = [],
+        interested_majors = [],
+        interested_class_levels = [],
     ) {
         this.id = id;
         this.full_name = full_name;
         this.username = username;
+        this.email = email;
         this.phone_number = phone_number;
         this.password = password;
         this.token = token;
@@ -61,5 +72,7 @@ export default class User {
         this.created_at = created_at;
         this.updated_at = updated_at;
         this.roles = roles;
+        this.interested_majors = interested_majors;
+        this.interested_class_levels = interested_class_levels;
     }
 }
