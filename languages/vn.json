@@ -153,5 +153,20 @@
   "PASSWORD_RESET_ALREADY": "Mật khẩu của bạn đã được đặt lại",
   "CHILDREN_CANNOT_CREATE_CHILDREN": "Trẻ em không thể tạo trẻ em",
   "APP_STORE_APP_ID": "ID ứng dụng trên App Store",
-  "PLAY_STORE_APP_ID": "ID ứng dụng trên Google Play Store"
+  "PLAY_STORE_APP_ID": "ID ứng dụng trên Google Play Store",
+
+  "CHOOSE":"chọn ...",
+  "LEARNING_CLASS": "Lớp đang học",
+  "TEACHING_CLASS": "Lớp đang dạy",
+  "EMPTY_TODAY_CLASS": "Hôm nay không có lớp học",
+
+  "EDUCATION": "Bằng Cấp",
+  "WORK_EXPERIENCE": "Kinh nghiệm làm việc",
+  "CERTIFICATE": "Chứng chỉ",
+  "WORKING_TITLE": "Tiêu đề công việc",
+  "NAME": "Tên",
+  "MAJOR": "Chuyên Ngành",
+  "BIRTHDAY": "Ngày sinh",
+  "BIOGRAPHY": "Mô tả bản thân",
+  "PLACEHOLDER_BIO": "Nhập mô tả bản thân của bạn tại đây"
 }

@@ -161,6 +161,20 @@
   "PASSWORD_RESET_ALREADY": "Your password has been reset",
   "CHILDREN_CANNOT_CREATE_CHILDREN": "Children cannot create children",
   "APP_STORE_APP_ID" : "Application id in app store",
-  "PLAY_STORE_APP_ID" : "Application id in google play store"
+  "PLAY_STORE_APP_ID" : "Application id in google play store",
 
+  "CHOOSE": "choose ...",
+  "LEARNING_CLASS": "Learning class",
+  "TEACHING_CLASS": "Teaching class",
+  "EMPTY_TODAY_CLASS": "No class today",
+
+  "EDUCATION": "Education",
+  "WORK_EXPERIENCE": "Work experience",
+  "CERTIFICATE": "Certificate",
+  "WORKING_TITLE": "Job title",
+  "NAME": "Name",
+  "MAJOR": "Major",
+  "BIRTHDAY": "Birthday",
+  "BIOGRAPHY": "Biography",
+  "PLACEHOLDER_BIO": "Enter your biography here"
 }

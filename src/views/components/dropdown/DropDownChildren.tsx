@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
 import Feather from '@expo/vector-icons/Feather';
 import User from "../../../models/User";
+import { LanguageContext } from "../../../configs/LanguageConfig";
 
 type DropdownChildrenProps = {
   user_default: User;
@@ -19,7 +20,7 @@ type DropdownChildrenProps = {
 const DropdownChildren = ({user_default, learners, onSelectedLearner, onChangeType}: DropdownChildrenProps) => {
   //state
   // console.log("dropdownChildren: "+ user_default);
-  
+  const languageContext = useContext(LanguageContext);
   const [value, setValue] = useState(user_default);
   const [isFocus, setIsFocus] = useState(false);
 
@@ -40,7 +41,7 @@ const DropdownChildren = ({user_default, learners, onSelectedLearner, onChangeTy
         maxHeight={300}
         labelField="full_name"
         valueField="id"
-        placeholder={!isFocus ? "Chọn..." : "..."}
+        placeholder={!isFocus ? languageContext.language.CHOOSE  : "..." }
         value={value}
         onFocus={() => setIsFocus(true)}
         onBlur={() => setIsFocus(false)}

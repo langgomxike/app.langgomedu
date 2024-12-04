@@ -153,5 +153,20 @@
   "CHILDREN_CANNOT_CREATE_CHILDREN": "子供は子供を作成できません",
   "INVALID_RESET_PASSWORD": "パスワードのリセットに失敗しました。再試行してください",
   "APP_STORE_APP_ID": "アプリストアのアプリID",
-  "PLAY_STORE_APP_ID": "Google PlayストアのアプリID"
+  "PLAY_STORE_APP_ID": "Google PlayストアのアプリID",
+
+  "CHOOSE": "選択 ...",
+  "LEARNING_CLASS": "クラス",
+  "TEACHING_CLASS": "教えるクラス",
+  "EMPTY_TODAY_CLASS": "今日はクラスがありません",
+
+  "EDUCATION": "学歴",
+  "WORK_EXPERIENCE": "職務経験",
+  "CERTIFICATE": "証明書",
+  "WORKING_TITLE": "職名",
+  "NAME": "名前",
+  "MAJOR": "専攻",
+  "BIRTHDAY": "生年月日",
+  "BIOGRAPHY": "自己紹介",
+  "PLACEHOLDER_BIO": "ここに自己紹介を入力してください"
 }

@@ -13,28 +13,32 @@ interface Dropdown {
 }
 
 type DropDownAddressProps = {
-  selectedCity: string;
+  selectedProvince: string;
   selectedDistrict: string;
   selectedWard: string;
-  onSetSelectedCity: (cities: string) => void;
+  onSetSelectedProvince: (cities: string) => void;
   onSetSelectedDistrict: (districts: string) => void;
   onSetSelectedWard: (wards: string) => void;
+  errors : {
+    province : boolean,
+    district : boolean,
+    ward : boolean,
+  }
 }
 
 export default function DropDownLocation(
   {
-    selectedCity,
+    selectedProvince,
     selectedDistrict,
     selectedWard,
-    onSetSelectedCity,
+    onSetSelectedProvince,
     onSetSelectedDistrict,
     onSetSelectedWard,
+    errors,
   }: DropDownAddressProps){
-    
-  // states //////////////////////////////////////////////
-  const [district, setDistrict] = useState<Dropdown[]>([]); // quan
-  const [ward, setWard] = useState<Dropdown[]>([]); // xa
-
+  // states >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+  const [district, setDistrict] = useState<Dropdown[]>([]); // Quận - Huyện
+  const [ward, setWard] = useState<Dropdown[]>([]); // Xã - Thị Trấn
   const [isFocus, setIsFocus] = useState(false);
 
   // handle >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -46,17 +50,18 @@ export default function DropDownLocation(
     // Cập nhật danh sách quận/huyện khi thay đổi danh sách thành phố
     const updatedDistricts: { label: string; value: string }[] = [];
 
-    const city = vietnamData.find((c) => c.name === selectedCity);
+    const city = vietnamData.find((c) => c.name === selectedProvince);
     if (city) {
       city.districts.forEach((district) => {
         updatedDistricts.push({ label: district.name, value: district.name });
       });
     }
 
+    // console.log("city: ", selectedProvince);
 
     setDistrict(updatedDistricts);
     onSetSelectedDistrict("");
-  }, [selectedCity]);
+  }, [selectedProvince]);
 
   // Lấy danh sách xã phường theo quận, huyện
   useEffect(() => {
@@ -70,9 +75,8 @@ export default function DropDownLocation(
         });
       }
     });
-    
+
     setWard(updatedWards);
-    onSetSelectedWard("");
     onSetSelectedWard("");
   }, [selectedDistrict]);
 
@@ -95,7 +99,7 @@ export default function DropDownLocation(
     <View style={styles.container}>
       {/* TINH, THANH PHO */}
       <Dropdown
-        style={[styles.dropdown, isFocus && { borderColor: "blue" }]}
+        style={[styles.dropdown, isFocus && { borderColor: "blue" }, errors.province && styles.borderError]}
         placeholderStyle={styles.placeholderStyle}
         selectedTextStyle={styles.selectedTextStyle}
         inputSearchStyle={styles.inputSearchStyle}
@@ -110,11 +114,11 @@ export default function DropDownLocation(
         valueField="value"
         placeholder={!isFocus ? "Chọn tỉnh" : "Tỉnh"}
         searchPlaceholder="Search..."
-        value={selectedCity}
+        value={selectedProvince}
         onFocus={() => setIsFocus(true)}
         onBlur={() => setIsFocus(false)}
         onChange={(item) => {
-          onSetSelectedCity(item.value);
+          onSetSelectedProvince(item.value);
           setIsFocus(false);
         }}
         renderLeftIcon={() => (
@@ -130,7 +134,7 @@ export default function DropDownLocation(
 
       {/* QUAN, HUYEN */}
       <Dropdown
-        style={[styles.dropdown, isFocus && { borderColor: "blue" }]}
+        style={[styles.dropdown, isFocus && { borderColor: "blue" }, errors.district && styles.borderError]}
         placeholderStyle={styles.placeholderStyle}
         selectedTextStyle={styles.selectedTextStyle}
         inputSearchStyle={styles.inputSearchStyle}
@@ -147,7 +151,6 @@ export default function DropDownLocation(
         onBlur={() => setIsFocus(false)}
         onChange={(item) => {
           onSetSelectedDistrict(item.value);
-          onSetSelectedDistrict(item.value);
           setIsFocus(false);
         }}
         renderLeftIcon={() => (
@@ -162,7 +165,7 @@ export default function DropDownLocation(
       />
       {/* XA */}
       <Dropdown
-        style={[styles.dropdown, isFocus && { borderColor: "blue" }]}
+        style={[styles.dropdown, isFocus && { borderColor: "blue" }, , errors.ward && styles.borderError]}
         placeholderStyle={styles.placeholderStyle}
         selectedTextStyle={styles.selectedTextStyle}
         inputSearchStyle={styles.inputSearchStyle}
@@ -178,7 +181,6 @@ export default function DropDownLocation(
         onFocus={() => setIsFocus(true)}
         onBlur={() => setIsFocus(false)}
         onChange={(item) => {
-          onSetSelectedWard(item.value);
           onSetSelectedWard(item.value);
           setIsFocus(false);
         }}
@@ -203,19 +205,10 @@ const styles = StyleSheet.create({
   },
   dropdown: {
     height: 50,
-    borderColor: "#E0E0E0", // Màu viền xám nhạt
-    borderWidth: 1,
-    borderRadius: 8, // Bo tròn viền
-    paddingHorizontal: 12,
-    backgroundColor: "#FFFFFF", // Nền dropdown trắng
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.05, // Hiệu ứng bóng nhẹ
-    shadowRadius: 4,
-    elevation: 1,
+    borderColor: "gray",
+    borderWidth: 0.5,
+    borderRadius: 8,
+    paddingHorizontal: 8,
   },
   icon: {
     marginRight: 5,
@@ -224,20 +217,16 @@ const styles = StyleSheet.create({
     position: "absolute",
     backgroundColor: "white",
     left: 22,
-    top: -10,
+    top: 8,
     zIndex: 999,
     paddingHorizontal: 8,
     fontSize: 14,
-    color: "#6E6E6E", // Màu chữ nhạt cho label
   },
   placeholderStyle: {
     fontSize: 14,
-    color: "#B0B0B0", // Màu placeholder xám nhạt
   },
   selectedTextStyle: {
     fontSize: 14,
-    color: "#4F4F4F", // Màu chữ khi đã chọn
-    fontWeight: "400",
   },
   iconStyle: {
     width: 20,
@@ -246,34 +235,37 @@ const styles = StyleSheet.create({
   inputSearchStyle: {
     height: 40,
     fontSize: 14,
-    borderColor: "#E0E0E0", // Viền xám nhạt
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    backgroundColor: "#F7F7F7", // Nền ô search xám nhạt
-    color: "#333333", // Màu chữ trong ô search
   },
   item: {
-    padding: 15,
+    padding: 17,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    backgroundColor: "#FFFFFF", // Nền của mỗi item trắng
-    borderBottomWidth: 1,
-    borderBottomColor: "#F0F0F0", // Đường phân cách giữa các item
-  },
-  selectedItemText: {
-    color: "#0D99FF",
-    fontWeight: "500",
   },
   selectedStyle: {
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 14,
-    backgroundColor: "#EFEFEF", // Nền khi được chọn
+    backgroundColor: "white",
+    shadowColor: "#000",
     marginTop: 8,
     marginRight: 12,
     paddingHorizontal: 12,
     paddingVertical: 8,
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 1.41,
+    elevation: 2,
   },
+  selectedItemText: {
+    color: "blue",
+    fontWeight: "bold",
+  },
+  borderError: {
+    borderColor: BackgroundColor.danger,
+  }
 });
