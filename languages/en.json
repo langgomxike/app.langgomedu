@@ -180,8 +180,6 @@
   "NO_DATA": "No data",
   "HAVE_NO_PERMISSION_TO_CREATE_CHILD": "You don't have permission to create a child",
   "HAVE_NO_PERMISSION_TO_MANAGE_CV": "You don't have permission to manage cv",
-  "APP_STORE_APP_ID" : "Application id in app store",
-  "PLAY_STORE_APP_ID" : "Application id in google play store",
   "CANNOT_CHANGE_ADMIN_ROLE": "Cannot change admin role",
   "ADMINISTRATION": "Administration",
   "HAVE_NO_ADMINISTRATION": "You don't have permissions to be a administrator anymore. You're gonna be forced to logout",
@@ -191,7 +189,7 @@
   "CANNOT_SAVE_QR": "QR image cannot be saved in your device",
   "OPEN_IMAGE_LIBRARY": "Open image library",
   "FEATURE_DISABLED_IN_IOS": "This feature is disabled in IOS devices",
-  "CANNOT_SCAN_QR": "Can't scan QR"
+  "CANNOT_SCAN_QR": "Can't scan QR",
 
 
   "CLASS_SUGGESTIONS": "Class Suggestions",

@@ -29,6 +29,12 @@ import {IImageInfo} from "react-native-image-zoom-viewer/built/image-viewer.type
 import Spinner from "react-native-loading-spinner-overlay";
 import SFirebase, {FirebaseNode} from "../../../services/SFirebase";
 
+enum ReportMode {
+  NOT_PERFORMED = 0,
+  APPROVED = 1,
+  DENIED = 2,
+}
+
 export default function UpdateReportedUser() {
   //contexts
   const navigation = useContext(NavigationContext);
@@ -38,15 +44,14 @@ export default function UpdateReportedUser() {
 
   //states
   const [modalVisible, setModalVisible] = useState(false);
-  const [modalLockUserVisible, setModalLockUserVisible] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState<number>(-1);
-  const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
   const [reason, setReason] = useState("");
   const [loading, setLoading] = useState(false);
   const [selectedLevel, setSelectedLevel] = useState<number>(-1);
   const [reportLevels, setReportLevelList] = useState<{ id: number, label: string, points: number }[]>([]);
   const [report, setReport] = useState<Report | undefined>(undefined);
   const [evidences, setEvidences] = useState<string[]>([]);
+  const [isPerformed, setIsPerformed] = useState(ReportMode.NOT_PERFORMED);
 
   //handlers
   const handleSelectLevel = useCallback((levelId: number) => {
@@ -170,6 +175,13 @@ export default function UpdateReportedUser() {
           setReport(report);
           setLoading(false);
           setSelectedLevel(report.report_level ?? -1);
+          if (report.reason) {
+            setIsPerformed(ReportMode.DENIED);
+          } else if (report.report_level > 0) {
+            setIsPerformed(ReportMode.APPROVED);
+          } else {
+            setIsPerformed(ReportMode.NOT_PERFORMED);
+          }
         }
       });
 
@@ -193,6 +205,9 @@ export default function UpdateReportedUser() {
           </View>
           <Text style={styles.screenTitle}>Chi tiết báo cáo </Text>
         </View>
+
+        <Text
+          style={styles.badge}>{isPerformed === ReportMode.NOT_PERFORMED ? "Chua xu ly" : isPerformed === ReportMode.APPROVED ? "Da chap nhan" : "Da tu choi"}</Text>
 
         <View style={styles.infor}>
           <Text style={styles.smallTitle1}>Tài khoản báo cáo </Text>
@@ -241,10 +256,18 @@ export default function UpdateReportedUser() {
         )}
 
       </View>
+
       <View style={styles.component1}>
         <Text style={styles.smallTitle3}>Noi dung bao cao</Text>
         <Text style={[styles.reportContent, {minHeight: 100}]}>{report?.content ?? "Noi dung trong"}</Text>
       </View>
+
+      {isPerformed === ReportMode.DENIED && (
+        <View style={styles.component1}>
+          <Text style={styles.smallTitle3}>Li do tu choi</Text>
+          <Text style={[styles.reportContent, {minHeight: 100}]}>{report?.reason}</Text>
+        </View>
+      )}
 
       <View style={styles.component2}>
         <Text style={styles.smallTitle3}>Minh chứng:</Text>
@@ -370,6 +393,16 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: "#EEEEEE",
   },
+
+  badge: {
+    backgroundColor: BackgroundColor.warning,
+    alignSelf: "flex-start",
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    borderRadius: 20,
+    fontSize: 10,
+  },
+
   screenName: {
     flexDirection: "row",
     top: 30,
