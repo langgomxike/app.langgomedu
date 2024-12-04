@@ -369,5 +369,19 @@
   "ERR_MESSAGE_DATE_START_END": "Please select a start date and an end date.",
   "ERR_MESSAGE_AUTHOR": "Not the author.",
 
-  "MESSAGE": "You do not have permission to access this tab!"
+  "MESSAGE": "You do not have permission to access this tab!",
+
+  "KHANG": "KHANG",
+  "CHOOSE": "choose ...",
+  "LEARNING_CLASS": "Learning class",
+  "EMPTY_TODAY_CLASS": "No class today",
+  "EDUCATION": "Education",
+  "WORK_EXPERIENCE": "Work experience",
+  "CERTIFICATE": "Certificate",
+  "WORKING_TITLE": "Job title",
+  "NAME": "Name",
+  "INTERESTED_MAJOR": "Major",
+  "BIRTHDAY": "Birthday",
+  "BIOGRAPHY": "Biography",
+  "PLACEHOLDER_BIO": "Enter your biography here"
 }

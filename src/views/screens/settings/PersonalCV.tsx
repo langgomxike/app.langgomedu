@@ -23,40 +23,60 @@ import CertificateItem from '../../components/CV/CertificateItem'
 import Major from '../../../models/Major'
 import moment from 'moment'
 import Address from '../../../models/Address'
+import { AccountContext } from '../../../configs/AccountConfig'
+import { NavigationContext } from '@react-navigation/native'
+import ScreenName from '../../../constants/ScreenName'
+import { LanguageContext } from '../../../configs/LanguageConfig'
 
 export default function PersonalCV() {
-  const {user, setUser} = useContext(UserContext);
-  const [cv, setCV] = useState<CV>();
+  //CONTEXT >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+  const languageContext = useContext(LanguageContext);
+  const account = useContext(AccountContext).account;
+  const navigation = useContext(NavigationContext);
+
+  //STATE >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+  const [cv, setCV] = useState<any>();
   const [userInfo, setUserInfo] = useState<User>();
   const [birthday, setBirthday] = useState<string>('');
   const [address, setAddress] = useState<Address>();
   //effect
   useEffect(()=>{
-    ACV.getPersonalCV(user.ID, (cv)=>{
-      if(cv){
-        // console.log(cv);
+    // console.log(navigation);
+    
+    if(account){
+      ACV.getPersonalCV(account.id, (cvs)=>{
+        const viewCV = cvs.find(cv => cv.id === `${account.id}_t`) ? cvs.find(cv => cv.id === `${account.id}_t`) : cvs[0] ;
         
-        setCV(cv);
-        setUserInfo(cv.user);
-        setAddress(cv.user?.address);
-        
-        if(cv.user){
-          const birthday = new Date(cv.user?.birthday);
-          // const birthdayData = birthday.getDate() + '/' + (birthday.getMonth() +1) + '/' + birthday.getFullYear()
-          const birthdayData = moment(birthday)
-          setBirthday(birthdayData.format('DD/MM/yyyy'));
-          // setBirthday(birthdayData);
+        // console.log(JSON.stringify(viewCV, null, 2));
+        if(viewCV){
+          // console.log(JSON.stringify(cv, null, 2));
+          
+          setCV(viewCV);
+          setUserInfo(viewCV.user);
+          setAddress(viewCV.user?.address);
+          
+          if(viewCV.user){
+            const birthday = new Date(viewCV.user?.birthday);
+            // const birthdayData = birthday.getDate() + '/' + (birthday.getMonth() +1) + '/' + birthday.getFullYear()
+            const birthdayData = moment(birthday)
+            setBirthday(birthdayData.format('DD/MM/yyyy'));
+            // setBirthday(birthdayData);
+          }
+        }
+        else{
+          navigation?.navigate(ScreenName.INPUT_CV);
         }
         
-      }
-      
-    })
+      })
+    }else{
+      navigation?.navigate(ScreenName.INPUT_CV);
+    }
   },[])
 
-  useEffect(()=>{
-    // console.log(interestedMajor);
+  // useEffect(()=>{
+  //   // console.log(interestedMajor);
     
-  },[cv])
+  // },[cv])
   
   return (
     <ScrollView showsVerticalScrollIndicator={false}
@@ -96,7 +116,7 @@ export default function PersonalCV() {
             {/* interested major */}
             <View style={styles.inforItemChild}>
             <Feather name="bookmark" size={24} color="black" />
-              <Text style={styles.inforItemText}> {userInfo && userInfo.interested_majors[0].vn_name} </Text>
+              <Text style={styles.inforItemText}> {(userInfo && userInfo.interested_majors.length>0) && userInfo.interested_majors[0].vn_name} </Text>
             </View>
           </View>
           <View style={styles.inforItem}>
@@ -118,7 +138,7 @@ export default function PersonalCV() {
 
         {/* education */}
         <View >
-          <CvBox title='Education'>
+          <CvBox title={languageContext.language.EDUCATION}>
             <FlatList 
               scrollEnabled = {false}
               data={cv?.educations}
@@ -129,7 +149,7 @@ export default function PersonalCV() {
         </View>
         {/* work experience */}
         <View >
-          <CvBox title='Work Experience'>
+          <CvBox title={languageContext.language.WORK_EXPERIENCE}>
           <FlatList 
               scrollEnabled = {false}
               data={cv?.experiences}
@@ -139,7 +159,7 @@ export default function PersonalCV() {
         </View>
         {/* Certificate */}
         <View >
-          <CvBox title='Certificate'>
+          <CvBox title={languageContext.language.CERTIFICATE}>
             <FlatList
               scrollEnabled= {false}
               data={cv?.certificates}

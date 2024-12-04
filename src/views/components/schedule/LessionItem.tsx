@@ -10,7 +10,7 @@ import Lesson from '../../../models/Lesson';
 import User from '../../../models/User';
 
 export type LessionItemProps = {
-    selectedUser: User
+    selectedUser?: User
     lessonData: Lesson;
     classId?: number,
     classIcon?: string,
