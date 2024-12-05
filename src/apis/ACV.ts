@@ -1,6 +1,9 @@
 import CV from "../models/CV";
 import axios from "axios";
 import ReactAppUrl from "../configs/ConfigUrl";
+import Filters from "../models/Filters";
+import Values from "../constants/Values";
+import Pagination from "../models/Pagination";
 
 const baseURL =  ReactAppUrl.API_BASE_URL
 export default class ACV {
@@ -14,6 +17,71 @@ export default class ACV {
     .catch((error) => {
       console.error("Error fetching data:", error);
       onNext([]);  // Nếu có lỗi, trả về mảng rỗng
+    });
+
+  }
+
+  public static getSuggestedCVs(
+    userId: string,
+    page: number,
+    address: string,
+    onNext: (cvs: CV[], pagination: Pagination) => void,
+    onLoading: (loading: boolean) => void){
+      onLoading(true);
+      const perPage = Values.SUGGESTS_CV_PERPAGE;
+      // console.log("Get suggest cvs: ", `${baseURL}/cvs/suggests/${userId}?page=${page}&perPage=${perPage}&address=${address}}` );
+      
+    axios.get(`${baseURL}/cvs/suggests/${userId}?page=${page}&perPage=${perPage}&address=${address}`)
+    .then((response) => {
+      const data= response.data.data; 
+      const cvs = data.cvs;
+      const pagination = data.pagination;
+      onNext(cvs, pagination);
+      
+    })
+    .catch((error) => {
+      console.error("Error fetching data:", error);
+      onNext([], new Pagination);  // Nếu có lỗi, trả về mảng rỗng
+    });
+
+  }
+
+  public static getFilterCVs(
+    userId: string,
+    page: number,
+    filters: Filters,
+    onNext: (cvs: CV[], pagination: Pagination) => void,
+    onLoading: (loading: boolean) => void){
+    
+      const perPage = Values.SUGGESTS_CV_PERPAGE;
+      onLoading(true);
+
+      // Chuyển `filters` thành query string
+     let filterParams = ""
+     if(filters) {
+      filterParams = Object.entries(filters)
+      // Bỏ qua giá trị null/undefined/rỗng/NAN
+      .filter(([, value]) => value !== undefined && value !== null && value !== "")
+      .map(([key, value]) => {
+        if(Array.isArray(value)) {
+          return `${key}=${value.join(",")}`;
+        }
+        return `${key}=${value}`;
+      }).join("&");
+     }
+     console.log("ACV: ", filterParams);
+     
+    axios.get(baseURL + `/cvs/filter/${userId}?page=${page}&perPage=${perPage}&${filterParams ? `&${filterParams}` : ""}`)
+    .then((response) => {
+      const data = response.data.data
+      const cvs: CV[] = data.cvs; 
+      const pagination = data.pagination;
+      onNext(cvs, pagination);
+      
+    })
+    .catch((error) => {
+      console.error("Error fetching data:", error);
+      onNext([], new Pagination);  // Nếu có lỗi, trả về mảng rỗng
     });
 
   }

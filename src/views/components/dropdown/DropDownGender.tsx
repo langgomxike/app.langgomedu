@@ -1,56 +1,41 @@
-import React, { useContext, useEffect, useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
-import { Dropdown } from "react-native-element-dropdown";
-import Ionicons from '@expo/vector-icons/Ionicons';
+import React, {useContext, useEffect, useState} from "react";
+import {StyleSheet, Text, TouchableOpacity, View} from "react-native";
+import {MultiSelect} from "react-native-element-dropdown";
 import Gender from "../../../models/Gender";
-import { GenderContext } from "../../../configs/GenderContext";
+import {GenderContext} from "../../../configs/GenderContext";
+import {Feather} from "@expo/vector-icons";
 
 type DropdownGenderProps = {
-  selectedGender: number,
-  onSlectedGenderId: (id: number) => void;
+  selectedGenders: string[];
+  onSlectedGenders: (genders: string[]) => void;
 };
 
-export default function DropdownGender ({
-  selectedGender,
-  onSlectedGenderId,
+export default function DropdownGender({
+  selectedGenders,
+  onSlectedGenders,
 }: DropdownGenderProps) {
   const genderContext = useContext(GenderContext);
-
-  const [isFocus, setIsFocus] = useState(false);
   const [genders, setGenders] = useState<Gender[]>([]);
 
-  // Add the "Select All" option
-  // const enhancedLearners = [
-  //   { id: "all", vn_name: "Chọn tất cả" },
-  //   ...genders,
-  // ];
-
   useEffect(() => {
-    if(genderContext) {
-      setGenders(genderContext.genders)
+    if (genderContext) {
+      setGenders(genderContext.genders);
     }
-  },[genderContext])
+  }, [genderContext]);
 
   const renderItem = (item: any, selected: any) => {
     return (
       <View style={styles.item}>
-        <Text
-          style={[
-            styles.selectedTextStyle
-          ]}
-        >
-          {item.vn_name}
-        </Text>
+        <Text style={[styles.selectedTextStyle]}>{item.vn_name}</Text>
       </View>
     );
   };
 
-
   return (
     <View style={styles.container}>
       <Text style={styles.titleDropdown}>Giớ tính</Text>
-      <Dropdown
-        style={[styles.dropdown, isFocus && { borderColor: "blue" }]}
+      <MultiSelect
+        style={styles.dropdown}
         placeholderStyle={styles.placeholderStyle}
         selectedTextStyle={styles.selectedTextStyle}
         iconStyle={styles.iconStyle}
@@ -58,25 +43,27 @@ export default function DropdownGender ({
         maxHeight={300}
         labelField="vn_name"
         valueField="id"
-        placeholder={!isFocus ? "Chọn giới tính..." : "..."}
-        value={selectedGender}
-        onFocus={() => setIsFocus(true)}
-        onBlur={() => setIsFocus(false)}
+        placeholder={"Chọn giới tính..."}
+        value={selectedGenders}
         onChange={(item) => {
-          setIsFocus(false);
-          onSlectedGenderId(item.id);
+          onSlectedGenders(item);
         }}
         renderItem={renderItem}
+        renderSelectedItem={(item, unSelect) => (
+          <TouchableOpacity onPress={() => unSelect && unSelect(item)}>
+            <View style={styles.selectedStyle}>
+              <Text style={styles.textSelectedStyle}>{item.vn_name}</Text>
+              <Feather name="trash-2" size={15} color="gray" />
+            </View>
+          </TouchableOpacity>
+        )}
       />
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
-  container: {
-    backgroundColor: "white",
-    padding: 5,
-  },
+  container: {padding: 5},
   dropdown: {
     height: 50,
     backgroundColor: "white",
@@ -92,18 +79,6 @@ const styles = StyleSheet.create({
 
     elevation: 2,
   },
-  icon: {
-    marginRight: 5,
-  },
-  label: {
-    position: "absolute",
-    backgroundColor: "white",
-    left: 22,
-    top: 8,
-    zIndex: 999,
-    paddingHorizontal: 8,
-    fontSize: 14,
-  },
   placeholderStyle: {
     fontSize: 14,
   },
@@ -118,14 +93,15 @@ const styles = StyleSheet.create({
     height: 40,
     fontSize: 16,
   },
-
+  icon: {
+    marginRight: 5,
+  },
   item: {
     padding: 17,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
   },
-
   selectedStyle: {
     flexDirection: "row",
     justifyContent: "center",
@@ -143,7 +119,12 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.2,
     shadowRadius: 1.41,
+
     elevation: 2,
+  },
+  textSelectedStyle: {
+    marginRight: 5,
+    fontSize: 14,
   },
 
   titleDropdown: {
@@ -151,5 +132,4 @@ const styles = StyleSheet.create({
     marginBottom: 7,
     fontWeight: "500",
   },
-
 });

@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Image, StyleSheet, Text, View } from "react-native";
 import { BackgroundColor } from "../../configs/ColorConfig";
 import CV from "../../models/CV";
 import ReactAppUrl from "../../configs/ConfigUrl";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import moment from "moment";
+import { LanguageContext } from "../../configs/LanguageConfig";
 
 type TutorItemProps = {
   tutorData: CV;
@@ -13,6 +14,7 @@ const URL = ReactAppUrl.PUBLIC_URL;
 
 const colorItem = "#666"
 export default function CvItem({ tutorData }: TutorItemProps) {
+  const language = useContext(LanguageContext).language
   // Render
   return (
     <View style={[styles.container, styles.boxShadow]}>
@@ -34,7 +36,7 @@ export default function CvItem({ tutorData }: TutorItemProps) {
           <View style={[styles.infoContent]}>
             <View style={styles.item}>
               <Ionicons name="call-outline" size={20} color={colorItem} />
-              <Text style={styles.subTitle}>Số điện thoại</Text>
+              <Text style={styles.subTitle}>{language.PHONE_NUMBER}</Text>
             </View>
             <Text style={styles.contentText}>
               {tutorData.user?.phone_number}
@@ -44,16 +46,29 @@ export default function CvItem({ tutorData }: TutorItemProps) {
           <View style={[styles.infoContent]}>
             <View style={styles.item}>
               <Ionicons name="calendar-outline" size={20} color={colorItem} />
-             <Text style={styles.subTitle}>Ngày sinh</Text>
+              <Text style={styles.subTitle}>{language.DATE_OF_BIRTH}</Text>
             </View>
             <Text style={styles.contentText}>{moment(tutorData.user?.birthday).format("DD/MM/YYYY")}</Text>
           </View>
-          {/* </View> */}
+
+          <View style={[styles.infoContent]}>
+            <View style={styles.item}>
+            <Ionicons name="male-female-outline" size={20} color={colorItem} />
+             <Text style={styles.subTitle}>{language.GENDER}</Text>
+            </View>
+            <Text style={styles.contentText}>
+              {language.TYPE === "vi"
+                ? tutorData.user?.gender?.vn_name
+                : language.TYPE === "en"
+                ? tutorData.user?.gender?.en_name
+                : tutorData.user?.gender?.ja_name}
+            </Text>
+          </View>
 
           <View style={{ flexDirection: "column", gap: 5, justifyContent: "space-between"}}>
             <View style={[styles.item]}>
               <Ionicons name="location-outline" size={20} color={colorItem} />
-             <Text style={styles.subTitle}>Địa chỉ</Text>
+             <Text style={styles.subTitle}>{language.ADDRESS}</Text>
             </View>
             <Text
               style={styles.contentAddress}
@@ -170,8 +185,8 @@ const styles = StyleSheet.create({
 
   personalInfomation: {
     paddingHorizontal: 20,
-    paddingBottom: 30,
-    marginVertical: 25,
+    paddingBottom: 10,
+    marginVertical: 15,
     gap: 15,
   },
 

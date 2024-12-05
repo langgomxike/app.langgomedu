@@ -5,6 +5,7 @@ import Lesson from "../models/Lesson";
 import Values from "../constants/Values";
 import Pagination from "../models/Pagination";
 import Filters from "../models/Filters";
+import User from "../models/User";
 
 export default class AClass {
   private static API_URL = ReactAppUrl.API_BASE_URL;
@@ -64,7 +65,48 @@ export default class AClass {
   }
 
   //Get suggetting class with user id
-  public static getSuggetingClass(
+  public static getSuggetingClasses(
+    userId: string,
+    userType: number,
+    page: number,
+    filters: Filters | undefined,
+    onNext: (classes: Class[], pagination:Pagination) => void,
+    onLoading: (loading: boolean) => void
+  ) {
+    const perPage = Values.PERPAGE;
+    onLoading(true);
+
+     // Chuyển `filters` thành query string
+     let filterParams = ""
+     if(filters) {
+      filterParams = Object.entries(filters)
+      // Bỏ qua giá trị null/undefined/rỗng/NAN
+      .filter(([, value]) => value !== undefined && value !== null && value !== "")
+      .map(([key, value]) => {
+        if(Array.isArray(value)) {
+          return `${key}=${value.join(",")}`;
+        }
+        return `${key}=${value}`;
+      }).join("&");
+     }
+
+     const url = `${this.API_URL}/classes/suggests/${userId}?user_type=${userType}&page=${page}&perPage=${perPage}${filterParams ? `&${filterParams}` : ""}`
+     console.log(">>> suggest class url: ", url);
+
+    axios
+      .get(url)
+      .then((response) => {
+        const data = response.data.data
+        onNext(data.classes, data.pagination );
+      })
+      .catch((err) => {
+        console.log("Error: ", err);
+        onNext([], new Pagination);
+        onLoading(true);
+      });
+  }
+
+  public static getFilterClasses(
     userId: string,
     userType: number,
     page: number,
@@ -91,16 +133,14 @@ export default class AClass {
 
      
      
-     const url = `${this.API_URL}/classes/suggests/${userId}?user_type=${userType}&page=${page}&perPage=${perPage}${filterParams ? `&${filterParams}` : ""}`
-     console.log(">>> suggest class url: ", url);
+     const url = `${this.API_URL}/classes/filter/${userId}?user_type=${userType}&page=${page}&perPage=${perPage}${filterParams ? `&${filterParams}` : ""}`
+     console.log(">>> filter class url: ", url);
 
     axios
       .get(url)
       .then((response) => {
         const data = response.data.data
         onNext(data.classes, data.pagination );
-
-        onLoading(false);
       })
       .catch((err) => {
         console.log("Error: ", err);
