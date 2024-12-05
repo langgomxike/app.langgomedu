@@ -131,10 +131,7 @@ export default function App() {
                 name={ScreenName.ATTENDED_FOR_TUTOR}
                 component={TutorAttendance}
               />
-              <Stack.Screen
-                name={ScreenName.UPDATE_REPORT_USER}
-                component={UpdateReportedUser}
-              />
+             
               <Stack.Screen
                 name={ScreenName.CV_LIST}
                 component={CVListScreen}
