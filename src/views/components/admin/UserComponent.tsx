@@ -13,96 +13,84 @@ import { BackgroundColor } from "../../../configs/ColorConfig";
 import User from "../../../models/User";
 import ReactAppUrl from "../../../configs/ConfigUrl";
 import DateTimeConfig from "../../../configs/DateTimeConfig";
+import moment from "moment";
 
 type UserComponentProps = {
-  onPressOpenSheet?: () => void;
   isButtonDetailReport?: boolean;
-  userData: User
+  userData: User;
 };
 
 const URL = ReactAppUrl.PUBLIC_URL;
 
 export default function UserComponent({
-  onPressOpenSheet,
   isButtonDetailReport,
-  userData
+  userData,
 }: UserComponentProps) {
-  
+  // states -------------------------------------------------------------------
 
-  function fomatDate(timestamp: number) {
-    if (!timestamp) return ""; // Kiểm tra nếu timestamp là undefined hoặc null
+  // handler ------------------------------------------------------------------
 
-    const date = new Date(timestamp);
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const year = date.getFullYear();
+  // effect -------------------------------------------------------------------
 
-    return `${day}/${month}/${year}`; // Trả về chuỗi theo định dạng DD/MM/YYYY
-  }
-
-
-
-  //render
+  //render --------------------------------------------------------------------
   return (
-    <View
-      style={[
-        styles.container,
-        userData.is_reported
-          ? [styles.boxshadowDanger, styles.borderDanger]
-          : styles.boxshadow,
-      ]}
-    >
-      <TouchableOpacity onPress={onPressOpenSheet}>
-        <View style={styles.userHeaderContainer}>
-          <View style={styles.userInfoBlock}>
-            <View style={styles.userAvatarContainer}>
-              <Image
-                source={{uri: `${URL}${userData.avatar?.path}`}}
-                style={styles.userAvatar}
-              />
-              <Text style={styles.userFullName}>{userData.full_name}</Text>
-            </View>
-            {userData.is_reported && <Text style={styles.badge}>Bị báo cáo</Text>}
-          </View>
+    <View style={styles.userHeaderContainer}>
+      <View style={styles.userInfoBlock}>
+        <View style={styles.userAvatarContainer}>
+          <Image
+            source={{ uri: `${URL}${userData.avatar}` }}
+            style={styles.userAvatar}
+          />
+          <Text style={styles.userFullName}>{userData.full_name}</Text>
 
-          <View style={styles.line}></View>
-
-          <View style={styles.userHeaderContent}>
-            <View style={[styles.row, { marginBottom: 10 }]}>
-              <Text style={[styles.title, { color: BackgroundColor.primary }]}>
-                Điểm uy tín:
-              </Text>
-              <Text style={styles.content}>{userData.information?.point}</Text>
-            </View>
-
-            <View style={styles.rowItem}>
-              <View style={[styles.row, { flex: 1 }]}>
-                <Ionicons name="calendar-outline" size={20} color="black" />
-                <Text style={styles.content}>{fomatDate(userData.information?.birthday!)}</Text>
-              </View>
-
-              <View style={[styles.row, { flex: 1 }]}>
-                <Ionicons name="call-outline" size={20} color="black" />
-                <Text style={styles.content}>{userData.phone_number}</Text>
-              </View>
-            </View>
-
-            <View style={styles.row}>
-              <MaterialIcons name="location-history" size={20} color="black" />
-              <Text style={[styles.content, {marginTop: 7}]}>
-                {`${userData.information?.address_4}, ${userData.information?.address_3}\n${userData.information?.address_2}, ${userData.information?.address_1}`}
-              </Text>
-            </View>
-          </View>
-          { isButtonDetailReport &&
-            <TouchableOpacity style={styles.btnShowDetail}>
-              <Text style={styles.btnShowDetailText}>
-                Chi tiết báo cáo
-              </Text>
-            </TouchableOpacity>
-          }
         </View>
-      </TouchableOpacity>
+        {userData.is_reported && <Text style={styles.badge}>Bị báo cáo</Text>}
+      </View>
+
+      <View style={styles.line}></View>
+
+      <View style={styles.userHeaderContent}>
+        <View style={[styles.row, { marginBottom: 5 }]}>
+          <Text style={[styles.title, { color: BackgroundColor.primary }]}>
+            Điểm uy tín:
+          </Text>
+          <Text style={styles.content}>{userData.point}</Text>
+        </View>
+
+        <View style={styles.rowItem}>
+          <View style={[styles.row, { flex: 1 }]}>
+            <Ionicons name="calendar-outline" size={20} color="black" />
+            <Text style={styles.content}>
+              {moment(userData.birthday).format("DD/MM/YYYY")}
+            </Text>
+          </View>
+
+          <View style={[styles.row, { flex: 1 }]}>
+            <Ionicons name="call-outline" size={20} color="black" />
+            <Text style={styles.content}>{userData.phone_number}</Text>
+          </View>
+        </View>
+
+        <View style={styles.row}>
+        <Ionicons name={userData.gender?.id == 2 ? "female-outline" : "male-outline"} size={20} color="black" />
+          <Text style={[styles.content]}>
+            {userData.gender?.vn_name}
+          </Text>
+        </View>
+
+        <View style={styles.row}>
+          <Ionicons name="location-outline" size={20} color="black" />
+          <Text style={[styles.content]}>
+            {`${userData.address?.ward}, ${userData.address?.district}, ${userData.address?.province}`}
+          </Text>
+        </View>
+      </View>
+
+      {isButtonDetailReport && (
+        <TouchableOpacity style={styles.btnShowDetail}>
+          <Text style={styles.btnShowDetailText}>Chi tiết báo cáo</Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 }
@@ -181,7 +169,9 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
 
-  userHeaderContent: {},
+  userHeaderContent: {
+    gap: 10,
+  },
 
   row: {
     flexDirection: "row",
@@ -191,7 +181,6 @@ const styles = StyleSheet.create({
 
   rowItem: {
     flexDirection: "row",
-    marginBottom: 10,
   },
 
   title: {
@@ -230,9 +219,8 @@ const styles = StyleSheet.create({
 
   btnShowDetailText: {
     // color: BackgroundColor.white,
-    color:BackgroundColor.warning,
+    color: BackgroundColor.warning,
     fontWeight: "bold",
-    textAlign: "center"
-    
-  }
+    textAlign: "center",
+  },
 });

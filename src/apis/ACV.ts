@@ -1,43 +1,64 @@
 import CV from "../models/CV";
 import axios from "axios";
-import User from "../models/User";
-import Certificate from "../models/Certificate";
-import Experience from "../models/Experience";
-import Major from "../models/Major";
-import Education from "../models/Education";
 import ReactAppUrl from "../configs/ConfigUrl";
 
-const baseURL =  ReactAppUrl.API_BASE_URL
+const baseURL = ReactAppUrl.API_BASE_URL + '/cvs'
 export default class ACV {
-  public static getAllCVList(onNext: (cvs: CV[]) => void){
-    axios.get(baseURL + '/cvs')
-    .then((response) => {
-      const cvs: CV[] = response.data.data; 
-      onNext(cvs);
-      
-    })
-    .catch((error) => {
-      console.error("Error fetching data:", error);
-      onNext([]);  // Nếu có lỗi, trả về mảng rỗng
-    });
+  public static getAllCVList(onNext: (cvs: CV[]) => void) {
+    axios.get(baseURL)
+      .then((response) => {
+        const cvs: CV[] = response.data.data;
+        onNext(cvs);
+
+      })
+      .catch((error) => {
+        console.error("Error fetching data:", error);
+        onNext([]);  // Nếu có lỗi, trả về mảng rỗng
+      });
 
   }
-
-
-  public static getPersonalCV( user_id: string,onNext: (cv?: CV) => void){
+  public static getPersonalCV(user_id: string, onNext: (cv: any[]) => void) {
     // console.log(baseURL+ '/cvs/'+ user_id);
-    
-    axios.get<any>(baseURL+ '/cvs/'+ user_id)
-    .then((response)=>{
-      const data = response.data.data[0].CV
-      // console.log("data in ACV", JSON.stringify(data));
-      
-      onNext(data as CV)
+
+    axios.get<any>(baseURL + '/' + user_id)
+      .then((response) => {
+        const data = response.data.data
+        // console.log("data in ACV", JSON.stringify(data, null, 2));
+
+        onNext(data)
+      })
+      .catch((err) => {
+        console.log(err);
+
+        onNext([])
+      })
+  }
+
+  public static sendRequestCV(insertData: any, onNext: (data: any) => void, onLoading: (loading: boolean) => void) {
+    onLoading(true);
+    // console.log(`${baseURL}/uploadCV`);
+    const data = JSON.stringify(insertData)
+    console.log(data);
+
+    axios.post(`${baseURL}/uploadCV`, data, {
+      headers: {
+        "Content-Type": 'application/json',
+      },
     })
-    .catch((err)=>{
-      console.log(err);
-      
-      onNext()
-    })
+      .then((response) => {
+        console.log(">>> send request CV: ", response.data);
+        onNext(response.data.data);
+        onLoading(false)
+
+      })
+      .catch((err) => {
+        console.log(">>> send request CV: ", err);
+        onNext(err.message);
+        onLoading(false)
+      })
+      .finally(() => {
+        onLoading(false); // Kết thúc loading
+      });
+
   }
 }

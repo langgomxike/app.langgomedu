@@ -11,13 +11,10 @@ import {
   Text,
   View,
   Image,
-  Touchable,
   TouchableOpacity,
   FlatList,
-  Pressable,
-  SectionList,
+  Dimensions,
 } from "react-native";
-import Ionicons from "@expo/vector-icons/Ionicons";
 import Octicons from "@expo/vector-icons/Octicons";
 import { BackgroundColor } from "../../../configs/ColorConfig";
 import ModalStudentList from "../../components/modal/ModalStudentList";
@@ -30,62 +27,51 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
-import ModalPaidResult from "../../components/modal/ModalPaidResult";
 import ClassInfo from "../../components/ClassInfo";
 import AAttendance from "../../../apis/AAttendance";
-import { UserContext } from "../../../configs/UserContext";
 import Attendance from "../../../models/Attendance";
 import ClassInForSkeleton from "../../components/skeleton/ClassInfoSkeleton";
 import Lesson from "../../../models/Lesson";
 import ScreenName from "../../../constants/ScreenName";
-import {
-  NavigationContext, NavigationRouteContext,
-  RouteProp,
-  useRoute,
-} from "@react-navigation/native";
+import {NavigationContext, NavigationRouteContext} from "@react-navigation/native";
 import User from "../../../models/User";
 import ReactAppUrl from "../../../configs/ConfigUrl";
-import LeanerAttendanceSkeleton from "../../components/skeleton/LeanerAttendanceSkeleton";
-import { ActivityIndicator } from "react-native";
 import SFirebase, { FirebaseNode } from "../../../services/SFirebase";
-import { MaterialIcons } from "@expo/vector-icons";
-import DropdownParent from "../../components/dropdown/DropDownParent";
-import {AttendedForLearner, RootStackParamList} from "../../../configs/NavigationRouteTypeConfig";
+import {AttendedForTutor} from "../../../configs/NavigationRouteTypeConfig";
 import ModalConfirmAttendClass from "../../components/modal/ModalConfirmAttendLesson";
+import { AccountContext } from "../../../configs/AccountConfig";
+import ChildItem from "../../components/attendance/ChildItem";
+import DropdownLearners from "../../components/dropdown/DropDownLearners";
+import moment from "moment";
+import { ActivityIndicator } from "react-native";
+import { LanguageContext } from "../../../configs/LanguageConfig";
 
 const URL = ReactAppUrl.PUBLIC_URL;
-
+const { width: SCREEN_WIDTH } = Dimensions.get("screen");
 export default function TutorAttendance() {
   const route = useContext(NavigationRouteContext);
-  const param = route?.params as AttendedForLearner || {classId: -1, lessonId: -1};
+  const param = route?.params as AttendedForTutor || new Lesson();
 
-  //context
-  const user = useContext(UserContext).user;
+  //context----------------------------------------------------------------
+  const account = useContext(AccountContext).account
   const navigation = useContext(NavigationContext);
-  // state
+  const language = useContext(LanguageContext).language;
+  
+  // state ----------------------------------------------------------------
   const [modalVisible, setModalVisible] = React.useState<string | null>("");
-  const [loading, setLoading] = React.useState(true);
+  const [loading, setLoading] = React.useState(false);
   const [lessonDetail, setLessonDetail] = useState(new Lesson());
   const [attendStudents, setAttendStudents] = useState<Attendance[]>([]);
   const [learners, setLearners] = useState<User[]>();
   const [attendanceResult, setAttendanceResult] = useState(false);
   const [selectedLearnerId, setSelectedLearnerId] = useState<string>("");
-  const [confirmPaidResult, setConfirmPaidResult] = useState(false);
-  const [selectedPaymentImage, setSelectedPaymentImage] = useState("");
+  const [attendanceStatus, setAttendanceStatus] = useState(false);
+  const [confirmStatus, setConfirmStatus] = useState(false);
+  const [realTimeStatus, setRealTimeStatus] = useState<number>(0);
+  const classId = param.lesson.class?.id;
+  const lessonId = param.lesson.id;
 
-  const classId = param.classId;
-  const lessonId = param.lessonId;
-  const userId = user.ID;
-
-  // animate
-  const listRef = useAnimatedRef<Animated.View>();
-  const heightValue = useSharedValue(0);
-  const open = useSharedValue(false);
-  const progress = useDerivedValue(() =>
-    open.value ? withTiming(0) : withTiming(1)
-  );
-
-  // handler
+  // handler -----------------------------------------------------------------
 
   // Xử lý chuyển đến màn hình lịch sử điểm danh
   const handleNavigateAttendanceHistory = useCallback(() => {
@@ -98,15 +84,17 @@ export default function TutorAttendance() {
   };
 
   // Ghi nhớ danh sách attendStudents đã lọc dựa trên selectedLearnerId
-  const filteredAttendStudents = useMemo(() => {
+  const filteredLearners = useMemo(() => {
     if (!selectedLearnerId || selectedLearnerId === "all") {
-      return attendStudents;
+      return learners;
     }
 
-    return attendStudents.filter(
-      (student) => student.user?.id === selectedLearnerId
-    );
-  }, [selectedLearnerId, attendStudents]);
+    if(learners) {
+      return learners.filter(
+        (learner) => learner.id === selectedLearnerId
+      );
+    }
+  }, [selectedLearnerId, learners]);
 
   // Lấy id của phụ huynh để xử lý lọc cho danh sánh attendStudens
   const handleOnSlectedLearnerId = (learnerId: string) => {
@@ -115,50 +103,39 @@ export default function TutorAttendance() {
     }
   };
 
-  // Hàm xác nhận thanh toán cho gia sư
-  const handleConfirmPaid = useCallback((attendanceIds: number[]) => {
-    console.log("handleConfirmPaid attendanceIds", attendanceIds);
-
-    AAttendance.confirmPaidForLearner(attendanceIds, (data) => {
-      setModalVisible("modalDialogForClass");
-      if(data.result){
-        setConfirmPaidResult(data.result);
-      }
-    }, setLoading);
-  }, []);
-
-  // Styles animated chevron
-  const iconStyle = useAnimatedStyle(() => ({
-    transform: [{ rotate: `${progress.value * -90}deg` }],
-  }));
-
-  const heightAnimationStyle = useAnimatedStyle(() => ({
-    height: interpolate(
-      progress.value,
-      [0, 1],
-      [heightValue.value, 0],
-      Extrapolation.CLAMP
-    ),
-  }));
-
-  // effects
+  // effects ----------------------------------------------------------------
   useEffect(() => {
-    // SFirebase.trackOne(FirebaseNode.ATTENDANCE, 1, () => {
-    //   console.log("Được gọi lại khi bấm điểm danh thành công!");
-    // })
+    if(classId && lessonId) {  
+      console.log("Fetch time: ", moment().format('MMMM Do YYYY, h:mm:ss a'));
+        AAttendance.getAttendanceByTutorClassLesson(
+          classId,
+          lessonId,
+          (learners) => {
+            setLearners(learners);
+  
+            // Kiểm tra nếu tất cả học sinh chưa được điểm danh
+            const allNotMarked = learners.some((learner) => learner.attendance);
+            setAttendanceStatus(allNotMarked ? true : false);
+            
+          },
+          setLoading
+        );
+      }
+  }, [attendanceResult, confirmStatus, realTimeStatus]);
 
-    AAttendance.getAttendanceByTutorClassLesson(
-      classId,
-      lessonId,
-      userId,
-      (lessonDetail, attendStudents, learners) => {
-        setLessonDetail(lessonDetail);
-        setAttendStudents(attendStudents);
-        setLearners(learners);
-      },
-      setLoading
-    );
-  }, [attendanceResult, confirmPaidResult]);
+  useEffect(() => {
+    setLessonDetail(param.lesson);
+  }, [param.lesson])
+
+  useEffect(() => {
+    SFirebase.track(FirebaseNode.Attendances, 
+      [{key: FirebaseNode.LessonId, value: lessonDetail.id}], () => {
+      console.log("Time: ", moment().format('MMMM Do YYYY, h:mm:ss a'));
+      const number = Math.floor(10 + Math.random() * 90);
+        setRealTimeStatus(number);
+      })
+    
+  }, [lessonDetail])
 
   return (
     <View style={{ flex: 1 }}>
@@ -168,258 +145,70 @@ export default function TutorAttendance() {
             <View style={styles.headerContainer}>
               <View style={styles.userContainer}>
                 <Image
-                  source={require("../../../../assets/images/img_avatar_user.png")}
+                  source={{uri: (`${URL}${account?.avatar}`)}}
                   style={styles.avatarUser}
                 />
-                <Text style={styles.pointText}>200</Text>
-                <Text style={styles.userName}>Nguyễn Văn A</Text>
+                <Text style={styles.pointText}>{account?.point}</Text>
+                <Text style={styles.userName}>{account?.full_name}</Text>
               </View>
             </View>
             <View style={styles.bodyContainer}>
               {/* Class infomation */}
               <View style={styles.classInfoContainer}>
-                {loading && lessonDetail ? (
-                  <ClassInForSkeleton />
-                ) : (
                   <ClassInfo lessonDetail={lessonDetail} />
-                )}
               </View>
 
-              {/* Other user */}
-              <View style={styles.otherUserContainer}>
-                <Text style={styles.titleContainer}>Phụ huynh/ học sinh</Text>
-
-                {loading && <LeanerAttendanceSkeleton />}
-                {!loading && learners && (
-                  <FlatList
-                    data={learners}
-                    renderItem={({ item: learner }) => {
-                      const attendance =
-                        attendStudents && attendStudents.length > 0
-                          ? attendStudents.find(
-                              (student) => student.user?.id === learner.id
-                            )
-                          : null;
-
-                      // Lấy tất cả các id từ attendStudents
-                      const attendanceIds = attendStudents
-                      ? attendStudents
-                          .filter((l) => l.user?.id === learner.id)
-                          .map((l) => l.id)
-                      : [];
-
-                      const isPaid = attendance?.attendance_payment?.paid || false;
-                      const isDeferred = attendance?.attendance_payment?.deferred || false;
-                      const paymentMothod =  attendance?.attendance_payment?.type || "";
-                      const confirmPaid = attendance?.attendance_payment?.confirmed_by_tutor || false
-                      const paymentImage = attendance?.attendance_payment?.payment_path || "";
-                      
-                      return (
-                        <View style={[styles.otherUserBox, styles.boxshadow]}>
-                          <View style={styles.userTypeContainer}>
-                            <Text
-                              style={[
-                                styles.userType,
-                                learner.students
-                                  ? { backgroundColor: "#4CAF50" }
-                                  : {
-                                      backgroundColor: BackgroundColor.warning,
-                                    },
-                              ]}
-                            >
-                              {learner.students ? "Phụ huynh" : "Học sinh"}
-                            </Text>
-                          </View>
-                          <Pressable
-                            style={styles.otherUserPressable}
-                            onPress={() => {
-                              open.value = !open.value;
-                            }}
-                          >
-                            <View>
-                              <View style={styles.otherUser}>
-                                <View
-                                  style={[
-                                    styles.otherUserAvatarContainer,
-                                    {
-                                      borderWidth: 2,
-                                      borderColor: learner.students
-                                        ? "#4CAF50"
-                                        : BackgroundColor.warning,
-                                    },
-                                  ]}
-                                >
-                                  <Image
-                                    source={{
-                                      uri: `${URL}${learner.avatar?.path}`,
-                                    }}
-                                    style={styles.otherUserAvatar}
-                                  />
-                                </View>
-                                <Text style={styles.otherUserName}>
-                                  {learner.full_name}
-                                </Text>
-                              </View>
-                            </View>
-
-                            <TouchableOpacity
-                              onPress={() => {
-                                open.value = !open.value;
-                              }}
-                              style={styles.chevronIcon}
-                            >
-                              <Animated.View style={iconStyle}>
-                                <Ionicons
-                                  name="chevron-down-outline"
-                                  size={20}
-                                  color="#666"
-                                />
-                              </Animated.View>
-                            </TouchableOpacity>
-                          </Pressable>
-
-                          <Animated.View style={heightAnimationStyle}>
-                            <Animated.View
-                              ref={listRef}
-                              style={styles.otherUserContentContainer}
-                              onLayout={(event) => {
-                                const { height } = event.nativeEvent.layout; // Lấy chiều cao từ layout
-                                heightValue.value = height;
-                                // Cập nhật heightValue
-                              }}
-                            >
-                              {confirmPaid && 
-                              <View style={styles.contentBlockConfirm}>
-                              <Ionicons name="checkmark-outline" size={24} color="green" />
-                                <Text style={styles.contentBlockConfirmTitle}>
-                                   Đã được xác nhận!
-                                </Text>
-                              </View>
-                              }
-
-                              {!confirmPaid && 
-                              <View style={styles.contentBlock}>
-                                <Text style={styles.textContentTitle}>
-                                  {isPaid
-                                    ? `Đã thanh toán cho bạn bằng ${ paymentMothod === "bank" ? "ngân hàng" : "tền măt"}.\nVui lòng xác nhận!`
-                                    : isDeferred ?  "Đã hoãn thanh toán cho buổi học này.\n Vui lòng xác nhận" : "Chưa thanh toán\n Nhắc nhở thanh toán"}
-                                </Text>
-
-                                <TouchableOpacity
-                                 onPress={() => {
-                                  if (paymentMothod === "bank") {
-                                  setSelectedPaymentImage(paymentImage);
-                                  setModalVisible("modal_paid_result");
-                                  }
-                                }}
-                                >
-                                  <Text style={styles.textSubTitle}>
-                                    {paymentMothod === "bank"
-                                      ? " Xem thông tin"
-                                      : "..."}
-                                  </Text>
-                                </TouchableOpacity>
-                                {/* Nếu người học đã than toán */}
-                                {(isPaid || isDeferred) && 
-                                <View style={styles.btnContainer}>
-                                  <TouchableOpacity
-                                    style={[ styles.btn,styles.btnDeny,styles.boxshadow,]}>
-                                    <Text style={styles.btnText}>Từ chối</Text>
-                                  </TouchableOpacity>
-
-                                  <TouchableOpacity
-                                    style={[styles.btn, styles.btnAccpet, styles.boxshadow,
-                                    ]}>
-                                    <Text onPress={() => handleConfirmPaid(attendanceIds)}
-                                      style={[ styles.btnText,  { color: BackgroundColor.white },]}>
-                                      Xác nhận
-                                    </Text>
-                                  </TouchableOpacity>
-                                </View>
-                                }
-
-                                {/* Nếu người học chưa thanh toán */}
-                                {
-                                  (!isPaid || !isDeferred) && 
-                                  <View style={styles.btnContainer}>
-                                  <TouchableOpacity
-                                    style={[styles.btn, styles.btnAccpet, styles.boxshadow,]}>
-                                    <Text  
-                                      onPress={() =>  alert("Gửi thông báo") }
-                                      style={[styles.btnText, { color: BackgroundColor.white },]}>
-                                     Gửi thông báo
-                                    </Text>
-                                  </TouchableOpacity>
-                                </View>
-                                }
-                              </View>
-                              }
-
-                            </Animated.View>
-                          </Animated.View>
-                        </View>
-                      );
-                    }}
-                    showsHorizontalScrollIndicator={false}
-                    horizontal={true}
-                    contentContainerStyle={[
-                      styles.otherUserContainerList,
-                      learners.length === 1 && styles.centeredItem,
-                    ]}
-                  />
-                )}
-              </View>
-
-              <View style={styles.studentListContainer}>
-                <View>
-                  <Text style={styles.titleContainer}>Danh sách điểm danh</Text>
-                  {learners && (
-                    <DropdownParent
+              {learners && (
+                    <DropdownLearners
                       learners={learners}
                       onSlectedLeanerId={handleOnSlectedLearnerId}
                     />
                   )}
+                
+              {/* Danh sach con của người học nếu có */}
+              {learners && 
+              <View style={styles.childrenComponent}>
+                <View style={styles.childrenComponentTitleContainer}>
+                  <Text style={styles.childrenComponentTitle}>{language.STUDENT_LIST}</Text>
+                  <View style={styles.colorInfo}>
+                        <View style={styles.colorContainer}>
+                          <View style={[styles.color, {backgroundColor: BackgroundColor.green_light}]}></View>
+                          <Text style={styles.textColor}>{language.ATTENDED}</Text>
+                        </View>
+                        <View style={styles.colorContainer}>
+                          <View style={[styles.color, {backgroundColor: BackgroundColor.gray_c6}]}></View>
+                          <Text style={styles.textColor}>{language.ABSENT}</Text>
+                        </View>
+                  </View>
+
                 </View>
-                <View style={styles.studentList}>
-                  {filteredAttendStudents && (
-                    <FlatList
-                      scrollEnabled={false}
-                      showsVerticalScrollIndicator={false}
-                      data={filteredAttendStudents}
-                      keyExtractor={(item, index) => `${item.id}-${index}`}
-                      renderItem={({ item: attendStudent }) => {
-                        const isChecked = attendStudents.some(
-                          (s) => s.attended === true
-                        );
-                        return (
-                          <View style={[styles.activeCheckbox]}>
-                            <MaterialIcons
-                              name={
-                                isChecked
-                                  ? "check-box"
-                                  : "check-box-outline-blank"
-                              }
-                              size={24}
-                              color={isChecked ? "#06b6d4" : "#64748b"}
-                            />
-                            <Text style={styles.activeText}>
-                              {attendStudent.student?.id === null
-                                ? attendStudent.user?.full_name
-                                : attendStudent.student?.full_name}
-                            </Text>
-                          </View>
-                        );
-                      }}
-                    />
-                  )}
+                <FlatList
+                horizontal={true}
+                showsHorizontalScrollIndicator={false}
+                data={filteredLearners}
+                renderItem={({item: learner}) => {
+                  return (
+                    <ChildItem lessonId={lessonDetail.id} onConfirmStatus={setConfirmStatus} learnerData={learner}/>
+                  )
+                }}
+                contentContainerStyle={[{padding: 10}, filteredLearners?.length === 1 && styles.centeredItem]}
+                keyExtractor={(item, key) => `${key}`}
+                />
+
+                <View style={styles.btnNotifyAllCContainer}>
+                  <TouchableOpacity style={styles.btnNotifyAll} >
+                    <Text style={styles.btnNotifyAllText} >{language.SEND_REMINDERS_TO_ALL}</Text>
+                    <ActivityIndicator color={"#fff"}/>
+                  </TouchableOpacity>
                 </View>
               </View>
+              }
 
               {/* History attendce list */}
               <TouchableOpacity onPress={handleNavigateAttendanceHistory}>
                 <View style={styles.historyListContainer}>
                   <Octicons name="history" size={22} color="black" />
-                  <Text style={styles.historyTitle}>Lịch sử điểm danh</Text>
+                  <Text style={styles.historyTitle}>{language.ATTENDANCE_HISTORY}</Text>
                 </View>
               </TouchableOpacity>
             </View>
@@ -428,27 +217,20 @@ export default function TutorAttendance() {
       </View>
       <View style={styles.footerContainer}>
         <TouchableOpacity
-          disabled={attendStudents.length ? true : false}
+          disabled={attendanceStatus ? true : false}
           onPress={() => setModalVisible("modal_student_list")}
           style={[
             styles.btnAttendce,
-            attendStudents.length
+            attendanceStatus
               ? { backgroundColor: BackgroundColor.primary_op05 }
               : { backgroundColor: BackgroundColor.primary },
           ]}
         >
           <Text style={styles.btnAttendceText}>
-            {attendStudents ? " Đã điểm danh" : "Điểm danh"}
+            {attendanceStatus ? `${language.ALREADY_ATTENDED}` : `${language.ATTEND}`}
           </Text>
         </TouchableOpacity>
       </View>
-
-      {/* Modal show paid result */}
-      <ModalPaidResult
-        visiable={modalVisible}
-        onRequestClose={() => setModalVisible(null)}
-        image_uri={`${ReactAppUrl.PUBLIC_URL}${selectedPaymentImage}`}
-      />
 
       {/* Modal show student list */}
       {lessonDetail && learners && (
@@ -462,9 +244,9 @@ export default function TutorAttendance() {
       )}
 
       <ModalConfirmAttendClass
-        confirmTitle="Xác nhận thành công"
+        confirmTitle={language.CONFIRM_SUCCESS}
         confirmContent={
-          "Xác nhận thanh toán thành công!"
+         language.CONFIRM_PAYMENT_SUCCESS
         }
         imageStatus={"success"}
         visiable={modalVisible}
@@ -770,6 +552,72 @@ const styles = StyleSheet.create({
   },
   contentBlockConfirmTitle:{
     textAlign: "center",
+  },
+
+   // children list
+   childrenComponent : {
+    backgroundColor: BackgroundColor.white,
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 30,
+  },
+
+  childrenComponentTitleContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 15,
+  },
+
+  childrenComponentTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+
+  colorInfo: {
+    flexDirection: "row",
+    gap: 20
+  },
+
+  colorContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+
+  color: {
+    width: 25,
+    height: 10,
+    borderRadius: 999,
+  },
+
+  textColor: {
+    color: "#666",
+    fontSize: 13,
+  },
+
+  btnNotifyAllCContainer: {
+    alignItems: "center",
+  },
+
+  btnNotifyAll: {
+    paddingVertical: 15,
+    paddingHorizontal: 30,
+    backgroundColor: BackgroundColor.primary,
+    borderRadius: 8,
+    marginTop: 20,
+    width: SCREEN_WIDTH * 0.6,
+    flexDirection: "row",
+    gap: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  btnNotifyAllText: {
+    color: BackgroundColor.white,
+    fontSize: 14,
+    fontWeight: "bold",
   }
+
 
 });

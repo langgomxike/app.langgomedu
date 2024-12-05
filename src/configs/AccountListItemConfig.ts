@@ -3,42 +3,46 @@ import {AccountItemProps} from "../views/components/AccountItem";
 
 export const ListItemVietnamese: Array<AccountItemProps> = [
     {
-        title: 'Hồ Sơ Thông Tin',
+        title: 'Hồ sơ thông tin', // Profile Information
         iconName: require("../../assets/settings/user.png")
     },
     {
-        title: 'CV Gia Sư',
-        iconName: require("../../assets/settings/user.png")
+        title: 'Thêm tài khoản con cái', // Create accounts for children
+        iconName: require("../../assets/settings/children.png")
     },
     {
-        title: 'Quản lý lớp học',
-        iconName: require("../../assets/settings/class.png")
+        title: 'CV gia sư', // Tutor CV
+        iconName: require("../../assets/settings/cv.png")
     },
     {
-        title: 'Đánh giá từ phụ huynh, học sinh',
-        iconName: require("../../assets/settings/rating.png")
+        title: 'Attendance History', // Tutor CV
+        iconName: require("../../assets/settings/attendance.png")
     },
     {
-        title: 'Đổi Mật Khẩu',
+        title: 'Gửi email đến quản trị viên', // Send email to administrator
+        iconName: require("../../assets/settings/email.png")
+    },
+    {
+        title: 'Đổi mật khẩu', // Change Password
         iconName: require("../../assets/settings/password.png")
     },
     {
-        title: 'Xóa tài khoản',
-        iconName: require("../../assets/settings/delete.png")
-    },
-    {
-        title: 'Sử dụng bản website',
+        title: 'Sử dụng bản website', // Using website version
         iconName: require("../../assets/settings/website.png")
     },
     {
-        title: 'Ngôn ngữ',
+        title: 'Đánh giá ứng dụng', // Rating app
+        iconName: require("../../assets/settings/rating.png")
+    },
+    {
+        title: 'Ngôn ngữ', // Language
         iconName: require("../../assets/settings/language.png")
     },
     {
-        title: 'Đăng xuất',
+        title: 'Đăng xuất', // Log Out
         iconName: require("../../assets/settings/logout.png")
     },
-]
+];
 
 export const ListItemEnglish: Array<AccountItemProps> = [
     {
@@ -46,28 +50,32 @@ export const ListItemEnglish: Array<AccountItemProps> = [
         iconName: require("../../assets/settings/user.png")
     },
     {
+        title: 'Create accounts for children',
+        iconName: require("../../assets/settings/children.png")
+    },
+    {
         title: 'Tutor CV',
-        iconName: require("../../assets/settings/user.png")
+        iconName: require("../../assets/settings/cv.png")
     },
     {
-        title: 'Manage Classes',
-        iconName: require("../../assets/settings/class.png")
+        title: 'Attendance History', // Tutor CV
+        iconName: require("../../assets/settings/attendance.png")
     },
     {
-        title: 'Feedback from Parents and Students',
-        iconName: require("../../assets/settings/rating.png")
+        title: 'Send email to administrator',
+        iconName: require("../../assets/settings/email.png")
     },
     {
         title: 'Change Password',
         iconName: require("../../assets/settings/password.png")
     },
     {
-        title: 'Delete Account',
-        iconName: require("../../assets/settings/delete.png")
-    },
-    {
         title: 'Using website version',
         iconName: require("../../assets/settings/website.png")
+    },
+    {
+        title: 'Rating app',
+        iconName: require("../../assets/settings/rating.png")
     },
     {
         title: 'Language',
@@ -81,39 +89,43 @@ export const ListItemEnglish: Array<AccountItemProps> = [
 
 export const ListItemJapanese: Array<AccountItemProps> = [
     {
-        title: 'プロフィール情報', // Japanese for 'Profile Information'
+        title: 'プロフィール情報', // Profile Information
         iconName: require("../../assets/settings/user.png")
     },
     {
-        title: '家庭教師の履歴書', // Japanese for 'Tutor CV'
-        iconName: require("../../assets/settings/user.png")
+        title: '子供用アカウントを作成', // Create accounts for children
+        iconName: require("../../assets/settings/children.png")
     },
     {
-        title: 'クラス管理', // Japanese for 'Manage Classes'
-        iconName: require("../../assets/settings/class.png")
+        title: '家庭教師の履歴書', // Tutor CV
+        iconName: require("../../assets/settings/cv.png")
     },
     {
-        title: '保護者・生徒からのフィードバック', // Japanese for 'Feedback from Parents and Students'
-        iconName: require("../../assets/settings/rating.png")
+        title: 'Attendance History', // Tutor CV
+        iconName: require("../../assets/settings/attendance.png")
     },
     {
-        title: 'パスワードを変更', // Japanese for 'Change Password'
+        title: '保護者・生徒からのフィードバック', // Feedback from Parents and Students
+        iconName: require("../../assets/settings/email.png")
+    },
+    {
+        title: 'パスワードを変更', // Change Password
         iconName: require("../../assets/settings/password.png")
     },
     {
-        title: 'アカウントを削除', // Japanese for 'Delete Account'
-        iconName: require("../../assets/settings/delete.png")
-    },
-    {
-        title: 'Website',
+        title: 'ウェブサイト', // Website
         iconName: require("../../assets/settings/website.png")
     },
     {
-        title: '言語', // Japanese for 'Language'
+        title: 'アプリの評価', // Rating app
+        iconName: require("../../assets/settings/rating.png")
+    },
+    {
+        title: '言語', // Language
         iconName: require("../../assets/settings/language.png")
     },
     {
-        title: 'ログアウト', // Japanese for 'Log Out'
+        title: 'ログアウト', // Log Out
         iconName: require("../../assets/settings/logout.png")
     },
 ];

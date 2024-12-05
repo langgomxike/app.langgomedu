@@ -1,11 +1,10 @@
-import {StyleSheet, Text, TextInput, TouchableOpacity, View} from "react-native";
-import BackLayout from "../../layouts/Back";
+import {ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View} from "react-native";
 import SearchBar from "../../components/Inputs/SearchBar";
 import Feather from "@expo/vector-icons/Feather";
 import React, {useCallback, useContext, useEffect, useState} from "react";
 import {BackgroundColor, TextColor} from "../../../configs/ColorConfig";
 import AppInfoContainer from "../../components/admin/AppInfoContainer";
-import Role from "../../../models/Role";
+import Role, {RoleList} from "../../../models/Role";
 import Spinner from "react-native-loading-spinner-overlay";
 import ARole from "../../../apis/ARole";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -15,10 +14,13 @@ import Pagination from "../../components/Pagination";
 import {LanguageContext} from "../../../configs/LanguageConfig";
 import Toast from "react-native-simple-toast";
 import SFirebase, {FirebaseNode} from "../../../services/SFirebase";
+import {NavigationContext} from "@react-navigation/native";
+import SLog, {LogType} from "../../../services/SLog";
 
 export default function PermissionManagementScreen() {
   //contexts
   const language = useContext(LanguageContext).language;
+  const navigation = useContext(NavigationContext);
 
   //states
   const [roles, setRoles] = useState<Role[]>([]);
@@ -59,6 +61,13 @@ export default function PermissionManagementScreen() {
   }, [newRole, roles]);
 
   const deleteRole = useCallback((role: Role) => {
+    const roleValues = Object.values(RoleList).filter(value => typeof value === "number");
+ 
+    if(roleValues.includes(role.id)) {
+      Toast.show(language.CANNOT_DELETE_SYSTEM_ROLE, 1000);
+      return;
+    }
+
     setLoading(true);
 
     const timeId = setTimeout(() => {
@@ -83,6 +92,28 @@ export default function PermissionManagementScreen() {
 
   //effects
   useEffect(() => {
+    // Đặt lại title của header khi màn hình được hiển thị
+    if (navigation) {
+      navigation.setOptions({
+        title: `${language.PERMISSION_MANAGEMENT}`,
+        headerShown: true,
+        contentStyle: {
+          padding: 0,
+        },
+        headerStyle: {
+          backgroundColor: BackgroundColor.primary,
+        },
+        headerTintColor: "#fff",
+        headerLeft: () => (
+          <TouchableOpacity onPress={() => navigation.goBack()} style={{ paddingRight: 10 }}>
+            <Ionicons name="chevron-back" size={24} color="white" />
+          </TouchableOpacity>
+        )
+      });
+    }
+  }, [navigation]);
+
+  useEffect(() => {
     SFirebase.track(FirebaseNode.Roles, [], () => {
       setLoading(true);
       const timeId = setTimeout(() => {
@@ -101,12 +132,10 @@ export default function PermissionManagementScreen() {
       });
     });
   }, []);
-
   return (
-    <BackLayout>
+    <ScrollView style={{backgroundColor: BackgroundColor.white}}>
+    <View style={styles.container}>
       <Spinner visible={loading}/>
-
-      <Text style={styles.title}>{language.PERMISSION_MANAGEMENT?.toUpperCase()}</Text>
 
       <View style={styles.headerContainer}>
         {/* search bar*/}
@@ -138,7 +167,8 @@ export default function PermissionManagementScreen() {
           </AppInfoContainer>
         ))}
       </View>
-    </BackLayout>
+    </View>
+    </ScrollView>
   );
 }
 
@@ -259,7 +289,8 @@ function PermissionList({allPers, role}: PermissionListProp) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: 40,
+    paddingHorizontal: 20,
+    marginTop: 10,
   },
 
   textInputBox: {

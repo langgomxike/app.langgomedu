@@ -6,7 +6,14 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  Dimensions,
+} from "react-native";
 import BottomSheet, {
   BottomSheetBackdrop,
   BottomSheetView,
@@ -21,29 +28,58 @@ import Class from "../../../models/Class";
 import AClassAdmin from "../../../apis/admin/AClassAdmin";
 import Lesson from "../../../models/Lesson";
 import User from "../../../models/User";
-import { NavigationContext, RouteProp, useRoute } from "@react-navigation/native";
+import {
+  NavigationContext,
+  RouteProp,
+  useRoute,
+} from "@react-navigation/native";
 import ScreenName from "../../../constants/ScreenName";
-import { RootStackParamList } from "../../../configs/NavigationRouteTypeConfig";
+import { LanguageContext } from "../../../configs/LanguageConfig";
+import moment from "moment";
+import ReactAppUrl from "../../../configs/ConfigUrl";
+import { CLASS_TAB } from "../../../constants/TabListAdmin";
+import ModalDialogForClass from "../modal/ModalDialogForClass";
+import ModalInputReason from "../modal/ModalInputReason";
 
 type DetailHistoryBottonSheetProps = {
   isVisible: boolean;
   onCloseButtonSheet: () => void;
   classData: Class | undefined;
+  activeTab: string;
 };
 
 const ICON_SIZE = 20;
-
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("screen");
+const URL = ReactAppUrl.PUBLIC_URL;
 export default function ({
   isVisible,
   onCloseButtonSheet,
   classData,
+  activeTab,
 }: DetailHistoryBottonSheetProps) {
+  // contexts ----------------------------------------------------------------
   const navigation = useContext(NavigationContext);
-  //state
+  const languageContext = useContext(LanguageContext);
+  // Hàm lấy tên ngày từ số thứ tự
+  const days = [
+    languageContext.language.SUNDAY,
+    languageContext.language.MONDAY,
+    languageContext.language.TUESDAY,
+    languageContext.language.WEDNESDAY,
+    languageContext.language.THURSDAY,
+    languageContext.language.FRIDAY,
+    languageContext.language.SATURDAY,
+  ];
+
+  //state ----------------------------------------------------------------
   const [report, setReport] = useState(false);
   const [loading, setLoading] = useState(false);
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [userList, setUserList] = useState<User[]>([]);
+  const [modalResult, setModalResult] = useState<string | null>(null);
+  const [modalContent, setModalContent] = useState<{title: string, content: string}>({title:"", content:""})
+  const [approveResult, setApproveResult] = useState(false);
+  const [approvePayResult, setApprovePayResult] = useState(false);
 
   // ref
   const bottomSheetRef = useRef<BottomSheet>(null);
@@ -76,12 +112,40 @@ export default function ({
   );
 
   const goToReportClass = () => {
-    if(classData){
+    if (classData) {
       navigation?.navigate(ScreenName.REPORT_CLASS, { classId: classData.id });
     }
+  };
+
+  const handleApproveClass = useCallback(() => {
+    setModalContent({title: "Xác nhận", content: "Xác thực lớp thành công!"})
+    setModalResult("modalDialogForClass");
+    if (classData) {
+      AClassAdmin.approveClass(classData.id, (data) => {
+        setApproveResult(data.result);
+      }, setLoading);
+    }
+  }, [classData]);
+
+  const handleApprovePaymentByAdmin = useCallback(() => {
+    if (classData) {
+      setModalContent({title: "Xác nhận", content: "Xác nhận thanh toán thành công!"})
+      setModalResult("modalDialogForClass");
+      AClassAdmin.approvePaymentByAdmin(
+        classData.id,
+        (data) => {
+          setApprovePayResult(data.result);
+        },
+        setLoading
+      );
+    }
+  }, [classData]);
+
+  const handleDenyClass = () => {
+      setModalResult("modalInputReason")
   }
 
-  // effect
+  // effect ----------------------------------------------------------------
   useEffect(() => {
     if (classData) {
       AClassAdmin.getClassById(
@@ -92,6 +156,9 @@ export default function ({
         },
         setLoading
       );
+
+      setApprovePayResult(false);
+      setApproveResult(false);
     }
   }, [classData?.id]);
 
@@ -100,7 +167,7 @@ export default function ({
     bottomSheetRef.current.snapToIndex(1);
   }
 
-  //render
+  //render ----------------------------------------------------------------
   return (
     <BottomSheet
       ref={bottomSheetRef}
@@ -116,34 +183,18 @@ export default function ({
             {classData && <ClassComponent classData={classData} />}
           </View>
 
-          {classData?.is_reported &&
-          <View style={{ alignItems: "center" , paddingVertical: 20,}}>
-            <TouchableOpacity onPress={goToReportClass} style={[styles.btnReport, styles.btnShowdow]}>
-              <Text style={styles.btnReportText}>
-                Xem các báo cáo
-              </Text>
-            </TouchableOpacity>
-          </View>
-          }
-
-
+          {classData?.is_reported && (
+            <View style={{ alignItems: "center", paddingVertical: 20 }}>
+              <TouchableOpacity
+                onPress={goToReportClass}
+                style={[styles.btnReport, styles.btnShowdow]}
+              >
+                <Text style={styles.btnReportText}>Xem các báo cáo</Text>
+              </TouchableOpacity>
+            </View>
+          )}
 
           <View style={styles.bodyContainer}>
-            {/* Danh sách học sinh của lớp */}
-            <View style={styles.titleContainer}>
-              <Ionicons name="people-outline" size={24} color="black" />
-              <Text style={styles.title}>Danh sách học sinh</Text>
-            </View>
-            <View style={styles.studentListContainer}>
-              {userList &&
-                userList.map((user, index) => (
-                  <View key={index} style={styles.contentStudentComponent}>
-                    <Text style={styles.bullet}>{"\u2B24"}</Text>
-                    <Text style={styles.contentStudent}>{user.full_name}</Text>
-                  </View>
-                ))}
-            </View>
-
             {/* Danh sách các buổi học */}
             <View style={styles.titleContainer}>
               <Ionicons name="book-outline" size={24} color="black" />
@@ -151,7 +202,7 @@ export default function ({
             </View>
             <View style={styles.lessonListContainer}>
               <FlatList
-                scrollEnabled={false}
+                horizontal={true}
                 data={lessons}
                 renderItem={({ item: lesson }) => (
                   <View style={[styles.lessonItem, styles.boxshadow]}>
@@ -162,9 +213,9 @@ export default function ({
                           size={ICON_SIZE}
                           color="black"
                         />
-                        <Text>Buổi học</Text>
+                        <Text>{languageContext.language.LESSON_DAY}</Text>
                       </View>
-                      <Text>Thứ 2</Text>
+                      <Text>{days[lesson.day]}</Text>
                     </View>
 
                     <View style={styles.contentLessonContainer}>
@@ -174,9 +225,38 @@ export default function ({
                           size={ICON_SIZE}
                           color="black"
                         />
-                        <Text>Thời lượng</Text>
+                        <Text>{languageContext.language.END_TIME}</Text>
                       </View>
-                      <Text>2 giờ</Text>
+                      <Text>
+                        {lesson.duration / 60000}{" "}
+                        {languageContext.language.MINUTES}
+                      </Text>
+                    </View>
+
+                    <View style={styles.contentLessonContainer}>
+                      <View style={styles.contenLessonTitle}>
+                        <Image
+                          source={require("../../../../assets/images/ic_start_time.png")}
+                          style={styles.icImage}
+                        />
+                        <Text>{languageContext.language.START_TIME}</Text>
+                      </View>
+                      <Text>{moment(lesson.started_at).format("LT")}</Text>
+                    </View>
+
+                    <View style={styles.contentLessonContainer}>
+                      <View style={styles.contenLessonTitle}>
+                        <Image
+                          source={require("../../../../assets/images/ic_end_time.png")}
+                          style={styles.icImage}
+                        />
+                        <Text>{languageContext.language.END_TIME}</Text>
+                      </View>
+                      <Text>
+                        {moment(lesson.started_at)
+                          .add(lesson.duration)
+                          .format("LT")}
+                      </Text>
                     </View>
 
                     <View style={styles.contentLessonContainer}>
@@ -186,9 +266,13 @@ export default function ({
                           size={ICON_SIZE}
                           color="black"
                         />
-                        <Text>Hình thức</Text>
+                        <Text>{languageContext.language.FORM}</Text>
                       </View>
-                      <Text>Online</Text>
+                      <Text>
+                        {lesson.is_online === true
+                          ? languageContext.language.ONLINE
+                          : languageContext.language.OFFLINE}
+                      </Text>
                     </View>
 
                     <View style={styles.line}></View>
@@ -204,12 +288,7 @@ export default function ({
                         />
                         <Text>Ghi chú</Text>
                       </View>
-                      <Text>
-                        Lorem ipsum dolor sit amet, consectetur adipisicing
-                        elit. Harum amet minima nesciunt? Quam iure ut fuga cum
-                        aut est ad, nobis ea facilis enim similique commodi unde
-                        totam veniam doloribus.
-                      </Text>
+                      {lesson.note && <Text>{lesson.note}</Text>}
                     </View>
                   </View>
                 )}
@@ -217,8 +296,98 @@ export default function ({
               />
             </View>
           </View>
+
+          {/* Danh sách học sinh của lớp */}
+          <View style={[styles.titleContainer, { marginTop: 15 }]}>
+            <Ionicons name="people-outline" size={24} color="black" />
+            <Text style={styles.title}>Danh sách học sinh</Text>
+          </View>
+          <View style={styles.studentListContainer}>
+            {userList &&
+              userList.map((user, index) => (
+                <View
+                  key={index}
+                  style={[styles.studentItem, styles.boxshadow]}
+                >
+                  <Image
+                    source={{ uri: `${URL}${user.avatar}` }}
+                    style={styles.studentAvatar}
+                  />
+                  <Text style={styles.studentText}>{user.full_name}</Text>
+                </View>
+              ))}
+            {!userList && <Text>Chưa có người học trong lớp này</Text>}
+          </View>
         </View>
       </ScrollView>
+      {activeTab === CLASS_TAB.PENDING_APPROVAL && (
+        <View>
+          {!approveResult ? (
+            <View style={styles.btnCotainer}>
+              <TouchableOpacity onPress={handleDenyClass} style={[styles.btn, styles.btnDeny]}>
+                <Text style={styles.btnDenyText}>Từ Chối</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={handleApproveClass}
+                style={[styles.btn, styles.btnAccept]}
+              >
+                <Text style={styles.btnAcceptText}>Chấp nhận</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <View style={styles.btnCotainer}>
+              <TouchableOpacity
+                disabled={true}
+                style={[styles.btn, styles.btnAcceptDisable]}
+              >
+                <Text style={styles.btnAcceptText}>Chờ thanh toán</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+        </View>
+      )}
+
+      {activeTab === CLASS_TAB.PENDING_PAY && (
+        <View>
+          {!approvePayResult ? (
+          <View style={styles.btnCotainer}>
+            <TouchableOpacity style={[styles.btn, styles.btnDeny]}>
+              <Text style={styles.btnDenyText}>Nhắc nhở</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={handleApprovePaymentByAdmin}
+              style={[styles.btn, styles.btnAccept]}
+            >
+              <Text style={styles.btnAcceptText}>Xác nhận trả</Text>
+            </TouchableOpacity>
+          </View>
+          ) : (
+            <View style={styles.btnCotainer}>
+            <TouchableOpacity
+              onPress={handleApprovePaymentByAdmin}
+              style={[styles.btn, styles.btnAcceptDisable]}
+            >
+              <Text style={styles.btnAcceptText}>Đã xác nhận thanh toán</Text>
+            </TouchableOpacity>
+          </View>
+          )}
+        </View>
+      )}
+
+      <ModalDialogForClass
+        confirmTitle={modalContent.title}
+        confirmContent={modalContent.content}
+        imageStatus="success"
+        visiable={modalResult}
+        onRequestCloseDialog={() => setModalResult(null)}
+        loading={loading}
+      />
+      <ModalInputReason
+       confirmTitle="Từ chối"
+        confirmContent=""
+        imageStatus="confirm"
+        visiable={modalResult}
+        onRequestCloseDialog={() => setModalResult(null)}/>
     </BottomSheet>
   );
 }
@@ -302,9 +471,10 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
 
+  // Student list
   studentListContainer: {
-    backgroundColor: "rgba(13, 153, 255, 0.18)",
-    paddingHorizontal: 10,
+    backgroundColor: "rgba(13, 153, 255, 0.1)",
+    paddingHorizontal: 20,
     paddingVertical: 15,
     borderRadius: 10,
     marginBottom: 20,
@@ -312,16 +482,30 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
   },
 
-  contentStudent: {},
-
-  bullet: {
-    fontSize: 7,
-  },
-
   contentStudentComponent: {
     flexDirection: "row",
     gap: 8,
+  },
+
+  studentItem: {
+    backgroundColor: BackgroundColor.white,
+    borderRadius: 10,
+    padding: 10,
+    marginBottom: 10,
+    flexDirection: "row",
     alignItems: "center",
+    gap: 15,
+  },
+
+  studentAvatar: {
+    width: 35,
+    height: 35,
+    borderRadius: 999,
+  },
+
+  studentText: {
+    fontSize: 14,
+    fontWeight: "500",
   },
 
   lessonListContainer: {
@@ -335,7 +519,9 @@ const styles = StyleSheet.create({
     gap: 10,
     marginBottom: 20,
     borderWidth: 1,
-    borderColor: BackgroundColor.gray_e6
+    borderColor: BackgroundColor.gray_e6,
+    width: SCREEN_WIDTH * 0.8,
+    marginRight: 10,
   },
 
   contentLessonContainer: {
@@ -360,7 +546,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
     width: "80%",
     alignItems: "center",
-    backgroundColor: BackgroundColor.white
+    backgroundColor: BackgroundColor.white,
   },
 
   btnShowdow: {
@@ -381,5 +567,47 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
 
+  btnCotainer: {
+    flexDirection: "row",
+    gap: 20,
+    paddingHorizontal: 15,
+    paddingTop: 10,
+    marginBottom: 10,
+  },
 
+  btn: {
+    flex: 1,
+    paddingVertical: 13,
+    paddingHorizontal: 20,
+    alignItems: "center",
+    borderRadius: 8,
+  },
+
+  btnDeny: {
+    borderWidth: 1,
+    borderColor: "#ff0000",
+  },
+
+  btnDenyText: {
+    color: "#ff0000",
+  },
+
+  btnAccept: {
+    backgroundColor: BackgroundColor.primary,
+  },
+
+  btnAcceptDisable: {
+    backgroundColor: BackgroundColor.gray_50,
+  },
+
+  btnAcceptText: {
+    color: BackgroundColor.white,
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+
+  icImage: {
+    width: 24,
+    height: 24,
+  },
 });

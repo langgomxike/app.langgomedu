@@ -192,7 +192,7 @@ export default function CustomInput({
               {required && <Text style={styles.required}> *</Text>}
             </Text>
 
-            <Text style={{ flex: 1, textAlign: "right" }}>
+            <Text style={{textAlign: "right" }}>
               {text.length}/{MAX_LENGTH}
             </Text>
           </View>

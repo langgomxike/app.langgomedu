@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useContext} from "react";
 import {
   StyleSheet,
   ScrollView,
@@ -8,14 +8,28 @@ import {
   TouchableOpacity,
 } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { BackgroundColor } from "../../configs/ColorConfig";
+import {BackgroundColor} from "../../configs/ColorConfig";
 import Lesson from "../../models/Lesson";
+import moment from "moment";
+import {LanguageContext} from "../../configs/LanguageConfig";
 
 type ClassInfoProps = {
   lessonDetail: Lesson;
 };
 
-export default function ClassInfo({ lessonDetail }: ClassInfoProps) {
+export default function ClassInfo({lessonDetail}: ClassInfoProps) {
+  //context
+  const language = useContext(LanguageContext).language;
+
+  const days = [
+    language.SUNDAY,
+    language.MONDAY,
+    language.TUESDAY,
+    language.WEDNESDAY,
+    language.THURSDAY,
+    language.FRIDAY,
+    language.SATURDAY,
+  ]
   // handers
   function convertTimestampToTime(timestamp: number) {
     // Tạo đối tượng Date từ timestamp
@@ -28,92 +42,117 @@ export default function ClassInfo({ lessonDetail }: ClassInfoProps) {
     // Trả về chuỗi giờ và phút
     return `${hours}:${minutes}`;
   }
+  function formatCurrency(amount: number, locale = "vi-VN", currency = "VND") {
+    // Kiểm tra nếu không phải số, trả về chuỗi lỗi
+    if (typeof amount !== "number") return "Invalid input";
+
+    return amount.toLocaleString(locale, {
+      style: "currency",
+      currency,
+    });
+  }
 
   return (
     <View>
       {/* Class infomation */}
-      {lessonDetail && 
-      <View style={styles.classInfoContainer}>
-        {/* Tiêu đề môn học */}
-        <Text style={styles.classInfoTitle}>{lessonDetail.class?.title}</Text>
+      {lessonDetail && (
+        <View style={styles.classInfoContainer}>
+          {/* Tiêu đề môn học */}
+          <Text style={styles.classInfoTitle}>{lessonDetail.class?.title}</Text>
 
-        <View style={styles.row}>
-          <View style={styles.itemInfoTwo}>
-            <Ionicons name="book-outline" size={24} color="black" />
-            <Text>{lessonDetail.class?.class_level?.vn_name}</Text>
-          </View>
-
-          <View style={[styles.itemInfoTwo, { justifyContent: "flex-end" }]}>
-            <Ionicons name="calendar-outline" size={24} color="black" />
-            <Text>03/10/2024</Text>
-          </View>
-        </View>
-
-        <View style={[styles.line, { marginTop: 10 }]}></View>
-
-        <View style={styles.itemInfo}>
           <View style={styles.row}>
-            <Ionicons name="cube-outline" size={24} color="black" />
-            <Text>Môn học</Text>
-          </View>
-          <Text style={styles.itemContent}>
-            {lessonDetail.class?.major?.vn_name}
-          </Text>
-        </View>
+            <View style={styles.itemInfoTwo}>
+              <Ionicons name="book-outline" size={24} color="black" />
+              <Text>
+                {language.TYPE === "vi"
+                  ? lessonDetail.class?.class_level?.vn_name
+                  : language.TYPE === "en"
+                  ? lessonDetail.class?.class_level?.en_name
+                  : lessonDetail.class?.class_level?.ja_name}
+              </Text>
+            </View>
 
-        <View style={styles.itemInfo}>
-          <View style={styles.row}>
-            <Ionicons name="git-commit-outline" size={24} color="black" />
-            <Text>Hình thức</Text>
+            <View style={[styles.itemInfoTwo, {justifyContent: "flex-end"}]}>
+              <Ionicons name="calendar-outline" size={24} color="black" />
+              <Text>
+                {moment(lessonDetail.started_at).format("DD/MM/YYYY")}
+              </Text>
+            </View>
           </View>
-          <Text style={styles.itemContent}>{lessonDetail.is_online === true ? "online": "offline"}</Text>
-        </View>
 
-        <View style={styles.itemInfo}>
-          <View style={styles.row}>
-            <Ionicons name="timer-outline" size={24} color="black" />
-            <Text>Buổi</Text>
-          </View>
-          <Text style={[styles.itemContent]}>Thứ 2</Text>
-        </View>
+          <View style={[styles.line, {marginTop: 10}]}></View>
 
-        <View style={styles.itemInfo}>
-          <View style={styles.row}>
-            <Image
-              source={require("../../../assets/images/ic_start_time.png")}
-              style={styles.icImage}
-            />
-            <Text>Bắt đầu</Text>
+          <View style={styles.itemInfo}>
+            <View style={styles.row}>
+              <Ionicons name="cube-outline" size={24} color="black" />
+              <Text>{language.SUBJECT_L}</Text>
+            </View>
+            <Text style={styles.itemContent}>
+            {language.TYPE === "vi"
+                  ? lessonDetail.class?.major?.vn_name
+                  : language.TYPE === "en"
+                  ? lessonDetail.class?.major?.en_name
+                  : lessonDetail.class?.major?.ja_name}
+            </Text>
           </View>
-          <Text style={[styles.itemContentBlack]}>
-            {convertTimestampToTime(lessonDetail.started_at)}
-          </Text>
-        </View>
 
-        <View style={styles.itemInfo}>
-          <View style={styles.row}>
-            <Image
-              source={require("../../../assets/images/ic_end_time.png")}
-              style={styles.icImage}
-            />
-            <Text>Kết thúc</Text>
+          <View style={styles.itemInfo}>
+            <View style={styles.row}>
+              <Ionicons name="git-commit-outline" size={24} color="black" />
+              <Text>{language.FORM}</Text>
+            </View>
+            <Text style={styles.itemContent}>
+              {lessonDetail.is_online === true ? "online" : "offline"}
+            </Text>
           </View>
-          <Text style={[styles.itemContentBlack]}>
-            {convertTimestampToTime(
-              lessonDetail.started_at + lessonDetail.duration
-            )}
-          </Text>
-        </View>
 
-        <View style={styles.itemInfo}>
-          <View style={styles.row}>
-            <Ionicons name="cash-outline" size={24} color="black" />
-            <Text>Học phí</Text>
+          <View style={styles.itemInfo}>
+            <View style={styles.row}>
+              <Ionicons name="timer-outline" size={24} color="black" />
+              <Text>{language.SESSION}</Text>
+            </View>
+            <Text style={[styles.itemContent]}>{days[lessonDetail.day]}</Text>
           </View>
-          <Text style={[styles.itemContent]}>100.000 VNĐ/Buổi</Text>
+
+          <View style={styles.itemInfo}>
+            <View style={styles.row}>
+              <Image
+                source={require("../../../assets/images/ic_start_time.png")}
+                style={styles.icImage}
+              />
+              <Text>{language.START}</Text>
+            </View>
+            <Text style={[styles.itemContentBlack]}>
+              {convertTimestampToTime(lessonDetail.started_at)}
+            </Text>
+          </View>
+
+          <View style={styles.itemInfo}>
+            <View style={styles.row}>
+              <Image
+                source={require("../../../assets/images/ic_end_time.png")}
+                style={styles.icImage}
+              />
+              <Text>{language.END}</Text>
+            </View>
+            <Text style={[styles.itemContentBlack]}>
+              {convertTimestampToTime(
+                lessonDetail.started_at + lessonDetail.duration
+              )}
+            </Text>
+          </View>
+
+          <View style={styles.itemInfo}>
+            <View style={styles.row}>
+              <Ionicons name="cash-outline" size={24} color="black" />
+              <Text>{language.PRICE}</Text>
+            </View>
+            {lessonDetail.class && 
+            <Text style={[styles.itemContent]}>{formatCurrency(lessonDetail.class.price)}/{language.SESSION}</Text>
+            }
+          </View>
         </View>
-      </View>
-      }
+      )}
     </View>
   );
 }

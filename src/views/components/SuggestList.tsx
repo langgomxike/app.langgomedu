@@ -20,7 +20,6 @@ import { UserContext } from "../../configs/UserContext";
 import Class from "../../models/Class";
 import ReactAppUrl from "../../configs/ConfigUrl";
 import CvItem from "./CvItem";
-import User from "../../models/User";
 import ACV from "../../apis/ACV";
 import CV from "../../models/CV";
 import Filter from "./Filter";
@@ -28,25 +27,29 @@ import Feather from '@expo/vector-icons/Feather';
 import Values from "../../constants/Values";
 import Pagination from "../../models/Pagination";
 import Filters from "../../models/Filters";
+import { AccountContext } from "../../configs/AccountConfig";
+import { LanguageContext } from "../../configs/LanguageConfig";
 
 const TAB = {
   SUGGEST_CLASS: "suggestClass",
   SUGGEST_CV: "suggestCV",
 };
 
-const { width: SCREEN_WIDTH } = Dimensions.get("window");
+const { width: SCREEN_WIDTH } = Dimensions.get("screen");
 const URL = ReactAppUrl.PUBLIC_URL;
 const PERPAGE = Values.PERPAGE
 export default function SuggestList() {
   //contexts, refs
   const navigation = useContext(NavigationContext);
-  const { user, setUser } = useContext(UserContext);
-  
+  const user = useContext(UserContext).user;
+  const account= useContext(AccountContext).account;
+  const language = useContext(LanguageContext).language;
 
-  // states ////////////////////////////////////////////////////////////////////////
+  // states ----------------------------------------------------------------
   const [userId, setUserId] = useState<string | undefined>(undefined);
   const [activeTab, setActiveTab] = useState(TAB.SUGGEST_CLASS);
   const [loading, setLoading] = useState(false);
+  const {refresh, setRefresh} = useContext(UserContext);
   const [isFetchingMore, setIsFetchingMore] = useState(false);
   const [suggettingClasses, setSuggettingClasses] = useState<Class[]>([]);
   const [suggessingTutors, setSuggessingTutors] = useState<CV[]>([]);
@@ -55,7 +58,7 @@ export default function SuggestList() {
   const [paginations, setPaginations] = useState(new Pagination);
   const [filterValues, setFilterValues] = useState<Filters>();
 
-  // handle /////////////////////////////////////////////////////////////////////////
+  // handle ----------------------------------------------------------------
 
   // Hàm gọi get danh sách lớp học gợi ý từ api
   const fetchSuggestedClasses = (currentPage: number, loading: (isloading: boolean) => void, reset = false, filterValues?: Filters ) => {
@@ -70,6 +73,7 @@ export default function SuggestList() {
             return reset ? newClasses : [...prevClasses, ...newClasses];
           });
           setPaginations(pagination);
+          setRefresh(false);
         },
         loading
       );
@@ -106,12 +110,12 @@ export default function SuggestList() {
     }
   };
 
-  // effect ///////////////////////////////////////////////////////
+  // effect ----------------------------------------------------------------
 
   // Lấy danh sách lớp học gợi ý lần đầu tiên
   useEffect(() => {
     fetchSuggestedClasses(page,setLoading)
-  }, [userId]);
+  }, [userId, user.TYPE, refresh]);
 
   // Lấy danh sách lớp học khi page thay đổi
   useEffect(() => {
@@ -124,18 +128,21 @@ export default function SuggestList() {
   // Khi filter thay đổi, reset danh sách và page
   useEffect(() => {
     setPage(1);
-    console.log("Filter thay đổi");
-    
-    fetchSuggestedClasses(1, setLoading, true ,filterValues); // Reset danh sách khi filter thay đổi
+
+     // Reset danh sách khi filter thay đổi
+    fetchSuggestedClasses(1, setLoading, true ,filterValues);
   }, [filterValues]);
 
   useEffect(() => {
-    setUserId(user.ID);
-    console.log(">>> user id: ", user.ID);
-  }, [user]);
+    if(account){
+      setUserId(account.id);
+      console.log(">>> user id: ", account.id);
+
+    }
+  }, [account]);
 
 
-  // render ////////////////////////////////////////////////////////////
+  // render ----------------------------------------------------------------
 
   return (
     <View style={styles.container}>
@@ -149,7 +156,7 @@ export default function SuggestList() {
                 activeTab === TAB.SUGGEST_CLASS && styles.headerTextActive,
               ]}
             >
-              Gợi ý lớp học
+             {language.CLASS_SUGGESTIONS}
             </Text>
           </TouchableOpacity>
         </View>
@@ -162,7 +169,7 @@ export default function SuggestList() {
                 activeTab === TAB.SUGGEST_CV && styles.headerTextActive,
               ]}
             >
-              Gợi ý gia sư
+              {language.TUTOR_SUGGESTIONS}
             </Text>
           </TouchableOpacity>
         </View>
@@ -170,15 +177,15 @@ export default function SuggestList() {
 
       <View style={styles.btnFilterContainer}>
       { activeTab === TAB.SUGGEST_CLASS && filterValues &&
-        <Text style={styles.totalTitle}>Tổng số lớp học: {paginations.total_items}</Text>
+        <Text style={styles.totalTitle}>{language.TOTAL_CLASSES}: {paginations.total_items}</Text>
       }
       { activeTab === TAB.SUGGEST_CV && 
-        <Text style={styles.totalTitle}>Tổng số gia sư: {paginations.total_items}</Text>
+        <Text style={styles.totalTitle}>{language.TOTAL_TUTORS}: {paginations.total_items}</Text>
       }
       <Text></Text>
         <TouchableOpacity onPress={() => setShowingFilter(true)} style={[styles.btnFilter, styles.boxShadow]}>
         <Feather name="filter" size={18} color="gray" />
-        <Text style={styles.btnFilterText}>Lọc</Text>
+        <Text style={styles.btnFilterText}>{language.FILTER}</Text>
         </TouchableOpacity>
       </View>
 

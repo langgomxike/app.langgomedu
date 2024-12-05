@@ -1,4 +1,4 @@
-import {Image, Linking, ScrollView, StyleSheet, Text, TouchableOpacity, View,} from "react-native";
+import {Image, Linking, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View,} from "react-native";
 import BackWithDetailLayout from "../layouts/BackWithDetail";
 import {ListItemVietnamese, ListItemEnglish, ListItemJapanese} from "../../configs/AccountListItemConfig";
 import AccountItem, {AccountItemProps} from "../components/AccountItem";
@@ -19,6 +19,8 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import {BackgroundColor, TextColor} from "../../configs/ColorConfig";
 import ConfirmDialog from "../components/ConfirmDialog";
 import {AppInfoContext} from "../../configs/AppInfoContext";
+import {RoleList} from "../../models/Role";
+import {AttendanceNavigationType} from "../../configs/NavigationRouteTypeConfig";
 
 type FlatListItemProps = {
   item: AccountItemProps;
@@ -38,42 +40,80 @@ function FlatListItem({item, index}: FlatListItemProps) {
   //states
   const [handlers, setHandler] = useState<Array<any>>([]);
   const [showConfirmLogout, setShowConfirmLogout] = useState(false);
-  const [showConfirmDeleteAccount, setShowConfirmDeleteAccount] = useState(false);
 
   //handlers
   const goToPersonalInfoScreen = useCallback(() => {
     navigation?.navigate(ScreenName.PROFILE);
   }, []);
 
+  const goToRegisterChileScreen = useCallback(() => {
+    let canOpen = false;
+
+    canOpen = !(accountContext.account?.parent_id ?? false);
+
+    canOpen = canOpen || !(accountContext.account?.roles?.map(role => role.id).includes(RoleList.SUPER_ADMIN) ?? false);
+    canOpen = canOpen || !(accountContext.account?.roles?.map(role => role.id).includes(RoleList.ADMIN) ?? false);
+
+    if (canOpen) {
+      navigation?.navigate(ScreenName.REGISTER_STEP_CHILD);
+    } else {
+      Toast.show(languageContext.language.HAVE_NO_PERMISSION_TO_CREATE_CHILD, 1000);
+    }
+  }, [accountContext.account]);
+
   const goToCVScreen = useCallback(() => {
-    navigation?.navigate(ScreenName.SETTING_PERSONAL_CV);
+    let canOpen = false;
+
+    canOpen = canOpen || !(accountContext.account?.roles?.map(role => role.id).includes(RoleList.SUPER_ADMIN) ?? false);
+    canOpen = canOpen || !(accountContext.account?.roles?.map(role => role.id).includes(RoleList.ADMIN) ?? false);
+
+    if (canOpen) {
+      navigation?.navigate(ScreenName.SETTING_PERSONAL_CV);
+    } else {
+      Toast.show(languageContext.language.HAVE_NO_PERMISSION_TO_MANAGE_CV, 1000);
+    }
   }, []);
 
-  const goToScheduleScreen = useCallback(() => {
-    navigation?.navigate(ScreenName.PERSONAL_SCHEDULE);
-  }, []);
+  const goToAttendanceHistories = useCallback(() => {
 
-  const goToRatingScreen = useCallback(() => {
-    navigation?.navigate(ScreenName.RATING);
+    const data: AttendanceNavigationType = {
+      userId: accountContext.account?.id ?? "-1",
+      classId: -1,
+    }
+
+    navigation?.navigate(ScreenName.ATTENDANCE_HISTORY, data);
+  }, [accountContext.account]);
+
+  const sendEmail = useCallback(() => {
+    const email = appInfos.contact_email;
+    const subject = languageContext.language.TO_ADMIN_EMAIL_SUBJECT;
+    const body = languageContext.language.TO_ADMIN_EMAIL_BODY;
+    const emailUrl = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+    Linking.openURL(emailUrl);
   }, []);
 
   const goToChangePasswordScreen = useCallback(() => {
-    navigation?.navigate(ScreenName.OTP);
-  }, []);
-
-  const handleDeleteAccount = useCallback(() => {
-    setShowConfirmDeleteAccount(false);
-    alert("handleDeleteAccount");
+    navigation?.navigate(ScreenName.CHANGE_PASSWORD);
   }, []);
 
   const handleOpenWebsite = useCallback(() => {
     Linking.openURL(appInfos.webiste_link);
   }, []);
 
+  const handleOpenInAppPackager = useCallback(() => {
+    const appStoreUrl = `https://apps.apple.com/app/id${appInfos.apple_store_app_id}`;
+    const playStoreUrl = `https://play.google.com/store/apps/details?id=${appInfos.play_store_app_id}`;
+
+    const url = Platform.OS === 'ios' ? appStoreUrl : playStoreUrl;
+
+    Linking.openURL(url);
+  }, []);
+
   const handleChangeLanguage = useCallback((language: typeof vn) => {
     languageContext.setLanguage && languageContext.setLanguage(language);
 
-    refRBSheet.current?.close();
+    refRBSheet.current?.close(); 
   }, []);
 
   const handleLogout = useCallback(() => {
@@ -94,12 +134,13 @@ function FlatListItem({item, index}: FlatListItemProps) {
   useEffect(() => {
     const handlers = [
       goToPersonalInfoScreen,
+      goToRegisterChileScreen,
       goToCVScreen,
-      goToScheduleScreen,
-      goToRatingScreen,
+      goToAttendanceHistories,
+      sendEmail,
       goToChangePasswordScreen,
-      () => setShowConfirmDeleteAccount(true),
       handleOpenWebsite,
+      handleOpenInAppPackager,
       refRBSheet.current?.open,
       () => setShowConfirmLogout(true),
     ];
@@ -142,15 +183,6 @@ function FlatListItem({item, index}: FlatListItemProps) {
                      cancel={languageContext.language.CANCEL}
                      onConfirm={handleLogout}
                      onCancel={() => setShowConfirmLogout(false)}/>
-
-      {/*confirm dialog for delete account*/}
-      <ConfirmDialog title={languageContext.language.DELETE_ACCOUNT}
-                     content={languageContext.language.DELETE_ACCOUNT_HINT} open={showConfirmDeleteAccount}
-                     confirm={languageContext.language.CONFIRM}
-                     cancel={languageContext.language.CANCEL}
-                     onConfirm={handleDeleteAccount}
-                     onCancel={() => setShowConfirmDeleteAccount(false)}/>
-
     </>
   );
 }
@@ -158,9 +190,11 @@ function FlatListItem({item, index}: FlatListItemProps) {
 export default function AccountScreen() {
   //contexts
   const languageContext = useContext(LanguageContext);
+  const accountContext = useContext(AccountContext);
 
   //states
   const [ListItem, setListItem] = useState<AccountItemProps[]>(ListItemVietnamese);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   //effects
   useEffect(() => {
@@ -178,14 +212,22 @@ export default function AccountScreen() {
 
     //save language into storage
     SAsyncStorage.setData(AsyncStorageKeys.LANGUAGE, languageContext.language.TYPE + "");
-
-    Toast.show(languageContext.language.CHANGE_LANGUAGE, 2000);
   }, [languageContext.language]);
+
+  useEffect(() => {
+    let isAdmin = false;
+
+    //is super admin
+    isAdmin = isAdmin || (accountContext.account?.roles?.map(role => role.id).includes(RoleList.SUPER_ADMIN) ?? false);
+    isAdmin = isAdmin || (accountContext.account?.roles?.map(role => role.id).includes(RoleList.ADMIN) ?? false);
+
+    setIsAdmin(isAdmin);
+  }, []);
 
   //tsx
   return (
     <>
-      <QRInfo id={123} type={QRItems.USER}/>
+      {!isAdmin && <QRInfo id={accountContext.account?.id ?? ""} type={QRItems.USER}/>}
       <BackWithDetailLayout icName="Back">
         <ScrollView showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false}>
           {ListItem.map((item, index) => (

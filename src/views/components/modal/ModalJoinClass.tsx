@@ -6,14 +6,23 @@ import {
   TouchableOpacity,
   FlatList,
   Image,
+  Dimensions,
 } from "react-native";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import Modal from "react-native-modal";
 import { BackgroundColor } from "../../../configs/ColorConfig";
 import ModalConfirmJoinClass from "./ModalConfirmJoinClass";
-import { UserContext } from "../../../configs/UserContext";
+import Feather from "@expo/vector-icons/Feather";
 import User from "../../../models/User";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
+import ReactAppUrl from "../../../configs/ConfigUrl";
+import { AccountContext } from "../../../configs/AccountConfig";
+import { LanguageContext } from "../../../configs/LanguageConfig";
 
 type ModalJoinClassProps = {
   classId: number;
@@ -23,6 +32,13 @@ type ModalJoinClassProps = {
   onResultValue: (result: boolean) => void;
 };
 
+const LEARNR_TYPE = {
+  ME: "me",
+  CHILD: "child",
+};
+
+const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get("screen");
+const URL = ReactAppUrl.PUBLIC_URL;
 export default function ModalJoinClass({
   classId,
   studentList,
@@ -30,9 +46,19 @@ export default function ModalJoinClass({
   onRequestClose,
   onResultValue,
 }: ModalJoinClassProps) {
+  // context
+  const account = useContext(AccountContext).account;
+  const language = useContext(LanguageContext).language;
   // states
   const [selectedStudents, setSelectedStudents] = useState<User[]>([]);
   const [isConfirmingJoin, setIsConfirmingJoin] = useState<string | null>("");
+  const [learnerType, setLearnerType] = useState("me");
+  const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
+  const [targetUser, setTargetUser] = useState<User>();
+  const [modalText, setModalText] = useState(language.CONFIRM_JOIN_CLASS)
+
+  // Shared value for height
+  const modalHeight = useSharedValue(0.45);
 
   // Handle
   // Hàm xử lý khi nhấn vào checkbox
@@ -47,9 +73,33 @@ export default function ModalJoinClass({
   };
 
   const handleConfirmJoinClass = () => {
-    setIsConfirmingJoin("modalConfirmJoinClass"); // mở modalConfirmJoinClass
-    onRequestClose(); // đóng modalJoinClass
+    if(selectedStudents.length > 0) {
+      setModalText(language.CONFIRM_JOIN_CLASS_WITH_SELECTED_LEARNERS)
+    }
+    else {
+      setModalText(language.CONFIRM_JOIN_CLASS)
+    }
+    setIsConfirmingJoin("modalConfirmJoinClass");
+    onRequestClose();
   };
+
+  // Animated style for modal height
+  const animatedStyle = useAnimatedStyle(() => ({
+    height: withTiming(modalHeight.value * SCREEN_HEIGHT, { duration: 300 }),
+  }));
+
+  // Handle payment method change
+  const handleLearnerTypeChange = (type: string) => {
+    setLearnerType(type);
+    modalHeight.value = type === LEARNR_TYPE.CHILD ? 0.85 : 0.45;
+  };
+
+  useEffect(() => {
+    if (account) {
+      setFilteredUsers(studentList.filter((user) => user.id !== account.id));
+      setTargetUser(studentList.find((user) => user.id === account.id));
+    }
+  }, [account, classId, studentList]);
 
   return (
     <View>
@@ -60,105 +110,185 @@ export default function ModalJoinClass({
         animationOut={"slideOutDown"}
         onBackdropPress={() => onRequestClose()}
       >
-        <View style={styles.container}>
+        <Animated.View style={[styles.container, animatedStyle]}>
           <View style={styles.modalHeader}>
-            <Text style={styles.headerTitle}>Tham gia lớp học</Text>
+            <Text style={styles.headerTitle}>{language.JOIN}</Text>
+            <TouchableOpacity onPress={onRequestClose} style={styles.btnClose}>
+              <Ionicons name="close" size={24} color="black" />
+            </TouchableOpacity>
           </View>
 
           <View style={styles.modalBody}>
             <View style={{ flex: 7 }}>
-              <View style={styles.studentListTitleContainer}>
-                <Ionicons name="people-outline" size={24} color="black" />
-                <Text style={styles.studentListTitle}>Danh sách học sinh</Text>
-              </View>
-              <View style={styles.studentList}>
-                <FlatList
-                  data={studentList}
-                  showsVerticalScrollIndicator={false}
-                  renderItem={({ item: student }) => {
-                    const isChecked = selectedStudents.some(
-                      (s) => s.id === student.id
-                    );
+              {/* Chọn người học cho lớp */}
+              <View style={styles.learnerSelectionContainer}>
+                <Text style={styles.titleContainer}> {language.SELECT_LEARNER} </Text>
 
-                    return (
-                      <View>
-                        <TouchableOpacity
-                          onPress={() => handleToggleCheckbox(student)}
-                          style={[
-                            isChecked ? styles.activeCheckbox : styles.checkbox,
-                            styles.boxShadow,
-                          ]}
-                        >
-                          <View style={styles.studentSelect}>
-                            <View style={styles.studentContainer}>
-                              <Image
-                                source={{
-                                  uri: `https://cdn-icons-png.flaticon.com/128/4322/4322991.png`,
-                                }}
-                                style={styles.avtarImage}
-                              />
-                              <Text style={styles.activeText}>
-                                {student.full_name}
-                              </Text>
+                {/* Cho tôi học */}
+                <TouchableOpacity
+                  onPress={() => handleLearnerTypeChange("me")}
+                  style={styles.learnerOption}
+                >
+                  <Feather
+                    name="user"
+                    size={24}
+                    color={learnerType === LEARNR_TYPE.ME ? "green" : "gray"}
+                  />
+                  <Text style={styles.learnerOptionText}>{language.LEARN_FOR_ME}</Text>
+                  {learnerType === LEARNR_TYPE.ME && (
+                    <Ionicons name="checkmark" size={24} color="green" />
+                  )}
+                </TouchableOpacity>
+
+                {/* Cho con học */}
+                <TouchableOpacity
+                  onPress={() => handleLearnerTypeChange("child")}
+                  style={styles.learnerOption}
+                >
+                  <Feather
+                    name="users"
+                    size={24}
+                    color={learnerType === LEARNR_TYPE.CHILD ? "green" : "gray"}
+                  />
+                  <Text style={styles.learnerOptionText}>{language.LEARN_FOR_CHILD}</Text>
+                  {learnerType === LEARNR_TYPE.CHILD && (
+                    <Ionicons name="checkmark" size={24} color="green" />
+                  )}
+                </TouchableOpacity>
+              </View>
+
+              {learnerType === LEARNR_TYPE.CHILD && (
+                <View style={styles.studentList}>
+                  <FlatList
+                    data={filteredUsers}
+                    showsVerticalScrollIndicator={false}
+                    renderItem={({ item: student }) => {
+                      const isChecked = selectedStudents.some(
+                        (s) => s.id === student.id
+                      );
+
+                      return (
+                        <View>
+                          <TouchableOpacity
+                            disabled={
+                              student.lessons && student.lessons?.length > 0
+                            }
+                            onPress={() => handleToggleCheckbox(student)}
+                            style={[
+                              isChecked
+                                ? styles.activeCheckbox
+                                : styles.checkbox,
+                              styles.boxShadow,
+                            ]}
+                          >
+                            <View style={styles.studentSelect}>
+                              <View style={styles.studentContainer}>
+                                <Image
+                                  source={{
+                                    uri: `${URL}${student.avatar}`,
+                                  }}
+                                  style={styles.avtarImage}
+                                />
+                                <Text style={styles.activeText}>
+                                  {student.full_name}
+                                </Text>
+                              </View>
+                              {student.lessons &&
+                                student.lessons.length === 0 && (
+                                  <MaterialIcons
+                                    name={
+                                      isChecked
+                                        ? "check-box"
+                                        : "check-box-outline-blank"
+                                    }
+                                    size={20}
+                                    color={isChecked ? "#06b6d4" : "#64748b"}
+                                  />
+                                )}
                             </View>
-                            <MaterialIcons
-                              name={
-                                isChecked
-                                  ? "check-box"
-                                  : "check-box-outline-blank"
-                              }
-                              size={20}
-                              color={isChecked ? "#06b6d4" : "#64748b"}
-                            />
-                          </View>
-                          <View style={styles.notificationContent}>
-                            {/* <Ionicons name="warning-outline" size={24} color={BackgroundColor.warning} />
-                            <Text style={styles.notificationText}>
-                              {`Bạn này không thể tham gia lớp học.\n Do đã có buổi học bị trùng!`}
-                            </Text> */}
-                            <Ionicons name="checkmark" size={24} color="green" />
-                            <Text style={styles.notificationText}>
-                              Bạn này có thể tham gia lớp học
-                            </Text>
-                          </View>
-                        </TouchableOpacity>
-                      </View>
-                    );
-                  }}
-                  style={styles.listStudent}
-                  contentContainerStyle={{
-                    paddingHorizontal: 5,
-                    paddingVertical: 5,
-                  }}
-                />
-              </View>
+
+                            {student.lessons && student.lessons?.length > 0 && (
+                              <View style={styles.notificationContent}>
+                                <Feather
+                                  name="alert-triangle"
+                                  size={24}
+                                  color={BackgroundColor.warning}
+                                />
+                                <Text style={styles.notificationText}>
+                                  {language.CANNOT_JOIN_CLASS}
+                                </Text>
+                              </View>
+                            )}
+                            {student.lessons &&
+                              student.lessons.length === 0 && (
+                                <View style={styles.notificationContent}>
+                                  <Feather
+                                    name="check-circle"
+                                    size={24}
+                                    color="green"
+                                  />
+                                  <Text style={styles.notificationText}>
+                                   {language.CAN_JOIN_CLASS}
+                                  </Text>
+                                </View>
+                              )}
+                          </TouchableOpacity>
+                        </View>
+                      );
+                    }}
+                    style={styles.listStudent}
+                    contentContainerStyle={{
+                      paddingHorizontal: 5,
+                      paddingVertical: 5,
+                    }}
+                  />
+                </View>
+              )}
             </View>
+            
 
-            <View style={[styles.btnContainer, { flex: 1 }]}>
-              <TouchableOpacity style={[styles.addStudent, styles.boxShadow]}>
-                <Ionicons
-                  name="add-outline"
-                  size={20}
-                  color={BackgroundColor.white}
-                />
-              </TouchableOpacity>
+            {learnerType === LEARNR_TYPE.ME && (
+            <View style={[styles.btnContainer]}>
+              {targetUser?.lessons && targetUser?.lessons.length > 0 && (
+                <TouchableOpacity
+                  onPress={() => handleConfirmJoinClass()}
+                  style={[styles.btn, styles.btnSaveDisable, styles.boxShadow]}
+                >
+                  <Text style={styles.btnSaveText}>{language.CAN_JOIN_CLASS}</Text>
+                </TouchableOpacity>
+              )}
 
+            {targetUser?.lessons && targetUser?.lessons.length == 0 && (
               <TouchableOpacity
                 onPress={() => handleConfirmJoinClass()}
                 style={[styles.btn, styles.btnSave, styles.boxShadow]}
               >
-                <Text style={styles.btnSaveText}>Tham gia</Text>
+                <Text style={styles.btnSaveText}>{language.JOIN}</Text>
               </TouchableOpacity>
+            )}
             </View>
+            )}
+
+        {learnerType === LEARNR_TYPE.CHILD && (
+          <View style={[styles.btnContainer]}>
+           <TouchableOpacity
+           disabled={selectedStudents.length === 0}
+           onPress={() => handleConfirmJoinClass()}
+           style={[styles.btn, selectedStudents.length === 0 ? styles.btnSaveDisable : styles.btnSave, styles.boxShadow]}
+         >
+           <Text style={styles.btnSaveText}>{language.JOIN}</Text>
+         </TouchableOpacity>
+         </View>
+        )}
           </View>
-        </View>
+        </Animated.View>
       </Modal>
 
       {/* Modal xác nhận các học sinh đã tham gia vào lớp học đó */}
       <ModalConfirmJoinClass
-        confirmContent="Bạn có chắc chắn muốn tham gia lớp học với các học sinh đã chọn không?"
+        confirmContent={modalText}
         visiable={isConfirmingJoin}
-        onRequestClose={() => setIsConfirmingJoin(null)}
+        onRequestClose={() => {setIsConfirmingJoin(null), setSelectedStudents([])}}
         selectedStudents={selectedStudents}
         classId={classId}
         onResultValue={onResultValue}
@@ -169,7 +299,6 @@ export default function ModalJoinClass({
 
 const styles = StyleSheet.create({
   container: {
-    height: "80%",
     marginTop: 10,
     backgroundColor: "#fff",
     borderRadius: 10,
@@ -217,10 +346,12 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
 
-  studentList: { marginBottom: 20 },
+  studentList: { marginBottom: 40 },
 
   checkbox: {
     backgroundColor: BackgroundColor.white,
+    borderWidth: 1,
+    borderColor: BackgroundColor.gray_e6,
     borderRadius: 10,
     paddingHorizontal: 15,
     paddingVertical: 15,
@@ -230,6 +361,8 @@ const styles = StyleSheet.create({
 
   activeCheckbox: {
     backgroundColor: "white",
+    borderWidth: 1,
+    borderColor: BackgroundColor.gray_e6,
     borderRadius: 10,
     paddingHorizontal: 15,
     paddingVertical: 15,
@@ -278,17 +411,15 @@ const styles = StyleSheet.create({
   notificationContent: {
     alignItems: "center",
   },
-  notificationText : {
+  notificationText: {
     marginTop: 5,
     color: BackgroundColor.gray_text,
     textAlign: "center",
   },
 
-
   addStudentContainer: {
     alignItems: "center",
   },
-  
 
   addStudent: {
     backgroundColor: BackgroundColor.primary,
@@ -314,12 +445,17 @@ const styles = StyleSheet.create({
 
   btn: {
     padding: 15,
-    backgroundColor: BackgroundColor.primary,
     borderRadius: 10,
   },
 
   btnSave: {
     flex: 1,
+    backgroundColor: BackgroundColor.primary,
+  },
+
+  btnSaveDisable: {
+    flex: 1,
+    backgroundColor: BackgroundColor.gray_50,
   },
 
   btnSaveText: {
@@ -339,5 +475,52 @@ const styles = StyleSheet.create({
     shadowRadius: 2.22,
 
     elevation: 3,
+  },
+
+  // Pay
+  titleContainer: {
+    fontSize: 16,
+    fontWeight: "bold",
+    paddingBottom: 10,
+  },
+
+  learnerSelectionContainer: {
+    backgroundColor: BackgroundColor.white,
+    paddingBottom: 10,
+    paddingHorizontal: 5,
+  },
+
+  selectedImage: {
+    width: 200,
+    height: 200,
+    resizeMode: "contain",
+    borderRadius: 10,
+    marginTop: 10,
+  },
+
+  learnerOption: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 15,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#ddd",
+    marginBottom: 10,
+  },
+  learnerOptionText: {
+    fontSize: 16,
+    marginLeft: 10,
+    flex: 1,
+  },
+
+  line: {
+    height: 2,
+    backgroundColor: BackgroundColor.gray_e6,
+  },
+
+  btnClose: {
+    position: "absolute",
+    right: 0,
+    top: 0,
   },
 });

@@ -1,4 +1,4 @@
-import { FunctionComponent, useCallback, useState } from "react";
+import {FunctionComponent, useCallback, useState} from "react";
 import {
   LayoutChangeEvent,
   Pressable,
@@ -7,6 +7,7 @@ import {
   Text,
   View,
 } from "react-native";
+import {BackgroundColor, TextColor} from "../../configs/ColorConfig";
 
 export type TabItem = {
   title: string;
@@ -16,17 +17,18 @@ export type TabItem = {
 type TabProp = {
   tabs: Array<TabItem>;
   defaultActiveTab: number;
+  quantities?: number[];
 };
 
-const activeColor = "#0D99FF";
+const activeColor = TextColor.sub_primary;
 
 const titleStyle = StyleSheet.create({
-  style: { fontSize: 15, fontWeight: "bold" },
+  style: {fontSize: 15, fontWeight: "bold"},
 }).style;
 
 const TAB_HEIGHT = 50;
 
-export default function Tab({ tabs = [], defaultActiveTab = 0 }: TabProp) {
+export default function Tab({tabs = [], defaultActiveTab = 0, quantities}: TabProp) {
   //refs, contexts
 
   //states
@@ -62,7 +64,7 @@ export default function Tab({ tabs = [], defaultActiveTab = 0 }: TabProp) {
           horizontal={true}
           showsHorizontalScrollIndicator={false}
           showsVerticalScrollIndicator={false}
-          style={{ flex: 1 }}
+          style={{flex: 1}}
         >
           {tabs.map((tab, index) => (
             <Pressable
@@ -71,7 +73,7 @@ export default function Tab({ tabs = [], defaultActiveTab = 0 }: TabProp) {
               style={[
                 {
                   minWidth:
-                    tabs.length > 3 ? 150 : containerWidth / tabs.length,
+                    tabs.length > 3 ? 100 : containerWidth / tabs.length,
                 },
                 styles.tabContainer,
               ]}
@@ -83,7 +85,7 @@ export default function Tab({ tabs = [], defaultActiveTab = 0 }: TabProp) {
                   index === active && styles.activeTitle,
                 ]}
               >
-                {tab.title || "Tab " + (index + 1)}
+                {(tab.title || "Tab " + (index + 1))+ (quantities && quantities?.length > index && quantities[index] > 0 ? `(${quantities[index]})` : "")}
               </Text>
             </Pressable>
           ))}
@@ -92,7 +94,7 @@ export default function Tab({ tabs = [], defaultActiveTab = 0 }: TabProp) {
 
       {/* Tab content */}
       <View style={styles.content}>
-        <ActiveTabView />
+        <ActiveTabView/>
       </View>
     </View>
   );
@@ -113,7 +115,7 @@ const styles = StyleSheet.create({
     minHeight: TAB_HEIGHT,
     paddingHorizontal: 20,
     paddingVertical: 2,
-    backgroundColor: "#fff",
+    backgroundColor: BackgroundColor.white,
     alignSelf: "center",
   },
 
@@ -121,7 +123,9 @@ const styles = StyleSheet.create({
     minHeight: TAB_HEIGHT,
     textAlign: "center",
     textAlignVertical: "center",
-    fontWeight: "heavy",
+    fontWeight: "700",
+    fontSize: 12,
+    color: TextColor.sub_primary,
   },
 
   activeTitle: {
@@ -129,6 +133,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     borderBottomWidth: 2,
     borderBottomColor: activeColor,
+    fontSize: 14,
   },
 
   content: {

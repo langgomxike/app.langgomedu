@@ -1,8 +1,8 @@
-import { useContext, useEffect } from "react";
+import {createRef, useContext, useEffect} from "react";
 // @ts-ignore
-import { SafeAreaView } from "react-native-safe-area-context";
-import { NavigationContainer } from "@react-navigation/native";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import {SafeAreaView} from 'react-native-safe-area-context';
+import {NavigationContainer, NavigationContainerRef, ParamListBase} from "@react-navigation/native";
+import {createNativeStackNavigator} from "@react-navigation/native-stack";
 import ScreenName from "./src/constants/ScreenName";
 import ButtonNavBar from "./src/views/components/ButtonNavBar";
 import MessageScreen from "./src/views/screens/Message";
@@ -38,26 +38,30 @@ import LeanerAttendance from "./src/views/screens/attendance/LeanerAttendance";
 import HistoryAttendance from "./src/views/screens/attendance/HistoryAttendance";
 import TutorAttendance from "./src/views/screens/attendance/TutorAttendance";
 import AdminHome from "./src/views/screens/admin/AdminHome";
-import SFirebase, { FirebaseNode } from "./src/services/SFirebase";
-import { LanguageContext } from "./src/configs/LanguageConfig";
+import SFirebase, {FirebaseNode} from "./src/services/SFirebase";
 import AccountScreen from "./src/views/screens/Account";
 import WelcomeScreen from "./src/views/screens/Welcome";
+import GroupMessageScreen from "./src/views/screens/GroupMessage";
 import CreateReport from "./src/views/screens/CreateReport";
+import UserPermissionManagementScreen from "./src/views/screens/admin/UserPermissionManagement";
+import RegisterChildScreen from "./src/views/screens/RegisterChild";
+import UpdateClass from "./src/views/screens/UpdateClass";
+import ResetPasswordScreen from "./src/views/screens/ResetPassword";
 import UpdateReportedUser from "./src/views/screens/admin/UpdateReportedUser";
 
 PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS);
 
 const Stack = createNativeStackNavigator();
 
+export const navigationRef = createRef<NavigationContainerRef<ParamListBase>>();
+
 export default function App() {
   // jxs
   return (
     <AppContext>
       <GestureHandlerRootView>
-        <SafeAreaView
-          style={{ flex: 1, backgroundColor: BackgroundColor.primary }}
-        >
-          <NavigationContainer>
+        <SafeAreaView style={{flex: 1, backgroundColor: BackgroundColor.primary}}>
+          <NavigationContainer ref={navigationRef}>
             <Stack.Navigator
               screenOptions={{
                 headerShown: false,
@@ -81,6 +85,12 @@ export default function App() {
                 name={ScreenName.MESSAGE}
                 component={MessageScreen}
               />
+
+              <Stack.Screen
+                name={ScreenName.GROUP_MESSAGE}
+                component={GroupMessageScreen}
+              />
+
               <Stack.Screen
                 name={ScreenName.PROFILE}
                 component={ProfileScreen}
@@ -98,11 +108,20 @@ export default function App() {
                 name={ScreenName.DETAIL_CLASS}
                 component={ClassDetail}
               />
-              <Stack.Screen name={ScreenName.RATING} component={RatingScreen} />
+              <Stack.Screen
+                name={ScreenName.UPDATE_CLASS}
+                component={UpdateClass}
+              />
+              <Stack.Screen name={ScreenName.RATING} component={RatingScreen}/>
 
               <Stack.Screen
                 name={ScreenName.ATTENDANCE_HISTORY}
                 component={HistoryAttendance}
+                options={{
+                  headerShown: true,
+                  title: "",
+                  headerStyle: {backgroundColor: BackgroundColor.primary}
+                }}
               />
               <Stack.Screen
                 name={ScreenName.ATTENDED_FOR_LEARNER}
@@ -172,8 +191,18 @@ export default function App() {
               />
 
               <Stack.Screen
+                name={ScreenName.REGISTER_STEP_CHILD}
+                component={RegisterChildScreen}
+              />
+
+              <Stack.Screen
                 name={ScreenName.CHANGE_PASSWORD}
                 component={ChangePasswordScreen}
+              />
+
+              <Stack.Screen
+                name={ScreenName.RESET_PASSWORD}
+                component={ResetPasswordScreen}
               />
 
               {/* ADMIN SCREENS */}
@@ -206,6 +235,11 @@ export default function App() {
               />
 
               <Stack.Screen
+                name={ScreenName.CREATE_REPORT}
+                component={CreateReport}
+              />
+
+              <Stack.Screen
                 name={ScreenName.APP_INFO_MANAGEMENT}
                 component={AppInfoManagementScreen}
               />
@@ -216,6 +250,11 @@ export default function App() {
               />
 
               <Stack.Screen
+                name={ScreenName.USER_PERMISSION_MANAGEMENT}
+                component={UserPermissionManagementScreen}
+              />
+
+              <Stack.Screen
                 name={ScreenName.CV_APPROVAL}
                 component={CVApprovalScreen}
               />
@@ -223,17 +262,19 @@ export default function App() {
                 name={ScreenName.CLASS_APPROVAL}
                 component={ClassApprovalScreen}
               />
+
               <Stack.Screen
-                name={ScreenName.CREATE_REPORT}
-                component={CreateReport}
+                name={ScreenName.UPDATE_REPORT_USER}
+                component={UpdateReportedUser}
               />
+
               <Stack.Screen
                 name={ScreenName.SETTING_INFO_PERSONAL}
                 component={AccountScreen}
                 options={{
                   headerShown: true,
                   title: "",
-                  headerStyle: { backgroundColor: BackgroundColor.primary },
+                  headerStyle: {backgroundColor: BackgroundColor.primary}
                 }}
               />
               {/* END ADMIN SCREENS */}

@@ -5,322 +5,265 @@ import Message from "../../models/Message";
 import User from "../../models/User";
 import AMessage from "../../apis/AMessage";
 import MessageItem from "../components/MessageItem";
-import {AppIcon} from "../components/MyIcon";
-import RBSheet from "react-native-raw-bottom-sheet";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import {NavigationContext, NavigationRouteContext} from "@react-navigation/native";
-import {MessageNavigationType} from "../../configs/NavigationRouteTypeConfig";
+import {IdNavigationType, MessageNavigationType} from "../../configs/NavigationRouteTypeConfig";
 import {AccountContext} from "../../configs/AccountConfig";
 import SLog, {LogType} from "../../services/SLog";
 import Toast from "react-native-simple-toast";
-import SFirebase from "../../services/SFirebase";
+import SFirebase, {FirebaseNode} from "../../services/SFirebase";
 import ScreenName from "../../constants/ScreenName";
+import Spinner from "react-native-loading-spinner-overlay";
+import * as ImagePicker from "expo-image-picker";
+import {useCameraPermissions} from "expo-camera";
+import {LanguageContext} from "../../configs/LanguageConfig";
+import ReactAppUrl from "../../configs/ConfigUrl";
 
 export default function MessageScreen() {
-    //contexts
-    const navigation = useContext(NavigationContext);
-    const route = useContext(NavigationRouteContext);
-    const accountContext = useContext(AccountContext);
+  //contexts
+  const navigation = useContext(NavigationContext);
+  const route = useContext(NavigationRouteContext);
+  const accountContext = useContext(AccountContext);
+  const languageContext = useContext(LanguageContext).language;
+  const [permission, requestPermission] = useCameraPermissions();
 
-    //refs
-    const inputRef = useRef<ElementRef<typeof TextInput>>(null);
-    const listRef = useRef<ElementRef<typeof ScrollView>>(null);
-    const refRBSheet = useRef<ElementRef<typeof RBSheet>>(null);
+  //refs
+  const inputRef = useRef<ElementRef<typeof TextInput>>(null);
+  const listRef = useRef<ElementRef<typeof ScrollView>>(null);
 
-    //states
-    const [user, setUser] = useState<User>();
-    const [messages, setMessages] = useState<Array<Message>>([]);
-    const [newMessage, setNewMessage] = useState("");
-    const [activeMessage, setActiveMessage] = useState<Message | undefined>(
-        undefined
-    );
+  //states
+  const [user, setUser] = useState<User>();
+  const [messages, setMessages] = useState<Array<Message>>([]);
+  const [newMessage, setNewMessage] = useState("");
+  const [loading, setLoading] = useState(false);
 
-    //handlers
-    const handlePickImage = useCallback(() => {
-        alert("Pick image");
-    }, []);
+  //handlers
+  const handleSendNewMessage = useCallback((newMessage: string, ratio?: number) => {
+    if (!newMessage) {
+      return;
+    }
 
-    const handleMakingContact = useCallback(() => {
-        alert("handleMakingContact");
-    }, []);
+    // @ts-ignore
+    const message = new Message();
+    message.content = newMessage?.trim();
+    message.sender = accountContext.account;
+    message.receiver = user;
+    message.ratio = ratio ?? 1;
 
-    const handleSendNewMessage = useCallback(() => {
-        if (!newMessage) {
-            return;
+    setNewMessage("");
+
+    setLoading(true);
+
+    const timeId = setTimeout(() => {
+      setLoading(false);
+    }, 10000);
+
+    AMessage.sendMessage(message, (result) => {
+        if (!result) {
+          Toast.show(languageContext.FAIL_TO_SEND_MESSAGE, 1000);
         }
+      },
+      () => {
+        setLoading(false);
+        clearTimeout(timeId);
+      });
+  }, [accountContext.account, user]);
 
-        // @ts-ignore
-        const message = new Message();
-        message.content = newMessage;
-        message.from_user = accountContext.account;
-        message.to_user = user;
-        message.is_image = false;
+  const handlePickImage = useCallback(() => {
+    ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      quality: 1,
+    })
+      .then((result) => {
+        if (!result.canceled) {
+          const uri = result.assets[0].uri ?? "";
+          const ratio = result.assets[0].width / result.assets[0].height ?? 1;
 
-        AMessage.sendMessage(message, (result) => {
-            if (result) {
-                Toast.show("Sent a new message", 1000);
-            } else {
-                Toast.show("Failed to send a new message", 1000);
-            }
-
-            setNewMessage("");
-        });
-    }, [newMessage, accountContext.account, user]);
-
-    const handleShowAction = useCallback((message: Message) => {
-        setActiveMessage(message);
-        refRBSheet.current?.open();
-    }, []);
-
-    const handleDeleteOneSideMessage = useCallback(() => {
-        if (activeMessage) {
-            const message = messages.find(
-                (message) => message.id === activeMessage.id
-            );
-            if (message) {
-                message.from_user_status = false;
-            }
+          AMessage.sendImageMessage(uri, (path: string) => {
+              if (path) {
+                setNewMessage("$image:" + path);
+                SLog.log(LogType.Warning, "handlePickImage", "path", path);
+                handleSendNewMessage("$image:" + path, ratio);
+              } else {
+                Toast.show(languageContext.FAIL_TO_SEND_IMAGE, 1000);
+              }
+            },
+          );
         }
+      });
+  }, [permission, handleSendNewMessage, accountContext.account, user]);
+
+  //handlers
+  const goBack = useCallback(() => {
+    AMessage.markAsRead(user?.id ?? "-1", accountContext.account?.id ?? "-1", () => {
+      navigation?.goBack();
+      navigation?.navigate(ScreenName.CHAT);
+    });
+  }, [user, accountContext.account, messages.length]);
+
+  const goToProfile = useCallback(() => {
+    const data: IdNavigationType = {
+      id: user?.id ?? "-1",
+    }
+    navigation?.navigate(ScreenName.PROFILE, data);
+  }, [user]);
+
+  //effects
+  useEffect(() => {
+    const data: MessageNavigationType = route?.params as MessageNavigationType;
+    setUser(data.user);
+  }, []);
+
+  useEffect(() => {
+    if (!permission || !permission.granted) {
+      requestPermission();
+    }
+  }, [permission]);
+
+  useEffect(() => {
+    SFirebase.track(FirebaseNode.Messages, [
+      {
+        key: FirebaseNode.FromUserId,
+        value: user?.id ?? "-1"
+      },
+      {
+        key: FirebaseNode.ToUserId,
+        value: accountContext.account?.id ?? "-1"
+      }], () => {
+      AMessage.getMessagesOfTowUsers(user?.id ?? "-1", accountContext.account?.id ?? "-1", (messages) => {
         setMessages(messages);
-        refRBSheet.current?.close();
-    }, [activeMessage, messages]);
+      });
+    });
+  }, [user, accountContext.account, messages.length]);
 
-    const handleDeleteTwoSideMessage = useCallback(() => {
-        if (activeMessage) {
-            const message = messages.find(
-                (message) => message.id === activeMessage.id
-            );
-            if (message) {
-                message.from_user_status = false;
-                message.to_user_status = false;
-            }
-        }
-        setMessages(messages);
-        refRBSheet.current?.close();
-    }, [activeMessage, messages]);
+  return (
+    <View style={styles.container}>
+      <Spinner visible={loading}/>
 
-    //handlers
-    const goBack = useCallback(() => {
-        const ids: MessageNavigationType = route?.params as any;
+      <Ionicons
+        name="close"
+        size={30}
+        style={styles.backButton}
+        onPress={goBack}
+      />
 
-        const asReadMessages = messages.filter(m => !m.as_read && m?.to_user?.id === ids?.me?.id);
+      {/* user */}
+      <Pressable style={{alignSelf: "center"}} onPress={goToProfile}>
+        <Image src={ReactAppUrl.PUBLIC_URL + user?.avatar} style={styles.avatar}/>
 
-        SLog.log(LogType.Warning, "asReadMessages", "", asReadMessages.map(m => m.content));
+        <Text style={styles.userName}>{user?.full_name}</Text>
+      </Pressable>
 
-        AMessage.markAsRead(ids.user.id, ids.me?.id ?? "", asReadMessages, () => {
-            SLog.log(LogType.Warning, "markAsRead", "mark all messages");
-        });
-        navigation?.goBack();
-        navigation?.navigate(ScreenName.CHAT);
-    }, [messages]);
+      <View style={[styles.container, styles.chatContent]}>
 
-    //effects
-    useEffect(() => {
-        const ids: MessageNavigationType = route?.params as any;
+        <ScrollView ref={listRef} showsHorizontalScrollIndicator={false} showsVerticalScrollIndicator={false}
+                    onContentSizeChange={(w, h) => {
+                      listRef.current?.scrollTo({y: h, animated: true});
+                    }}>
+          {messages.map((message) => (
+            <Pressable key={message.id}>
+              <MessageItem
+                message={message}
+                ofMine={accountContext.account?.id === message.sender?.id}
+              />
+            </Pressable>
+          ))}
+        </ScrollView>
 
-        setUser(ids.user);
-
-        // SFirebase.track(ids.me?.id ?? "", ids.user?.id ?? "", () => {
-        //     SFirebase.trackMessage(ids.user?.id ?? "", ids.me?.id ?? "", () => {
-        //         AMessage.getMessagesOfTowUsers(ids.from_user ?? "", ids.to_user ?? "", (messages: Message[]) => {
-        //             messages.reverse();
-        //
-        //             SLog.log(LogType.Warning, "Messages", "check messages", messages.map(m => ({
-        //                 from: m.from_user?.full_name,
-        //                 to: m.to_user?.full_name,
-        //             })));
-        //
-        //             setMessages(messages);
-        //         });
-        //     });
-        // });
-    }, []);
-
-    return (
-        <View style={styles.container}>
-            <Ionicons
-                name="close"
+        {/* chat bar */}
+        <View style={styles.chatContainer}>
+          {/* actions */}
+          {!newMessage && (
+            <>
+              <Ionicons
+                name="images"
                 size={30}
-                style={styles.backButton}
-                onPress={goBack}
-            />
+                color={BackgroundColor.black}
+                onPress={handlePickImage}
+              />
+            </>
+          )}
 
-            {/* user */}
-            <View style={{alignSelf: "center"}}>
-                <Image src={user?.avatar?.path} style={styles.avatar}/>
+          <TextInput
+            ref={inputRef}
+            value={newMessage}
+            onChangeText={(value) => setNewMessage(value)}
+            placeholder={languageContext.CHAT_HERE + "..."}
+            style={styles.input}
+          />
 
-                <Text style={styles.userName}>{user?.full_name}</Text>
-            </View>
-
-            <View style={[styles.container, styles.chatContent]}>
-
-                <ScrollView ref={listRef} showsHorizontalScrollIndicator={false} showsVerticalScrollIndicator={false}
-                            onContentSizeChange={(w, h) => {
-                                listRef.current?.scrollTo({y: h, animated: true});
-                            }}>
-                    {messages.map((message) => (
-                        <Pressable key={message.id} onLongPress={() => handleShowAction(message)}>
-                            <MessageItem
-                                message={message}
-                            />
-                        </Pressable>
-                    ))}
-                </ScrollView>
-
-                {/* chat bar */}
-                <View style={styles.chatContainer}>
-                    {/* actions */}
-                    {!newMessage && (
-                        <>
-                            <Ionicons
-                                name="images"
-                                size={30}
-                                color={BackgroundColor.black}
-                                onPress={handlePickImage}
-                            />
-                            <Ionicons
-                                name="hand-left"
-                                size={30}
-                                color={BackgroundColor.black}
-                                onPress={handleMakingContact}
-                            />
-                        </>
-                    )}
-
-                    <TextInput
-                        ref={inputRef}
-                        value={newMessage}
-                        onChangeText={(value) => setNewMessage(value)}
-                        placeholder="Chat here"
-                        style={styles.input}
-                    />
-
-                    <Ionicons
-                        name="send"
-                        size={30}
-                        color={BackgroundColor.black}
-                        onPress={handleSendNewMessage}
-                    />
-                </View>
-
-                {/* action */}
-                <RBSheet ref={refRBSheet} useNativeDriver={false} height={200}>
-                    <TouchableOpacity
-                        style={action.action}
-                        onPress={handleDeleteOneSideMessage}
-                    >
-                        <Ionicons
-                            name="trash"
-                            size={30}
-                            color={BackgroundColor.sub_warning}
-                        />
-                        <Text style={action.item}>Go phia ban</Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                        style={action.action}
-                        onPress={handleDeleteTwoSideMessage}
-                    >
-                        <Ionicons
-                            name="trash"
-                            size={30}
-                            color={BackgroundColor.sub_danger}
-                        />
-                        <Text style={action.item}>Go ca 2 phia</Text>
-                    </TouchableOpacity>
-                </RBSheet>
-            </View>
+          <Ionicons
+            name="send"
+            size={30}
+            color={BackgroundColor.black}
+            onPress={() => handleSendNewMessage(newMessage)}
+          />
         </View>
-    );
+      </View>
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
+  container: {
+    flex: 1,
+  },
 
-    chatContent: {
-        padding: 10,
-        paddingTop: 20,
-        marginTop: 10,
-        backgroundColor: BackgroundColor.gray_e6,
-        borderTopLeftRadius: 30,
-        borderTopRightRadius: 30,
-        shadowColor: BackgroundColor.sub_primary,
-        shadowOffset: {
-            width: 0,
-            height: 4,
-        },
-        shadowOpacity: 0.32,
-        shadowRadius: 5.46,
+  chatContent: {
+    padding: 10,
+    paddingTop: 20,
+    marginTop: 10,
+    backgroundColor: BackgroundColor.gray_e6,
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+    shadowColor: BackgroundColor.sub_primary,
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.32,
+    shadowRadius: 5.46,
+    elevation: 9,
+  },
 
-        elevation: 9,
-    },
+  backButton: {
+    position: "absolute",
+    top: 20,
+    left: 20,
+    zIndex: 10,
+  },
 
-    backButton: {
-        position: "absolute",
-        top: 20,
-        left: 20,
-        zIndex: 10,
-    },
+  userName: {
+    textAlign: "center",
+    fontWeight: "600",
+    fontSize: 16,
+    color: TextColor.sub_primary,
+  },
 
-    userName: {
-        textAlign: "center",
-        fontWeight: "600",
-        fontSize: 20,
-        color: TextColor.sub_primary,
-    },
+  avatar: {
+    width: 60,
+    height: 60,
+    borderRadius: 50,
+    backgroundColor: BackgroundColor.white,
+    borderWidth: 0.7,
+    borderColor: BackgroundColor.sub_primary,
+    marginTop: 50,
+    alignSelf: "center",
+  },
 
-    avatar: {
-        width: 100,
-        height: 100,
-        borderRadius: 50,
-        backgroundColor: BackgroundColor.primary,
-        marginTop: 20,
-        alignSelf: "center",
-    },
+  chatContainer: {
+    flexDirection: "row",
+    gap: 10,
+    alignItems: "center",
+    paddingHorizontal: 10,
+  },
 
-    chatContainer: {
-        flexDirection: "row",
-        gap: 10,
-        alignItems: "center",
-        paddingHorizontal: 10,
-    },
-
-    input: {
-        backgroundColor: BackgroundColor.gray_10,
-        height: 40,
-        borderRadius: 20,
-        paddingHorizontal: 10,
-        flex: 1,
-    },
-});
-
-const action = StyleSheet.create({
-    action: {
-        flexDirection: "row",
-        margin: 10,
-        gap: 10,
-    },
-    item: {
-        fontSize: 13,
-        fontWeight: "bold",
-        alignSelf: "center",
-    },
-
-    scrollToBottomButtonContainer: {
-        position: "absolute",
-        top: -40,
-        left: 0,
-        right: 0,
-    },
-
-    scrollToBottomButton: {
-        backgroundColor: BackgroundColor.sub_primary,
-        borderRadius: 30,
-        paddingVertical: 5,
-        paddingHorizontal: 10,
-        color: TextColor.white,
-        alignSelf: "center",
-    },
+  input: {
+    backgroundColor: BackgroundColor.gray_10,
+    height: 40,
+    borderRadius: 20,
+    paddingHorizontal: 10,
+    flex: 1,
+  },
 });

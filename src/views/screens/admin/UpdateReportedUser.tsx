@@ -1,360 +1,292 @@
 import {
-  StyleSheet,
-  ScrollView,
-  Text,
-  View,
-  Image,
-  TouchableOpacity,
-  Modal,
-  FlatList,
   Alert,
+  FlatList,
+  Image,
+  Modal,
+  ScrollView,
+  StyleSheet,
+  Text,
   TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
-import MyIcon, { AppIcon } from "../../components/MyIcon";
-import RadioButtonGroup from "react-native-radio-buttons-group";
 import IconReport from "../../components/ItemUserReport";
-import React, { useState, useEffect } from "react";
+import React, {useCallback, useContext, useEffect, useState} from "react";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import ImageViewer from "react-native-image-zoom-viewer";
 import AUserReport from "../../../apis/AUserReport";
-import UserReport from "../../../models/UserReport";
-import { BackgroundColor } from "../../../configs/ColorConfig";
+import {BackgroundColor} from "../../../configs/ColorConfig";
 import ReactAppUrl from "../../../configs/ConfigUrl";
-import Accordion from "../../components/Accordion";
-import AUser from "../../../apis/AUser";
-import { MaterialIcons } from "@expo/vector-icons";
-import AClass from "../../../apis/AClass";
+import {MaterialIcons} from "@expo/vector-icons";
+import {NavigationContext, NavigationRouteContext} from "@react-navigation/native";
+import {LanguageContext} from "../../../configs/LanguageConfig";
+import {AppInfoContext} from "../../../configs/AppInfoContext";
+import Report from "../../../models/Report";
+import {IdNavigationType, ReportNavigationType} from "../../../configs/NavigationRouteTypeConfig";
+import AUserAdmin from "../../../apis/admin/AUserAdmin";
+import ScreenName from "../../../constants/ScreenName";
+import {IImageInfo} from "react-native-image-zoom-viewer/built/image-viewer.type";
+import Spinner from "react-native-loading-spinner-overlay";
+import SFirebase, {FirebaseNode} from "../../../services/SFirebase";
 
-const reportLevels = [
-  { id: 1, label: "Cảnh báo nhẹ", points: 10 },
-  { id: 2, label: "Trung bình", points: 30 },
-  { id: 3, label: "Nghiêm trọng", points: 50 },
-  { id: 4, label: "Rất nghiêm trọng", points: 100 },
-];
+enum ReportMode {
+  NOT_PERFORMED = 0,
+  APPROVED = 1,
+  DENIED = 2,
+}
 
 export default function UpdateReportedUser() {
+  //contexts
+  const navigation = useContext(NavigationContext);
+  const languageContext = useContext(LanguageContext).language;
+  const appInfo = useContext(AppInfoContext).infos;
+  const route = useContext(NavigationRouteContext);
+
+  //states
   const [modalVisible, setModalVisible] = useState(false);
-  const [modalLockUserVisible, setModalLockUserVisible] = useState(false);
-  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
-  const [userReport, setUserReport] = useState<UserReport | null>(null);
-  const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
+  const [selectedIndex, setSelectedIndex] = useState<number>(-1);
   const [reason, setReason] = useState("");
-  const [loading, setLoading] = useState(true);
-  const URL = ReactAppUrl.PUBLIC_URL;
-  const userReportId = "1"; // Thay bằng ID thực tế
-  const [selectedLevel, setSelectedLevel] = useState<number | null>(null);
-  const handleSelectLevel = (levelId: number) => {
+  const [loading, setLoading] = useState(false);
+  const [selectedLevel, setSelectedLevel] = useState<number>(-1);
+  const [reportLevels, setReportLevelList] = useState<{ id: number, label: string, points: number }[]>([]);
+  const [report, setReport] = useState<Report | undefined>(undefined);
+  const [evidences, setEvidences] = useState<string[]>([]);
+  const [isPerformed, setIsPerformed] = useState(ReportMode.NOT_PERFORMED);
+
+  //handlers
+  const handleSelectLevel = useCallback((levelId: number) => {
+    if (!report) return;
+
+    if (report.reason || report.report_level > 0) return;
+
     setSelectedLevel(levelId);
-  };
-  useEffect(() => {
-    AUserReport.getUserReportById(
-      userReportId,
-      (data: UserReport) => {
-        console.log(data);
-        setUserReport(data); // Lưu dữ liệu nhận được vào state
-      },
-      (isLoading: boolean) => {
-        setLoading(isLoading); // Cập nhật trạng thái tải
-      }
-    );
-  }, [userReportId]);
-  const openModal = (index: number) => {
-    setSelectedIndex(index);
-    setModalVisible(true);
-  };
-  interface Item {
-    id: number;
-    name: string;
-  }
-  // Kiểm tra và log giá trị của đường dẫn hình ảnh trong userReport
-  if (userReport?.files) {
-    userReport.files.forEach((file, index) => {
-      console.log(`Path ${index + 1}: ${file.path}`); // Kiểm tra giá trị của path
-    });
-  }
+  }, [report]);
 
-  // Tạo mảng data từ userReport.files
-  const data: Item[] =
-    userReport?.files?.map((file, index) => ({
-      id: file.id || index, // Sử dụng index làm ID dự phòng nếu id bị null
-      name: file.path || "", // Đảm bảo có giá trị chuỗi rỗng nếu path là null
-    })) || [];
+  const openProfile = useCallback((userId: string) => {
+    const data: IdNavigationType = {
+      id: userId
+    };
+    navigation?.navigate(ScreenName.PROFILE, data);
+  }, []);
 
-  // Log để kiểm tra kết quả của mảng data
-  data.forEach((item, index) => {
-    console.log(`Item ${index + 1}:`, item);
-  });
+  const openClass = useCallback(() => {
+    const data: IdNavigationType = {
+      id: report?.class?.id ?? -1
+    };
+    navigation?.navigate(ScreenName.DETAIL_CLASS, data);
+  }, [report]);
 
-  // Hàm renderItem để hiển thị hình ảnh từ `data`
-  const renderItem = ({ item, index }: { item: Item; index: number }) => {
-    // Tạo đường dẫn hình ảnh đầy đủ từ `URL` và `item.name`
-    const imageUri = item.name ? `${URL}${item.name}` : URL; // Kết hợp URL với tên ảnh nếu có
+  const goToUserPermission = useCallback(() => {
+    const data: IdNavigationType = {
+      id: report?.reportee?.id ?? "-1",
+    }
 
-    console.log("Đường dẫn đến hình:", imageUri);
+    navigation?.navigate(ScreenName.USER_PERMISSION_MANAGEMENT, data);
+  }, [report]);
 
-    return (
-      <TouchableOpacity
-        style={styles.imgParent}
-        onPress={() => openModal(index)}
-      >
-        <Image style={styles.img} source={{ uri: imageUri }} />
-      </TouchableOpacity>
-    );
-  };
+  const handlePerformReport = useCallback(() => {
+    setModalVisible(false);
+    if (!report) return;
 
-  const denyReport = (reportId) => {
-    if (!reason.trim()) {
-      Alert.alert("Lỗi", "Vui lòng nhập lý do từ chối!");
+    if (selectedLevel < 0) {
+      Alert.alert(
+        "Vui lòng chọn mức độ báo cáo trước khi thuc hien!"
+      );
       return;
     }
 
-    // Gọi API để từ chối báo cáo
-    AUserReport.lockReport(
-      reportId,
+    // Tìm số điểm tương ứng với mức độ đã chọn
+    const level = reportLevels.find(
+      (level) => level.id === selectedLevel
+    );
+    const pointsToDeduct = level?.points || 0;
+
+    setLoading(true);
+    AUserReport.performReport(
+      report.id,
       reason,
-      (response) => {
-        setModalVisible(false);
-        if (response.success) {
-          Alert.alert("Từ chối báo cáo thành công!");
-          console.log("Report denied successfully.");
+      selectedLevel,
+      pointsToDeduct,
+      report.reporter?.id ?? "-1",
+      report.reportee?.id ?? "-1",
+      (result) => {
+        if (result) {
+          Alert.alert("Thuc hien bao cao thanh cong!");
         } else {
-          Alert.alert("Đã xảy ra lỗi trong quá trình xử lý!", response.message);
-          console.log("Failed to deny report:", response.message);
+          Alert.alert("Đã xảy ra lỗi trong quá trình xu ly!");
         }
       },
-      (loading) => {
-        console.log("Loading state:", loading);
+      () => {
+        setLoading(false);
       }
     );
-  };
 
-  // Xử lý sự kiện khi người dùng chọn một radio button
-  const handleRoleSelect = (roleId: string) => {
-    if (selectedRoles.includes(roleId)) {
-      // Nếu vai trò đã được chọn, bỏ chọn nó
-      setSelectedRoles(selectedRoles.filter((id) => id !== roleId));
-    } else {
-      // Nếu vai trò chưa được chọn, thêm nó vào danh sách đã chọn
-      setSelectedRoles([...selectedRoles, roleId]);
+  }, [report, reason, selectedLevel]);
+
+//effects
+  useEffect(() => {
+    const reportLevelList: { id: number, label: string, points: number }[] = [];
+
+    const levelsInClass = [
+      appInfo.report_class_level_1,
+      appInfo.report_class_level_2,
+      appInfo.report_class_level_3,
+      appInfo.report_class_level_4,
+    ]
+
+    const levelsUser = [
+      appInfo.report_user_level_1,
+      appInfo.report_user_level_2,
+      appInfo.report_user_level_3,
+      appInfo.report_user_level_4,
+    ]
+
+    const labels = [
+      languageContext.NOT_SERIOUS,
+      languageContext.QUITE_SERIOUS,
+      languageContext.SERIOUS,
+      languageContext.EXTREMELY_SERIOUS,
+    ];
+
+    for (let i = 1; i <= 4; i++) {
+      reportLevelList.push({
+        id: i,
+        label: labels[i - 1],
+        points: report?.class ? levelsInClass[i - 1] : levelsUser[i - 1]
+      });
     }
-  };
 
-  const handleLockAccount = () => {
-    // Hiển thị alert xác nhận
-    Alert.alert(
-      "Xác nhận",
-      "Bạn có chắc chắn muốn khóa tài khoản người dùng này không?",
-      [
-        {
-          text: "Hủy",
-          style: "cancel",
-        },
-        {
-          text: "Xác nhận",
-          onPress: () => {
-            // Gọi hàm khóa tài khoản và xử lý trạng thái
-            AUser.lockUserAccount(
-              userReport?.reportee?.id,
-              userReportId, // user_id
-              selectedRoles, // Gửi danh sách các permissionIds (có thể là các vai trò đã chọn)
-              (response) => {
-                if (response.success) {
-                  console.log("User account locked successfully.");
-                  Alert.alert("Tài khoản đã được khóa thành công!");
+    setReportLevelList(reportLevelList);
+  }, [report]);
 
-                  // Sau khi khóa tài khoản thành công, kiểm tra điều kiện khóa lớp
-                  if (
-                    userReport?.class?.id !== 0 &&
-                    userReport?.reportee?.id === userReport?.class?.author_id
-                  ) {
-                    // Gọi hàm khóa lớp
-                    AClass.lockClass(
-                      userReport?.class?.id, // classId
-                      (classResponse) => {
-                        if (classResponse.success) {
-                          console.log("Class locked successfully.");
-                          Alert.alert(
-                            "Quyền của người dùng đã bị giới hạn và lớp học đã được khóa thành công!"
-                          );
-                        } else {
-                          console.error(
-                            "Failed to lock class:",
-                            classResponse.message
-                          );
-                          Alert.alert(
-                            "Đã xảy ra lỗi trong quá trình khóa lớp!"
-                          );
-                        }
-                      },
-                      (loading) => {
-                        // Cập nhật trạng thái loading nếu cần
-                        console.log("Locking class loading state:", loading);
-                      }
-                    );
-                  }
-                  setModalLockUserVisible(false); // Đóng modal sau khi thành công
-                } else {
-                  console.log("Failed to lock account:", response.message);
-                  Alert.alert("Đã xảy ra lỗi trong quá trình khóa tài khoản!");
-                }
-              },
-              (loading) => {
-                // Có thể cập nhật trạng thái loading tại đây nếu cần
-                if (loading) {
-                  console.log("Loading...");
-                } else {
-                  console.log("Not loading");
-                }
-              }
-            );
-          },
-        },
-      ]
-    );
-  };
+  useEffect(() => {
+    const data: ReportNavigationType = route?.params as ReportNavigationType ?? {id: -1};
 
-  // Hàm khóa tài khoản người dùng
-  const lockUserAccount = () => {
-    // Hiển thị alert xác nhận
-    Alert.alert(
-      "Xác nhận",
-      "Bạn có chắc chắn muốn khóa tài khoản người dùng này không?",
-      [
-        {
-          text: "Hủy",
-          style: "cancel",
-        },
-        {
-          text: "Xác nhận",
-          onPress: () => {
-            // Gọi hàm khóa tài khoản và xử lý trạng thái
-            AUser.lockUserAccount(
-              userReport?.reportee?.id, // user_id
-              selectedRoles, // Gửi danh sách các permissionIds (có thể là các vai trò đã chọn)
-              (response) => {
-                if (response.success) {
-                  console.log("User account locked successfully.");
-                  Alert.alert("Tài khoản đã được khóa thành công!");
-                  setModalLockUserVisible(false); // Đóng modal sau khi thành công
-                } else {
-                  console.log("Failed to lock account:", response.message);
-                  Alert.alert("Đã xảy ra lỗi trong quá trình khóa tài khoản!");
-                }
-              },
-              (loading) => {
-                // Có thể cập nhật trạng thái loading tại đây nếu cần
-                if (loading) {
-                  console.log("Loading...");
-                } else {
-                  console.log("Not loading");
-                }
-              }
-            );
-          },
-        },
-      ]
-    );
-  };
+    const reportId = data.id;
+    const reporter = data.reporter;
 
-  // Styles animated chevron
+
+    SFirebase.track(FirebaseNode.Reports, [{key: FirebaseNode.Id, value: reportId}], () => {
+      setLoading(true);
+
+      AUserAdmin.getReportById(reportId, report => {
+        if (report) {
+          report.reporter = reporter;
+          setReport(report);
+          setLoading(false);
+          setSelectedLevel(report.report_level ?? -1);
+          if (report.reason) {
+            setIsPerformed(ReportMode.DENIED);
+          } else if (report.report_level > 0) {
+            setIsPerformed(ReportMode.APPROVED);
+          } else {
+            setIsPerformed(ReportMode.NOT_PERFORMED);
+          }
+        }
+      });
+
+      AUserAdmin.getReportEvidenceById(reportId, evidences => {
+        setEvidences(evidences);
+      });
+    });
+
+  }, []);
+
   return (
     <ScrollView showsVerticalScrollIndicator={false} style={styles.container}>
+      <Spinner visible={loading}/>
+
       {/* nút back và tên màn hình */}
       <View style={styles.component}>
+        {/* header */}
         <View style={styles.screenName}>
           <View style={styles.backBtn}>
-            <MyIcon icon={AppIcon.back_button} size="20"></MyIcon>
+            <Ionicons name={"arrow-back-outline"} size={30} onPress={navigation?.goBack}/>
           </View>
-          <Text style={styles.screenTitel}> Chi tiết báo cáo </Text>
+          <Text style={styles.screenTitle}>Chi tiết báo cáo </Text>
         </View>
+
+        <Text
+          style={styles.badge}>{isPerformed === ReportMode.NOT_PERFORMED ? "Chua xu ly" : isPerformed === ReportMode.APPROVED ? "Da chap nhan" : "Da tu choi"}</Text>
+
         <View style={styles.infor}>
           <Text style={styles.smallTitle1}>Tài khoản báo cáo </Text>
           <Text style={styles.smallTitle1}>
-            {userReport?.class?.id !== 0 &&
-            userReport?.reporter?.id === userReport?.class?.tutor_id
-              ? "Gia sư"
-              : "Học sinh"}
+            {
+              !report?.class ? "User" :
+                report.reporter?.id === report.class.tutor?.id ? "Tutor" : "Learner"
+            }
           </Text>
         </View>
 
         <IconReport
-          userAvatar={userReport?.reporter?.avatar + ""}
-          userName={userReport?.reporter?.full_name + ""}
-          credibility={userReport?.reporter?.point ?? 0}
-        ></IconReport>
+          userAvatar={report?.reporter?.avatar + ""}
+          userName={report?.reporter?.full_name + ""}
+          credibility={report?.reporter?.point ?? 0}
+          onPress={() => openProfile(report?.reporter?.id ?? "")}
+        />
+
         {/* tài khoản bị báo cáo */}
         <View style={styles.infor}>
-          <Text style={styles.smallTitle2}>Tài khoản báo cáo </Text>
+          <Text style={styles.smallTitle2}>Tài khoản bi báo cáo </Text>
           <Text style={styles.smallTitle2}>
-            {userReport?.class?.id !== 0 &&
-            userReport?.reportee?.id === userReport?.class?.tutor_id
-              ? "Gia sư"
-              : "Học sinh"}
+            {
+              !report?.class ? "User" :
+                report.reportee?.id === report.class.tutor?.id ? "Tutor" : "Learner"
+            }
           </Text>
         </View>
 
         <IconReport
-          userAvatar={userReport?.reportee?.avatar + ""}
-          userName={userReport?.reportee?.full_name + ""}
-          credibility={userReport?.reportee?.point ?? 0}
-        ></IconReport>
+          userAvatar={report?.reportee?.avatar + ""}
+          userName={report?.reportee?.full_name + ""}
+          credibility={report?.reportee?.point ?? 0}
+          onPress={() => openProfile(report?.reporter?.id ?? "")}
+        />
+
         {/* lớp học bị báo cáo */}
-        {/* lớp học bị báo cáo */}
-        {userReport?.class?.id !== 0 &&
-        userReport?.reportee?.id === userReport?.class?.author_id ? (
+        {report?.class && (
           <View>
             <Text style={styles.smallTitle2}>Lớp học bị báo cáo</Text>
             <View style={styles.classInfor}>
-              <Text>{userReport?.class?.title}</Text>
-              <Ionicons name="chevron-forward" size={20} color="black" />
+              <Text>{report?.class?.title}</Text>
+              <Ionicons onPress={openClass} name="chevron-forward" size={20} color="black"/>
             </View>
           </View>
-        ) : null}
-      </View>
-      <View style={styles.component1}>
-        <Text style={styles.smallTitle3}>
-          Đã bị báo cáo{" "}
-          {userReport?.reports_before?.filter((report) => report.content)
-            .length || 0}{" "}
-          lần
-        </Text>
-        {userReport?.reports_before.map((report, index) => (
-          <View key={index} style={styles.itemlCenter}>
-            <View style={styles.textareaContainer}>
-              <ScrollView
-                nestedScrollEnabled={true}
-                showsVerticalScrollIndicator={false}
-              >
-                {report.content ? (
-                  <Accordion
-                    title={`Báo cáo ${index + 1}`}
-                    details={report.content}
-                  />
-                ) : (
-                  <Text>"Không có nội dung báo cáo trước đây"</Text>
-                )}
-              </ScrollView>
-            </View>
-          </View>
-        ))}
-        {/* <View style={styles.line}></View> */}
+        )}
 
-        <Text style={styles.smallTitle3}>Lý do</Text>
-        <Text style={styles.reportContent}>
-          {userReport?.content || "Không có thông tin lý do"}
-        </Text>
       </View>
+
+      <View style={styles.component1}>
+        <Text style={styles.smallTitle3}>Noi dung bao cao</Text>
+        <Text style={[styles.reportContent, {minHeight: 100}]}>{report?.content ?? "Noi dung trong"}</Text>
+      </View>
+
+      {isPerformed === ReportMode.DENIED && (
+        <View style={styles.component1}>
+          <Text style={styles.smallTitle3}>Li do tu choi</Text>
+          <Text style={[styles.reportContent, {minHeight: 100}]}>{report?.reason}</Text>
+        </View>
+      )}
 
       <View style={styles.component2}>
         <Text style={styles.smallTitle3}>Minh chứng:</Text>
         <View style={styles.images}>
           <FlatList
-            data={data}
-            renderItem={renderItem}
-            keyExtractor={(item) => item.id.toString()}
+            data={evidences}
+            renderItem={({item, index}) => (
+              <TouchableOpacity
+                style={styles.imgParent}
+                key={index}
+                onPress={() => setSelectedIndex(index)}
+              >
+                <Image style={styles.img} src={ReactAppUrl.PUBLIC_URL + item}/>
+              </TouchableOpacity>
+            )}
+            keyExtractor={(item) => item}
             horizontal={true}
             showsHorizontalScrollIndicator={false}
-          ></FlatList>
+          />
         </View>
 
         <View style={styles.reportLevelContainer}>
@@ -370,149 +302,51 @@ export default function UpdateReportedUser() {
             >
               <Text style={styles.optionText}>{level.label}</Text>
               {selectedLevel === level.id && (
-                <MaterialIcons name="check" size={20} color="green" />
+                <MaterialIcons name="check" size={20} color="green"/>
               )}
             </TouchableOpacity>
           ))}
         </View>
 
-        <View>
-          <View style={styles.btns}>
-            <TouchableOpacity
-              style={[styles.btn, styles.btnAccept]}
-              onPress={() => {
-                if (selectedLevel === null) {
-                  Alert.alert(
-                    "Vui lòng chọn mức độ báo cáo trước khi chấp nhận!"
-                  );
-                  return;
-                }
+        {!report?.reason && (report?.report_level ?? -1) <= 0 && selectedLevel >= 0 && (
+          <View>
+            <View style={styles.btns}>
+              <TouchableOpacity
+                style={[styles.btn, styles.btnAccept]}
+                onPress={handlePerformReport}
+              >
+                <Text style={styles.textBtnAccept}>Chấp nhận</Text>
+              </TouchableOpacity>
 
-                // Tìm số điểm tương ứng với mức độ đã chọn
-                const level = reportLevels.find(
-                  (level) => level.id === selectedLevel
-                );
-                const pointsToDeduct = level?.points || 0;
-
-                // Kiểm tra điều kiện khóa lớp
-                if (
-                  userReport?.class?.id !== 0 &&
-                  userReport?.reportee?.id === userReport?.class?.author_id
-                ) {
-                  // Gọi hàm khóa lớp
-                  AClass.lockClass(
-                    userReport?.class?.id, // classId
-                    (response) => {
-                      if (response.success) {
-                        console.log("Class locked successfully.");
-                        Alert.alert("Lớp học đã được khóa thành công!");
-                        // Sau khi khóa lớp thành công, tiếp tục trừ điểm uy tín
-                        deductPoints();
-                      } else {
-                        console.error(
-                          "Failed to lock class:",
-                          response.message
-                        );
-                        Alert.alert("Đã xảy ra lỗi trong quá trình khóa lớp!");
-                      }
-                    },
-                    (loading) => {
-                      // Cập nhật trạng thái loading nếu cần
-                      console.log("Locking class loading state:", loading);
-                    }
-                  );
-                } else {
-                  // Nếu không cần khóa lớp, trực tiếp trừ điểm uy tín
-                  deductPoints();
-                }
-
-                // Hàm trừ điểm uy tín
-                function deductPoints() {
-                  // Hiển thị alert xác nhận
-                  Alert.alert(
-                    "Xác nhận",
-                    `Bạn có chắc chắn muốn chấp nhận và trừ ${pointsToDeduct} điểm uy tín không?`,
-                    [
-                      {
-                        text: "Hủy",
-                        style: "cancel",
-                      },
-                      {
-                        text: "Xác nhận",
-                        onPress: () => {
-                          // Gọi hàm trừ điểm uy tín và xử lý trạng thái
-                          AUser.minusUserPoints(
-                            userReport?.reportee?.id,
-                            pointsToDeduct,
-                            userReportId,
-                            (response) => {
-                              if (response.success) {
-                                console.log("Points deducted successfully.");
-                                Alert.alert(
-                                  "Điểm uy tín đã được trừ thành công!"
-                                );
-                              } else {
-                                console.error(
-                                  "Failed to deduct points:",
-                                  response.message
-                                );
-                                Alert.alert(
-                                  "Đã xảy ra lỗi trong quá trình xử lý!"
-                                );
-                              }
-                            },
-                            (loading) => {
-                              // Cập nhật trạng thái loading nếu cần
-                              console.log("Loading state:", loading);
-                            }
-                          );
-                        },
-                      },
-                    ]
-                  );
-                }
-              }}
-            >
-              <Text style={styles.textBtnAccept}>Chấp nhận</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[styles.btn, styles.btnDeney]}
-              onPress={() => setModalVisible(true)}
-            >
-              <Text style={styles.textBtnDeney}>Từ chối</Text>
-            </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.btn, styles.btnDeney]}
+                onPress={() => setModalVisible(true)}
+              >
+                <Text style={styles.textBtnDeney}>Từ chối</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-          <TouchableOpacity
-            style={[styles.btn, styles.deleteUser]}
-            onPress={() => setModalLockUserVisible(true)}
-          >
-            <Text style={styles.textBtnDeleteUser}>Khóa tài khoản</Text>
-          </TouchableOpacity>
-        </View>
+        )}
+
+        {(report?.reason || ((report?.report_level ?? -1) > 0)) &&
+          (
+            <TouchableOpacity
+              style={[styles.btn, styles.deleteUser]}
+              onPress={goToUserPermission}
+            >
+              <Text style={styles.textBtnDeleteUser}>Quan ly quyen cua tài khoản</Text>
+            </TouchableOpacity>
+          )}
       </View>
 
-      {/* Modal hiển thị hình ảnh */}
-      {selectedIndex !== null && (
-        <Modal
-          visible={modalVisible}
-          transparent={true}
-          onRequestClose={() => setModalVisible(false)}
-        >
-          <TouchableOpacity
-            style={styles.closeButton}
-            onPress={() => setModalVisible(false)}
-          >
-            <Ionicons name="close" size={30} color="#fff" />
-          </TouchableOpacity>
-          <ImageViewer
-            imageUrls={data.map((item) => ({ url: `${URL}${item.name}` }))}
-            index={selectedIndex}
-            onSwipeDown={() => setModalVisible(false)}
-            enableSwipeDown={true}
-          />
-        </Modal>
-      )}
+      <Modal visible={selectedIndex >= 0}>
+        <ImageViewer
+          imageUrls={evidences.map((item) => ({url: `${ReactAppUrl.PUBLIC_URL}${item}`} as IImageInfo))}
+          index={selectedIndex ?? 0}
+          onSwipeDown={() => setSelectedIndex(-1)}
+          enableSwipeDown={true}
+        />
+      </Modal>
 
       {/* //modal từ chối báo cáo */}
       {/* Modal */}
@@ -529,6 +363,9 @@ export default function UpdateReportedUser() {
               style={styles.textInput}
               placeholder="Lý do từ chối báo cáo"
               value={reason}
+              multiline={true}
+              numberOfLines={5}
+              textAlignVertical={"top"}
               onChangeText={(text) => setReason(text)}
             />
             <View style={styles.modalButtons}>
@@ -540,70 +377,11 @@ export default function UpdateReportedUser() {
               </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.btnD, styles.btnConfirm]}
-                onPress={() => denyReport(userReport?.report_id)}
+                onPress={handlePerformReport}
               >
                 <Text style={styles.textBtnConfirm}>Xác nhận</Text>
               </TouchableOpacity>
             </View>
-          </View>
-        </View>
-      </Modal>
-
-      {/* modal khoá tài khoản */}
-      <Modal
-        visible={modalLockUserVisible}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={() => setModalLockUserVisible(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Khóa tài khoản</Text>
-
-            {/* Hiển thị các vai trò dưới dạng các TouchableOpacity */}
-            <ScrollView>
-              {userReport?.reportee?.roles?.length > 0 ? (
-                userReport.reportee.roles.map((role, index) => (
-                  <TouchableOpacity
-                    key={index}
-                    style={[
-                      styles.roleButton,
-                      selectedRoles.includes(role.role_id.toString()) &&
-                        styles.selectedRoleButton, // Thêm style khi role được chọn
-                    ]}
-                    onPress={() => handleRoleSelect(role.role_id.toString())} // Cập nhật vai trò đã chọn khi nhấn
-                  >
-                    <Text
-                      style={[
-                        styles.roleText,
-                        selectedRoles.includes(role.role_id.toString()) &&
-                          styles.selectedRoleText, // Thêm style cho văn bản khi role được chọn
-                      ]}
-                    >
-                      {role.role_name}
-                    </Text>
-                  </TouchableOpacity>
-                ))
-              ) : (
-                <Text>Không có vai trò nào.</Text>
-              )}
-            </ScrollView>
-
-            {/* Nút xác nhận */}
-            <TouchableOpacity
-              style={styles.confirmButton}
-              onPress={handleLockAccount} // Gọi hàm khóa tài khoản
-            >
-              <Text style={styles.buttonText}>Xác nhận</Text>
-            </TouchableOpacity>
-
-            {/* Nút hủy */}
-            <TouchableOpacity
-              style={styles.cancelButton}
-              onPress={() => setModalLockUserVisible(false)}
-            >
-              <Text style={styles.buttonText}>Hủy bỏ</Text>
-            </TouchableOpacity>
           </View>
         </View>
       </Modal>
@@ -615,13 +393,23 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: "#EEEEEE",
   },
+
+  badge: {
+    backgroundColor: BackgroundColor.warning,
+    alignSelf: "flex-start",
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    borderRadius: 20,
+    fontSize: 10,
+  },
+
   screenName: {
     flexDirection: "row",
     top: 30,
-    marginBottom: 30,
-    width: "100%",
+    marginBottom: 40,
   },
-  screenTitel: {
+
+  screenTitle: {
     textAlign: "center",
     fontWeight: "bold",
     fontSize: 20,
@@ -650,29 +438,33 @@ const styles = StyleSheet.create({
   smallTitle1: {
     top: 10,
     fontWeight: "bold",
-    fontSize: 18,
+    fontSize: 16,
     paddingBottom: 15,
-    color: "#0D99FF",
+    color: BackgroundColor.primary,
   },
+
   smallTitle2: {
     top: 10,
     fontWeight: "bold",
-    fontSize: 18,
+    fontSize: 16,
     paddingBottom: 15,
-    color: "red",
+    color: BackgroundColor.danger,
   },
+
   smallTitle3: {
     top: 10,
     fontWeight: "bold",
-    fontSize: 18,
+    fontSize: 16,
     paddingBottom: 15,
     color: "black",
   },
+
   iconInUser: {
     flexDirection: "row",
     marginTop: "5%",
     left: "35%",
   },
+
   classInfor: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -750,6 +542,7 @@ const styles = StyleSheet.create({
     width: 300,
     height: 200,
     borderRadius: 5,
+    zIndex: 100,
   },
   imgParent: {
     marginRight: 30,
@@ -788,11 +581,13 @@ const styles = StyleSheet.create({
     alignItems: "center", // Căn giữa nội dung theo chiều ngang
     backgroundColor: "rgba(0, 0, 0, 0.8)", // Làm mờ nền
   },
+
   btns: {
     flexDirection: "row",
     gap: 15,
     marginBottom: 15,
   },
+
   btn: {
     padding: 15,
     borderRadius: 10,

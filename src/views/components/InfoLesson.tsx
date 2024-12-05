@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -10,30 +10,28 @@ import {
 import { Picker } from "@react-native-picker/picker";
 import DateTimePickerAndroid from "@react-native-community/datetimepicker";
 import Feather from "@expo/vector-icons/Feather";
-import Lesson from "../../../models/Lesson";
+import Lesson from "../../models/Lesson";
+import { LanguageContext } from "../../configs/LanguageConfig";
 
 type props = {
   handleGetLesson: (lessons: Lesson[]) => void;
 };
 
 const InfoLesson = ({ handleGetLesson }: props) => {
+  // context
+  const langguageContext = useContext(LanguageContext).language;
+  // state
   const [lessons, setLessons] = useState<Lesson[]>([
     new Lesson(1, undefined, 0, 0, 0, true, ""),
   ]);
-  const [startedAt, setStartedAt] = useState(false);
+  const [startedAt, setStartedAt] = useState("");
   const [selectedLessonIndex, setSelectedLessonIndex] = useState<number>(0);
+  const [showPicker, setShowPicker] = useState(false);
 
   const onChange = (selectedTime: Date, lessonIndex: number) => {
     const currentTime = selectedTime || new Date();
     const updatedLessons = [...lessons];
     updatedLessons[lessonIndex].started_at = currentTime.getTime();
-
-    const formattedTime =
-      currentTime.getHours() +
-      ":" +
-      (currentTime.getMinutes() < 10 ? "0" : "") +
-      currentTime.getMinutes();
-    updatedLessons[lessonIndex].note = formattedTime;
 
     setLessons(updatedLessons);
   };
@@ -41,7 +39,7 @@ const InfoLesson = ({ handleGetLesson }: props) => {
   const showTimepicker = (lessonIndex: number) => {
     if (Platform.OS === "android") {
       setSelectedLessonIndex(lessonIndex);
-      setStartedAt(true);
+      setShowPicker(true);
     }
   };
 
@@ -73,7 +71,7 @@ const InfoLesson = ({ handleGetLesson }: props) => {
       {lessons.map((lesson, index) => (
         <View key={lesson.id} style={{ marginBottom: 20 }}>
           <View style={[styles.rowContainer, { marginBottom: 25 }]}>
-            <Text style={styles.text}>Buổi học: {index + 1}</Text>
+            <Text style={styles.text}>{langguageContext.LESSON}: {index + 1}</Text>
             <TouchableOpacity onPress={() => handleDelete(index)}>
               <Feather name="x" size={30} color="black" />
             </TouchableOpacity>
@@ -84,7 +82,7 @@ const InfoLesson = ({ handleGetLesson }: props) => {
           <View style={[styles.containerRow, styles.marginInput]}>
             <View style={[{ flex: 5 }, styles.inputContainer]}>
               <Text style={styles.label}>
-                Chọn buổi học <Text style={styles.required}>*</Text>
+                {langguageContext.SELECTED_LESSON} <Text style={styles.required}>*</Text>
               </Text>
               <View style={styles.pickerContainer}>
                 <Picker
@@ -98,25 +96,24 @@ const InfoLesson = ({ handleGetLesson }: props) => {
                   }}
                   style={styles.picker}
                 >
-                  <Picker.Item label="Chọn lịch trình buổi học" value={0} />
-                  <Picker.Item label="Chủ nhật" value={0} />
-                  <Picker.Item label="Thứ 2" value={1} />
-                  <Picker.Item label="Thứ 3" value={2} />
-                  <Picker.Item label="Thứ 4" value={3} />
-                  <Picker.Item label="Thứ 5" value={4} />
-                  <Picker.Item label="Thứ 6" value={5} />
-                  <Picker.Item label="Thứ 7" value={6} />
+                  <Picker.Item label={langguageContext.SUNDAY} value={0} />
+                  <Picker.Item label={langguageContext.MONDAY} value={1} />
+                  <Picker.Item label={langguageContext.TUESDAY} value={2} />
+                  <Picker.Item label={langguageContext.WEDNESDAY} value={3} />
+                  <Picker.Item label={langguageContext.THURSDAY} value={4} />
+                  <Picker.Item label={langguageContext.FRIDAY} value={5} />
+                  <Picker.Item label={langguageContext.SATURDAY} value={6} />
                 </Picker>
               </View>
             </View>
             <View style={{ flex: 5 }}>
               <Text style={styles.label}>
-                Thời lượng buổi học <Text style={styles.required}>*</Text>
+                {langguageContext.TIME_LESSON} <Text style={styles.required}>*</Text>
               </Text>
               <TextInput
                 keyboardType="numeric"
                 style={styles.input}
-                placeholder="Thời lượng học... (phút)"
+                placeholder={langguageContext.SELECTED_TIME_LESSON}
                 value={lesson.duration ? lesson.duration.toString() : ""}
                 onChangeText={(text) => {
                   const parsed = parseInt(text);
@@ -136,24 +133,31 @@ const InfoLesson = ({ handleGetLesson }: props) => {
             {/* Thời gian bắt đầu */}
             <View style={[{ flex: 5 }, styles.inputContainer]}>
               <Text style={styles.label}>
-                Thời gian bắt đầu <Text style={styles.required}>*</Text>
+                {langguageContext.TIME_START} <Text style={styles.required}>*</Text>
               </Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Chọn thời gian"
-                value={lesson.note} // Hiển thị thời gian bắt đầu dưới dạng hh:mm
-                onFocus={() => showTimepicker(index)}
-              />
+              <TouchableOpacity
+                style={[styles.input, { justifyContent: "center" }]}
+                onPress={() => showTimepicker(index)}
+              >
+                <Text>
+                  {lesson.started_at
+                    ? new Date(lesson.started_at).toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })
+                    : langguageContext.SLECTED_TIME_START}
+                </Text>
+              </TouchableOpacity>
             </View>
 
             {/* Thời gian kết thúc */}
             <View style={{ flex: 5 }}>
               <Text style={styles.label}>
-                Thời gian kết thúc <Text style={styles.required}>*</Text>
+                {langguageContext.TIME_END} <Text style={styles.required}>*</Text>
               </Text>
               <TextInput
                 style={styles.input}
-                placeholder="Thời gian kết thúc tự động"
+                placeholder={langguageContext.TIME_END_AUTO}
                 value={
                   lesson.started_at && lesson.duration
                     ? new Date(
@@ -171,29 +175,41 @@ const InfoLesson = ({ handleGetLesson }: props) => {
 
           <View style={{ marginTop: 25 }}>
             <Text style={styles.label}>
-              Hình thức học <Text style={styles.required}>*</Text>
+              {langguageContext.LEARNING_METHOD} <Text style={styles.required}>*</Text>
             </Text>
             <TouchableOpacity
               style={[{ justifyContent: "center" }, styles.input]}
               onPress={() => toggleStatus(index)}
             >
               <Text style={[{ color: "#0D99FF" }, styles.text]}>
-                {lesson.is_online ? "online" : "offline"}
+                {lesson.is_online ? langguageContext.LEARNING_METHOD_1 : langguageContext.LEARNING_METHOD_2}
               </Text>
             </TouchableOpacity>
           </View>
 
           <View style={{ marginTop: 25 }}>
-            <Text style={styles.label}>Ghi chú</Text>
-            <TextInput style={styles.input} placeholder="Thêm ghi chú ..." />
+            <Text style={styles.label}>{langguageContext.NOTE}</Text>
+            <TextInput
+              style={styles.input}
+              placeholder={langguageContext.NOTE_PLACEHOLDER}
+              value={lesson.note} // Hiển thị giá trị hiện tại từ lesson
+              onChangeText={(text) => {
+                // Cập nhật giá trị ghi chú của lesson cụ thể
+                setLessons((prevLessons) =>
+                  prevLessons.map((l) =>
+                    l.id === lesson.id ? { ...l, note: text } : l
+                  )
+                );
+              }}
+            />
           </View>
 
           <TouchableOpacity style={styles.btnAdd} onPress={handleAdd}>
-            <Text style={styles.txtAdd}>Thêm buổi</Text>
+            <Text style={styles.txtAdd}>{langguageContext.BTN_ADD_LESSON}</Text>
           </TouchableOpacity>
         </View>
       ))}
-      {startedAt && (
+      {showPicker && (
         <DateTimePickerAndroid
           value={
             lessons[selectedLessonIndex].started_at
@@ -204,7 +220,7 @@ const InfoLesson = ({ handleGetLesson }: props) => {
           is24Hour={true}
           display="default"
           onChange={(event: any, selectedTime: Date | undefined) => {
-            setStartedAt(false);
+            setShowPicker(false);
             if (selectedTime) {
               onChange(selectedTime, selectedLessonIndex);
             }
@@ -232,7 +248,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginTop: 25,
-    marginLeft: 120
+    marginLeft: 120,
   },
   txtAdd: { fontSize: 16, color: "#FFFFFF", fontWeight: "bold" },
   txtDelete: { fontSize: 16, color: "#FFFFFF", fontWeight: "bold" },

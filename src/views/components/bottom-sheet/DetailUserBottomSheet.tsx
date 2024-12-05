@@ -1,5 +1,5 @@
 import React, {
-  useCallback,
+  useCallback, useContext,
   useEffect,
   useMemo,
   useRef,
@@ -11,12 +11,12 @@ import {
   StyleSheet,
   TouchableOpacity,
   Image,
-  Pressable,
+  Pressable, Modal,
 } from "react-native";
-import BottomSheet, { BottomSheetBackdrop } from "@gorhom/bottom-sheet";
-import { FlatList, ScrollView } from "react-native-gesture-handler";
+import BottomSheet, {BottomSheetBackdrop} from "@gorhom/bottom-sheet";
+import {FlatList, ScrollView} from "react-native-gesture-handler";
 import CourseItem from "../CourseItem";
-import { BackgroundColor } from "../../../configs/ColorConfig";
+import {BackgroundColor, TextColor} from "../../../configs/ColorConfig";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import User from "../../../models/User";
@@ -24,6 +24,20 @@ import ReactAppUrl from "../../../configs/ConfigUrl";
 import AClass from "../../../apis/AClass";
 import Class from "../../../models/Class";
 import ClassListSkeleton from "../skeleton/ClassListSkeleten";
+import moment from "moment";
+import UserComponent from "../admin/UserComponent";
+import UserClassManager from "../UserClassManager";
+import {LanguageContext} from "../../../configs/LanguageConfig";
+import {NavigationContext} from "@react-navigation/native";
+import ScreenName from "../../../constants/ScreenName";
+import {IdNavigationType, ReportNavigationType} from "../../../configs/NavigationRouteTypeConfig";
+import {AccountContext} from "../../../configs/AccountConfig";
+import {RoleList} from "../../../models/Role";
+import Toast from "react-native-simple-toast";
+import DateTimeConfig from "../../../configs/DateTimeConfig";
+import Report from "../../../models/Report";
+import AUserAdmin from "../../../apis/admin/AUserAdmin";
+import {AppInfoContext} from "../../../configs/AppInfoContext";
 
 const URL = ReactAppUrl.PUBLIC_URL;
 
@@ -33,16 +47,25 @@ type DetailHistoryBottonSheetProps = {
   userData: User;
 };
 
-export default function ({
-  isVisible,
-  onCloseButtonSheet,
-  userData,
-}: DetailHistoryBottonSheetProps) {
+export default function DetailUserBottomSheet({
+                                                isVisible,
+                                                onCloseButtonSheet,
+                                                userData,
+                                              }: DetailHistoryBottonSheetProps) {
+  //contexts
+  const languageContext = useContext(LanguageContext).language;
+  const navigation = useContext(NavigationContext);
+  const accountContext = useContext(AccountContext);
+  const appInfo = useContext(AppInfoContext).infos;
+
   //state
   const [attendingClasses, setAttendingClasses] = useState<Class[]>([]);
   const [teachingClasses, setTeachingClasses] = useState<Class[]>([]);
   const [createdClasses, setCreatedClasses] = useState<Class[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const [reportList, setReportList] = useState<Report[]>([]);
+  const [reportLevelList, setReportLevelList] = useState<{ id: number, label: string, points: number }[]>([]);
 
   // ref
   const bottomSheetRef = useRef<BottomSheet>(null);
@@ -74,16 +97,27 @@ export default function ({
     [isVisible]
   );
 
-  function fomatDate(timestamp: number) {
-    if (!timestamp) return ""; // Kiểm tra nếu timestamp là undefined hoặc null
+  const goToUserPermission = useCallback(() => {
 
-    const date = new Date(timestamp);
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const year = date.getFullYear();
+    if (!accountContext.account || !accountContext.account.roles.map(r => r.id).includes(RoleList.SUPER_ADMIN)) {
+      Toast.show("Bạn không có quyền truy cập vào trang quản lý quyền", 1000);
+      return;
+    }
 
-    return `${day}/${month}/${year}`; // Trả về chuỗi theo định dạng DD/MM/YYYY
-  }
+    const data: IdNavigationType = {
+      id: userData.id
+    }
+
+    navigation?.navigate(ScreenName.USER_PERMISSION_MANAGEMENT, data);
+  }, [userData, accountContext.account]);
+
+  const goToViewReport = useCallback((report: Report) => {
+    const data: ReportNavigationType = {
+      id: report.id,
+      reporter: report.reporter ?? new User(),
+    }
+    navigation?.navigate(ScreenName.UPDATE_REPORT_USER, data);
+  }, [])
 
   // Mở hoặc đóng tùy theo `isVisible`
   if (isVisible && bottomSheetRef.current) {
@@ -92,32 +126,40 @@ export default function ({
 
   // effects
   useEffect(() => {
-    if (isVisible) {
-      // Fetch dữ liệu danh sách lớp học
-      AClass.getAttedingClass(
-        userData.id,
-        (data) => {
-          setAttendingClasses(data);
-        },
-        setLoading
-      );
-      AClass.getTeachingClass(
-        userData.id,
-        (data) => {
-          setTeachingClasses(data);
-        },
-        setLoading
-      );
+    AUserAdmin.getReportsOfUser(userData, reports => {
+      setReportList(reports);
+    });
+  }, [userData]);
 
-      AClass.getCreatedClass(
-        userData.id,
-        (data) => {
-          setCreatedClasses(data);
-        },
-        setLoading
-      );
-    }
-  }, [isVisible]);
+  useEffect(() => {
+    const reportLevelList: { id: number, label: string, points: number }[] = [];
+
+    reportLevelList.push({
+      id: 1,
+      label: languageContext.NOT_SERIOUS,
+      points: appInfo.report_class_level_1
+    });
+
+    reportLevelList.push({
+      id: 2,
+      label: languageContext.QUITE_SERIOUS,
+      points: appInfo.report_class_level_2
+    });
+
+    reportLevelList.push({
+      id: 3,
+      label: languageContext.SERIOUS,
+      points: appInfo.report_class_level_3
+    });
+
+    reportLevelList.push({
+      id: 4,
+      label: languageContext.EXTREMELY_SERIOUS,
+      points: appInfo.report_class_level_4
+    });
+
+    setReportLevelList(reportLevelList);
+  }, []);
 
   //render
   return (
@@ -131,11 +173,11 @@ export default function ({
     >
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.contentContainer}>
-          <View style={styles.userHeaderContainer}>
+          {/* <View style={styles.userHeaderContainer}>
             <View style={styles.userInfoBlock}>
               <View style={styles.userAvatarContainer}>
                 <Image
-                  source={{ uri: `${URL}${userData.avatar?.path}` }}
+                  source={{ uri: `${URL}${userData.avatar}` }}
                   style={styles.userAvatar}
                 />
                 <Text style={styles.userFullName}>{userData.full_name}</Text>
@@ -155,16 +197,14 @@ export default function ({
                   Điểm uy tín:
                 </Text>
                 <Text style={styles.content}>
-                  {userData.information?.point}
+                  {userData.point}
                 </Text>
               </View>
 
               <View style={styles.rowItem}>
                 <View style={[styles.row, { flex: 1 }]}>
                   <Ionicons name="calendar-outline" size={20} color="black" />
-                  <Text style={styles.content}>
-                    {fomatDate(userData.information?.birthday!)}
-                  </Text>
+                  <Text style={styles.content}>{moment(userData.birthday).format("DD/MM/YYYY")}</Text>
                 </View>
 
                 <View style={[styles.row, { flex: 1 }]}>
@@ -179,147 +219,58 @@ export default function ({
                   size={20}
                   color="black"
                 />
-                <Text style={[styles.content, { marginTop: 7 }]}>
-                  {`${userData.information?.address_4}, ${userData.information?.address_3}\n${userData.information?.address_2}, ${userData.information?.address_1}`}
-                </Text>
+                <Text style={[styles.content, {marginTop: 7}]}>
+                {`${userData.address?.ward}, ${userData.address?.district}, ${userData.address?.province}`}
+              </Text>
               </View>
             </View>
-          </View>
+          </View> */}
 
-          {userData.is_reported && (
-          <View style={{ alignItems: "center" }}>
-            <TouchableOpacity style={[styles.btnReport, styles.btnShowdow]}>
-              <Text style={styles.btnReportText}>
-                Xem danh sách người báo cáo
+          <UserComponent userData={userData}/>
+
+          <View style={{alignItems: "center"}}>
+            <TouchableOpacity style={[styles.btnReport, styles.btnShowdow, {borderColor: BackgroundColor.warning}]}
+                              onPress={goToUserPermission}>
+              <Text style={[styles.btnReportText, {color: TextColor.warning}]}>
+                Phan quyen nguoi dung
               </Text>
             </TouchableOpacity>
           </View>
-          )}
+
+          <View style={{flex: 1, marginTop: 20,}}>
+            <Text style={[styles.btnReportText, {color: TextColor.danger}]}>
+              Danh sach bao cao
+            </Text>
+
+            {userData.is_reported && (
+              <ScrollView showsHorizontalScrollIndicator={false} horizontal={true} style={{flex: 1}}>
+                {reportList.map((report, index) => (
+                  <Pressable key={index} style={[styles.btnReport, styles.btnShowdow, reportListStyle.container]}
+                             onPress={() => goToViewReport(report)}>
+                    <View style={{flexDirection: "row"}}>
+                      <Text style={reportListStyle.level}>{reportLevelList.find(rl => rl.id === report.report_level)?.label}</Text>
+                      <Text
+                        style={reportListStyle.time}>⏰{DateTimeConfig.getDateFormat(new Date(report.created_at).getTime(), true, true)}</Text>
+                    </View>
+
+                    <View style={{flexDirection: "row", marginTop: 10,}}>
+                      <Image src={ReactAppUrl.PUBLIC_URL + report.reporter?.avatar} style={reportListStyle.avatar}/>
+
+                      <View style={{flex: 1}}>
+                        <Text style={reportListStyle.username}>{report.reporter?.full_name}</Text>
+                        <Text style={reportListStyle.content}>{report.content.substring(0, 50)}...</Text>
+                      </View>
+                    </View>
+
+                  </Pressable>
+                ))}
+              </ScrollView>
+
+            )}
+          </View>
 
           <View style={styles.userBodyContainer}>
-            <View style={styles.classContainer}>
-              <Text style={styles.titleBody}>Lớp học đã tham gia</Text>
-              <View>
-                {loading && <ClassListSkeleton />}
-                {!loading && (
-                  <FlatList
-                    data={attendingClasses}
-                    renderItem={({ item: attedingClass }) => {
-                      return (
-                        <View style={styles.classItem}>
-                          <Pressable>
-                            <CourseItem
-                              majorIconUrl={`${URL}${attedingClass.major?.icon?.path}`}
-                              name={attedingClass.title}
-                              level={attedingClass.class_level?.vn_name || ""}
-                              date={fomatDate(attedingClass.started_at)}
-                              time={2}
-                              type={"Tại nhà"}
-                              address={attedingClass.address_1}
-                              cost={attedingClass.price}
-                            />
-                          </Pressable>
-                        </View>
-                      );
-                    }}
-                    keyExtractor={(item) => item.id.toString()}
-                    horizontal={true}
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={[
-                      styles.classList,
-                      attendingClasses.length === 1 && styles.centeredItem,
-                    ]}
-                  />
-                )}
-
-                {!loading && attendingClasses.length == 0 && (
-                  <Text>Không có lớp học đang tham gia</Text>
-                )}
-              </View>
-            </View>
-            <View style={styles.classContainer}>
-              <Text style={[styles.titleBody, { marginTop: 50 }]}>
-                Lớp học đang dạy
-              </Text>
-              <View>
-                {loading && <ClassListSkeleton />}
-
-                {!loading && (
-                  <FlatList
-                    data={teachingClasses}
-                    renderItem={({ item: attedingClass }) => {
-                      return (
-                        <View style={styles.classItem}>
-                          <Pressable>
-                            <CourseItem
-                              majorIconUrl={`${URL}${attedingClass.major?.icon?.path}`}
-                              name={attedingClass.title}
-                              level={attedingClass.class_level?.vn_name || ""}
-                              date={fomatDate(attedingClass.started_at)}
-                              time={2}
-                              type={"Tại nhà"}
-                              address={attedingClass.address_1}
-                              cost={attedingClass.price}
-                            />
-                          </Pressable>
-                        </View>
-                      );
-                    }}
-                    keyExtractor={(item) => item.id.toString()}
-                    horizontal={true}
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={[
-                      styles.classList,
-                      teachingClasses.length === 1 && styles.centeredItem,
-                    ]}
-                  />
-                )}
-              </View>
-            </View>
-
-            <View style={styles.classContainer}>
-              <Text style={[styles.titleBody, { marginTop: 50 }]}>
-                Lớp học đã tạo
-              </Text>
-              <View>
-                {loading && <ClassListSkeleton />}
-
-                {!loading && createdClasses.length > 0 && (
-                  <FlatList
-                    data={createdClasses}
-                    renderItem={({ item: createdClass }) => {
-                      return (
-                        <View style={styles.classItem}>
-                          <Pressable>
-                            <CourseItem
-                              majorIconUrl={`${URL}${createdClass.major?.icon?.path}`}
-                              name={createdClass.title}
-                              level={createdClass.class_level?.vn_name || ""}
-                              date={fomatDate(createdClass.started_at)}
-                              time={2}
-                              type={"Tại nhà"}
-                              address={createdClass.address_1}
-                              cost={createdClass.price}
-                            />
-                          </Pressable>
-                        </View>
-                      );
-                    }}
-                    keyExtractor={(item) => item.id.toString()}
-                    horizontal={true}
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={[
-                      styles.classList,
-                      createdClasses.length === 1 && styles.centeredItem,
-                    ]}
-                  />
-                )}
-
-                {!loading && createdClasses.length == 0 && (
-                  <Text>Không có lớp học đã tạo</Text>
-                )}
-              </View>
-            </View>
+            <UserClassManager userId={userData.id}/>
           </View>
         </View>
       </ScrollView>
@@ -466,3 +417,55 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
 });
+
+const reportListStyle = StyleSheet.create({
+  container: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    width: 300,
+    borderWidth: 0.8,
+    borderColor: BackgroundColor.sub_danger,
+    marginHorizontal: 10,
+    marginBottom: 5,
+    marginTop: 5,
+    borderRadius: 20,
+  },
+
+  avatar: {
+    width: 50,
+    height: 50,
+    borderRadius: 35,
+    borderWidth: 0.5,
+    borderColor: BackgroundColor.sub_danger,
+  },
+
+  username: {
+    fontWeight: "700",
+    paddingHorizontal: 10,
+    fontSize: 14,
+  },
+
+  content: {
+    paddingHorizontal: 10,
+    fontSize: 10,
+  },
+
+  level: {
+    backgroundColor: BackgroundColor.warning,
+    paddingHorizontal: 5,
+    paddingVertical: 1,
+    borderRadius: 10,
+    fontSize: 10,
+    textAlign: "center",
+    textAlignVertical: 'center',
+  },
+
+  time: {
+    flex: 1,
+    textAlign: "right",
+    fontSize: 10,
+    textAlignVertical: 'center',
+    color: TextColor.danger,
+  }
+
+})

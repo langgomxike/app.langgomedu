@@ -1,4 +1,4 @@
-import {useCallback, useContext, useEffect, useRef, useState} from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import {
   Animated,
   Dimensions,
@@ -11,8 +11,8 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import {NavigationContext} from "@react-navigation/native";
-import {BackgroundColor} from "../../configs/ColorConfig";
+import { NavigationContext } from "@react-navigation/native";
+import { BackgroundColor } from "../../configs/ColorConfig";
 import Search from "../components/Inputs/SearchBar";
 import Filter from "../components/Filter";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -20,59 +20,52 @@ import ScreenName from "../../constants/ScreenName";
 import AMajor from "../../apis/AMajor";
 import Major from "../../models/Major";
 import User from "../../models/User";
-import {UserContext, UserType} from "../../configs/UserContext";
+import { UserContext, UserType } from "../../configs/UserContext";
 import AClass from "../../apis/AClass";
 import Class from "../../models/Class";
 import ListMajorSkeleton from "../components/skeleton/ListMajorSkeleton";
 import AUser from "../../apis/AUser";
-import {AccountContext} from "../../configs/AccountConfig";
+import { AccountContext } from "../../configs/AccountConfig";
 import Toast from "react-native-simple-toast";
-import SAsyncStorage, {AsyncStorageKeys} from "../../services/SAsyncStorage";
-import {LanguageContext} from "../../configs/LanguageConfig";
+import SAsyncStorage, { AsyncStorageKeys } from "../../services/SAsyncStorage";
+import { LanguageContext } from "../../configs/LanguageConfig";
 import vn from "../../../languages/vn.json";
 import en from "../../../languages/en.json";
 import ja from "../../../languages/ja.json";
 import ReactAppUrl from "../../configs/ConfigUrl";
-import {AppInfoContext} from "../../configs/AppInfoContext";
+import { AppInfoContext } from "../../configs/AppInfoContext";
 import SFirebase, { FirebaseNode } from "../../services/SFirebase";
 import SuggestList from "../components/SuggestList";
 import UserClassManager from "../components/UserClassManager";
 import { RoleList } from "../../models/Role";
 import { MajorsLevelsContext } from "../../configs/MajorsLevelsContext";
 import AClassLevel from "../../apis/AClassLevel";
-
+import { RefreshControl } from "react-native-gesture-handler";
+import TypingEffect from "../components/TypingEffect";
 
 const items = [
-  {id: 1, title: "Các lớp học đang tham gia"},
-  {id: 2, title: "Các lớp học đang dạy"},
-  {id: 3, title: "Các lớp học đã tạo"},
-  {id: 4, title: "Các lớp học gợi ý"},
+  { id: 1, title: "Các lớp học đang tham gia" },
+  { id: 2, title: "Các lớp học đang dạy" },
+  { id: 3, title: "Các lớp học đã tạo" },
+  { id: 4, title: "Các lớp học gợi ý" },
 ];
 
-
-const URL = ReactAppUrl.PUBLIC_URL
-const {width: SCREEN_WIDTH} = Dimensions.get('screen');
+const URL = ReactAppUrl.PUBLIC_URL;
+const { width: SCREEN_WIDTH } = Dimensions.get("screen");
 
 export default function HomeScreen() {
   //contexts, refs
-  const animation = useRef(items.map(() => new Animated.Value(1))).current;
-
   const navigation = useContext(NavigationContext);
   const accountContext = useContext(AccountContext);
   const appInfoContext = useContext(AppInfoContext);
-  const languageContext = useContext(LanguageContext);
-  const {user, setUser} = useContext(UserContext);
-  const majorsLevelsContext = useContext(MajorsLevelsContext);
+  const language = useContext(LanguageContext).language;
+  const { user, setUser } = useContext(UserContext);
+  const { refresh, setRefresh } = useContext(UserContext);
+  const majors = useContext(MajorsLevelsContext)?.majors;
 
   //states
-  const [showingFilter, setShowingFilter] = useState(false);
   const [searchKey, setSearchKey] = useState<string>("");
   const [loading, setLoading] = useState(false);
-  const [expandedItems, setExpandedItems] = useState<number[]>(
-    items.map((item) => item.id)
-  );
-  const [userTypeName, setUserTypeName] = useState("Leaner");
-  const [majors, setMajors] = useState<Major[]>([]);
 
   // handlers
   const handleChangeUserType = () => {
@@ -80,8 +73,6 @@ export default function HomeScreen() {
       ...user, // Giữ nguyên các thông tin cũ
       TYPE: user.TYPE === UserType.LEANER ? UserType.TUTOR : UserType.LEANER,
     });
-
-    setUserTypeName(user.TYPE === UserType.LEANER ? "Tutor" : "Leaner");
   };
 
   const goToScan = useCallback(() => {
@@ -89,7 +80,7 @@ export default function HomeScreen() {
   }, []);
 
   const handleNavigateToDetail = useCallback((classId: number) => {
-    navigation?.navigate(ScreenName.DETAIL_CLASS, {classId});
+    navigation?.navigate(ScreenName.DETAIL_CLASS, { classId });
   }, []);
 
   const goToClassList = useCallback(() => {
@@ -110,130 +101,74 @@ export default function HomeScreen() {
   //   // navigation
   // }, []);
 
-  const toggleExpand = useCallback((id: number) => {
-    const isExplaned = expandedItems.includes(id);
-
-    let index = id - 1;
-    Animated.timing(animation[index], {
-      toValue: isExplaned ? 0 : 1,
-      duration: 500,
-      useNativeDriver: false,
-    }).start();
-
-    setExpandedItems((prev) =>
-      isExplaned ? prev.filter((item) => item !== id) : [...prev, id]
-    );
-  }, [animation]);
-
-  // Hàm lấy height interpolation cho từng item
-  const getHeightInterpolation = useCallback((index: number) => {
-    return animation[index].interpolate({
-      inputRange: [0, 1],
-      outputRange: [0, 380], // Thu hẹp là 0, mở rộng là 450
-    });
-  }, [animation]);
-
-  // Hàm lấy opacity interpolation cho từng item
-  const getOpacityInterpolation = useCallback((index: number) => {
-    return animation[index].interpolate({
-      inputRange: [0, 1],
-      outputRange: [0.5, 1], // Mờ là 0.5, rõ là 1
-    });
-  }, [animation]);
-
-  // Hàm lấy rotation interpolation cho từng item
-  const getRotationInterpolation = useCallback((index: number) => {
-    return animation[index].interpolate({
-      inputRange: [0, 1],
-      outputRange: ["0deg", "90deg"], // Xoay từ 0 đến 90 độ
-    });
-  }, [animation]);
-
-  // effects
-  useEffect(() => {
-      AMajor.getAllMajors((data) => {
-        setMajors(data);
-        majorsLevelsContext?.setMajors(data);
-      }, setLoading);
-
-      AClassLevel.getAllClassLevels((data) => {
-        majorsLevelsContext?.setClassLevels(data);
-      });
-
-  }, [ accountContext.setAccount]);
+  const onRefresh = useCallback(() => {
+    setRefresh(true);
+  }, [refresh]);
 
   // render
   return (
-    <ScrollView showsVerticalScrollIndicator={false}>
+    <ScrollView
+      showsVerticalScrollIndicator={false}
+      refreshControl={
+        <RefreshControl refreshing={refresh} onRefresh={onRefresh} />
+      }
+    >
       <View style={styles.container}>
-
         {/* Header */}
         <View style={styles.headerContainer}>
-
-          {/* Header title */}
-          <View style={styles.headerTitleContainer}>
-            <View style={{flex: 1}}>
-              <Text style={[styles.headerTitle, styles.title1]}>{languageContext.language.WELCOME}!</Text>
-              <Text style={[styles.headerTitle, styles.title2]}>
-                {accountContext.account?.full_name}
-              </Text>
-            </View>
-
-            <View style={{flex: 1, alignItems: "flex-end"}}>
-              <TouchableOpacity
-                onPress={handleChangeUserType}
-                style={[styles.btnSwitchRole, styles.boxShadow]}
-              >
-                <Text>{userTypeName}</Text>
-              </TouchableOpacity>
-            </View>
+          {/* Header button scan qr*/}
+          <View style={styles.btnQrScanContainer}>
+            <TouchableOpacity style={[styles.btnQrScan, styles.boxShadow]}>
+              <Ionicons
+                onPress={goToScan}
+                name="qr-code-outline"
+                size={24}
+                color="black"
+              />
+            </TouchableOpacity>
           </View>
 
-          {/* Header search */}
-          <View style={styles.headerSearch}>
-            <View style={{flex: 1}}>
-              <Search value={searchKey} onChangeText={setSearchKey}/>
-            </View>
-
-            <View>
-              <TouchableOpacity style={[styles.btnQrScan, styles.boxShadow]}>
-                <Ionicons
-                  onPress={goToScan}
-                  name="qr-code-outline"
-                  size={24}
-                  color="black"
-                />
-              </TouchableOpacity>
-            </View>
+          <View style={styles.headerContentContainer}>
+            <TypingEffect/>
+            <Text style={[styles.headerTitle, styles.title2]}>
+              {accountContext.account?.full_name}
+            </Text>
           </View>
+
+          <View style={styles.btnSwitchRoleContainer}>
+            <TouchableOpacity
+              onPress={handleChangeUserType}
+              style={[styles.btnSwitchRole, styles.boxShadow]}
+            >
+              <Text>{user.TYPE === UserType.LEANER ? language.TUTOR : language.LEARNER}</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View></View>
         </View>
         {/*end header*/}
 
         {/* Body */}
         <View style={styles.bodyContainer}>
-
           {/* Major list header*/}
           <View style={styles.majorContainer}>
             <View style={styles.titleContainer}>
-              <Text style={styles.title}>Danh sách môn học</Text>
-              <TouchableOpacity>
-                <Text style={styles.showAllText}>Xem tất cả</Text>
-              </TouchableOpacity>
+              <Text style={styles.title}>{language.SUBJECT_LIST}</Text>
             </View>
           </View>
 
           {/* Majors list body */}
-          {loading && <ListMajorSkeleton/> || (
+          {(loading && <ListMajorSkeleton />) || (
             <FlatList
               horizontal={true}
               showsHorizontalScrollIndicator={false}
               data={majors}
-              renderItem={({item: major}) => (
+              renderItem={({ item: major }) => (
                 <View style={styles.listMajorContainer}>
                   <View style={[styles.majorItem, styles.boxShadow]}>
                     {URL && (
                       <Image
-                        source={{uri: URL + (major.icon ?? "")}}
+                        source={{ uri: URL + (major.icon ?? "") }}
                         style={styles.majorIcon}
                       />
                     )}
@@ -243,22 +178,28 @@ export default function HomeScreen() {
                         numberOfLines={2}
                         ellipsizeMode="tail"
                       >
-                        {major.vn_name}
+                      {language.TYPE === "vi"
+                        ? major.vn_name
+                        : language.TYPE === "en"
+                        ? major.en_name
+                        : major.ja_name}
                       </Text>
                     </View>
                   </View>
                 </View>
               )}
-              contentContainerStyle={{paddingHorizontal: 10}}
+              contentContainerStyle={{ paddingHorizontal: 10 }}
             />
           )}
 
           {/* Class lists */}
           <View>
             {/* SuggestList */}
-            <SuggestList/>
+            <SuggestList />
             {/* User class manager */}
-            <UserClassManager/>
+            {accountContext.account && (
+              <UserClassManager userId={accountContext.account.id} />
+            )}
           </View>
         </View>
       </View>
@@ -270,11 +211,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
-    paddingBottom: 80
+    paddingBottom: 80,
   },
   headerContainer: {
     backgroundColor: BackgroundColor.primary,
-    paddingTop: 30,
+    paddingTop: 20,
     paddingBottom: 100,
     paddingHorizontal: 20,
   },
@@ -298,19 +239,32 @@ const styles = StyleSheet.create({
   },
 
   title1: {
-    fontSize: 20,
+    fontSize: 30,
+    fontWeight: "bold",
+    color: "#fff", 
+    textShadowColor: "rgba(0, 0, 0, 0.2)",
+    textShadowOffset: { width: 1, height: 2 }, 
+    textShadowRadius: 4,
+  },
+  
+  title2: {
+    fontSize: 22,
+    color: "#fff",
+    textShadowColor: "rgba(0, 0, 0, 0.15)", 
+    textShadowOffset: { width: 1, height: 1 }, 
+    textShadowRadius: 3, 
   },
 
-  title2: {
-    fontSize: 18,
+  btnSwitchRoleContainer: {
+    marginTop: 10,
   },
 
   btnSwitchRole: {
     backgroundColor: BackgroundColor.white,
     paddingHorizontal: 15,
-    paddingVertical: 5,
+    paddingVertical: 10,
     borderRadius: 7,
-    width: 80,
+    width: SCREEN_WIDTH * 0.3,
     alignItems: "center",
   },
 
@@ -330,16 +284,21 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
 
-  headerSearch: {
-    flexDirection: "row",
-    gap: 10,
-    alignItems: "center",
+  btnQrScanContainer: {
+    position: "absolute",
+    right: 20,
+    top: 10,
+    zIndex: 999,
   },
 
   btnQrScan: {
     backgroundColor: BackgroundColor.white,
     padding: 10,
     borderRadius: 999,
+  },
+
+  headerContentContainer: {
+    marginTop: 10,
   },
 
   line: {

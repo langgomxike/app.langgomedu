@@ -1,29 +1,33 @@
-import React, {useState, useRef, useCallback, useContext} from "react";
+import React, {useState, useRef, useCallback, useContext, useEffect} from "react";
 import {View, Text, StyleSheet, TextInput, Alert, Image} from "react-native";
 import {NavigationContext, NavigationRouteContext} from "@react-navigation/native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import Button from "../components/Button";
-import {BackgroundColor} from "../../configs/ColorConfig";
+import {BackgroundColor, TextColor} from "../../configs/ColorConfig";
 import {LanguageContext} from "../../configs/LanguageConfig";
 import AOTP from "../../apis/AOTP";
 import AUser from "../../apis/AUser";
 import SAsyncStorage, {AsyncStorageKeys} from "../../services/SAsyncStorage";
-import {AuthType} from "../../configs/NavigationRouteTypeConfig";
+import {AuthType, IdNavigationType, OTPNavigationType} from "../../configs/NavigationRouteTypeConfig";
 import ScreenName from "../../constants/ScreenName";
 import Spinner from "react-native-loading-spinner-overlay";
+import {AccountContext} from "../../configs/AccountConfig";
+import Toast from "react-native-simple-toast";
+import {AuthContext} from "../../configs/AuthContext";
 
 export default function OTPScreen() {
   //context
   const navigation = useContext(NavigationContext);
   const route = useContext(NavigationRouteContext);
   const languageContext = useContext(LanguageContext);
-  const [loading, setLoading] = useState(false);
+  const authContext = useContext(AuthContext);
 
   //refs
   const otpInputs = useRef<TextInput[]>([]);
 
   //states
   const [otp, setOtp] = useState<string[]>(["", "", "", "", "", ""]);
+  const [loading, setLoading] = useState(false);
 
   //handlers
   const goBack = useCallback(() => {
@@ -57,48 +61,47 @@ export default function OTPScreen() {
 
   const handleVerifyOtp = useCallback(() => {
     const requestCode = +otp.join("");
-    const {user} = route?.params as AuthType ?? {user: undefined};
 
-    if (!user) {
-      Alert.alert(languageContext.language.REGISTER, languageContext.language.REGISTER_FAILED);
+    if (requestCode < 111111 || requestCode > 999999) {
+      Toast.show(languageContext.language.INVALID_AUTH, 1000);
       return;
     }
 
     setLoading(true);
+
     const timeId = setTimeout(() => {
       setLoading(false);
-      Alert.alert(languageContext.language.REGISTER, languageContext.language.REGISTER_FAILED, [
-        {
-          text: "OK",
-          onPress: () => {
-          },
-        },
-      ]);
+      Toast.show(languageContext.language.INVALID_AUTH, 1000);
     }, 10000);
 
-    AUser.register(user, requestCode,
-      (user) => {
-        if (user) {
-          SAsyncStorage.setData(AsyncStorageKeys.TOKEN, user.token, () => {
-            navigation?.reset({
-              index: 0,
-              routes: [{name: ScreenName.WELCOME}],
-            });
-          });
-        } else {
-          Alert.alert(languageContext.language.REGISTER, languageContext.language.REGISTER_FAILED);
-        }
-      },
-      () => {
-        setLoading(false);
-        clearTimeout(timeId);
-      }
-    );
-  }, [otp]);
+    authContext.onAfterAuth && authContext.onAfterAuth(requestCode, () => {
+      setLoading(false);
+      clearTimeout(timeId);
+    });
+  }, [otp, authContext.onAfterAuth]);
+
+  const send = useCallback(() => {
+    const data: OTPNavigationType = route?.params as OTPNavigationType ?? {id: "-1", phone_number: ""};
+
+    setLoading(true);
+    const timeId = setTimeout(() => {
+      setLoading(false);
+      Toast.show(languageContext.language.OTP_FAILED, 1000);
+    }, 10000);
+
+    AUser.auth(data.phone_number, () => {
+      setLoading(false);
+      clearTimeout(timeId);
+    });
+  }, []);
+
+  useEffect(() => {
+    send();
+  }, []);
 
   return (
     <View style={styles.container}>
-      <Spinner visible={loading} />
+      <Spinner visible={loading}/>
 
       {/* back button*/}
       <Ionicons
@@ -115,10 +118,10 @@ export default function OTPScreen() {
       />
 
       {/* screen title */}
-      <Text style={styles.title}>Xác Thực OTP</Text>
+      <Text style={styles.title}>{languageContext.language.OTP}</Text>
 
       <Text style={styles.instructions}>
-        Nhập mã OTP đã gửi đến điện thoại của bạn
+        {languageContext.language.OTP_HINT}
       </Text>
 
       {/* inputs */}
@@ -136,9 +139,11 @@ export default function OTPScreen() {
         ))}
       </View>
 
+      <Text onPress={send} style={styles.resend}>{languageContext.language.RESEND_OTP}</Text>
+
       {/* submit button */}
       <Button
-        title="Xác thực"
+        title={languageContext.language.SUBMIT}
         textColor="white"
         backgroundColor={
           otp.join("").length == 6
@@ -158,6 +163,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     padding: 20,
+  },
+
+  resend: {
+    textDecorationLine: "underline",
+    color: TextColor.sub_primary,
+    marginBottom: 20,
   },
 
   backButton: {

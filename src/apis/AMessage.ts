@@ -1,169 +1,425 @@
-import Chat from "../models/Chat";
 import Message from "../models/Message";
 import Response from "../models/Response";
 import User from "../models/User";
-import Config from "../configs/Config";
 import axios from "axios";
 import SAsyncStorage, {AsyncStorageKeys} from "../services/SAsyncStorage";
 import SLog, {LogType} from "../services/SLog";
+import ReactAppUrl from "../configs/ConfigUrl";
+import Inbox from "../models/Inbox";
+import ClassInbox from "../models/ClassInbox";
 
 export default class AMessage {
-    private static BASE_URL = '/messages';
+  private static BASE_URL = ReactAppUrl.API_BASE_URL + '/messages';
 
-    public static getContactsOfUser(onNext: (users: User[]) => void) {
-        const url = Config.API_BASE_URL + this.BASE_URL + "/contacts";
+  public static getContactsOfUser(onNext: (users: User[]) => void) {
+    const url = this.BASE_URL + "/contacts";
 
-        SAsyncStorage.getData(AsyncStorageKeys.TOKEN,
-            (token) => {
-                axios.get<Response>(url, {
-                    headers: {
-                        Accept: "application/json",
-                        Authorization: token
-                    }
-                },)
-                    .then(response => {
-                        SLog.log(LogType.Warning, "getContactsOfUser", response.data?.message || "", response.data.status);
-                        const contacts: User[] = response.data.data as any[];
-                        onNext(contacts);
-                    })
-                    .catch(error => {
-                        SLog.log(LogType.Error, "getContactsOfUser", "cannot get contacts of user", error)
-                        onNext([]);
-                    })
-            }, (error) => {
-                SLog.log(LogType.Error, "getContactsOfUser", "cannot get contacts of user", error)
-                onNext([]);
-            });
-    }
+    SAsyncStorage.getData(AsyncStorageKeys.TOKEN,
+      (token) => {
+        axios.get<Response>(url, {
+          headers: {
+            Accept: "application/json",
+            Authorization: token
+          }
+        },)
+          .then(response => {
+            SLog.log(LogType.Warning, "getContactsOfUser", response.data?.message || "", response.data.status);
+            const contacts: User[] = response.data.data as any[];
+            onNext(contacts);
+          })
+          .catch(error => {
+            SLog.log(LogType.Error, "getContactsOfUser", "cannot get contacts of user", error)
+            onNext([]);
+          })
+      }, (error) => {
+        SLog.log(LogType.Error, "getContactsOfUser", "cannot get contacts of user", error)
+        onNext([]);
+      });
+  }
 
-    public static getChatsOfUser(onNext: (chats: Chat[]) => void) {
-        const url = Config.API_BASE_URL + this.BASE_URL + "/inboxes";
+  public static getNotificationsOfUser(onNext: (notis: Message[]) => void) {
+    const url = this.BASE_URL + "/notifications";
 
-        SAsyncStorage.getData(AsyncStorageKeys.TOKEN,
-            (token) => {
-                axios.get<Response>(url, {
-                    headers: {
-                        Accept: "application/json",
-                        Authorization: token
-                    }
-                },)
-                    .then(response => {
-                        SLog.log(LogType.Warning, "getChatsOfUser", response.data?.message || "", response.data.status);
-                        const chats: Chat[] = response.data.data as any[];
-                        onNext(chats);
-                    })
-                    .catch(error => {
-                        SLog.log(LogType.Error, "getChatsOfUser", "cannot get inboxes of user", error);
-                        onNext([]);
-                    })
-            }, (error) => {
-                SLog.log(LogType.Error, "getChatsOfUser", "cannot get inboxes of user", error);
-                onNext([]);
-            });
-    }
+    SAsyncStorage.getData(AsyncStorageKeys.TOKEN,
+      (token) => {
+        axios.get<Response>(url, {
+          headers: {
+            Accept: "application/json",
+            Authorization: token
+          }
+        },)
+          .then(response => {
+            SLog.log(LogType.Warning, "getNotificationsOfUser", response.data?.message || "", response.data.status);
+            const notis: Message[] = response.data.data as Message[] ?? [];
+            onNext(notis);
+          })
+          .catch(error => {
+            SLog.log(LogType.Error, "getNotificationsOfUser", "cannot get notifications of user", error)
+            onNext([]);
+          })
+      }, (error) => {
+        SLog.log(LogType.Error, "getNotificationsOfUser", "cannot get notifications of user", error)
+        onNext([]);
+      });
+  }
 
-    public static getMessagesOfTowUsers(fromUserId: string, toUserId: string, onNext: (messages: Message[]) => void) {
-        const url = Config.API_BASE_URL + this.BASE_URL + "/two-users";
+  public static deleteNotification(id: number, onNext: (result: boolean) => void, onComplete: () => void) {
+    const url = this.BASE_URL + "/notifications/" + id;
 
-        // SLog.log(LogType.Warning, "getMessagesOfTowUsers", "check ids", {fromUserId, toUserId});
+    SAsyncStorage.getData(AsyncStorageKeys.TOKEN,
+      (token) => {
+        axios.delete<Response>(url, {
+          headers: {
+            Accept: "application/json",
+            Authorization: token
+          }
+        },)
+          .then(response => {
+            SLog.log(LogType.Warning, "deleteNotification", response.data?.message || "", response.data.status);
+            onNext(response.data.status_code === 200);
+          })
+          .catch(error => {
+            SLog.log(LogType.Error, "deleteNotification", "cannot delete notification", error);
+            onNext(false);
+          })
+          .finally(onComplete);
+      }, (error) => {
+        SLog.log(LogType.Error, "deleteNotification", "cannot delete notification", error);
+        onNext(false);
+        onComplete();
+      });
+  }
 
-        SAsyncStorage.getData(AsyncStorageKeys.TOKEN,
-            (token) => {
-                axios.post<Response>(url,
-                    {
-                        from_user: {
-                            id: fromUserId
-                        },
-                        to_user: {
-                            id: toUserId
-                        }
-                    },
-                    {
-                        headers: {
-                            Accept: "application/json",
-                            Authorization: token
-                        }
-                    },)
-                    .then(response => {
-                        SLog.log(LogType.Warning, "getMessagesOfTowUsers", response.data?.message || "", response.data.status);
-                        const messages: Message[] = response.data.data as any[];
-                        onNext(messages);
-                    })
-                    .catch(error => {
-                        SLog.log(LogType.Error, "getMessagesOfTowUsers", "cannot get messages of 2 users", error);
-                        onNext([]);
-                    })
-            }, (error) => {
-                SLog.log(LogType.Error, "getMessagesOfTowUsers", "cannot get messages of 2 users", error);
-                onNext([]);
-            });
-    }
+  public static getChatsOfUser(onNext: (chats: Inbox[]) => void) {
+    const url = this.BASE_URL + "/inboxes";
 
-    public static sendMessage(message: Message, onNext: (result: boolean) => void) {
-        const url = Config.API_BASE_URL + this.BASE_URL;
+    SAsyncStorage.getData(AsyncStorageKeys.TOKEN,
+      (token) => {
+        axios.get<Response>(url, {
+          headers: {
+            Accept: "application/json",
+            Authorization: token
+          }
+        },)
+          .then(response => {
+            SLog.log(LogType.Warning, "getChatsOfUser", response.data?.message || "", response.data.status);
+            const chats: Inbox[] = response.data.data as Inbox[] ?? [];
+            onNext(chats);
+          })
+          .catch(error => {
+            SLog.log(LogType.Error, "getChatsOfUser", "cannot get inboxes of user", error);
+            onNext([]);
+          })
+      }, (error) => {
+        SLog.log(LogType.Error, "getChatsOfUser", "cannot get inboxes of user", error);
+        onNext([]);
+      });
+  }
 
-        SAsyncStorage.getData(AsyncStorageKeys.TOKEN,
-            (token) => {
-                axios.post<Response>(url, {
-                    message: message
-                }, {
-                    headers: {
-                        Accept: "application/json",
-                        Authorization: token
-                    }
-                })
-                    .then(response => {
-                        SLog.log(LogType.Info, "sendMessage", response.data.message, response.data.status);
-                        onNext(response.data.status_code === 200);
-                    })
-                    .catch(error => {
-                        SLog.log(LogType.Error, "sendMessage", "cannot send message", error);
-                        onNext(false);
-                    })
-            }, (error) => {
-                SLog.log(LogType.Error, "sendMessage", "cannot send message", error);
-                onNext(false);
-            });
-    }
+  public static getClassChatsOfUser(onNext: (chats: ClassInbox[]) => void) {
+    const url = this.BASE_URL + "/inboxes/group";
 
-    public static markAsRead(fromUserId: string, toUserId: string, messages: Message[], onNext: () => void) {
-        const url = Config.API_BASE_URL + this.BASE_URL + "/two-users/mark-as-read";
+    SAsyncStorage.getData(AsyncStorageKeys.TOKEN,
+      (token) => {
+        axios.get<Response>(url, {
+          headers: {
+            Accept: "application/json",
+            Authorization: token
+          }
+        },)
+          .then(response => {
+            SLog.log(LogType.Warning, "getClassChatsOfUser", response.data?.message || "", response.data.status);
+            const chats: ClassInbox[] = response.data.data as ClassInbox[] ?? [];
+            onNext(chats);
+          })
+          .catch(error => {
+            SLog.log(LogType.Error, "getClassChatsOfUser", "cannot get inboxes of class", error);
+            onNext([]);
+          })
+      }, (error) => {
+        SLog.log(LogType.Error, "getClassChatsOfUser", "cannot get inboxes of class", error);
+        onNext([]);
+      });
+  }
 
-        SAsyncStorage.getData(AsyncStorageKeys.TOKEN,
-            (token) => {
-                axios.put<Response>(url, {
-                    messages: messages,
-                    from_user: {
-                        id: fromUserId
-                    },
-                    to_user: {
-                        id: toUserId
-                    }
-                }, {
-                    headers: {
-                        Accept: "application/json",
-                        Authorization: token
-                    }
-                })
-                    .then(response => {
-                        SLog.log(LogType.Info, "markAsRead", response.data.message, response.data.status);
-                    })
-                    .catch(error => {
-                        SLog.log(LogType.Error, "markAsRead", "cannot mark as read messages", error);
-                    })
-                    .finally(onNext);
-            }, (error) => {
-                SLog.log(LogType.Error, "markAsRead", "cannot mark as read messages", error);
-                onNext();
-            });
-    }
+  public static getMessagesOfTowUsers(fromUserId: string, toUserId: string, onNext: (messages: Message[]) => void) {
+    const url = this.BASE_URL + "/two-users";
 
-    public static replyMessage(message: Message, onNext: (result: boolean) => void) {
-        const url = Config.API_BASE_URL + this.BASE_URL + "/reply";
-    }
+    SLog.log(LogType.Warning, "getMessagesOfTowUsers", "check ids", {fromUserId, toUserId});
 
-    public static deleteMessage(message: Message, onNext: (result: boolean) => void) {
-        const url = Config.API_BASE_URL + this.BASE_URL + "/delete";
+    SAsyncStorage.getData(AsyncStorageKeys.TOKEN,
+      (token) => {
+        axios.post<Response>(url,
+          {
+            from_user: {
+              id: fromUserId
+            },
+            to_user: {
+              id: toUserId
+            }
+          },
+          {
+            headers: {
+              Accept: "application/json",
+              Authorization: token
+            }
+          },)
+          .then(response => {
+            SLog.log(LogType.Warning, "getMessagesOfTowUsers", response.data?.message || "", response.data.status);
+            const messages: Message[] = response.data.data as any[];
+            onNext(messages);
+          })
+          .catch(error => {
+            SLog.log(LogType.Error, "getMessagesOfTowUsers", "cannot get messages of 2 users", error);
+            onNext([]);
+          })
+      }, (error) => {
+        SLog.log(LogType.Error, "getMessagesOfTowUsers", "cannot get messages of 2 users", error);
+        onNext([]);
+      });
+  }
 
-    }
+  public static getMessagesOfGroup(classId: number, onNext: (messages: Message[]) => void) {
+    const url = this.BASE_URL + "/group/" + classId;
+
+    SAsyncStorage.getData(AsyncStorageKeys.TOKEN,
+      (token) => {
+        axios.get<Response>(url,
+          {
+            headers: {
+              Accept: "application/json",
+              Authorization: token
+            }
+          },)
+          .then(response => {
+            SLog.log(LogType.Warning, "getMessagesOfGroup", response.data?.message || "", response.data.status);
+            const messages: Message[] = response.data.data as any[];
+            onNext(messages);
+          })
+          .catch(error => {
+            SLog.log(LogType.Error, "getMessagesOfGroup", "cannot get messages of group", error);
+            onNext([]);
+          })
+      }, (error) => {
+        SLog.log(LogType.Error, "getMessagesOfGroup", "cannot get messages of group", error);
+        onNext([]);
+      });
+  }
+
+  public static sendMessage(message: Message, onNext: (result: boolean) => void, onComplete?: () => void, inGroup?: boolean) {
+    const url = this.BASE_URL + (inGroup ? "/group" : "");
+
+    SLog.log(LogType.Info, "sendMessage", "check url", url);
+
+    SAsyncStorage.getData(AsyncStorageKeys.TOKEN,
+      (token) => {
+        axios.post<Response>(url, {
+          message: message
+        }, {
+          headers: {
+            Accept: "application/json",
+            Authorization: token
+          }
+        })
+          .then(response => {
+            SLog.log(LogType.Info, "sendMessage", response.data.message, response.data.status);
+            onNext(response.data.status_code === 200);
+          })
+          .catch(error => {
+            SLog.log(LogType.Error, "sendMessage", "cannot send message", error);
+            onNext(false);
+          })
+          .finally(onComplete);
+      }, (error) => {
+        SLog.log(LogType.Error, "sendMessage", "cannot send message", error);
+        onNext(false);
+        onComplete && onComplete();
+      });
+  }
+
+  public static sendImageMessage(uri: string, onNext: (path: string) => void, onComplete?: () => void) {
+    const url = this.BASE_URL + "/image";
+
+    const formData = new FormData();
+    formData.append("file", {
+      uri: uri,
+      name: "image.jpg",
+      type: "image/jpg"
+    } as any);
+
+    SAsyncStorage.getData(AsyncStorageKeys.TOKEN,
+      (token) => {
+        axios.post<Response>(url, formData, {
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "multipart/form-data",
+            Authorization: token
+          }
+        })
+          .then(response => {
+            SLog.log(LogType.Info, "sendImageMessage", response.data.message, response.data.status);
+
+            SLog.log(LogType.Warning, "sendImageMessage", "path", (response.data.data as any)?.path ?? "");
+            onNext((response.data.data as any)?.path ?? "");
+          })
+          .catch(error => {
+            SLog.log(LogType.Error, "sendImageMessage", "cannot send message", error);
+            onNext("");
+          })
+          .finally(onComplete);
+      }, (error) => {
+        SLog.log(LogType.Error, "sendImageMessage", "cannot send message", error);
+        onNext("");
+        onComplete && onComplete();
+      });
+  }
+
+  public static markAsRead(fromUserId: string, toUserId: string, onNext: () => void) {
+    const url = this.BASE_URL + "/two-users/mark-as-read";
+
+    SAsyncStorage.getData(AsyncStorageKeys.TOKEN,
+      (token) => {
+        axios.put<Response>(url, {
+          sender: {
+            id: fromUserId
+          },
+          receiver: {
+            id: toUserId
+          }
+        }, {
+          headers: {
+            Accept: "application/json",
+            Authorization: token
+          }
+        })
+          .then(response => {
+            SLog.log(LogType.Info, "markAsRead", response.data.message, response.data.status);
+          })
+          .catch(error => {
+            SLog.log(LogType.Error, "markAsRead", "cannot mark as read messages", error);
+          })
+          .finally(onNext);
+      }, (error) => {
+        SLog.log(LogType.Error, "markAsRead", "cannot mark as read messages", error);
+        onNext();
+      });
+  }
+
+  public static markAsReadInGroup(userId: string, classId: number, onNext: () => void) {
+    const url = this.BASE_URL + "/group/mark-as-read";
+
+    SAsyncStorage.getData(AsyncStorageKeys.TOKEN,
+      (token) => {
+        axios.put<Response>(url, {
+          class: {
+            id: classId
+          },
+          receiver: {
+            id: userId
+          },
+        }, {
+          headers: {
+            Accept: "application/json",
+            Authorization: token
+          }
+        })
+          .then(response => {
+            SLog.log(LogType.Info, "markAsReadInGroup", response.data.message, response.data.status);
+          })
+          .catch(error => {
+            SLog.log(LogType.Error, "markAsReadInGroup", "cannot mark as read messages", error);
+          })
+          .finally(onNext);
+      }, (error) => {
+        SLog.log(LogType.Error, "markAsReadInGroup", "cannot mark as read messages", error);
+        onNext();
+      });
+  }
+
+  public static markAsReadNotifications(onNext: () => void) {
+    const url = this.BASE_URL + "/notifications/mark-as-read";
+
+    SAsyncStorage.getData(AsyncStorageKeys.TOKEN,
+      (token) => {
+        axios.put<Response>(url, {}, {
+          headers: {
+            Accept: "application/json",
+            Authorization: token
+          }
+        })
+          .then(response => {
+            SLog.log(LogType.Info, "markAsRead", response.data.message, response.data.status);
+          })
+          .catch(error => {
+            SLog.log(LogType.Error, "markAsRead", "cannot mark as read messages", error);
+          })
+          .finally(onNext);
+      }, (error) => {
+        SLog.log(LogType.Error, "markAsRead", "cannot mark as read messages", error);
+        onNext();
+      });
+  }
+
+  public static deleteMessage(message: Message, onNext: (result: boolean) => void, onComplete?: () => void, inGroup?: boolean) {
+    const url = this.BASE_URL + (inGroup ? "/group" : "");
+
+    const data = {message};
+
+    SLog.log(LogType.Info, "deleteMessage", "check data", {data, url});
+
+    SAsyncStorage.getData(AsyncStorageKeys.TOKEN,
+      (token) => {
+        axios.put<Response>(url, data, {
+          headers: {
+            Accept: "application/json",
+            Authorization: token
+          }
+        })
+          .then(response => {
+            SLog.log(LogType.Info, "deleteMessage", response.data.message, response.data.status);
+            onNext(response.data.status_code === 200);
+          })
+          .catch(error => {
+            SLog.log(LogType.Error, "deleteMessage", "cannot delete message", error);
+            onNext(false);
+          })
+          .finally(onComplete);
+      }, (error) => {
+        SLog.log(LogType.Error, "deleteMessage", "cannot delete message", error);
+        onComplete && onComplete();
+      });
+  }
+
+  public static askAI(aiKey:string, content: string, onNext: (result: string) => void, onComplete?: () => void) {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${aiKey}`;
+    const data = {
+      "contents": [
+        {
+          "parts": [
+            {
+              "text": `Give me some information or answer about: "${content}", (summary within 100 characters)`
+            }
+          ]
+        }
+      ]
+    };
+
+    axios.post(url, data)
+      .then(response => {
+
+        const data: any = response.data as any;
+        const candidates: any[] = data?.candidates as any[] ?? [];
+        const content: any = candidates.length > 0 && candidates[0].content;
+        const parts: any[] = content?.parts as any[] ?? [];
+        const result: string = parts.length > 0 && parts[0]?.text || "Cannot response";
+
+        onNext(result);
+        SLog.log(LogType.Info, "askAI", "answered", result);
+      })
+      .catch(error => {
+        SLog.log(LogType.Info, "askAI", "found error", error);
+        onNext("Cannot response");
+      })
+      .finally(onComplete);
+  }
 }

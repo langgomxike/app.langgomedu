@@ -5,23 +5,27 @@ import LearnerClass from "../components/LearnerClass"; // Phụ huynh tạo lớ
 import TurtorClass from "../components/TurtorClass"; // Gia sư tạo lớp
 import { AccountContext } from "../../configs/AccountConfig";
 import { RoleList } from "../../models/Role";
+import { LanguageContext } from "../../configs/LanguageConfig";
+import { lang } from "moment";
 
 export default function CreateClassScreen() {
-
-  // Giả lập vai trò (role)
+  // lấy vai trò (role)
   const accountContext = useContext(AccountContext); // lay duoc acount
+  const languageContext = useContext(LanguageContext).language;
 
   // State quản lý tab đang được chọn
   const [activeTab, setActiveTab] = useState<number | null>(null);
 
   // Xử lý nhấn tab
   const handleTabPress = (tabIndex: number) => {
-
-    const roleIds = accountContext.account?.roles?.map(role => role.id)
+    const roleIds = accountContext.account?.roles?.map((role) => role.id);
 
     // Kiểm tra quyền truy cập tab
-    if ((tabIndex === 0 && roleIds?.includes(RoleList.TUTOR)) || (tabIndex === 1 && roleIds?.includes(RoleList.PARENT))) {
-      Alert.alert("Thông báo", "Bạn không có quyền truy cập tab này!");
+    if (
+      (tabIndex === 0 && roleIds?.includes(RoleList.TUTOR)) ||
+      (tabIndex === 1 && roleIds?.includes(RoleList.PARENT))
+    ) {
+      Alert.alert(languageContext.NOTIFICATION.toUpperCase(), languageContext.MESSAGE);
       return;
     }
     setActiveTab(tabIndex); // Đặt tab đang được chọn
@@ -29,7 +33,7 @@ export default function CreateClassScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Tạo lớp học tuyển sinh</Text>
+      <Text style={styles.header}>{languageContext.CREATE_CLASS}</Text>
       <View style={styles.tabContainer}>
         {/* Tab Phụ huynh tạo lớp */}
         <TouchableOpacity
@@ -42,7 +46,7 @@ export default function CreateClassScreen() {
               activeTab === 0 && styles.activeTabText, // Text tab đang được chọn
             ]}
           >
-            PHỤ HUYNH TẠO LỚP
+            {languageContext.CREATE_CLASS_FOR_PARENT}
           </Text>
         </TouchableOpacity>
 
@@ -57,7 +61,7 @@ export default function CreateClassScreen() {
               activeTab === 1 && styles.activeTabText, // Text tab đang được chọn
             ]}
           >
-            GIA SƯ TẠO LỚP
+            {languageContext.CREATE_CLASS_FOR_TUTOR}
           </Text>
         </TouchableOpacity>
       </View>

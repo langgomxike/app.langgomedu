@@ -7,21 +7,45 @@ import {
   TouchableOpacity,
 } from "react-native";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
-import { useState } from "react";
-import BoxWhite from "../BoxWhite";
+import { useContext, useState, useEffect } from "react";
 import DropDownLocation from "../dropdown/DropDownLocation";
+import { AppInfoContext } from "../../../configs/AppInfoContext";
+import { LanguageContext } from "../../../configs/LanguageConfig";
 
 type props = {
-  onNext: (tuition?: string, dateStart?: string, dateEnd?: string) => void;
+  onNext: (
+    tuition?: string,
+    dateStart?: string,
+    dateEnd?: string,
+    province?: string,
+    district?: string,
+    ward?: string,
+    detail?: string
+  ) => void;
 };
 
 const InfoTuition = ({ onNext }: props) => {
-  const [tuition, setTuition] = useState("");
+  // context
+  const appInfos = useContext(AppInfoContext);
+  const languageContext = useContext(LanguageContext).language;
+  // console.log("code: ", appInfos.infos.banking_code);
+  // console.log("number: ", appInfos.infos.banking_number);
+
+  // state
+  const [tuition, setTuition] = useState<number | null>(null); // Giá trị gốc dạng số
+  const [formattedTuition, setFormattedTuition] = useState<string>(""); // Giá trị hiển thị
   const [dateStart, setDateStart] = useState("");
   const [dateEnd, setDateEnd] = useState("");
   const [error, setError] = useState("");
   const [isDatePickerVisible, setDatePickerVisible] = useState(false);
   const [datePickerType, setDatePickerType] = useState<"start" | "end">();
+
+  // state address
+  const [selectedProvince, setSelectedProvince] = useState("");
+  const [selectedDistrict, setSelectedDistrict] = useState("");
+  const [selectedWard, setSelectedWard] = useState("");
+  const [detail, setDetail] = useState("");
+  const [zalo, setZalo] = useState("");
 
   // Kiểm tra logic ngày bắt đầu và ngày kết thúc
   const validateDates = (start: string, end: string) => {
@@ -29,7 +53,7 @@ const InfoTuition = ({ onNext }: props) => {
     const endDate = new Date(end).getTime();
 
     if (startDate > endDate) {
-      setError("Ngày kết thúc phải lớn hơn hoặc bằng ngày bắt đầu.");
+      setError(languageContext.ERROR_DATE);
       setDateEnd("");
       return false;
     }
@@ -49,65 +73,124 @@ const InfoTuition = ({ onNext }: props) => {
 
   // Xử lý khi chọn ngày
   const handleConfirm = (date: Date) => {
-    const formattedDate = date.toISOString().split("T")[0]; // Format: YYYY-MM-DD
+    const formattedDate = date.toLocaleDateString("vi-VN");
 
     if (datePickerType === "start") {
       setDateStart(formattedDate);
       if (dateEnd) {
         validateDates(formattedDate, dateEnd);
       }
-      onNext(tuition, formattedDate, dateEnd);
     } else if (datePickerType === "end") {
       if (dateStart && !validateDates(dateStart, formattedDate)) {
-        onNext(tuition, dateStart, ""); // Reset ngày kết thúc nếu không hợp lệ
+        setDateEnd(""); // Reset ngày kết thúc nếu không hợp lệ
       } else {
         setDateEnd(formattedDate);
-        onNext(tuition, dateStart, formattedDate);
       }
     }
 
+    onNext(
+      tuition?.toString(),
+      dateStart,
+      dateEnd,
+      selectedProvince,
+      selectedDistrict,
+      selectedWard,
+      detail
+    );
     hideDatePicker();
   };
 
-  const handleChangeTuition = (value: any) => {
-    setTuition(value); // Lưu lại giá trị người dùng nhập vào
+  const handleChangeTuition = (value: string) => {
+    if (value === "") {
+      setTuition(null);
+      setFormattedTuition("");
+      setError("");
+      onNext(
+        undefined,
+        dateStart,
+        dateEnd,
+        selectedProvince,
+        selectedDistrict,
+        selectedWard,
+        detail
+      );
+      return;
+    }
 
-    // Kiểm tra khi người dùng nhập xong
-    if (value !== "") {
-      const numericValue = Number(value);
+    // Loại bỏ dấu phẩy khỏi giá trị nhập vào
+    const numericValue = Number(value.replace(/,/g, ""));
 
-      // Kiểm tra nếu giá trị là số và không phải là số âm
-      if (isNaN(numericValue) || numericValue < 0) {
-        setError("Mức học phí phải là số dương và không được âm.");
-        onNext("", dateStart, dateEnd); // Không gửi học phí nếu không hợp lệ
-      }
-      // Kiểm tra nếu học phí dưới 10 nghìn
-      else if (numericValue < 10000) {
-        setError("Mức học phí phải từ 10,000 trở lên.");
-        onNext("", dateStart, dateEnd); // Không gửi học phí nếu không hợp lệ
+    // Kiểm tra nếu giá trị là số hợp lệ
+    if (!isNaN(numericValue)) {
+      if (numericValue < 0) {
+        setError(languageContext.ERROR_TUITION);
+      } else if (numericValue < 10000) {
+        setError(languageContext.ERROR_TUITION_1);
       } else {
         setError(""); // Reset lỗi nếu hợp lệ
-        onNext(value, dateStart, dateEnd); // Gửi học phí nếu hợp lệ
       }
+
+      // Lưu giá trị không có dấu phẩy vào state (để dùng cho tính toán)
+      setTuition(numericValue);
+
+      setFormattedTuition(numericValue.toLocaleString("en-US")); // định dạng hiển thị ra gia diện
+
+      // Gửi giá trị không dấu phẩy qua onNext
+      onNext(
+        numericValue.toString(),
+        dateStart,
+        dateEnd,
+        selectedProvince,
+        selectedDistrict,
+        selectedWard,
+        detail
+      );
     } else {
-      // Nếu giá trị rỗng, không có lỗi
-      setError("");
-      onNext(value, dateStart, dateEnd); // Gửi giá trị rỗng nếu người dùng chưa nhập gì
+      setError(languageContext.ERROR_TUITION_2);
     }
   };
+
+  useEffect(() => {
+    // Gửi dữ liệu địa chỉ khi có sự thay đổi
+    console.log("tuition: ", tuition);
+    console.log("dateStart: ", dateStart);
+    console.log("dateEnd", dateEnd);
+    console.log("selectedProvince: ", selectedProvince);
+    console.log("selectedDistrict: ", selectedDistrict);
+    console.log("selectedWard: ", selectedWard);
+    console.log("detail: ", detail);
+
+    onNext(
+      tuition?.toString(),
+      dateStart,
+      dateEnd,
+      selectedProvince,
+      selectedDistrict,
+      selectedWard,
+      detail
+    );
+  }, [
+    tuition,
+    dateStart,
+    dateEnd,
+    selectedProvince,
+    selectedDistrict,
+    selectedWard,
+    detail,
+  ]);
 
   return (
     <View style={styles.container}>
       {/* Học phí */}
       <View style={styles.marginInput}>
         <Text style={styles.label}>
-          Học phí <Text style={styles.required}>*</Text>
+          {languageContext.TUITION} <Text style={styles.required}>*</Text>
         </Text>
         <TextInput
           style={styles.input}
-          placeholder="Nhập mức học phí"
+          placeholder={languageContext.TUITION_PLACEHOLDER}
           keyboardType="numeric"
-          value={tuition}
+          value={formattedTuition}
           onChangeText={handleChangeTuition}
         />
       </View>
@@ -115,26 +198,26 @@ const InfoTuition = ({ onNext }: props) => {
       {/* Ngày bắt đầu */}
       <View style={styles.marginInput}>
         <Text style={styles.label}>
-          Ngày bắt đầu <Text style={styles.required}>*</Text>
+          {languageContext.DATE_START_PLACEHOLDER} <Text style={styles.required}>*</Text>
         </Text>
         <TouchableOpacity
           style={styles.input}
           onPress={() => showDatePicker("start")}
         >
-          <Text>{dateStart || "Chọn ngày bắt đầu"}</Text>
+          <Text>{dateStart || languageContext.DATE_START_PLACEHOLDER}</Text>
         </TouchableOpacity>
       </View>
 
       {/* Ngày kết thúc */}
       <View style={styles.marginInput}>
         <Text style={styles.label}>
-          Ngày kết thúc <Text style={styles.required}>*</Text>
+          {languageContext.DATE_END} <Text style={styles.required}>*</Text>
         </Text>
         <TouchableOpacity
           style={styles.input}
           onPress={() => showDatePicker("end")}
         >
-          <Text>{dateEnd || "Chọn ngày kết thúc"}</Text>
+          <Text>{dateEnd || languageContext.DATE_END_PLACEHOLDER}</Text>
         </TouchableOpacity>
       </View>
 
@@ -148,32 +231,63 @@ const InfoTuition = ({ onNext }: props) => {
         onCancel={hideDatePicker}
       />
 
+      {/* Địa chỉ */}
       <View style={styles.marginInput}>
         <Text style={styles.label}>
-          Địa chỉ <Text style={styles.required}>*</Text>
+          {languageContext.ADDRESS} <Text style={styles.required}>*</Text>
         </Text>
-        {/* <TextInput style={styles.input} placeholder="Thêm địa chỉ của bạn" /> */}
-        <DropDownLocation />
-        <Text style={[styles.label, {marginTop: 25}]}>
-          Địa chỉ cụ thể <Text style={styles.required}>*</Text>
-        </Text>
-        <TextInput style={styles.input} placeholder="Thêm địa chỉ của bạn" />
+        <DropDownLocation
+          selectedCity={selectedProvince}
+          selectedDistrict={selectedDistrict}
+          selectedWard={selectedWard}
+          onSetSelectedCity={setSelectedProvince}
+          onSetSelectedDistrict={setSelectedDistrict}
+          onSetSelectedWard={setSelectedWard}
+        />
       </View>
-      <View style={styles.marginInput}>
+      <View>
         <Text style={styles.label}>
-          Phí tạo lớp <Text style={styles.required}>*</Text>
+          {languageContext.DETAIL_ADDRESS} <Text style={styles.required}>*</Text>
         </Text>
-        {/* LẤY MÃ QR NGÂN HÀNG CỦA TURTOR  */}
-        <View style={{ alignItems: "center" }}>
-          <Image
-            style={{ width: 400, height: 400 }}
-            source={{
-              uri: "https://img.vietqr.io/image/mbbank-0376961547-compact2.jpg?amount=10000&addInfo=dong%20phi%20tao%20lop&accountName=Phi%20Tao%20Lop",
-            }}
-          />
-        </View>
-        {/* <Text style={styles.label}>HỌ TÊN: </Text>
-          <Text style={styles.label}>SỐ TÀI KHOẢN: </Text> */}
+        <TextInput
+          style={styles.input}
+          placeholder={languageContext.DETAIL_ADDRESS_PLACEHOLDER}
+          value={detail}
+          onChangeText={(text) => {
+            setDetail(text);
+            onNext(
+              tuition?.toString(),
+              dateStart,
+              dateEnd,
+              selectedProvince,
+              selectedDistrict,
+              selectedWard,
+              text
+            );
+          }}
+        />
+      </View>
+
+      {/* LINK ZALO */}
+      <View style={{ marginTop: 25 }}>
+        <Text style={styles.label}>{languageContext.ZALO}</Text>
+        <TextInput
+          style={styles.input}
+          placeholder={languageContext.ZALO_PLACEHOLDER}
+          value={zalo}
+          onChangeText={(text) => {
+            setZalo(text);
+            onNext(
+              tuition?.toString(),
+              dateStart,
+              dateEnd,
+              selectedProvince,
+              selectedDistrict,
+              selectedWard,
+              text
+            );
+          }}
+        />
       </View>
     </View>
   );
@@ -200,78 +314,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingLeft: 10,
     justifyContent: "center",
-  },
-
-  // ITEM DANH SÁCH CON
-  flatListContainer: {
-    paddingHorizontal: 10,
-  },
-  boxWhite: {
-    width: 300, // Đặt chiều rộng của mỗi phần tử
-    marginRight: 15,
-    padding: 15,
-    backgroundColor: "#fff",
-    borderRadius: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-    alignItems: "center", // Căn giữa nội dung
-    borderWidth: 2,
-    borderColor: "gray",
-  },
-  userInfo: {
-    flexDirection: "row", // Sắp xếp avatar và tên ngang hàng
-    alignItems: "center",
-    marginBottom: 15,
-  },
-  avatar: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    marginRight: 10,
-  },
-  userName: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#333",
-  },
-  details: {
-    alignItems: "center", // Căn giữa nội dung trong chi tiết
-  },
-  checkIcon: {
-    fontSize: 24,
-    color: "green",
-    marginBottom: 5,
-  },
-  description: {
-    fontSize: 14,
-    color: "#555",
-    marginBottom: 15,
-    textAlign: "center",
-  },
-  button: {
-    width: 100,
-    paddingVertical: 10,
-    borderRadius: 8,
-    alignItems: "center",
-  },
-  primaryButton: {
-    backgroundColor: "#007BFF", // Nền xanh
-  },
-  primaryButtonText: {
-    color: "#fff",
-    fontWeight: "bold",
-  },
-  secondaryButton: {
-    backgroundColor: "#fff", // Nền trắng
-    borderColor: "red", // Viền đỏ
-    borderWidth: 1,
-  },
-  secondaryButtonText: {
-    color: "red",
-    fontWeight: "bold",
   },
   required: {
     color: "red",

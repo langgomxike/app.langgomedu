@@ -1,29 +1,32 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Button, StyleSheet, Text, TextInput, View } from "react-native";
-import CustomInput from "../Inputs/CustomInput";
+import CustomInput from "./Inputs/CustomInput";
 import { Picker } from "@react-native-picker/picker";
-import AClassLevel from "../../../apis/AClassLevel";
-import ClassLevel from "../../../models/ClassLevel";
-import Major from "../../../models/Major";
-import AMajor from "../../../apis/AMajor";
+import AClassLevel from "../../apis/AClassLevel";
+import ClassLevel from "../../models/ClassLevel";
+import AMajor from "../../apis/AMajor";
+import { LanguageContext } from "../../configs/LanguageConfig";
 
 type props = {
-  // dataTitle: string;
-  // onDataTitle: (value: string) => void;
   onNext: (
     title?: string,
     desc?: string,
     monHoc?: string,
-    capHoc?: number
+    capHoc?: number,
+    maxLearners?: number
   ) => void;
 };
 
 const InfoClass = ({ onNext }: props) => {
+  // context
+  const languageContext = useContext(LanguageContext).language;
+
+  // state
   const [title, setTitle] = useState("");
   const [desc, setDesc] = useState("");
   const [capHocList, setCapHocList] = useState<ClassLevel[]>([]); // đặt select
   const [selectedCapHoc, setSelectedCapHoc] = useState<number>(-1);
-
+  const [maxLearners, setMaxLearners] = useState<number>(0);
   // useState MÔN HỌC, FETCH DATA
   const [monHoc, setMonHoc] = useState<number>(-1); // đặt select
   const [isOtherSelected, setIsOtherSelected] = useState(false); // Kiểm tra khi chọn "Khác"
@@ -37,19 +40,33 @@ const InfoClass = ({ onNext }: props) => {
   useEffect(() => {
     AMajor.getAllMajors((majors) => {
       const majorItems = majors.map((major) => ({
-        label: major.vn_name,
+        label:
+          languageContext.TYPE === "vi"
+            ? major.vn_name
+            : languageContext.TYPE === "en"
+            ? major.en_name
+            : major.ja_name,
         value: major.id,
       }));
-      setPickerItems((prevItems) => {
-        const existingIds = new Set(prevItems.map((item) => item.value));
-        const uniqueMajorItems = majorItems.filter(
-          (item) => !existingIds.has(item.value)
-        );
-        return [...uniqueMajorItems, ...prevItems];
-      });
+      // setPickerItems((prevItems) => {
+      //   const existingIds = new Set(prevItems.map((item) => item.value));
+      //   const uniqueMajorItems = majorItems.filter(
+      //     (item) => !existingIds.has(item.value)
+      //   );
+      //   return [...uniqueMajorItems, ...prevItems];
+      // });
+      setPickerItems([...majorItems, { label: "Khác", value: "other" }]);
+      
     }, setIsLoading);
+  }, [languageContext.TYPE]);
+
+  useEffect(() => {
+    AClassLevel.getAllClassLevels((classLevels) => {
+      setCapHocList(classLevels);
+    });
   }, []);
 
+  // handle
   const handleSelectChange = (itemValue: any | "other") => {
     if (itemValue === "other") {
       setIsOtherSelected(true); // Chuyển Picker thành TextInput nếu chọn "Khác"
@@ -81,29 +98,12 @@ const InfoClass = ({ onNext }: props) => {
     }
   };
 
-  /** ========================================= */
-
-  /**
-   * FETCH DATA CẤP HỌC
-   */
-
-  useEffect(() => {
-    AClassLevel.getAllClassLevels((classLevels) => {
-      setCapHocList(classLevels);
-      // console.log("hihi ", classLevels);
-    });
-  }, []);
-
   const handleChangeCapHoc = (value: number) => {
     setSelectedCapHoc(value);
     console.log("value cap hoc: ", value);
-    
+
     onNext(undefined, undefined, undefined, value);
   };
-
-  /**
-   * ===========================================
-   */
 
   // TITLE
   const handleChangeTitle = (value: any) => {
@@ -116,13 +116,20 @@ const InfoClass = ({ onNext }: props) => {
     setDesc(value);
     onNext(undefined, value, undefined, undefined);
   };
+
+  // MAX LEARNER
+  const handleChangeMaxLearner = (value: any) => {
+    setMaxLearners(value); // Cập nhật state của component con
+    onNext(undefined, undefined, undefined, undefined, value);
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.marginInput}>
         <CustomInput
-          placeholder="Nhập tiêu đề..."
+          placeholder={languageContext.TITLE_PLACEHOLDER}
           type="text"
-          label="Tiêu đề"
+          label={languageContext.TITLE}
           onChangeText={handleChangeTitle}
           required
           value={title}
@@ -130,9 +137,9 @@ const InfoClass = ({ onNext }: props) => {
       </View>
       <View style={styles.marginInput}>
         <CustomInput
-          placeholder="Nhập mô tả..."
+          placeholder={languageContext.DESCRIPTION_PLACEHOLDER}
           type="textarea"
-          label="Mô tả"
+          label={languageContext.DESCRIPTION}
           onChangeText={handleChangeDesc}
           required
           value={desc}
@@ -141,7 +148,7 @@ const InfoClass = ({ onNext }: props) => {
       <View style={[styles.marginInput]}>
         <View style={[styles.inputContainer]}>
           <Text style={styles.label}>
-            Chọn môn học cho lớp <Text style={styles.required}>*</Text>
+            {languageContext.MAJOR} <Text style={styles.required}>*</Text>
           </Text>
 
           {isLoading ? (
@@ -162,6 +169,7 @@ const InfoClass = ({ onNext }: props) => {
                 selectedValue={monHoc}
                 onValueChange={(itemValue) => handleSelectChange(itemValue)}
                 style={styles.picker}
+                key={languageContext.TYPE}
               >
                 {pickerItems.map((item) => (
                   <Picker.Item
@@ -178,7 +186,7 @@ const InfoClass = ({ onNext }: props) => {
         {/* CẤP HOC */}
         <View style={[styles.inputContainer]}>
           <Text style={styles.label}>
-            Cấp học <Text style={styles.required}>*</Text>
+            {languageContext.CLASS_LEVEL} <Text style={styles.required}>*</Text>
           </Text>
           <View style={styles.pickerContainer}>
             <Picker
@@ -186,12 +194,15 @@ const InfoClass = ({ onNext }: props) => {
               onValueChange={(itemValue) => handleChangeCapHoc(itemValue)}
               style={styles.picker}
             >
-              {/* <Picker.Item label="Sơ cấp" value="0" />
-              <Picker.Item label="Trung cấp" value="1" />
-              <Picker.Item label="Cao cấp" value="2" /> */}
               {capHocList.map((classLevel) => (
                 <Picker.Item
-                  label={classLevel.vn_name}
+                  label={
+                    languageContext.TYPE === "vi"
+                      ? classLevel.vn_name
+                      : languageContext.TYPE === "en"
+                      ? classLevel.en_name
+                      : classLevel.ja_name
+                  }
                   value={classLevel.id}
                   key={classLevel.id}
                 />
@@ -199,6 +210,18 @@ const InfoClass = ({ onNext }: props) => {
             </Picker>
           </View>
         </View>
+
+        {/* MAX LEARNER */}
+        <Text style={styles.label}>
+          {languageContext.MAX_LEARNER} <Text style={styles.required}>*</Text>
+        </Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Nhập số lượng người học"
+          keyboardType="numeric"
+          value={maxLearners.toString()} // Chuyển `number` sang `string`
+          onChangeText={handleChangeMaxLearner}
+        />
       </View>
     </View>
   );
@@ -211,16 +234,15 @@ const styles = StyleSheet.create({
   },
   pickerContainer: {
     borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 10,
-    backgroundColor: "#fff",
+    borderColor: "#E0E0E0", // Màu viền xám nhạt
+    borderRadius: 10, // Bo tròn góc
+    overflow: "hidden", // Đảm bảo picker không tràn
   },
-  row: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  inputContainer: {
-    marginRight: 10, // khoảng cách giữa 2 input
+  picker: {
+    height: 50,
+    fontSize: 16,
+    paddingHorizontal: 10,
+    color: "#4F4F4F", // Màu chữ
   },
   marginInput: {
     marginBottom: 20,
@@ -228,34 +250,46 @@ const styles = StyleSheet.create({
   label: {
     fontWeight: "bold",
     fontSize: 16,
+    color: "#333333",
     marginBottom: 8,
   },
   required: {
-    color: "red",
+    color: "red", // Màu đỏ nhẹ cho dấu sao
+    fontWeight: "600",
   },
-  picker: {
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 10,
-    backgroundColor: "#fff",
-    height: 50,
-    width: "100%", // Đảm bảo chiều ngang đầy đủ
-    paddingHorizontal: 10, // Tăng khoảng cách giữa nội dung và cạnh
-  },
-  input: {
-    height: 40,
-    borderColor: "gray",
-    borderWidth: 1,
-    marginTop: 10,
-    paddingHorizontal: 10,
+  inputContainer: {
+    marginBottom: 15,
   },
   textInput: {
     flex: 1,
-    height: 40,
-    borderColor: "gray",
+    height: 45,
     borderWidth: 1,
-    marginRight: 10,
+    borderColor: "#E0E0E0",
+    borderRadius: 8,
     paddingHorizontal: 10,
+    backgroundColor: "#FFFFFF",
+    color: "#333333",
+    fontSize: 14,
+  },
+  button: {
+    marginTop: 10,
+    backgroundColor: "#007BFF",
+    borderRadius: 8,
+    paddingVertical: 10,
+    alignItems: "center",
+  },
+  buttonText: {
+    color: "#FFFFFF",
+    fontWeight: "600",
+    fontSize: 16,
+  },
+  input: {
+    height: 50,
+    borderColor: "#ccc",
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingLeft: 10,
+    justifyContent: "center",
   },
 });
 

@@ -16,9 +16,11 @@ export default class AClass {
     onNext: (course: Class) => void,
     onLoading: (loading: boolean) => void
   ) {
+
     onLoading(true);
+    
     axios
-      .get(`${this.API_URL}/classes/${classId}?user_id=${userId}`)
+      .get(`${this.API_URL}/classes/detail/${classId}?user_id=${userId}`)
       .then((response) => {
         const data = response.data.data;
         onNext(data.class);
@@ -27,6 +29,36 @@ export default class AClass {
       .catch((err) => {
         console.log("Error: ", err);
         onNext(new Class());
+        onLoading(true);
+      });
+  }
+
+  public static getconflictingLessonsWithClassUsers(
+    classId: number,
+    userId: string,
+    onNext: (data: User[]) => void,
+    onLoading: (loading: boolean) => void
+  ) {
+    
+    onLoading(true);
+    
+    axios
+      .post(`${this.API_URL}/classes/conflicting`, {class_id: classId, user_id: userId})
+      .then((response) => {
+        const datas:any[] = response.data.data;
+        const mergedData = datas.map(item => {
+          return {
+            ...item,
+            lessons: item.conflicts || [] 
+          };
+        });
+
+        onNext(mergedData);
+        onLoading(false);
+      })
+      .catch((err) => {
+        console.log("Error: ", err);
+        onNext([]);
         onLoading(true);
       });
   }
@@ -78,7 +110,7 @@ export default class AClass {
   }
 
   // get attending class with user id
-  public static getAttedingClass(
+  public static getCLassesByUserId(
     userId: string,
     onNext: (classes: Class[]) => void,
     onLoading: (loading: boolean) => void
@@ -86,34 +118,12 @@ export default class AClass {
     // console.log(">>> url: ", this.API_URL);
     onLoading(true);
     axios
-      .get(`${this.API_URL}/classes/attending/${userId}`)
+      .get(`${this.API_URL}/classes/${userId}`)
       .then((response) => {
         onNext(response.data.data);
-        
-        // console.log("User id", userId);  
+
+        // console.log("User id", userId);
         // console.log(">>>> response: ", JSON.stringify(response.data.data,  null, 2));
-
-        onLoading(false);
-      })
-      .catch((err) => {
-        console.log("Error: ", err);
-        onNext([]);
-        onLoading(true);
-      });
-  }
-
-  //get teachers class with user id
-  public static getTeachingClass(
-    userId: string,
-    onNext: (classes: Class[]) => void,
-    onLoading: (loading: boolean) => void
-  ) {
-    onLoading(true);
-    axios
-      .get(`${this.API_URL}/classes/teaching/${userId}`)
-      .then((response) => {
-        onNext(response.data.data);
-        // console.log(">>>> teaching class: ", JSON.stringify(response.data.data,  null, 2));
 
         onLoading(false);
       })
@@ -151,7 +161,83 @@ export default class AClass {
       });
   }
 
+  // tạo lớp cho gia sư
   public static createClass(
+    title: string,
+    description: string,
+    majorId: number,
+    classLevelId: number,
+    maxLearners: number,
+    price: number,
+    startedAt: number | null,
+    endedAt: number | null,
+    province: string,
+    district: string,
+    ward: string,
+    detail: string,
+    tutorId: string,
+    authorId: string,
+    lessons: Lesson[],
+    onNext: (result: boolean, insertId?: number) => void
+  ) {
+
+    console.log(
+      "create class data: ",
+      JSON.stringify(
+        {
+          title,
+          description,
+          major_id: majorId,
+          class_level_id: classLevelId,
+          max_learners: maxLearners,
+          price,
+          started_at: startedAt,
+          ended_at: endedAt,
+          province,
+          district,
+          ward,
+          detail,
+          tutor_id: tutorId, // Thêm vào payload
+          author_id: authorId, // Thêm vào payload
+          lessons,
+        },
+        null,
+        2
+      )
+    );
+
+    axios
+      .post(`${this.API_URL}/classes/create`, {
+        title,
+        description,
+        major_id: majorId,
+        class_level_id: classLevelId,
+        price,
+        started_at: startedAt,
+        ended_at: endedAt,
+        max_learners: maxLearners,
+        province,
+        district,
+        ward,
+        detail,
+        tutor_id: tutorId, // Thêm vào payload
+        author_id: authorId, // Thêm vào payload
+        lessons,
+      })
+      .then((response) => {
+        console.log("Class created successfully:", response.data);
+        onNext(true, response.data.data.classId); // Truyền `classId` về từ response
+      })
+      .catch((err) => {
+        console.error("Error:", err);
+        console.log(">>> title", "Tạo lớp không thành công");
+        onNext(false);
+      });
+  }
+
+  // tạo lớp cho phụ huynh
+  // Update the static method to accept user, tutorId, and authorId as parameters
+  public static createClassForLearner(
     title: string,
     description: string,
     majorId: number,
@@ -159,50 +245,67 @@ export default class AClass {
     price: number,
     startedAt: number | null,
     endedAt: number | null,
+    maxLearners: number,
+    province: string,
+    district: string,
+    ward: string,
+    detail: string,
+    tutorId: string | "",
+    authorId: string,
     lessons: Lesson[],
     onNext: (result: boolean, insertId?: number) => void
   ) {
-    
-    console.log("title: ", title);
-    console.log("description: ", description);
-    console.log("majorId: ", majorId);
-    console.log("classLevelId: ", classLevelId);
-    console.log("startedAt: ", startedAt);
-    console.log("endedAt: ", endedAt);
-    console.log("lessons: ", lessons);
-    
-
-    console.log({
-      title: title,
-      description: description,
-      major_id: majorId,
-      class_level_id: classLevelId,
-      price: price,
-      started_at: startedAt,
-      ended_at: endedAt,
-      lessons: lessons,
-    });
-    
+    console.log(
+      "create class data: ",
+      JSON.stringify(
+        {
+          title,
+          description,
+          major_id: majorId,
+          class_level_id: classLevelId,
+          price,
+          started_at: startedAt,
+          ended_at: endedAt,
+          maxLearners,
+          province,
+          district,
+          ward,
+          detail,
+          tutor_id: tutorId || "", // Thêm vào payload
+          author_id: authorId, // Thêm vào payload
+          lessons,
+        },
+        null,
+        2
+      )
+    );
 
     axios
-      .post(`${this.API_URL}/classes/create`, {
-        title: title,
-        description: description,
+      .post(`${this.API_URL}/classes/create-learner`, {
+        title,
+        description,
         major_id: majorId,
         class_level_id: classLevelId,
-        price: price,
+        price,
         started_at: startedAt,
         ended_at: endedAt,
-        lessons: lessons,
+        max_learners: maxLearners,
+        province,
+        district,
+        ward,
+        detail,
+        tutor_id: tutorId || "", // Thêm vào payload
+        author_id: authorId, // Thêm vào payload
+        lessons,
       })
       .then((response) => {
         console.log("Class created successfully:", response.data);
-        onNext(response.data.data.classId); // Truyền `classId` về từ response
+        onNext(true, response.data.data.classId); // Truyền `classId` về từ response
       })
       .catch((err) => {
         console.error("Error:", err);
         console.log(">>> title", "Tạo lớp không thành công");
-        onNext(err);
+        onNext(false);
       });
   }
 
@@ -230,68 +333,93 @@ export default class AClass {
       });
   }
 
-  public static getCreatedClass(
-    userId: string,
-    onNext: (classes: Class[]) => void,
+  public static payFeeForClass(
+    formData: FormData, 
+    onNext: (result: any) => void,
+    onLoading: (loading: boolean) => void){
+
+    onLoading(true);
+      axios
+    .post(`${this.API_URL}/classes/class-fee/pay`, formData,  {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      }
+    })
+    .then((response) => {
+      onLoading(false);
+      console.log(">>> pay fee for class: ", response.data.data);
+      onNext(response.data.data);
+    })
+    .catch((err) => {
+      console.log("Error: ", err);
+      console.log(err.message);
+    });
+  }
+
+  public static acceptTutorForClass(
+    classId: number,
+    authorAccepted: boolean,
+    onNext: (data: any) => void,
     onLoading: (loading: boolean) => void
   ) {
     onLoading(true);
+
     axios
-      .get(`${this.API_URL}/classes/created/${userId}`)
+      .put(`${this.API_URL}/classes/accept-tutor`, {
+        class_id: classId, author_accepted: authorAccepted
+      })
       .then((response) => {
         onNext(response.data.data);
-        // console.log(">>>> created class: ", JSON.stringify(response.data.data,  null, 2));
-
         onLoading(false);
       })
       .catch((err) => {
-        console.log("Error: ", err);
-        onNext([]);
-        onLoading(true);
+        console.error("Error enrolling in class:", err);
+        console.log(">>> title", "Xác nhận gia sư cho lớp không thành công");
+        onNext(err);
+        onLoading(false);
       });
   }
+  
   //khoá lớp học
   // Hàm khoá lớp học
-public static lockClass(
-  classId: number,
-  onNext: (response: any) => void,
-  onLoading: (loading: boolean) => void
-) {
-  // Bắt đầu loading
-  onLoading(true);
+  public static lockClass(
+    classId: number,
+    onNext: (response: any) => void,
+    onLoading: (loading: boolean) => void
+  ) {
+    // Bắt đầu loading
+    onLoading(true);
 
-  // Gửi request POST đến BE với classId
-  axios.post(`${this.API_URL}/reports/lockClass`, { classId })
+    // Gửi request POST đến BE với classId
+    axios
+      .post(`${this.API_URL}/reports/lockClass`, { classId })
       .then((response) => {
-          // Nếu thành công, gọi callback `onNext` với kết quả từ BE
-          onNext(response.data);
+        // Nếu thành công, gọi callback `onNext` với kết quả từ BE
+        onNext(response.data);
       })
       .catch((error) => {
-          console.error("Error locking class:", error);
-          onNext({ success: false, message: "Failed to lock class." });
+        console.error("Error locking class:", error);
+        onNext({ success: false, message: "Failed to lock class." });
       })
       .finally(() => {
-          // Kết thúc loading
-          onLoading(false);
+        // Kết thúc loading
+        onLoading(false);
       });
-}
+  }
 
-  public static getAllClasses(onNext: ()=> void){
+  public static getAllClasses(onNext: () => void) {
     // console.log("clicked");
-    
-    axios({method: 'get', baseURL: this.API_URL +'/classes'})
-    .then(
-        (result)=> {
-            // console.log("port", this.API_URL)
-            // console.log("data", result.data);
-            onNext();
-        }
-    ).catch(
-        (err)=> {
-            // console.log("port", this.API_URL)
-            // console.log("error", err);
-            onNext();
-        }
-    )
-}
+
+    axios({ method: "get", baseURL: this.API_URL + "/classes" })
+      .then((result) => {
+        // console.log("port", this.API_URL)
+        // console.log("data", result.data);
+        onNext();
+      })
+      .catch((err) => {
+        // console.log("port", this.API_URL)
+        // console.log("error", err);
+        onNext();
+      });
+  }
 }

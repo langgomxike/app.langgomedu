@@ -24,8 +24,8 @@ export default function ClassDetail() {
             <View>
               {/* Header */}
               <View style={styles.headerContainer}>
-                <CustomShimmer width={80} height={80} isCircle={true}/>
-                <CustomShimmer width={200} height={30} style={{marginTop: 20}}/>
+                <CustomShimmer width={60} height={60} isCircle={true}/>
+                <CustomShimmer width={200} height={20} style={{marginTop: 20}}/>
               </View>
               {/* Body */}
               <View style={styles.bodyContainer}>
@@ -34,7 +34,7 @@ export default function ClassDetail() {
                   {/* Tiêu đề môn học */}
                   <CustomShimmer width={200} height={20}/>
 
-                  <CustomShimmer width={300} height={20} style={{marginTop: 10}}/>
+                  <CustomShimmer width={300} height={20} style={{marginTop: 20}}/>
                   <View style={[styles.line, { marginTop: 10 }]}></View>
 
                   <View style={styles.itemInfo}>
@@ -46,11 +46,24 @@ export default function ClassDetail() {
                   </View>
 
                   <View style={styles.itemInfo}>
+                  <CustomShimmer width={220} height={20}/>
+                  </View>
+
+                  <View style={styles.itemInfo}>
+                  <CustomShimmer width={270} height={20}/>
+                  </View>
+                  <View style={styles.itemInfo}>
+                  <CustomShimmer width={250} height={20}/>
+                  </View>
+                  <View style={styles.itemInfo}>
+                  <CustomShimmer width={100} height={20}/>
+                  </View>
+                  <View style={styles.itemInfo}>
                   <CustomShimmer width={250} height={20}/>
                   </View>
 
                   <View style={styles.itemInfo}>
-                  <CustomShimmer width={250} height={20}/>
+                  <CustomShimmer width={250} height={30}/>
                   </View>
 
                   <View style={[styles.line, { marginTop: 10 }]}></View>
@@ -65,7 +78,7 @@ export default function ClassDetail() {
                   <Text style={[styles.containerTitle, { marginBottom: 10 }]}>
                     Mô tả
                   </Text>
-                  <CustomShimmer width={350} height={50}/>
+                  
                 </View>
 
                 {/* Các lớp học liên quan */}

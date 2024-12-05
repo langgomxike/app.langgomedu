@@ -7,6 +7,7 @@ import {
   ActivityIndicator,
   ScrollView,
   Dimensions,
+  Alert,
 } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import Modal from "react-native-modal";
@@ -15,30 +16,46 @@ import { Image } from "react-native";
 import Octicons from '@expo/vector-icons/Octicons';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import * as ImagePicker from "expo-image-picker";
+import * as MediaLibrary from "expo-media-library";
+import * as FileSystem from "expo-file-system";
+import User from "../../../models/User";
+import { LanguageContext } from "../../../configs/LanguageConfig";
+
 
 type ModalDialogForClassProps = {
   confirmTitle: string;
-  confirmContent: string;
-  imageStatus: "success" | 'failure' | 'confirm';
   visiable: string | null;
   onRequestCloseDialog: () => void;
-  loading?: boolean;
+  tutor?: User;
+  price?: number;
+  onSelectedImage: (image: any) => void;
+  onSetPaymentMethod: (method: string) => void;
+  onPay: () => void;
 };
 
-const { height: SCREEN_HEIGHT} = Dimensions.get("window");
+const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH} = Dimensions.get("screen");
 export default function ModalPay({
   confirmTitle,
-  confirmContent,
-  imageStatus,
   visiable,
   onRequestCloseDialog,
-  loading = false,
+  tutor,
+  price,
+  onSelectedImage,
+  onSetPaymentMethod,
+  onPay,
 }: ModalDialogForClassProps) {
+    // context 
+    const language = useContext(LanguageContext).language;
+    // states -------------------------------------------------------------------
+    const image = tutor ? `https://img.vietqr.io/image/${tutor.banking_code}-${tutor.banking_number}-compact2.jpg?amount=${price}&addInfo=${"Tiền học của lớp"}&accountName=${tutor.full_name}`: "";
     
-    // states
+    
     const [paymentMethod, setPaymentMethod] = useState<"cash" | "bank">("cash");
     const [selectedImage, setSelectedImage] = useState<any>(null);
+    const [loadingSaveImage, setLoadingSaveImage] = useState(false);
 
+
+    // animations ----------------------------------------------------------------
      // Shared value for height
      const modalHeight = useSharedValue(0.6);
 
@@ -49,11 +66,42 @@ export default function ModalPay({
 
   // Handle payment method change
   const handlePaymentMethodChange = (method: string) => {
+    onSetPaymentMethod(method)
     setPaymentMethod(method as "bank" | "cash");
 
     // Update modal height
     modalHeight.value = method === "bank" ? 0.9 : 0.6;
-    console.log(">>Height ", (modalHeight.value * SCREEN_HEIGHT))
+  };
+
+  // handle ----------------------------------------------------------------
+  const handleSaveImage = async () => {
+    try {
+      // Kiểm tra và yêu cầu quyền truy cập vào thư viện
+      setLoadingSaveImage(true);
+      const { status } = await MediaLibrary.requestPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert(
+          language.ACCESS_DENIED,
+          language.APP_NEEDS_PERMISSION
+        );
+        return;
+      }
+
+      // Đặt tên cho file tải về trong hệ thống tệp của ứng dụng
+      const fileUri = FileSystem.documentDirectory + "qrBanking.jpg";
+
+      // Tải ảnh về thư mục nội bộ
+      const { uri } = await FileSystem.downloadAsync(image, fileUri);
+
+      //Lưu ảnh vào thư viện của thiết bị
+      await MediaLibrary.saveToLibraryAsync(uri);
+
+      setLoadingSaveImage(false)
+      Alert.alert(language.UPLOAD_SUCCESS, language.IMAGE_SAVED);
+    } catch (error) {
+      Alert.alert(language.ERROR_A, language.UPLOAD_FAILED);
+      console.error(error);
+    }
   };
 
   const selectImage = async () => {
@@ -75,8 +123,7 @@ export default function ModalPay({
 
     if (!pickerResult.canceled) {
       setSelectedImage(pickerResult.assets[0]);
-      console.log("Image selected:", pickerResult.assets[0]);
-      // Handle the selected image URI, e.g., save or display it
+      onSelectedImage(pickerResult.assets[0]);
     }
   };
 
@@ -87,12 +134,6 @@ export default function ModalPay({
       animationOut={"slideOutDown"}
       onBackdropPress={() => onRequestCloseDialog()}
     >
-      {loading ? (
-        <View style={styles.containerLoading} >
-          <ActivityIndicator size={50} />
-          <Text style={styles.loadingText}>Đang xử lý...</Text>
-        </View>
-      ) : (
         <Animated.View style={[styles.container, animatedStyle]}>
             <View style={styles.modalHeader}>
             <Text style={styles.headerTitle}>{confirmTitle}</Text>
@@ -110,7 +151,7 @@ export default function ModalPay({
             {/* Uploading payment */}
             <View style={styles.paymentContainer}>
                 <Text style={styles.titleContainer}>
-                  Chọn phương thức thanh toán
+                 {language.SELECT_PAYMENT_METHOD}
                 </Text>
 
                 {/* Phương thức Tiền mặt */}
@@ -123,7 +164,7 @@ export default function ModalPay({
                     size={24}
                     color={paymentMethod === "cash" ? "green" : "gray"}
                   />
-                  <Text style={styles.optionText}>Thanh toán tiền mặt</Text>
+                  <Text style={styles.optionText}>{language.CASH_PAYMENT}</Text>
                   {paymentMethod === "cash" && (
                     <Ionicons name="checkmark" size={24} color="green" />
                   )}
@@ -139,7 +180,7 @@ export default function ModalPay({
                     size={24}
                     color={paymentMethod === "bank" ? "green" : "gray"}
                   />
-                  <Text style={styles.optionText}>Chuyển khoản</Text>
+                  <Text style={styles.optionText}>{language.BANK_TRANSFER}</Text>
                   {paymentMethod === "bank" && (
                     <Ionicons name="checkmark" size={24} color="green" />
                   )}
@@ -156,41 +197,18 @@ export default function ModalPay({
                       Thông tin chuyển khoản
                     </Text>
                     <View style={styles.payInfoContent}>
-                      <View style={styles.hintTitleContainer}>
-                        <Text style={styles.hintTitle}>
-                          Nhấn giữ hình để lưu
-                        </Text>
-                        <Octicons
-                          name="download"
-                          size={18}
-                          color={BackgroundColor.gray_c6}
-                        />
-                      </View>
-
-                      <TouchableOpacity
-                        // onLongPress={downloadImage}
+                      <View
                         style={[styles.boxShadow, styles.imageQrContainer]}
                       >
                         <Image
-                          source={{
-                            uri: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/QR_code_for_mobile_English_Wikipedia.svg/800px-QR_code_for_mobile_English_Wikipedia.png",
-                          }}
+                          source={{uri: image}}
                           style={[styles.imageQr, styles.boxShadow]}
                         />
-                      </TouchableOpacity>
-                      <View style={styles.logoOfBankContainer}>
-                        <Image
-                          source={{ uri: "https://api.vietqr.io/img/MB.png" }}
-                          style={styles.logoOfBank}
-                          resizeMode="contain"
-                        />
                       </View>
-                      <Text style={styles.bankingNumber}>
-                        1111
-                      </Text>
-                      <Text style={styles.bankingName}>
-                        hhhhh
-                      </Text>
+                      <TouchableOpacity onPress={handleSaveImage}  style={[styles.boxShadow, styles.btnSaveQR]}>
+                        <Text style={styles.btnSaveQRText}>{language.SAVE_QR_A}</Text>
+                        {loadingSaveImage && <ActivityIndicator></ActivityIndicator>}
+                        </TouchableOpacity>
                     </View>
                   </View>
 
@@ -202,16 +220,15 @@ export default function ModalPay({
                       style={[styles.uploadImageButton, styles.boxShadow]}
                     >
                       <Ionicons name="image-outline" size={24} color="black" />
-                      <Text style={styles.buttonText}>Chọn hình</Text>
+                      <Text style={styles.buttonText}>{language.SELECT_IMAGE}</Text>
                     </TouchableOpacity>
 
                     <View style={styles.textContainer}>
                       <Text style={styles.uploadText}>
-                        Tải ảnh minh chứng thanh toán
+                      {language.UPLOAD_PAYMENT_PROOF}
                       </Text>
                       <Text style={styles.subText}>
-                        Vui lòng tải lên ảnh chụp màn hình hoặc hóa đơn để xác
-                        nhận thanh toán.
+                      {language.UPLOAD_PAYMENT_INSTRUCTION}
                       </Text>
                     </View>
 
@@ -232,15 +249,13 @@ export default function ModalPay({
 
         <View style={[styles.btnContainer]}>
               <TouchableOpacity
-                onPress={onRequestCloseDialog}
+                onPress={onPay}
                 style={[styles.btn, styles.btnSave, styles.boxShadow]}
               >
-                <Text style={styles.btnSaveText}>Thanh toán</Text>
+                <Text style={styles.btnSaveText}>{language.PAYMENT}</Text>
               </TouchableOpacity>
             </View>
       </Animated.View>
-      ) 
-      }
       
     </Modal>
   );
@@ -332,7 +347,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
 
-
   boxShadow: {
     shadowColor: "#000",
     shadowOffset: {
@@ -359,16 +373,6 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
   },
 
-  hintTitleContainer: {
-    flexDirection: "row",
-    gap: 10,
-  },
-
-  hintTitle: {
-    color: BackgroundColor.gray_c6,
-    marginBottom: 10,
-  },
-
   payInfoContent: {
     alignItems: "center",
     marginTop: 10,
@@ -383,18 +387,7 @@ const styles = StyleSheet.create({
   logoOfBank: {
     width: "100%",
     height: "100%",
-  },
-
-  bankingNumber: {
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-
-  bankingName: {
-    fontSize: 16,
-    fontWeight: "bold",
-    marginTop: 5,
-    paddingBottom: 10,
+    
   },
 
   imageQrContainer: {
@@ -404,9 +397,29 @@ const styles = StyleSheet.create({
   },
 
   imageQr: {
-    width: 170,
-    height: 170,
+    width: SCREEN_WIDTH * 0.7,
+    height: SCREEN_WIDTH * 0.9,
+    resizeMode: "contain",
   },
+
+  btnSaveQR: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    backgroundColor: BackgroundColor.primary,
+    borderRadius: 10,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    marginTop: 15,
+  },  
+
+  btnSaveQRText: {
+    color: BackgroundColor.white,
+    fontWeight: "bold",
+    fontSize: 13,
+    alignItems: "center"
+  },
+
 
   // upload payment
   uploadPaymentContainer: {

@@ -5,25 +5,17 @@ import { MaterialIcons, FontAwesome, Ionicons } from "@expo/vector-icons";
 import Class from "../../../models/Class";
 import ReactAppUrl from "../../../configs/ConfigUrl";
 import { ScrollView } from "react-native-gesture-handler";
+import moment from "moment";
+import AuthorTuorInClass from "../AuthorTuorInClass";
 
 const ICON_SIZE = 20;
 const URL = ReactAppUrl.PUBLIC_URL;
- type ClassComponentProps = {
-    classData: Class;
- }
 
-export default function ClassComponent({classData}: ClassComponentProps) {
-  
-  function fomatDate(timestamp: number) {
-    if (!timestamp) return ""; // Kiểm tra nếu timestamp là undefined hoặc null
+type ClassComponentProps = {
+  classData: Class;
+};
 
-    const date = new Date(timestamp);
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const year = date.getFullYear();
-
-    return `${day}/${month}/${year}`; // Trả về chuỗi theo định dạng DD/MM/YYYY
-  }
+export default function ClassComponent({ classData }: ClassComponentProps) {
 
   function formatCurrency(amount: number, locale = "vi-VN", currency = "VND") {
     // Kiểm tra nếu không phải số, trả về chuỗi lỗi
@@ -41,132 +33,145 @@ export default function ClassComponent({classData}: ClassComponentProps) {
 
   return (
     <View>
-    {classData &&
-    <ScrollView>
-      <View style={styles.headerContent}>
-        <Text style={styles.createdTime}>2 ngày trước</Text>
-        <View style={styles.checkboxContainer}>
-          <Text>Thanh toán</Text>
-          <MaterialIcons
-            name="check-box-outline-blank"
-            size={20}
-            color="black"
-          />
-        </View>
-      </View>
+      {classData && (
+        <ScrollView>
+          <View style={styles.headerContent}>
+            <Text style={styles.createdTime}>
+              {moment(classData.updated_at).format("HH:mm DD/MM/YYYY")}
+            </Text>
+          </View>
 
-      <View style={styles.majorContainer}>
-        <Image
-          source={{
-            uri: `${URL}${classData.major?.icon?.path}`,
-          }}
-          style={styles.majorImage}
-        />
-        <Text style={styles.majorName}>{classData.major?.vn_name}</Text>
-      </View>
-          
-      <Text style={styles.titleClass}>{classData.title}</Text>  
-
-      <View style={styles.line}></View>
-
-      <View style={styles.classContent}>
-        <View style={styles.textWithIconContainer}>
-          <View style={styles.textWithIcon}>
-            <Ionicons
-              name="calendar-clear-outline"
-              size={ICON_SIZE}
-              color="black"
+          <View style={styles.majorContainer}>
+            <Image
+              source={{
+                uri: `${URL}${classData.major?.icon}`,
+              }}
+              style={styles.majorImage}
             />
-            <Text>Bắt đầu</Text>
+            <Text style={styles.majorName}>{classData.major?.vn_name}</Text>
           </View>
-          <Text>{fomatDate(classData.started_at)}</Text>
-        </View>
 
-        <View style={styles.textWithIconContainer}>
-          <View style={styles.textWithIcon}>
-            <Ionicons
-              name="calendar-number-outline"
-              size={ICON_SIZE}
-              color="black"
-            />
-            <Text>Kết thúc</Text>
+          <Text style={styles.titleClass}>{classData.title}</Text>
+
+          <View style={styles.line}></View>
+
+          <View style={styles.classContent}>
+            <View style={styles.textWithIconContainer}>
+              <View style={styles.textWithIcon}>
+                <Ionicons
+                  name="calendar-clear-outline"
+                  size={ICON_SIZE}
+                  color="black"
+                />
+                <Text>Bắt đầu</Text>
+              </View>
+              <Text>{moment(classData.started_at).format("DD/MM/YYYY")}</Text>
+            </View>
+
+            <View style={styles.textWithIconContainer}>
+              <View style={styles.textWithIcon}>
+                <Ionicons
+                  name="calendar-number-outline"
+                  size={ICON_SIZE}
+                  color="black"
+                />
+                <Text>Kết thúc</Text>
+              </View>
+              <Text>{moment(classData.ended_at).format("DD/MM/YYYY")}</Text>
+            </View>
+
+            <View style={styles.textWithIconContainer}>
+              <View style={styles.textWithIcon}>
+                <Ionicons
+                  name="git-commit-outline"
+                  size={ICON_SIZE}
+                  color="black"
+                />
+                <Text>Hình thức</Text>
+              </View>
+              <Text>Offline</Text>
+            </View>
+
+            <View style={styles.textWithIconContainer}>
+              <View style={styles.textWithIcon}>
+                <Ionicons
+                  name="wallet-outline"
+                  size={ICON_SIZE}
+                  color="black"
+                />
+                <Text>Giá</Text>
+              </View>
+              <Text>{formatCurrency(classData.price)}/buổi</Text>
+            </View>
+
+            <View style={styles.textWithIconContainer}>
+              <View style={styles.textWithIcon}>
+                <Ionicons name="location-outline" size={20} color="black" />
+                <Text>Địa chỉ</Text>
+              </View>
+              <Text
+                style={{ flex: 1, textAlign: "right" }}
+              >{`${classData.address?.ward}, ${classData.address?.district}, ${classData.address?.province}`}</Text>
+            </View>
           </View>
-          <Text>{fomatDate(classData.ended_at)}</Text>
-        </View>
 
-        <View style={styles.textWithIconContainer}>
-          <View style={styles.textWithIcon}>
-            <Ionicons
-              name="git-commit-outline"
-              size={ICON_SIZE}
-              color="black"
-            />
-            <Text>Hình thức</Text>
+          <View style={styles.line}></View>
+          <View style={styles.authorContainer}>
+            <View style={styles.authorContent}>
+              <Image
+                source={{
+                  uri: `${URL}${classData.author?.avatar}`,
+                }}
+                style={styles.authorAvatar}
+              />
+              <Text style={styles.authorName}>
+                {classData.author?.full_name}
+              </Text>
+            </View>
+            {classData?.author?.id == classData?.tutor?.id && (
+              <View style={styles.authorStatusContainer}>
+               <View style={styles.colorAuthor}></View>
+               <View style={styles.colorTutor}></View>
+              </View>
+            )}
+
+            {classData?.author?.id != classData?.tutor?.id && 
+              <View style={styles.authorStatusContainer}>
+              {classData?.author?.id && 
+                 <View style={styles.colorAuthor}></View>
+              }
+              {classData?.tutor?.id && 
+                 <View style={styles.colorTutor}></View>
+              }
+              </View>
+            }
+
           </View>
-          <Text>Offline</Text>
-        </View>
-
-        <View style={styles.textWithIconContainer}>
-          <View style={styles.textWithIcon}>
-            <Ionicons name="wallet-outline" size={ICON_SIZE} color="black" />
-            <Text>Giá</Text>
-          </View>
-          <Text>{formatCurrency(classData.price)}/buổi</Text>
-        </View>
-
-        <View style={styles.textWithIconContainer}>
-          <View style={styles.textWithIcon}>
-            <Ionicons name="location-outline" size={20} color="black" />
-            <Text>Địa chỉ</Text>
-          </View>
-          <Text>{`${classData.address_4}, ${classData.address_3}\n${classData.address_2}, ${classData.address_1}`}</Text>
-        </View>
-      </View>
-
-      <View style={styles.line}></View>
-      <View style={styles.authorContainer}>
-        <View style={styles.authorContent}>
-          <Image
-            source={{
-              uri: `${URL}${classData.author?.avatar?.path}`,
-            }}
-            style={styles.authorAvatar}
-          />
-          <Text style={styles.authorName}>{classData.author?.full_name}</Text>
-        </View>
-      </View>
-      </ScrollView>
-    }
+        </ScrollView>
+      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   headerContent: {
+    position: "absolute",
+    right: 0,
     flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 15
-  },
-
-  checkboxContainer: {
-    flexDirection: "row",
-    gap: 10,
     alignItems: "center",
     justifyContent: "flex-end",
   },
-
   createdTime: {
     backgroundColor: "rgba(143, 209, 79, 0.3)",
     paddingHorizontal: 15,
     paddingVertical: 3,
-    borderRadius: 999,
+    borderRadius: 8,
     fontSize: 12,
-    fontWeight: "500"
+    fontWeight: "500",
   },
-  
 
   majorContainer: {
+    marginTop: 10,
     flexDirection: "row",
     gap: 10,
     alignItems: "center",
@@ -179,7 +184,7 @@ const styles = StyleSheet.create({
   },
 
   majorName: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "bold",
     marginBottom: 5,
   },
@@ -214,6 +219,9 @@ const styles = StyleSheet.create({
   },
 
   authorContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginTop: 10,
     gap: 10,
   },
@@ -237,5 +245,40 @@ const styles = StyleSheet.create({
   authorName: {
     fontSize: 14,
     fontWeight: "bold",
+  },
+
+  authorStatusContainer: {
+    flexDirection: "row",
+    gap: 10,
+    alignItems: "flex-end",
+  },
+
+  authorStatus: {
+    height: 15,
+    width: 15,
+    borderRadius: 3,
+    fontWeight: "500",
+    fontSize: 12,
+  },
+
+  tutorStatus: {
+    backgroundColor: "rgba(201, 230, 255, 0.69)",
+    color: BackgroundColor.primary,
+  },
+
+  colorAuthor: {
+    height: 12, 
+    width: 25,
+    borderRadius: 10,
+    backgroundColor: BackgroundColor.author_color,
+    padding: 5,
+  },
+
+  colorTutor: {
+    height: 12, 
+    width: 25,
+    borderRadius: 10,
+    backgroundColor: BackgroundColor.tutor_color,
+    padding: 5,
   },
 });

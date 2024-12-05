@@ -18,60 +18,73 @@ import { UserContext } from '../../../configs/UserContext'
 import User from '../../../models/User'
 import Education from '../../../models/Education'
 import Experience from '../../../models/Experience'
-import Skill from '../../../models/Skill'
-import Information from '../../../models/Information'
 import ReactAppUrl from '../../../configs/ConfigUrl'
 import CertificateItem from '../../components/CV/CertificateItem'
 import Major from '../../../models/Major'
-import InterestedMajor from '../../../models/InterestedMajor'
 import moment from 'moment'
+import Address from '../../../models/Address'
+import { AccountContext } from '../../../configs/AccountConfig'
+import { NavigationContext } from '@react-navigation/native'
+import ScreenName from '../../../constants/ScreenName'
+import { LanguageContext } from '../../../configs/LanguageConfig'
 
 export default function PersonalCV() {
-  const {user, setUser} = useContext(UserContext);
-  const [cv, setCV] = useState<CV>();
+  //CONTEXT >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+  const languageContext = useContext(LanguageContext);
+  const account = useContext(AccountContext).account;
+  const navigation = useContext(NavigationContext);
+
+  //STATE >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+  const [cv, setCV] = useState<any>();
   const [userInfo, setUserInfo] = useState<User>();
-  const [information, setInformation] = useState<Information>();
   const [birthday, setBirthday] = useState<string>('');
-  const [interestedMajor, setInterestedMajor] = useState<Major>()
+  const [address, setAddress] = useState<Address>();
   //effect
   useEffect(()=>{
-    ACV.getPersonalCV(user.ID, (cv)=>{
-      if(cv){
-        setCV(cv);
-        // console.log('log in screen', JSON.stringify(cv?.user, null, 2));
-        setUserInfo(cv.user);
-        setInformation(cv.information);
-        const priorityMajor = cv.interested_majors.find(major => major.priority === 0)
-        setInterestedMajor(priorityMajor ? priorityMajor.major :cv.interested_majors[0].major)
-        // console.log(cv.interested_majors[0].major);
-        console.log(interestedMajor);
+    // console.log(navigation);
+    
+    if(account){
+      ACV.getPersonalCV(account.id, (cvs)=>{
+        const viewCV = cvs.find(cv => cv.id === `${account.id}_t`) ? cvs.find(cv => cv.id === `${account.id}_t`) : cvs[0] ;
         
-        if(cv.information){
-          const birthday = new Date(cv.information?.birthday);
-          // const birthdayData = birthday.getDate() + '/' + (birthday.getMonth() +1) + '/' + birthday.getFullYear()
-          const birthdayData = moment(birthday)
-          setBirthday(birthdayData.format('DD/MM/yyyy'));
-          // setBirthday(birthdayData);
-          // console.log('birthday', birthdayData);
+        // console.log(JSON.stringify(viewCV, null, 2));
+        if(viewCV){
+          // console.log(JSON.stringify(cv, null, 2));
+          
+          setCV(viewCV);
+          setUserInfo(viewCV.user);
+          setAddress(viewCV.user?.address);
+          
+          if(viewCV.user){
+            const birthday = new Date(viewCV.user?.birthday);
+            // const birthdayData = birthday.getDate() + '/' + (birthday.getMonth() +1) + '/' + birthday.getFullYear()
+            const birthdayData = moment(birthday)
+            setBirthday(birthdayData.format('DD/MM/yyyy'));
+            // setBirthday(birthdayData);
+          }
+        }
+        else{
+          navigation?.navigate(ScreenName.INPUT_CV);
         }
         
-      }
-      
-    })
+      })
+    }else{
+      navigation?.navigate(ScreenName.INPUT_CV);
+    }
   },[])
 
-  useEffect(()=>{
-    // console.log(interestedMajor);
+  // useEffect(()=>{
+  //   // console.log(interestedMajor);
     
-  },[cv])
+  // },[cv])
   
   return (
     <ScrollView showsVerticalScrollIndicator={false}
       style={styles.container}>
       {/* header */}
       <View style={styles.header}>
-        <Image style={styles.avatar} source={{uri: ReactAppUrl.PUBLIC_URL + userInfo?.avatar?.path}} />
-        <Text style={styles.badge}> {information?.point} </Text>
+        <Image style={styles.avatar} source={{uri: ReactAppUrl.PUBLIC_URL + userInfo?.avatar}} />
+        <Text style={styles.badge}> {userInfo?.point} </Text>
         <Text style={styles.name}>{userInfo?.full_name}</Text>
         <Text style={styles.title}> {cv?.title}</Text>
       </View>
@@ -92,25 +105,25 @@ export default function PersonalCV() {
             </View>
 
           </View>
-          <View style={styles.inforItem}>
             {/* mail */}
+          {/* <View style={styles.inforItem}>
             <View style={styles.inforItemChild}>
               <Feather name="mail" size={20} color="black" />
               <Text style={styles.inforItemText}> {userInfo?.email} </Text>
             </View>
-          </View>
+          </View> */}
           <View style={styles.inforItem}>
             {/* interested major */}
             <View style={styles.inforItemChild}>
             <Feather name="bookmark" size={24} color="black" />
-              <Text style={styles.inforItemText}> {interestedMajor?.vn_name} </Text>
+              <Text style={styles.inforItemText}> {(userInfo && userInfo.interested_majors.length>0) && userInfo.interested_majors[0].vn_name} </Text>
             </View>
           </View>
           <View style={styles.inforItem}>
             {/* location */}
             <View style={styles.inforItemChild}>
               <Ionicons name="location-outline" size={20} color="black" />
-              <Text style={styles.inforItemText}> {`${information?.address_4}, ${information?.address_3}, ${information?.address_2}, ${information?.address_1}`}</Text>
+              <Text style={styles.inforItemText}> {`${address?.detail}, ${address?.ward}, ${address?.district}, ${address?.province}`}</Text>
             </View>
           </View>
 
@@ -125,7 +138,7 @@ export default function PersonalCV() {
 
         {/* education */}
         <View >
-          <CvBox title='Education'>
+          <CvBox title={languageContext.language.EDUCATION}>
             <FlatList 
               scrollEnabled = {false}
               data={cv?.educations}
@@ -136,7 +149,7 @@ export default function PersonalCV() {
         </View>
         {/* work experience */}
         <View >
-          <CvBox title='Work Experience'>
+          <CvBox title={languageContext.language.WORK_EXPERIENCE}>
           <FlatList 
               scrollEnabled = {false}
               data={cv?.experiences}
@@ -144,21 +157,9 @@ export default function PersonalCV() {
             />
           </CvBox>
         </View>
-
-        {/* Skill */}
-        <View >
-          <CvBox title='Skill'>
-            <FlatList
-            scrollEnabled={false}
-              data={cv?.skills}
-              renderItem={({ item }) => <SkillItem skill={item} />}
-            />
-          </CvBox>
-        </View>
-
         {/* Certificate */}
         <View >
-          <CvBox title='Certificate'>
+          <CvBox title={languageContext.language.CERTIFICATE}>
             <FlatList
               scrollEnabled= {false}
               data={cv?.certificates}

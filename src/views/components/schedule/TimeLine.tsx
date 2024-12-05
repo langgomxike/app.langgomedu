@@ -2,48 +2,62 @@ import { Text, View, StyleSheet, FlatList, Image } from "react-native";
 import { BackgroundColor, TextColor } from "../../../configs/ColorConfig";
 import LessionItem, { LessionItemProps } from "./LessionItem";
 import Lesson from "../../../models/Lesson";
-import { useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { TouchableOpacity } from "react-native-gesture-handler";
+import User from "../../../models/User";
+import { LanguageContext } from "../../../configs/LanguageConfig";
 export type timeLineProp = {
-  user_id?: string;
-  student_id?: string;
+  selectedUser?: User;
   lessons: Lesson[];
   selectedDate: Date;
+  type: number;
+  onChangeType: (type: number) => void;
 };
 
-export default function TimeLine({
-  user_id,
-  student_id,
-  lessons,
-  selectedDate,
-}: timeLineProp) {
-  const [activeTab, setActiveTab] = useState("learning");
+/**
+ * tyoe 0 => learner
+ * type 1 => tutor
+ */
+
+export default function TimeLine({ selectedUser, lessons, selectedDate, type, onChangeType }: timeLineProp) {
+  //State >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+  const [activeTab, setActiveTab] = useState(type);
+  const languageContext = useContext(LanguageContext);
+  //HANDLER >>>>>>>>>>>>>>>>>>>>>>>>>>
+  const handleChangeType = useCallback((type: number) => {
+    setActiveTab(type);
+    onChangeType(type);
+  }, [])
+
+  useEffect(()=>{
+    setActiveTab(type);
+  }, [type])
 
   return (
     <View style={[styles.container]}>
       <View style={styles.headerNav}>
-        <View style={[styles.headerItem]}>
-        <TouchableOpacity onPress={() => setActiveTab("learning")}>
+        <View style={[styles.headerItem, activeTab === 0 &&  styles.headerItemActive]}>
+          <TouchableOpacity onPress={() => handleChangeType(0)}>
             <Text
               style={[
                 styles.headerText,
-                activeTab === "learning" && styles.headerTextActive,
+                activeTab === 0 && styles.headerTextActive,
               ]}
             >
-              Lớp đang học
+              {languageContext.language.LEARNING_CLASS}
             </Text>
-        </TouchableOpacity>
+          </TouchableOpacity>
         </View>
 
-        <View style={[styles.headerItem]}>
-          <TouchableOpacity onPress={() => setActiveTab("teaching")}>
+        <View style={[styles.headerItem, activeTab === 1 &&  styles.headerItemActive]}>
+          <TouchableOpacity onPress={() => handleChangeType(1)}>
             <Text
               style={[
                 styles.headerText,
-                activeTab === "teaching" && styles.headerTextActive,
+                activeTab === 1 && styles.headerTextActive,
               ]}
             >
-              Lớp đang dạy
+              {languageContext.language.TEACHING_CLASS}
             </Text>
           </TouchableOpacity>
         </View>
@@ -54,7 +68,7 @@ export default function TimeLine({
             style={styles.imageEmpty}
             source={require("../../../../assets/images/alarm-off.png")}
           />
-          <Text style={styles.textEmpty}> Hôm nay không có lớp học </Text>
+          <Text style={styles.textEmpty}> {languageContext.language.EMPTY_TODAY_CLASS} </Text>
         </View>
       ) : (
         <FlatList
@@ -63,14 +77,15 @@ export default function TimeLine({
             const classId = item.class?.id;
             const classIcon = item.class?.major?.icon;
             const title = item.class?.title;
-            const classType = user_id === item.class?.tutor?.id ? 0 : 1;
+            const classType = selectedUser?.id === item.class?.tutor?.id ? 0 : 1;
             const tutorName = item.class?.tutor?.full_name;
             const startedAt = new Date(item.started_at);
             const duration = item.duration;
             return (
               <LessionItem
+                selectedUser={selectedUser}
                 classId={classId}
-                lessonId={item.id}
+                lessonData={item}
                 classIcon={classIcon}
                 title={title ? title : ""}
                 classType={classType}
@@ -137,7 +152,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginVertical: 100,
   },
-
   headerNav: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -145,7 +159,6 @@ const styles = StyleSheet.create({
     borderBottomColor: BackgroundColor.gray_c9,
     borderBottomWidth: 1,
   },
-
   headerItem: {
     flex: 1,
     alignItems: "center",
@@ -155,6 +168,14 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#888",
     padding: 10,
+  },
+  headerItemActive: {
+    backgroundColor: BackgroundColor.cyan_overlay,
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
+    borderWidth: 1,
+    borderColor: BackgroundColor.primary,
+    borderBottomWidth: 0,
   },
 
   headerTextActive: {
