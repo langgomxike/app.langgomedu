@@ -1,7 +1,7 @@
 import React, {useCallback, useContext, useEffect, useState} from "react";
 import {FlatList, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View,} from "react-native";
 import CustomInput from "../../components/Inputs/CustomInput";
-import {BackgroundColor} from "../../../configs/ColorConfig";
+import {BackgroundColor, TextColor} from "../../../configs/ColorConfig";
 import DetailHistoryBottonSheet from "../../components/bottom-sheet/DetailHistoryBottomSheet";
 import Attendance from "../../../models/Attendance";
 import SearchBar from "../../components/Inputs/SearchBar";
@@ -31,13 +31,14 @@ export default function HistoryAttendance() {
   const route = useContext(NavigationRouteContext);
 
   // states
-  const [fromDate, setFromDate] = useState(new Date(2024, 1,1).getTime());
+  const [fromDate, setFromDate] = useState(new Date(2024, 1, 1).getTime());
   const [toDate, setToDate] = useState(new Date().getTime());
   const [isVisible, setIsVisible] = useState(false);
   const [historyList, setHistoryList] = useState<AttendanceItem[]>([]);
   const [attendanceList, setAttendanceList] = useState<Attendance[]>([]);
   const [user, setUser] = useState<User | undefined>(undefined);
   const [searchKey, setSearchKey] = useState("");
+  const [activeAttendance, setActiveAttendance] = useState<Attendance | undefined>(undefined);
 
   // handlers
   const openProfile = useCallback(() => {
@@ -51,13 +52,13 @@ export default function HistoryAttendance() {
     const values = value.split("/");
 
     if (values.length < 3) {
-        Toast.show("Invalid date", 1000);
-        return;
+      Toast.show("Invalid date", 1000);
+      return;
     }
 
-    const date = new Date(+values[2], +values[1], +values[0]);
+    const date = new Date(+values[2], +values[1] - 1, +values[0]);
 
-    if (date.getTime() > toDate || date.getTime() < new Date(2024,1,1).getTime()) {
+    if (date.getTime() > toDate || date.getTime() < new Date(2024, 0, 1).getTime()) {
       Toast.show("Invalid date", 1000);
       return;
     }
@@ -73,7 +74,7 @@ export default function HistoryAttendance() {
       return;
     }
 
-    const date = new Date(+values[2], +values[1], +values[0]);
+    const date = new Date(+values[2], +values[1] - 1, +values[0]);
 
     if (date.getTime() < fromDate || date.getTime() > new Date().getTime()) {
       Toast.show("Invalid date", 1000);
@@ -114,13 +115,13 @@ export default function HistoryAttendance() {
     const attendances = attendanceList
       .filter(a => (a.class?.title ?? "").toUpperCase().includes(searchKey?.toUpperCase().trim()) || searchKey?.toUpperCase()?.trim()?.includes((a.class?.title ?? "").toUpperCase()));
 
-    const dates = attendances.map(a => a.lesson?.started_at ?? -1).filter(d => d > 0);
+    const dates = Array.from(new Set(attendances.map(a => (a.lesson?.started_at ?? 0)).filter(d => d > 0)));
     const histories: AttendanceItem[] = [];
 
     dates.forEach(date => {
       histories.push({
         date: date,
-        histories: attendances.filter(a => a.lesson?.started_at === date),
+        histories: attendances.filter(a => DateTimeConfig.getDateFormatFullYear(a.lesson?.started_at ?? 0) === DateTimeConfig.getDateFormatFullYear(date)),
       })
     });
 
@@ -154,7 +155,7 @@ export default function HistoryAttendance() {
                 label="Từ ngày"
                 placeholder=""
                 required={false}
-                value={DateTimeConfig.getDateFormat(fromDate, true, false)}
+                value={DateTimeConfig.getDateFormatFullYear(fromDate)}
                 onChangeText={handleSetFromDate}
                 type="date"
               />
@@ -165,7 +166,7 @@ export default function HistoryAttendance() {
                 label="Đến ngày"
                 placeholder=""
                 required={false}
-                value={DateTimeConfig.getDateFormat(toDate, true, false)}
+                value={DateTimeConfig.getDateFormatFullYear(toDate)}
                 onChangeText={handleSetToDate}
                 type="date"
               />
@@ -175,27 +176,40 @@ export default function HistoryAttendance() {
 
         <View style={styles.historyContainer}>
           <FlatList
-            data={historyList.filter(h => h.date >= fromDate && h.date <= toDate + 23*60*60*1000)}
+            data={historyList.filter(h => h.date >= fromDate && h.date <= toDate + 23 * 60 * 60 * 1000)}
             scrollEnabled={false}
-            keyExtractor={(item, index) => index.toString()}
+            keyExtractor={(item, index) => DateTimeConfig.getDateFormatFullYear(item.date) + index}
             renderItem={({item: bigItem}) => (
               <View style={[styles.sectionContainer, styles.boxShadow]}>
                 {/* Hiển thị ngày */}
                 <View style={styles.headerContainer}>
                   <Text
-                    style={[styles.headerText, {fontSize: 15}]}>{DateTimeConfig.getDateFormat(bigItem.date, true, true)}</Text>
+                    style={[styles.headerText, {fontSize: 15}]}>{DateTimeConfig.getDateFormatFullYear(bigItem.date)}</Text>
                 </View>
 
                 {/* FlatList bên trong để hiển thị các giao dịch của ngày */}
                 <FlatList
                   scrollEnabled={false}
                   data={bigItem.histories}
-                  keyExtractor={(subItem, subIndex) => subIndex.toString()}
+                  keyExtractor={(subItem, index) => subItem.id + "" + index}
                   renderItem={({item: subItem}) => (
                     <View style={[styles.itemContainer]}>
-                      <TouchableOpacity activeOpacity={0.5} onPress={() => setIsVisible(true)}>
-                        <View style={styles.itemContentContainer}>
+                      <TouchableOpacity activeOpacity={0.5} onPress={() => setActiveAttendance(subItem)}>
 
+                        <View style={[styles.itemContentContainer, {marginBottom: 10,}]}>
+                          <View style={styles.subjectContainer}>
+                            <Image
+                              src={ReactAppUrl.PUBLIC_URL + subItem?.user?.avatar}
+                              style={[styles.subjectImage, {borderRadius: 100}]}
+                            />
+                            <Text style={[styles.title, {fontSize: 14}]}>{subItem?.user?.full_name}</Text>
+                          </View>
+
+                          <Text
+                            style={styles.price}>{subItem?.class?.tutor?.id === user?.id ? "Tutor" : "Learner"}</Text>
+                        </View>
+
+                        <View style={styles.itemContentContainer}>
                           <View style={styles.subjectContainer}>
                             <Image
                               src={ReactAppUrl.PUBLIC_URL + subItem?.class?.major?.icon}
@@ -204,14 +218,22 @@ export default function HistoryAttendance() {
                             <Text style={[styles.title, {fontSize: 14}]}>{subItem?.class?.title}</Text>
                           </View>
 
+                          <Text
+                            style={styles.price}>{(subItem?.deferred ?? false) ? "~" : subItem?.class?.tutor?.id === user?.id ? "+" : "-"}{subItem?.class?.price}</Text>
+
                         </View>
+
                         <View style={styles.itemBadgeContainer}>
-                          {!(subItem?.paid ?? 0) && (<Text style={[styles.badge, styles.payText]}>
+                          {!!(subItem?.attended ?? 0) && (<Text style={[styles.badge, styles.attendedText]}>
+                            Điểm danh
+                          </Text>)}
+
+                          {!!(subItem?.paid ?? 0) && (<Text style={[styles.badge, styles.payText]}>
                             Thanh toán
                           </Text>)}
 
-                          {!!(subItem?.attended ?? 0) && (<Text style={[styles.badge, styles.attendedText]}>
-                            Điểm danh
+                          {!!(subItem?.deferred ?? 0) && (<Text style={[styles.badge, styles.deferredText]}>
+                            No hoc phi
                           </Text>)}
                         </View>
                       </TouchableOpacity>
@@ -224,8 +246,9 @@ export default function HistoryAttendance() {
         </View>
       </ScrollView>
       <DetailHistoryBottonSheet
-        isVisible={isVisible}
-        onCloseButtonSheet={() => setIsVisible(false)}
+        attendance={activeAttendance}
+        isVisible={!!activeAttendance}
+        onCloseButtonSheet={() => setActiveAttendance(undefined)}
       />
     </View>
   );
@@ -234,7 +257,7 @@ export default function HistoryAttendance() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: 30,
+    marginVertical: 15,
   },
 
   queryContaienr: {
@@ -385,6 +408,12 @@ const styles = StyleSheet.create({
   payText: {
     backgroundColor: BackgroundColor.warning,
     color: BackgroundColor.black,
+    fontWeight: 500,
+  },
+
+  deferredText: {
+    backgroundColor: BackgroundColor.danger,
+    color: BackgroundColor.white,
     fontWeight: 500,
   },
 

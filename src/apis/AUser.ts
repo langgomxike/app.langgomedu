@@ -4,6 +4,7 @@ import User from "../models/User";
 import Response from "../models/Response";
 import ReactAppUrl from "../configs/ConfigUrl";
 import axios from "axios";
+import Address from "../models/Address";
 
 export default class AUser {
   private static BASE_URL = ReactAppUrl.API_BASE_URL + "/users";
@@ -28,6 +29,23 @@ export default class AUser {
         SLog.log(LogType.Error, "auth", "cannot send otp", error);
       })
       .finally(onComplete);
+  }
+
+  public static getUserAddress(userId: string, onNext: (address: Address| undefined) => void) {
+    const url = this.BASE_URL + "/address";
+    const data = {
+      user_id: userId,
+    }
+
+    axios.post<Response>(url, data)
+      .then(response => {
+        SLog.log(LogType.Info, "getUserAddress", response.data.message, response.data.status);
+        onNext(response.data.data as Address ?? undefined);
+      })
+      .catch(error => {
+        SLog.log(LogType.Error, "getUserAddress", "cannot get user address", error);
+        onNext(undefined);
+      });
   }
 
   public static getUserById(id: string, onNext: (user: User | undefined) => void) {
