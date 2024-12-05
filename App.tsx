@@ -8,7 +8,7 @@ import ButtonNavBar from "./src/views/components/ButtonNavBar";
 import MessageScreen from "./src/views/screens/Message";
 import ProfileScreen from "./src/views/screens/Profile";
 import ClassDetail from "./src/views/screens/ClassDetail";
-import {BackgroundColor, TextColor} from "./src/configs/ColorConfig";
+import { BackgroundColor, TextColor } from "./src/configs/ColorConfig";
 import CVListScreen from "./src/views/screens/CVList";
 import AppContext from "./src/configs/AppContext";
 import CVScreen from "./src/views/screens/CV";
@@ -25,15 +25,15 @@ import Register1Screen from "./src/views/screens/Register1";
 import Register2Screen from "./src/views/screens/Register2";
 import OTPScreen from "./src/views/screens/OTP";
 import ChangePasswordScreen from "./src/views/screens/ChangePassword";
-import {GestureHandlerRootView} from "react-native-gesture-handler";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import UserReportList from "./src/views/screens/admin/UserReportList";
 import UserManager from "./src/views/screens/admin/UserManager";
 import ClassManager from "./src/views/screens/admin/ClassManager";
 import GeneralManager from "./src/views/screens/admin/GeneralManager";
 import CreatAcountAdmin from "./src/views/screens/admin/CreatAccountAdmin";
 import PersonalCV from "./src/views/screens/settings/PersonalCV";
-import {PermissionsAndroid, TouchableOpacity} from "react-native";
-import Octicons from '@expo/vector-icons/Octicons';
+import { PermissionsAndroid, TouchableOpacity } from "react-native";
+import Octicons from "@expo/vector-icons/Octicons";
 import LeanerAttendance from "./src/views/screens/attendance/LeanerAttendance";
 import HistoryAttendance from "./src/views/screens/attendance/HistoryAttendance";
 import TutorAttendance from "./src/views/screens/attendance/TutorAttendance";
@@ -131,7 +131,7 @@ export default function App() {
                 name={ScreenName.ATTENDED_FOR_TUTOR}
                 component={TutorAttendance}
               />
-
+             
               <Stack.Screen
                 name={ScreenName.CV_LIST}
                 component={CVListScreen}
@@ -139,7 +139,7 @@ export default function App() {
               <Stack.Screen
                 name={ScreenName.SETTING_PERSONAL_CV}
                 component={PersonalCV}
-                options={({navigation}) => ({
+                options={({ navigation }) => ({
                   headerShown: true,
                   contentStyle: {
                     paddingHorizontal: 0,
@@ -151,13 +151,16 @@ export default function App() {
                   },
                   headerTintColor: TextColor.white,
                   headerRight: () => (
-                    <TouchableOpacity onPress={() => {
-                      navigation.navigate(ScreenName.INPUT_CV)
-                    }}>
-                      <Octicons name="pencil" size={24} color="white"/>
+                    <TouchableOpacity
+                      onPress={() => {
+                        navigation.navigate(ScreenName.INPUT_CV);
+                      }}
+                    >
+                      <Octicons name="pencil" size={24} color="white" />
                     </TouchableOpacity>
-                  )
-                })}/>
+                  ),
+                })}
+              />
 
               <Stack.Screen
                 name={ScreenName.INPUT_CV}
@@ -167,16 +170,13 @@ export default function App() {
                   contentStyle: {
                     paddingHorizontal: 0,
                     paddingTop: 0,
-                  }
+                  },
                 })}
               />
-              <Stack.Screen
-                name={ScreenName.CV}
-                component={CVScreen}
-              />
+              <Stack.Screen name={ScreenName.CV} component={CVScreen} />
 
-              <Stack.Screen name={ScreenName.OTP} component={OTPScreen}/>
-              <Stack.Screen name={ScreenName.LOGIN} component={LoginScreen}/>
+              <Stack.Screen name={ScreenName.OTP} component={OTPScreen} />
+              <Stack.Screen name={ScreenName.LOGIN} component={LoginScreen} />
               <Stack.Screen
                 name={ScreenName.REGISTER_STEP_1}
                 component={Register1Screen}

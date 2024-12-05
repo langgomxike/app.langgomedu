@@ -12,6 +12,7 @@ export default class User {
     public id: string;
     public full_name: string;
     public username: string;
+    public email: string;
     public phone_number: string;
     public password: string;
     public token: string;
@@ -41,6 +42,7 @@ export default class User {
         id = "",
         full_name = "",
         username = "",
+        email="",
         phone_number = "",
         password = "",
         token = "",
@@ -68,6 +70,7 @@ export default class User {
         this.id = id;
         this.full_name = full_name;
         this.username = username;
+        this.email = email;
         this.phone_number = phone_number;
         this.password = password;
         this.token = token;

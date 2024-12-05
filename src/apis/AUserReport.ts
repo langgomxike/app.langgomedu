@@ -2,6 +2,8 @@ import axios from "axios";
 import Response from "../models/Response";
 import ReactAppUrl from "../configs/ConfigUrl";
 import SLog, {LogType} from "../services/SLog";
+import { jsiConfigureProps } from "react-native-reanimated/lib/typescript/reanimated2/core";
+import UserReport from "../models/UserReport";
 
 export default class AUserReport {
   private static API_URL = ReactAppUrl.API_BASE_URL;

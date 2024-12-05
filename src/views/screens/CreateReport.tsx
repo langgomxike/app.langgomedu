@@ -24,18 +24,6 @@ export default function CreateReport() {
   const [isModalVisible, setModalVisible] = useState(false); // Trạng thái hiển thị modal
   const [currentImageIndex, setCurrentImageIndex] = useState(0); // Ảnh được chọn để xem
 
-  // // Kiểm tra thêm các ảnh
-  // if (report.images && report.images.length > 0) {
-  //   report.images.forEach((imageUri, index) => {
-  //     const file = {
-  //       uri: imageUri.uri,  // Đảm bảo là URI của ảnh
-  //       type: imageUri.type,  // Đảm bảo kiểu MIME đúng
-  //       name: imageUri.name,  // Tên tệp ảnh
-  //     };
-
-  //     formData.append("reports", file);
-  //   });
-  // }
 
   // Hàm mở thư viện ảnh
   const pickImage = async () => {
