@@ -19,7 +19,6 @@ export default function IconRepor ({
   credibility,
   onPress
 }:IconReport)  {
-  console.log("userAvatar", `${URL}/${userAvatar}`);
   return (
     <View style={styles.user}>
       <View style={styles.userInfor}>

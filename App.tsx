@@ -117,6 +117,11 @@ export default function App() {
               <Stack.Screen
                 name={ScreenName.ATTENDANCE_HISTORY}
                 component={HistoryAttendance}
+                options={{
+                  headerShown: true,
+                  title: "",
+                  headerStyle: {backgroundColor: BackgroundColor.primary}
+                }}
               />
               <Stack.Screen
                 name={ScreenName.ATTENDED_FOR_LEARNER}
