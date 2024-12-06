@@ -383,5 +383,12 @@
   "INTERESTED_MAJOR": "Major",
   "BIRTHDAY": "Birthday",
   "BIOGRAPHY": "Biography",
-  "PLACEHOLDER_BIO": "Enter your biography here"
+  "PLACEHOLDER_BIO": "Enter your biography here",
+  "POINT": "Credibility Points",
+  "DATE_JOIN": "Join Date",
+  "INTERESTED_LEVEL_CLASS": "Interested Classes",
+  "CONTACT": "Contact:",
+  "NOT_INTERESTED_MAJORS": "No Interested Majors",
+  "NOT_INTERESTED_LEVEL_CLASS": "No Interested Classes"
+
 }

@@ -373,5 +373,12 @@
   "INTERESTED_MAJOR": "Chuyên Ngành",
   "BIRTHDAY": "Ngày sinh",
   "BIOGRAPHY": "Mô tả bản thân",
-  "PLACEHOLDER_BIO": "Nhập mô tả bản thân của bạn tại đây"
+  "PLACEHOLDER_BIO": "Nhập mô tả bản thân của bạn tại đây",
+  "POINT":"Điểm uy tín",
+  "DATE_JOIN":"Ngày tham gia",
+  "INTERESTED_LEVEL_CLASS":"Lớp học quan tâm",
+  "CONTACT":"Liên hệ:",
+  "NOT_INTERESTED_MAJORS":"Không có chuyên ngành quan tâm",
+  "NOT_INTERESTED_LEVEL_CLASS":"Không có lớp học quan tâm"
+
 }
