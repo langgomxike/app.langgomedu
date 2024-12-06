@@ -120,7 +120,7 @@ export default function CreateReport() {
         </View>
         <Text style={styles.smallTitle}>Người dùng bị báo cáo</Text>
         <View style={styles.iconReport}>
-          <IconReport userName="USA" credibility={100} />
+          <IconReport userName="USA" credibility={100}  />
         </View>
         <Text style={styles.smallTitle}>Nội dung báo cáo</Text>
         <TextInput
