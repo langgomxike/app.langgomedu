@@ -4,7 +4,7 @@ import {NavigationContext} from "@react-navigation/native";
 import User from "../../../models/User";
 import ScreenName from "../../../constants/ScreenName";
 import AMessage from "../../../apis/AMessage";
-import {ScrollView, StyleSheet, Text, View} from "react-native";
+import {Image, ScrollView, StyleSheet, Text, View} from "react-native";
 import ChatContactItem from "../ChatContactItem";
 import {LanguageContext} from "../../../configs/LanguageConfig";
 import SFirebase, {FirebaseNode} from "../../../services/SFirebase";
@@ -90,7 +90,14 @@ const contactTab: TabItem = {
         )}
 
         {!loading && contacts.length < 1 && (
-          <Text style={{flex: 1, alignSelf: "center", marginTop: 20}}>{language.EMPTY_LIST}</Text>
+          <>
+            <Image
+              source={require("../../../../assets/images/ic_empty.png")}
+              style={[styles.emptyImage]}
+            />
+
+            <Text style={{flex: 1, alignSelf: "center"}}>{language.EMPTY_LIST}</Text>
+          </>
         )}
 
         <View style={{height: 70}}/>
@@ -108,6 +115,14 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     minHeight: 60,
     width: "100%"
+  },
+
+  emptyImage: {
+    width: 200,
+    height: 200,
+    backgroundColor: "#fff",
+    alignSelf: "center",
+    margin: 15,
   },
 
   avatar: {

@@ -23,7 +23,7 @@ export default function ProfileScreen() {
   const [interestedField, setInterestedField] = useState("");
   const [userProfile, setUserProfile] = useState<User | null>(null);
   const userId = "080204000002";
-  const isLoginUser = "080204000002";
+  const isLoginUser = "080204000001";
   const pastelColors = [
     "#fff",
     // "#ff80aa",
