@@ -50,13 +50,21 @@ export default function ChangePasswordScreen() {
   }, [newPassword, authContext.onAfterAuth, accountContext.account]);
 
   const handleAuth = useCallback(() => {
-    if (!currentPassword) {
+
+    // kiểm tra mật khẩu
+    const passwordRegex = /^.{6,20}$/;
+    if (!currentPassword || !passwordRegex.test(currentPassword)) {
       Alert.alert(languageContext.language.OLD_PASSWORD, languageContext.language.INVALID_PASSWORD);
       return;
     }
 
-    if (!newPassword || newPassword === currentPassword) {
-      Alert.alert(languageContext.language.NEW_PASSWORD, languageContext.language.INVALID_PASSWORD);
+    if (!newPassword || !passwordRegex.test(newPassword) || newPassword === currentPassword) {
+      Alert.alert(
+        languageContext.language.NEW_PASSWORD,
+        newPassword === currentPassword
+          ? languageContext.language.NEW_PASSWORD_MUST_BE_DIFFERENT
+          : languageContext.language.PASSWORD_INVALID_FORMAT
+      );
       return;
     }
 

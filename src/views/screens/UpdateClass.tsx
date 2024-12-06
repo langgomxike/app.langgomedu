@@ -1,18 +1,92 @@
-import { View, Text } from 'react-native'
-import React, { useContext } from 'react'
-import { NavigationRouteContext } from '@react-navigation/native';
-import { UpdateClassRoute } from '../../configs/NavigationRouteTypeConfig';
-import Class from '../../models/Class';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+} from "react-native";
+import React, { useContext, useEffect, useState } from "react";
+import {
+  NavigationContext,
+  NavigationRouteContext,
+} from "@react-navigation/native";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import { UpdateClassRoute } from "../../configs/NavigationRouteTypeConfig";
+import Class from "../../models/Class";
+import { LanguageContext } from "../../configs/LanguageConfig";
+import { BackgroundColor } from "../../configs/ColorConfig";
+import UpdateInfoClass from "../components/UpdateClass/UpdateInfoClass";
+import UpdateInfoLesson from "../components/UpdateClass/UpdateInfoLesson";
+import UpdateInfoTuition from "../components/UpdateClass/UpdateTurtorClass/UpdateInfoTuition";
+import UpdateInfoTuitionLearner from "../components/UpdateClass/UpdateLearnerClass/UpdateInfoTuitionLearner";
+import { AccountContext } from "../../configs/AccountConfig";
+import { RoleList } from "../../models/Role";
+import UpdateLearnerClass from "../components/UpdateClass/UpdateLearnerClass";
 
 export default function UpdateClass() {
-    // route
-    const route = useContext(NavigationRouteContext);
-    const param = (route?.params as UpdateClassRoute) || new Class();
-    console.log(param.classData);
-    
+  // route, context
+  const route = useContext(NavigationRouteContext);
+  const param = (route?.params as UpdateClassRoute) || new Class();
+  // console.log(param.classData);
+
+  const navigation = useContext(NavigationContext);
+  const languageContext = useContext(LanguageContext).language;
+  const accountContext = useContext(AccountContext); // lay duoc acount
+  const roleIds = accountContext.account?.roles?.map((role) => role.id);
+
+  // state
+  const [classData, setClassData] = useState<Class>(new Class());
+
+  // handle
+
+  // effect
+  useEffect(() => {
+    if (navigation) {
+      navigation.setOptions({
+        title: languageContext.UPDATE_CLASS,
+        headerShown: true,
+        contentStyle: {
+          padding: 0,
+        },
+        headerStyle: {
+          backgroundColor: BackgroundColor.primary,
+        },
+        headerTintColor: "#fff",
+        headerLeft: () => (
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            style={{ paddingRight: 10 }}
+          >
+            <Ionicons name="chevron-back" size={24} color="white" />
+          </TouchableOpacity>
+        ),
+      });
+    }
+  }, [navigation]);
+
+  useEffect(() => {
+    setClassData(param.classData);
+  }, [param.classData]);
+
+  // render
+  if (!param.classData) {
+    return <Text>Không có dữ liệu lớp học.</Text>;
+  }
+
   return (
-    <View>
-      <Text>UpdateClass</Text>
-    </View>
-  )
+    <ScrollView contentContainerStyle={styles.scrollContainer}>
+      {/* <UpdateInfoClass classData={param.classData} />
+      {classData.lessons && <UpdateInfoLesson lessonData={classData.lessons} />}
+      {roleIds?.includes(RoleList.TUTOR) && <UpdateInfoTuition />}
+      {roleIds?.includes(RoleList.PARENT) && <UpdateInfoTuitionLearner />} */}
+      <UpdateLearnerClass/>
+    </ScrollView>
+  );
 }
+
+const styles = StyleSheet.create({
+  scrollContainer: {
+    flexGrow: 1, // Đảm bảo chiếm đủ không gian
+    paddingBottom: 250,
+  },
+});

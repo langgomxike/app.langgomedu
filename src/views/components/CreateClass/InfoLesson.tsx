@@ -10,8 +10,8 @@ import {
 import { Picker } from "@react-native-picker/picker";
 import DateTimePickerAndroid from "@react-native-community/datetimepicker";
 import Feather from "@expo/vector-icons/Feather";
-import Lesson from "../../models/Lesson";
-import { LanguageContext } from "../../configs/LanguageConfig";
+import Lesson from "../../../models/Lesson";
+import { LanguageContext } from "../../../configs/LanguageConfig";
 
 type props = {
   handleGetLesson: (lessons: Lesson[]) => void;
@@ -24,7 +24,6 @@ const InfoLesson = ({ handleGetLesson }: props) => {
   const [lessons, setLessons] = useState<Lesson[]>([
     new Lesson(1, undefined, 0, 0, 0, true, ""),
   ]);
-  const [startedAt, setStartedAt] = useState("");
   const [selectedLessonIndex, setSelectedLessonIndex] = useState<number>(0);
   const [showPicker, setShowPicker] = useState(false);
 
@@ -106,6 +105,8 @@ const InfoLesson = ({ handleGetLesson }: props) => {
                 </Picker>
               </View>
             </View>
+            
+            {/* THỜI LƯỢNG BUỔI HỌC */}
             <View style={{ flex: 5 }}>
               <Text style={styles.label}>
                 {langguageContext.TIME_LESSON} <Text style={styles.required}>*</Text>

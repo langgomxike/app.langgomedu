@@ -8,9 +8,9 @@ import {
 } from "react-native";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { useContext, useState, useEffect } from "react";
-import DropDownLocation from "../dropdown/DropDownLocation";
-import { AppInfoContext } from "../../../configs/AppInfoContext";
-import { LanguageContext } from "../../../configs/LanguageConfig";
+import DropDownLocation from "../../dropdown/DropDownLocation";
+import { AppInfoContext } from "../../../../configs/AppInfoContext";
+import { LanguageContext } from "../../../../configs/LanguageConfig";
 
 type props = {
   onNext: (
@@ -23,8 +23,8 @@ type props = {
     detail?: string
   ) => void;
 };
-
-const InfoTuition = ({ onNext }: props) => {
+// { onNext }: props
+const UpdateInfoTuition = () => {
   // context
   const appInfos = useContext(AppInfoContext);
   const languageContext = useContext(LanguageContext).language;
@@ -88,15 +88,15 @@ const InfoTuition = ({ onNext }: props) => {
       }
     }
 
-    onNext(
-      tuition?.toString(),
-      dateStart,
-      dateEnd,
-      selectedProvince,
-      selectedDistrict,
-      selectedWard,
-      detail
-    );
+    // onNext(
+    //   tuition?.toString(),
+    //   dateStart,
+    //   dateEnd,
+    //   selectedProvince,
+    //   selectedDistrict,
+    //   selectedWard,
+    //   detail
+    // );
     hideDatePicker();
   };
 
@@ -105,15 +105,15 @@ const InfoTuition = ({ onNext }: props) => {
       setTuition(null);
       setFormattedTuition("");
       setError("");
-      onNext(
-        undefined,
-        dateStart,
-        dateEnd,
-        selectedProvince,
-        selectedDistrict,
-        selectedWard,
-        detail
-      );
+      // onNext(
+      //   undefined,
+      //   dateStart,
+      //   dateEnd,
+      //   selectedProvince,
+      //   selectedDistrict,
+      //   selectedWard,
+      //   detail
+      // );
       return;
     }
 
@@ -136,15 +136,15 @@ const InfoTuition = ({ onNext }: props) => {
       setFormattedTuition(numericValue.toLocaleString("en-US")); // định dạng hiển thị ra gia diện
 
       // Gửi giá trị không dấu phẩy qua onNext
-      onNext(
-        numericValue.toString(),
-        dateStart,
-        dateEnd,
-        selectedProvince,
-        selectedDistrict,
-        selectedWard,
-        detail
-      );
+      // onNext(
+      //   numericValue.toString(),
+      //   dateStart,
+      //   dateEnd,
+      //   selectedProvince,
+      //   selectedDistrict,
+      //   selectedWard,
+      //   detail
+      // );
     } else {
       setError(languageContext.ERROR_TUITION_2);
     }
@@ -160,15 +160,15 @@ const InfoTuition = ({ onNext }: props) => {
     console.log("selectedWard: ", selectedWard);
     console.log("detail: ", detail);
 
-    onNext(
-      tuition?.toString(),
-      dateStart,
-      dateEnd,
-      selectedProvince,
-      selectedDistrict,
-      selectedWard,
-      detail
-    );
+    // onNext(
+    //   tuition?.toString(),
+    //   dateStart,
+    //   dateEnd,
+    //   selectedProvince,
+    //   selectedDistrict,
+    //   selectedWard,
+    //   detail
+    // );
   }, [
     tuition,
     dateStart,
@@ -255,15 +255,15 @@ const InfoTuition = ({ onNext }: props) => {
           value={detail}
           onChangeText={(text) => {
             setDetail(text);
-            onNext(
-              tuition?.toString(),
-              dateStart,
-              dateEnd,
-              selectedProvince,
-              selectedDistrict,
-              selectedWard,
-              text
-            );
+            // onNext(
+            //   tuition?.toString(),
+            //   dateStart,
+            //   dateEnd,
+            //   selectedProvince,
+            //   selectedDistrict,
+            //   selectedWard,
+            //   text
+            // );
           }}
         />
       </View>
@@ -277,15 +277,15 @@ const InfoTuition = ({ onNext }: props) => {
           value={zalo}
           onChangeText={(text) => {
             setZalo(text);
-            onNext(
-              tuition?.toString(),
-              dateStart,
-              dateEnd,
-              selectedProvince,
-              selectedDistrict,
-              selectedWard,
-              text
-            );
+            // onNext(
+            //   tuition?.toString(),
+            //   dateStart,
+            //   dateEnd,
+            //   selectedProvince,
+            //   selectedDistrict,
+            //   selectedWard,
+            //   text
+            // );
           }}
         />
       </View>
@@ -325,4 +325,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default InfoTuition;
+export default UpdateInfoTuition;

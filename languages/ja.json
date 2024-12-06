@@ -361,6 +361,11 @@
   "ERR_MESSAGE_AUTHOR": "作成者ではありません。",
 
   "MESSAGE": "このタブにアクセスする権限がありません！",
+  "UPDATE_CLASS": "クラスを更新",
+
+  "USERNAME_INVALID_FORMAT": "ユーザー名は6〜20文字で、特殊文字を含まない必要があります。",
+  "PASSWORD_INVALID_FORMAT": "パスワードは6〜20文字である必要があります。",
+  "NEW_PASSWORD_MUST_BE_DIFFERENT": "新しいパスワードは古いパスワードと異なる必要があります。",
 
   "KHANG": "KHANG",
   "CHOOSE": "選択 ...",
