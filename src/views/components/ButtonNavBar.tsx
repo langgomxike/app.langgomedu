@@ -64,7 +64,7 @@ export default function ButtonNavBar() {
   }, []);
 
   useEffect(() => {
-    if (!accountContext.account || !accountContext.setAccount) return;
+    if (!accountContext.account || accountContext.account.id.length < 5 || !accountContext.setAccount) return;
 
     SFirebase.track(FirebaseNode.Users, [{key: FirebaseNode.Id, value: accountContext.account.id}], () => {
       if (!accountContext.account || !accountContext.setAccount) return;
@@ -77,62 +77,39 @@ export default function ButtonNavBar() {
           const user: User = {...accountContext.account} as User;
           user.address = address;
 
-          accountContext.setAccount && accountContext.setAccount(user);
-        });
-      });
+          SFirebase.track(FirebaseNode.InterestedMajors, [], () => {
+            if (!accountContext.account || !accountContext.setAccount) return;
 
-      //track interested majors
-      SFirebase.track(FirebaseNode.InterestedMajors, [], () => {
-        if (!accountContext.account || !accountContext.setAccount) return;
+            AMajor.getInterestedMajors(accountContext.account.id, majors => {
+              user.interested_majors = majors;
 
-        AMajor.getInterestedMajors(accountContext.account.id, majors => {
-          const user: User = {...accountContext.account} as User;
-          user.interested_majors = majors;
+              SFirebase.track(FirebaseNode.InterestedMajors, [], () => {
+                if (!accountContext.account || !accountContext.setAccount) return;
 
-          accountContext.setAccount && accountContext.setAccount(user);
-        });
-      });
+                AMajor.getInterestedMajors(accountContext.account.id, majors => {
+                  user.interested_majors = majors;
 
-      //track interested class levels
-      SFirebase.track(FirebaseNode.InterestedClassLevels, [], () => {
-        if (!accountContext.account || !accountContext.setAccount) return;
+                  SFirebase.track(FirebaseNode.InterestedClassLevels, [], () => {
+                    if (!accountContext.account || !accountContext.setAccount) return;
 
-        AClassLevel.getInterestedClassLevels(accountContext.account.id, classLevels => {
-          const user: User = {...accountContext.account} as User;
-          user.interested_class_levels = classLevels;
+                    AClassLevel.getInterestedClassLevels(accountContext.account.id, classLevels => {
+                      user.interested_class_levels = classLevels;
 
-          accountContext.setAccount && accountContext.setAccount(user);
+                      accountContext.setAccount && accountContext.setAccount(user);
+                    });
+                  });
+                });
+              });
+            });
+          });
         });
       });
     });
   }, [accountContext.account?.id]);
 
   useEffect(() => {
-    if (!accountContext.account || !accountContext.setAccount) return;
-
-    SFirebase.track(FirebaseNode.Roles, [], () => {
-      SFirebase.track(FirebaseNode.Permissions, [], () => {
-        if (!accountContext.account || !accountContext.setAccount) return;
-
-        APermission.getPermissionsOfUser(accountContext.account, (permissions) => {
-          if (!accountContext.account || !accountContext.setAccount) return;
-
-
-          const user: User = {...accountContext.account};
-          user.permissions = permissions;
-
-          accountContext.setAccount(user);
-          SLog.log(LogType.Info, "update permissions", "reload", user.permissions.length);
-        }, () => {
-        });
-      });
-    });
-
-  }, [accountContext.account?.permissions?.map(p => p.id).sort((a, b) => a - b).toString()]);
-
-  useEffect(() => {
     SLog.log(LogType.Info, "check account", "", accountContext.account);
-  }, [JSON.stringify(accountContext.account)]);
+  }, [accountContext.account]);
 
   return (
     <ChatTabContext.Provider value={[hasNoti, hasNewClassMessages, hasNewMessages]}>
