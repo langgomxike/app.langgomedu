@@ -31,7 +31,7 @@ export default class ACV {
       const perPage = Values.SUGGESTS_CV_PERPAGE;
       // console.log("Get suggest cvs: ", `${baseURL}/cvs/suggests/${userId}?page=${page}&perPage=${perPage}&address=${address}}` );
       
-    axios.get(`${baseURL}/cvs/suggests/${userId}?page=${page}&perPage=${perPage}&address=${address}`)
+    axios.get(`${baseURL}/suggests/${userId}?page=${page}&perPage=${perPage}&address=${address}`)
     .then((response) => {
       const data= response.data.data; 
       const cvs = data.cvs;
@@ -40,7 +40,7 @@ export default class ACV {
       
     })
     .catch((error) => {
-      console.error("Error fetching data:", error);
+      console.error("Error fetching data suggest:", error);
       onNext([], new Pagination);  // Nếu có lỗi, trả về mảng rỗng
     });
 
@@ -71,7 +71,7 @@ export default class ACV {
      }
      console.log("ACV: ", filterParams);
      
-    axios.get(baseURL + `/cvs/filter/${userId}?page=${page}&perPage=${perPage}&${filterParams ? `&${filterParams}` : ""}`)
+    axios.get(baseURL + `/filter/${userId}?page=${page}&perPage=${perPage}&${filterParams ? `&${filterParams}` : ""}`)
     .then((response) => {
       const data = response.data.data
       const cvs: CV[] = data.cvs; 
