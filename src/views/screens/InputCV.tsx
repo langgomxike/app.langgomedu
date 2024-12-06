@@ -63,7 +63,7 @@ export default function InputCVScreen() {
   //STATES >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   const [permission, requestPermission] = useCameraPermissions();
   const [cv, setCV] = useState<any>();
-  const [cvId, setCVId] =  useState<string>('');
+  const [cvId, setCVId] = useState<string>('');
   const [userInfo, setUserInfo] = useState<User>();
   const [address, setAddress] = useState<Address>();
   const [birthday, setBirthday] = useState<string>(''); //chuỗi ngày tháng năm được hiển thị
@@ -84,10 +84,11 @@ export default function InputCVScreen() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
   const [titleError, setTilteError] = useState(false);
+  const [isNew, SetIsNew] = useState(false);
   //END_STATES >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
   // console.log(account?.avatar);
-  
+
   //HANDLERS >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   const pickImage = useCallback(() => {
     ImagePicker.launchImageLibraryAsync({
@@ -145,14 +146,14 @@ export default function InputCVScreen() {
 
   ///
   const handleConfirm = useCallback(async () => {
-    if(validate()){
-      console.log(titleError); 
-      return ;
+    if (validate()) {
+      console.log(titleError);
+      return;
     }
     setIsProcessing(true);
     //validation
     // validate();
-    
+
     // Step 1: save Images
     const educationFiles = new FormData();
     const experienceFiles = new FormData();
@@ -181,7 +182,7 @@ export default function InputCVScreen() {
     );
 
     try {
-      let educationResults: number[]= [], experienceResults: number[] = [] , certificateResults: number[] = [];
+      let educationResults: number[] = [], experienceResults: number[] = [], certificateResults: number[] = [];
 
       if (eduImages.length > 0) {
         console.log("Đang tải file Education...");
@@ -258,24 +259,30 @@ export default function InputCVScreen() {
       console.error("Lỗi trong quá trình tải file:", error);
     }
   }, [title, biography, eduImages, expImages, cerImages, cv, educations, experiences, certificates, isProcessing, titleError]);
-  
+
   // VALIDATE
-  const validate = useCallback(()=> {
+  const validate = useCallback(() => {
     console.log(title);
-    
+
     setTilteError(title.trim() === "");
     return title.trim() === "";
-  }, [title, titleError] )
+  }, [title, titleError])
 
   //EFFECT >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   //lấy dữ liệu CV về để hiển thị
   useEffect(() => {
-    if(account) {
+    if (account) {
       ACV.getPersonalCV(account.id, (cvs) => {
-        const viewCv = cvs.find(cv => cv.id === `${account.id}_t`) ? cvs.find(cv => cv.id === `${account.id}_t`) : cvs[0] ;
+        const viewCv = cvs.find(cv => cv.id === `${account.id}_t`) ? cvs.find(cv => cv.id === `${account.id}_t`) : cvs[0];
         // console.log(JSON.stringify(viewCv, null, 2));
-        
-        if (viewCv) {
+        console.log(viewCv);
+
+        if (viewCv === undefined) {
+          setCVId(account.id);
+          setUserInfo(account);
+          SetIsNew(true);
+        }
+        else if (viewCv) {
           setCVId(viewCv.id);
           setCV(viewCv);
           setUserInfo(viewCv.user);
@@ -284,9 +291,9 @@ export default function InputCVScreen() {
           //gán giá trị vào các input fields
           setTitle(viewCv.title);
           setBiography(viewCv.biography);
-  
+
           // Tạo dữ liệu cho educations
-          const newEducations = viewCv.educations.map((item : any) =>
+          const newEducations = viewCv.educations.map((item: any) =>
             new Education(
               item.id,
               item.name,
@@ -313,9 +320,9 @@ export default function InputCVScreen() {
             )
           );
           setEducations(newEducations);
-  
+
           // Tạo dữ liệu cho experiences
-          const newExperiences = viewCv.experiences.map((item : any) =>
+          const newExperiences = viewCv.experiences.map((item: any) =>
             new Experience(
               item.id,
               item.name,
@@ -342,9 +349,9 @@ export default function InputCVScreen() {
             )
           );
           setExperiences(newExperiences);
-  
+
           // Tạo dữ liệu cho certificates (với score thay vì address)
-          const newCertificates = viewCv.certificates.map((item : any) =>
+          const newCertificates = viewCv.certificates.map((item: any) =>
             new Certificate(
               item.id,
               item.name,
@@ -365,37 +372,60 @@ export default function InputCVScreen() {
             )
           );
           setCertificates(newCertificates);
-  
-  
+
+
           if (viewCv.user) {
             const birthday = new Date(viewCv.user?.birthday);
             const birthdayData = moment(birthday)
             setBirthday(birthdayData.format('DD/MM/yyyy'));
           }
-          if(viewCv.id === `${account.id}_t`){
+          if (viewCv.id === `${account.id}_t`) {
             setCVId(viewCv.id);
             setShowAlert(true);
           }
         }
-        else{
+        else {
           setShowAlert(true)
         }
       })
-    }  
+    }
   }, [])
 
-  //hiển thị alert
-  
+  // Đặt lại title của header khi màn hình được hiển thị
+  useEffect(() => {
+    if (navigation && isNew) {
+      navigation.setOptions({
+        title: "Duyệt CV",
+        headerShown: true,
+        contentStyle: {
+          padding: 0,
+        },
+        headerStyle: {
+          backgroundColor: BackgroundColor.primary,
+        },
+        headerTintColor: "#fff",
+        headerLeft: () => (
+          <TouchableOpacity onPress={() => navigation.navigate(ScreenName.ACCOUNT)} style={{ paddingRight: 10 }}>
+            <Ionicons name="chevron-back" size={24} color="white" />
+          </TouchableOpacity>
+        )
+      });
+    }
+  }, [navigation, isNew]);
+
 
   //testing >>------------------------------------<<
   useEffect(() => {
-   console.log("isProcessing: ", isProcessing);
-   
+    console.log("isProcessing: ", isProcessing);
+
   }, [isProcessing]);
-  useEffect(()=> {
-    console.log("education: ", JSON.stringify(educations, null, 2));
-    
-  }, [educations])
+  // useEffect(()=> {
+  //   console.log(JSON.stringify(cv, null, 2))
+  // }, [cv])
+  // useEffect(()=> {
+  //   console.log("education: ", JSON.stringify(educations, null, 2));
+
+  // }, [educations])
 
   //VIEW >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   return (
@@ -404,7 +434,7 @@ export default function InputCVScreen() {
         <View>
           <TouchableOpacity style={{ alignSelf: "center" }} onPress={pickImage}>
             <Image
-              source={{uri :`${ReactAppUrl.PUBLIC_URL}${account?.avatar}`}}
+              source={{ uri: `${ReactAppUrl.PUBLIC_URL}${account?.avatar}` }}
               style={styles.avatar}
             />
           </TouchableOpacity>
@@ -438,12 +468,12 @@ export default function InputCVScreen() {
               keyExtractor={(item) => item.id.toString()}
               scrollEnabled={false}
               data={educations}
-              renderItem={({ item }) => <EducationItem 
-              education={item} 
-              isEdit={true} 
-              onDelete={(education)=> {
-                setEducations(prevItems => prevItems.filter(item => item.id !== education.id))
-              }}/>}
+              renderItem={({ item }) => <EducationItem
+                education={item}
+                isEdit={true}
+                onDelete={(education) => {
+                  setEducations(prevItems => prevItems.filter(item => item.id !== education.id))
+                }} />}
             />
           </CvBoxEdit>
 
@@ -457,10 +487,10 @@ export default function InputCVScreen() {
               keyExtractor={(item) => item.id.toString()}
               scrollEnabled={false}
               data={experiences}
-              renderItem={({ item }) => <ExperienceItem 
-              experience={item} 
-              isEdit={true} 
-              onDelete={(experience)=> {setExperiences(prevItems => prevItems.filter(prevItem => prevItem.id !== experience.id) )}} />}
+              renderItem={({ item }) => <ExperienceItem
+                experience={item}
+                isEdit={true}
+                onDelete={(experience) => { setExperiences(prevItems => prevItems.filter(prevItem => prevItem.id !== experience.id)) }} />}
             />
           </CvBoxEdit>
           <CvBoxEdit
@@ -472,10 +502,10 @@ export default function InputCVScreen() {
               keyExtractor={(item) => item.id.toString()}
               scrollEnabled={false}
               data={certificates}
-              renderItem={({ item }) => <CertificateItem 
-              certificate={item} 
-              isEdit={true} 
-              onDelete={(certificate)=>{setCertificates(prevItems => prevItems.filter(item => item.id !== certificate.id))}} />}
+              renderItem={({ item }) => <CertificateItem
+                certificate={item}
+                isEdit={true}
+                onDelete={(certificate) => { setCertificates(prevItems => prevItems.filter(item => item.id !== certificate.id)) }} />}
             />
           </CvBoxEdit>
         </View>
