@@ -1,4 +1,4 @@
-import {Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View,} from "react-native";
+import {Image, Pressable, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View,} from "react-native";
 import {BackgroundColor, TextColor} from "../../configs/ColorConfig";
 import {ElementRef, useCallback, useContext, useEffect, useRef, useState,} from "react";
 import Message from "../../models/Message";
@@ -6,7 +6,7 @@ import AMessage from "../../apis/AMessage";
 import MessageItem from "../components/MessageItem";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import {NavigationContext, NavigationRouteContext} from "@react-navigation/native";
-import {GroupMessageNavigationType, IdNavigationType} from "../../configs/NavigationRouteTypeConfig";
+import {ClassDetailRoute, GroupMessageNavigationType, IdNavigationType} from "../../configs/NavigationRouteTypeConfig";
 import {AccountContext} from "../../configs/AccountConfig";
 import SLog, {LogType} from "../../services/SLog";
 import Toast from "react-native-simple-toast";
@@ -122,16 +122,9 @@ export default function GroupMessageScreen() {
   }, [appInfos]);
 
   //handlers
-  const goBack = useCallback(() => {
-    AMessage.markAsReadInGroup(accountContext.account?.id ?? "-1", _class?.id ?? -1, () => {
-      navigation?.goBack();
-      navigation?.navigate(ScreenName.CHAT);
-    });
-  }, [accountContext.account, messages.length, _class]);
-
   const goToDetail = useCallback(() => {
-    const data: IdNavigationType = {
-      id: _class?.id ?? -1,
+    const data: ClassDetailRoute = {
+      classId: _class?.id ?? -1,
     }
     navigation?.navigate(ScreenName.DETAIL_CLASS, data);
   }, [_class]);
@@ -141,6 +134,33 @@ export default function GroupMessageScreen() {
     const data: GroupMessageNavigationType = route?.params as GroupMessageNavigationType;
     setClass(data.class);
   }, []);
+
+  useEffect(() => {
+    if (navigation) {
+      navigation.setOptions({
+        title: _class?.title,
+        headerShown: true,
+        contentStyle: {
+          padding: 0,
+        },
+        headerStyle: {
+          backgroundColor: BackgroundColor.primary,
+        },
+        headerTintColor: "#fff",
+        headerLeft: () => (
+          <TouchableOpacity onPress={() => navigation.goBack()} style={{paddingRight: 10, flexDirection: "row", gap: 5}}>
+            <Ionicons name="chevron-back" size={24} color="white" style={{alignSelf: "center"}}/>
+          </TouchableOpacity>
+        ),
+        headerRight: () => (
+          <TouchableOpacity onPress={goToDetail} style={{paddingRight: 10, flexDirection: "row", gap: 5}}>
+            <Text></Text>
+            <Image src={ReactAppUrl.PUBLIC_URL + _class?.major?.icon} style={styles.avatar} />
+          </TouchableOpacity>
+        ),
+      });
+    }
+  }, [navigation, _class]);
 
   useEffect(() => {
     const tutorId: string = (_class as any)?.tutor_id ?? "-$$";
@@ -202,20 +222,6 @@ export default function GroupMessageScreen() {
   return (
     <View style={styles.container}>
       <Spinner visible={loading}/>
-
-      <Ionicons
-        name="close"
-        size={30}
-        style={styles.backButton}
-        onPress={goBack}
-      />
-
-      {/* class */}
-      <Pressable style={{alignSelf: "center"}} onPress={goToDetail}>
-        <Image src={ReactAppUrl.PUBLIC_URL + _class?.major?.icon ?? ""} style={styles.avatar}/>
-
-        <Text style={styles.userName}>{_class?.title}</Text>
-      </Pressable>
 
       <View style={[styles.container, styles.chatContent]}>
 
@@ -288,13 +294,14 @@ export default function GroupMessageScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: BackgroundColor.primary,
   },
 
   chatContent: {
     padding: 10,
     paddingTop: 20,
-    marginTop: 10,
-    backgroundColor: BackgroundColor.gray_e6,
+    // marginTop: 10,
+    backgroundColor: BackgroundColor.white,
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     shadowColor: BackgroundColor.sub_primary,
@@ -318,18 +325,23 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontWeight: "600",
     fontSize: 16,
-    color: TextColor.sub_primary,
+    color: TextColor.white,
+  },
+
+  avatarContainer: {
+    alignSelf: "center",
+    alignItems: "center",
+    justifyContent: "center",
   },
 
   avatar: {
-    width: 60,
-    height: 60,
+    width: 50,
+    height: 50,
+    marginVertical: 10,
     borderRadius: 50,
-    backgroundColor: BackgroundColor.white,
-    borderWidth: 0.7,
-    borderColor: BackgroundColor.sub_primary,
-    marginTop: 50,
-    alignSelf: "center",
+    backgroundColor: BackgroundColor.sub_primary,
+    borderWidth: 1,
+    borderColor: BackgroundColor.white,
   },
 
   chatContainer: {
@@ -349,7 +361,7 @@ const styles = StyleSheet.create({
 
   suggestItem: {
     fontSize: 12,
-    backgroundColor: BackgroundColor.gray_30,
+    backgroundColor: BackgroundColor.sub_warning,
     paddingTop: 5,
     paddingBottom: 7,
     paddingHorizontal: 8,
