@@ -143,6 +143,7 @@ export default function ClassDetail() {
   }, [account, classDetail])
 
   useEffect(() => {
+
     //Get detail class
     if (userId) {
       // Lấy data chi tiết lớp học
@@ -171,7 +172,6 @@ export default function ClassDetail() {
       );
     }
   }, [resultResponse, userId]);
-
 
   useEffect(() => {
     if (account) {

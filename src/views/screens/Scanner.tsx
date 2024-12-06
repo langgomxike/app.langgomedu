@@ -1,23 +1,27 @@
-import { useCallback, useContext, useEffect } from "react";
+import {useCallback, useContext, useEffect} from "react";
 import {
-  BarcodeScanningResult,
+  BarcodeScanningResult, BarcodeType,
   Camera,
   CameraView,
   useCameraPermissions,
 } from "expo-camera";
-import { Pressable, StyleSheet, useWindowDimensions, View } from "react-native";
+import {Alert, Pressable, StyleSheet, useWindowDimensions, View} from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import { BackgroundColor, TextColor } from "../../configs/ColorConfig";
+import {BackgroundColor, TextColor} from "../../configs/ColorConfig";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { NavigationContext } from "@react-navigation/native";
-import SLog, { LogType } from "../../services/SLog";
-import QRItemType, { QRItems } from "../../configs/QRConfig";
+import {NavigationContext} from "@react-navigation/native";
+import SLog, {LogType} from "../../services/SLog";
+import QRItemType, {QRItems} from "../../configs/QRConfig";
 import ScreenName from "../../constants/ScreenName";
+import {LanguageContext} from "../../configs/LanguageConfig";
+import Toast from "react-native-simple-toast";
+import RNQRGenerator from "rn-qr-generator";
 
 export default function ScannerScreen() {
   //refs, contexts
   const navigation = useContext(NavigationContext);
   const [permission, requestPermission] = useCameraPermissions();
+  const language = useContext(LanguageContext).language;
 
   //handlers
   const handleScan = useCallback(
@@ -33,60 +37,35 @@ export default function ScannerScreen() {
     [permission]
   );
 
-  const pickImage = useCallback(() => {
-    ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
-      allowsEditing: true,
-      quality: 1,
-    })
-      .then((result) => {
-        SLog.log(LogType.Info, "ImagePicker", "process result", result);
-
-        if (!result.canceled) {
-          return Camera.scanFromURLAsync(result.assets[0].uri);
-        }
-        return [];
-      })
-      .then((value: BarcodeScanningResult[]) => {
-        SLog.log(
-          LogType.Info,
-          "BarcodeScanningResult",
-          "process result",
-          value
-        );
-
-        processResult(value.length > 0 ? value[0].data : "");
-      });
-  }, [permission]);
-
   const processResult = useCallback(
     (result: string) => {
       SLog.log(LogType.Info, "ScannerScreen", "process result", result);
       let qrItem: QRItemType;
+
       try {
         qrItem = JSON.parse(result);
       } catch (error) {
         navigation?.goBack();
-        alert("Wrong data :<");
+        Toast.show(language.CANNOT_SCAN_QR, 1000);
         SLog.log(LogType.Error, "Scan QR", "processResult", error);
         return;
       }
 
       navigation?.goBack();
       if (!qrItem.id || !qrItem.type) {
-        alert("Wrong data :<");
+        Toast.show(language.CANNOT_SCAN_QR, 1000);
       } else {
         switch (qrItem.type) {
           case QRItems.CLASS:
-            navigation?.navigate(ScreenName.DETAIL_CLASS, { id: qrItem.id });
+            navigation?.navigate(ScreenName.DETAIL_CLASS, {id: qrItem.id});
             break;
 
           case QRItems.CV:
-            navigation?.navigate(ScreenName.CV, { id: qrItem.id });
+            navigation?.navigate(ScreenName.CV, {id: qrItem.id});
             break;
 
           case QRItems.USER:
-            navigation?.navigate(ScreenName.PROFILE, { id: qrItem.id });
+            navigation?.navigate(ScreenName.PROFILE, {id: qrItem.id});
             break;
         }
       }
@@ -104,9 +83,13 @@ export default function ScannerScreen() {
   return (
     <View style={styles.container}>
       {/* camera */}
-      <View style={{ flex: 1, justifyContent: "center" }}>
+      <View style={{flex: 1, justifyContent: "center"}}>
         <CameraView
           onBarcodeScanned={handleScan}
+          barcodeScannerSettings={{
+            barcodeTypes: ['aztec', 'ean13', 'ean8', 'qr', 'pdf417', 'upc_e', 'datamatrix', 'code39', 'code93', 'itf14', 'codabar', 'code128', 'upc_a']
+          }}
+          ratio="16:9"
           style={[styles.camera]}
           facing={"back"}
         />
@@ -116,14 +99,7 @@ export default function ScannerScreen() {
           style={[styles.button, styles.backButton]}
           onPress={navigation?.goBack}
         >
-          <Ionicons name="close" size={45} color={TextColor.sub_primary} />
-        </Pressable>
-
-        <Pressable
-          style={[styles.button, styles.imageButton]}
-          onPress={pickImage}
-        >
-          <Ionicons name="image" size={45} color={TextColor.sub_primary} />
+          <Ionicons name="close" size={45} color={TextColor.sub_primary}/>
         </Pressable>
       </View>
     </View>
@@ -149,12 +125,10 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 5,
     alignSelf: "center",
-    position: "absolute",
   },
 
   backButton: {
     bottom: 20,
-    left: 20,
   },
 
   imageButton: {

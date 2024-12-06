@@ -1,4 +1,4 @@
-import {createRef, useContext, useEffect, useRef} from "react";
+import {createRef, useContext, useEffect} from "react";
 // @ts-ignore
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {NavigationContainer, NavigationContainerRef, ParamListBase} from "@react-navigation/native";
@@ -8,7 +8,7 @@ import ButtonNavBar from "./src/views/components/ButtonNavBar";
 import MessageScreen from "./src/views/screens/Message";
 import ProfileScreen from "./src/views/screens/Profile";
 import ClassDetail from "./src/views/screens/ClassDetail";
-import {BackgroundColor, TextColor} from "./src/configs/ColorConfig";
+import { BackgroundColor, TextColor } from "./src/configs/ColorConfig";
 import CVListScreen from "./src/views/screens/CVList";
 import AppContext from "./src/configs/AppContext";
 import CVScreen from "./src/views/screens/CV";
@@ -25,31 +25,29 @@ import Register1Screen from "./src/views/screens/Register1";
 import Register2Screen from "./src/views/screens/Register2";
 import OTPScreen from "./src/views/screens/OTP";
 import ChangePasswordScreen from "./src/views/screens/ChangePassword";
-import {GestureHandlerRootView} from "react-native-gesture-handler";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import UserReportList from "./src/views/screens/admin/UserReportList";
 import UserManager from "./src/views/screens/admin/UserManager";
 import ClassManager from "./src/views/screens/admin/ClassManager";
 import GeneralManager from "./src/views/screens/admin/GeneralManager";
 import CreatAcountAdmin from "./src/views/screens/admin/CreatAccountAdmin";
 import PersonalCV from "./src/views/screens/settings/PersonalCV";
-import {PermissionsAndroid, Text, TouchableOpacity} from "react-native";
-import Octicons from '@expo/vector-icons/Octicons';
+import { PermissionsAndroid, TouchableOpacity } from "react-native";
+import Octicons from "@expo/vector-icons/Octicons";
 import LeanerAttendance from "./src/views/screens/attendance/LeanerAttendance";
 import HistoryAttendance from "./src/views/screens/attendance/HistoryAttendance";
 import TutorAttendance from "./src/views/screens/attendance/TutorAttendance";
 import AdminHome from "./src/views/screens/admin/AdminHome";
 import SFirebase, {FirebaseNode} from "./src/services/SFirebase";
-import { LanguageContext } from "./src/configs/LanguageConfig";
 import AccountScreen from "./src/views/screens/Account";
 import WelcomeScreen from "./src/views/screens/Welcome";
-import Notification from "./src/views/components/Notification";
-import ChatScreen from "./src/views/screens/Chat";
 import GroupMessageScreen from "./src/views/screens/GroupMessage";
 import CreateReport from "./src/views/screens/CreateReport";
 import UserPermissionManagementScreen from "./src/views/screens/admin/UserPermissionManagement";
 import RegisterChildScreen from "./src/views/screens/RegisterChild";
 import UpdateClass from "./src/views/screens/UpdateClass";
 import ResetPasswordScreen from "./src/views/screens/ResetPassword";
+import UpdateReportedUser from "./src/views/screens/admin/UpdateReportedUser";
 
 PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS);
 
@@ -69,7 +67,7 @@ export default function App() {
                 headerShown: false,
                 title: "",
                 contentStyle: {
-                  backgroundColor: BackgroundColor.white, 
+                  backgroundColor: BackgroundColor.white,
                 },
               }}
             >
@@ -119,6 +117,11 @@ export default function App() {
               <Stack.Screen
                 name={ScreenName.ATTENDANCE_HISTORY}
                 component={HistoryAttendance}
+                options={{
+                  headerShown: true,
+                  title: "",
+                  headerStyle: {backgroundColor: BackgroundColor.primary}
+                }}
               />
               <Stack.Screen
                 name={ScreenName.ATTENDED_FOR_LEARNER}
@@ -128,7 +131,7 @@ export default function App() {
                 name={ScreenName.ATTENDED_FOR_TUTOR}
                 component={TutorAttendance}
               />
-
+             
               <Stack.Screen
                 name={ScreenName.CV_LIST}
                 component={CVListScreen}
@@ -136,7 +139,7 @@ export default function App() {
               <Stack.Screen
                 name={ScreenName.SETTING_PERSONAL_CV}
                 component={PersonalCV}
-                options={({navigation}) => ({
+                options={({ navigation }) => ({
                   headerShown: true,
                   contentStyle: {
                     paddingHorizontal: 0,
@@ -148,13 +151,16 @@ export default function App() {
                   },
                   headerTintColor: TextColor.white,
                   headerRight: () => (
-                    <TouchableOpacity onPress={() => {
-                      navigation.navigate(ScreenName.INPUT_CV)
-                    }}>
-                      <Octicons name="pencil" size={24} color="white"/>
+                    <TouchableOpacity
+                      onPress={() => {
+                        navigation.navigate(ScreenName.INPUT_CV);
+                      }}
+                    >
+                      <Octicons name="pencil" size={24} color="white" />
                     </TouchableOpacity>
-                  )
-                })}/>
+                  ),
+                })}
+              />
 
               <Stack.Screen
                 name={ScreenName.INPUT_CV}
@@ -164,16 +170,13 @@ export default function App() {
                   contentStyle: {
                     paddingHorizontal: 0,
                     paddingTop: 0,
-                  }
+                  },
                 })}
               />
-              <Stack.Screen
-                name={ScreenName.CV}
-                component={CVScreen}
-              />
+              <Stack.Screen name={ScreenName.CV} component={CVScreen} />
 
-              <Stack.Screen name={ScreenName.OTP} component={OTPScreen}/>
-              <Stack.Screen name={ScreenName.LOGIN} component={LoginScreen}/>
+              <Stack.Screen name={ScreenName.OTP} component={OTPScreen} />
+              <Stack.Screen name={ScreenName.LOGIN} component={LoginScreen} />
               <Stack.Screen
                 name={ScreenName.REGISTER_STEP_1}
                 component={Register1Screen}
@@ -231,7 +234,7 @@ export default function App() {
               <Stack.Screen
                 name={ScreenName.CREATE_REPORT}
                 component={CreateReport}
-              />  
+              />
 
               <Stack.Screen
                 name={ScreenName.APP_INFO_MANAGEMENT}
@@ -258,12 +261,17 @@ export default function App() {
               />
 
               <Stack.Screen
+                name={ScreenName.UPDATE_REPORT_USER}
+                component={UpdateReportedUser}
+              />
+
+              <Stack.Screen
                 name={ScreenName.SETTING_INFO_PERSONAL}
                 component={AccountScreen}
                 options={{
                   headerShown: true,
                   title: "",
-                  headerStyle: {backgroundColor: BackgroundColor.primary }
+                  headerStyle: {backgroundColor: BackgroundColor.primary}
                 }}
               />
               {/* END ADMIN SCREENS */}

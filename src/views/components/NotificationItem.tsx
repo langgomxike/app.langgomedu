@@ -17,6 +17,7 @@ import RBSheet from "react-native-raw-bottom-sheet";
 import Toast from "react-native-simple-toast";
 import AMessage from "../../apis/AMessage";
 import {LanguageContext} from "../../configs/LanguageConfig";
+import CustomShimmer from "./skeleton/CustomShimmer";
 
 type ChatContactItemProps = {
   id: number;
@@ -63,7 +64,7 @@ export default function NotificationItem(
 
   return (
     <TouchableOpacity onLongPress={refRBSheet.current?.open} style={styles.container}>
-      <Spinner visible={loading} />
+      <Spinner visible={loading}/>
 
       <Text style={styles.time}>{DateTimeConfig.getDateFormat(createdAt, true, true)}</Text>
       <Text>{content}</Text>

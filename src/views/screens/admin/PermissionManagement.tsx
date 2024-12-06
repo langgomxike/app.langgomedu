@@ -1,11 +1,10 @@
 import {ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View} from "react-native";
-import BackLayout from "../../layouts/Back";
 import SearchBar from "../../components/Inputs/SearchBar";
 import Feather from "@expo/vector-icons/Feather";
 import React, {useCallback, useContext, useEffect, useState} from "react";
 import {BackgroundColor, TextColor} from "../../../configs/ColorConfig";
 import AppInfoContainer from "../../components/admin/AppInfoContainer";
-import Role from "../../../models/Role";
+import Role, {RoleList} from "../../../models/Role";
 import Spinner from "react-native-loading-spinner-overlay";
 import ARole from "../../../apis/ARole";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -15,7 +14,8 @@ import Pagination from "../../components/Pagination";
 import {LanguageContext} from "../../../configs/LanguageConfig";
 import Toast from "react-native-simple-toast";
 import SFirebase, {FirebaseNode} from "../../../services/SFirebase";
-import { NavigationContext } from "@react-navigation/native";
+import {NavigationContext} from "@react-navigation/native";
+import SLog, {LogType} from "../../../services/SLog";
 
 export default function PermissionManagementScreen() {
   //contexts
@@ -61,6 +61,13 @@ export default function PermissionManagementScreen() {
   }, [newRole, roles]);
 
   const deleteRole = useCallback((role: Role) => {
+    const roleValues = Object.values(RoleList).filter(value => typeof value === "number");
+ 
+    if(roleValues.includes(role.id)) {
+      Toast.show(language.CANNOT_DELETE_SYSTEM_ROLE, 1000);
+      return;
+    }
+
     setLoading(true);
 
     const timeId = setTimeout(() => {

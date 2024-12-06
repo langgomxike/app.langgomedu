@@ -1,11 +1,8 @@
-import React, { useContext, useEffect, useState } from "react";
-import { StyleSheet, View, TouchableOpacity, Text } from "react-native";
-import { Dropdown, MultiSelect } from "react-native-element-dropdown";
+import React, { useEffect, useState } from "react";
+import { StyleSheet, View, TextInput, Text } from "react-native";
+import { Dropdown } from "react-native-element-dropdown";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import vietnamData from "../../../data/vietnam.json";
-import Feather from "@expo/vector-icons/Feather";
-import { LanguageContext } from "../../../configs/LanguageConfig";
-import { BackgroundColor } from "../../../configs/ColorConfig";
 
 // Định nghĩa kiểu dữ liệu cho JSON
 interface Dropdown {
@@ -13,56 +10,54 @@ interface Dropdown {
   value: string;
 }
 
-type DropDownAddressProps = {
+type DropDownLocationCustomProps = {
   selectedCity: string;
   selectedDistrict: string;
   selectedWard: string;
-  onSetSelectedCity: (cities: string) => void;
-  onSetSelectedDistrict: (districts: string) => void;
-  onSetSelectedWard: (wards: string) => void;
-}
+  content: string;
+  onSelectedCity: (city: string) => void;
+  onSelectedDistrict: (district: string) => void;
+  onSelectedWard: (ward: string) => void;
+  onSelectedContent: (content: string) => void; // Cập nhật kiểu hàm này
+};
 
-export default function DropDownLocation(
-  {
-    selectedCity,
-    selectedDistrict,
-    selectedWard,
-    onSetSelectedCity,
-    onSetSelectedDistrict,
-    onSetSelectedWard,
-  }: DropDownAddressProps){
-
-    // context
-    const languageContext = useContext(LanguageContext).language;
-    
+export default function DropDownLocationCustom({
+  selectedCity,
+  selectedDistrict,
+  selectedWard,
+  onSelectedCity,
+  onSelectedDistrict,
+  onSelectedWard,
+  onSelectedContent,
+  content,
+}: DropDownLocationCustomProps) {
   // states //////////////////////////////////////////////
-  const [district, setDistrict] = useState<Dropdown[]>([]); // quan
-  const [ward, setWard] = useState<Dropdown[]>([]); // xa
-
+  const [district, setDistrict] = useState<Dropdown[]>([]); // Quận
+  const [ward, setWard] = useState<Dropdown[]>([]); // Xã
   const [isFocus, setIsFocus] = useState(false);
+  const [detail, setDetail] = useState<string>(content || ""); // Giữ nội dung TextInput
 
-  // handle >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+  // effect /////////////////////////////////////////////
 
-  // effect >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-  // Lấy danh sách quận huyện
+  // Lấy danh sách quận huyện khi city thay đổi
   useEffect(() => {
-    // Cập nhật danh sách quận/huyện khi thay đổi danh sách thành phố
     const updatedDistricts: { label: string; value: string }[] = [];
-
     const city = vietnamData.find((c) => c.name === selectedCity);
+
     if (city) {
       city.districts.forEach((district) => {
         updatedDistricts.push({ label: district.name, value: district.name });
       });
     }
 
-
     setDistrict(updatedDistricts);
-    onSetSelectedDistrict("");
+
+    if (!updatedDistricts.some((d) => d.value === selectedDistrict)) {
+      onSelectedDistrict(""); // Reset district nếu không có trong danh sách
+    }
   }, [selectedCity]);
 
-  // Lấy danh sách xã phường theo quận, huyện
+  // Lấy danh sách xã phường khi district thay đổi
   useEffect(() => {
     const updatedWards: { label: string; value: string }[] = [];
 
@@ -74,12 +69,20 @@ export default function DropDownLocation(
         });
       }
     });
-    
+
     setWard(updatedWards);
-    onSetSelectedWard("");
-    onSetSelectedWard("");
+
+    if (!updatedWards.some((w) => w.value === selectedWard)) {
+      onSelectedWard(""); // Reset ward nếu không có trong danh sách
+    }
   }, [selectedDistrict]);
 
+  // Cập nhật detail khi content thay đổi từ ngoài
+  useEffect(() => {
+    setDetail(content || "");
+  }, [content]);
+
+  // Hàm render item cho dropdown
   const renderItem = (item: any, selected: any) => {
     return (
       <View style={styles.item}>
@@ -95,9 +98,15 @@ export default function DropDownLocation(
     );
   };
 
+  // Hàm xử lý khi giá trị trong TextInput thay đổi
+  const handleContentChange = (text: string) => {
+    setDetail(text); // Cập nhật giá trị trong state
+    onSelectedContent(text); // Gửi giá trị mới cho hàm onSelectedContent
+  };
+
   return (
     <View style={styles.container}>
-      {/* TINH, THANH PHO */}
+      {/* Dropdown for City */}
       <Dropdown
         style={[styles.dropdown, isFocus && { borderColor: "blue" }]}
         placeholderStyle={styles.placeholderStyle}
@@ -112,13 +121,13 @@ export default function DropDownLocation(
         maxHeight={300}
         labelField="label"
         valueField="value"
-        placeholder={!isFocus ? languageContext.PROVICE : languageContext.PROVICE_PLACEHOLDER}
-        searchPlaceholder={languageContext.SEARCH}
+        placeholder={!isFocus ? "Chọn tỉnh" : "Tỉnh"}
+        searchPlaceholder="Search..."
         value={selectedCity}
         onFocus={() => setIsFocus(true)}
         onBlur={() => setIsFocus(false)}
         onChange={(item) => {
-          onSetSelectedCity(item.value);
+          onSelectedCity(item.value);
           setIsFocus(false);
         }}
         renderLeftIcon={() => (
@@ -132,7 +141,7 @@ export default function DropDownLocation(
         renderItem={renderItem}
       />
 
-      {/* QUAN, HUYEN */}
+      {/* Dropdown for District */}
       <Dropdown
         style={[styles.dropdown, isFocus && { borderColor: "blue" }]}
         placeholderStyle={styles.placeholderStyle}
@@ -144,14 +153,13 @@ export default function DropDownLocation(
         maxHeight={300}
         labelField="label"
         valueField="value"
-        placeholder={!isFocus ? languageContext.DISTRICT : languageContext.DISTRICT_PLACEHOLDER}
-        searchPlaceholder={languageContext.SEARCH}
+        placeholder={!isFocus ? "Chọn quận/ huyện" : "Quận/ huyện"}
+        searchPlaceholder="Search..."
         value={selectedDistrict}
         onFocus={() => setIsFocus(true)}
         onBlur={() => setIsFocus(false)}
         onChange={(item) => {
-          onSetSelectedDistrict(item.value);
-          onSetSelectedDistrict(item.value);
+          onSelectedDistrict(item.value);
           setIsFocus(false);
         }}
         renderLeftIcon={() => (
@@ -164,7 +172,8 @@ export default function DropDownLocation(
         )}
         renderItem={renderItem}
       />
-      {/* XA */}
+
+      {/* Dropdown for Ward */}
       <Dropdown
         style={[styles.dropdown, isFocus && { borderColor: "blue" }]}
         placeholderStyle={styles.placeholderStyle}
@@ -176,14 +185,13 @@ export default function DropDownLocation(
         maxHeight={300}
         labelField="label"
         valueField="value"
-        placeholder={!isFocus ? languageContext.WARD : languageContext.WARD_PLACEHOLDER}
-        searchPlaceholder={languageContext.SEARCH}
+        placeholder={!isFocus ? "Chọn xã" : "Xã"}
+        searchPlaceholder="Search..."
         value={selectedWard}
         onFocus={() => setIsFocus(true)}
         onBlur={() => setIsFocus(false)}
         onChange={(item) => {
-          onSetSelectedWard(item.value);
-          onSetSelectedWard(item.value);
+          onSelectedWard(item.value);
           setIsFocus(false);
         }}
         renderLeftIcon={() => (
@@ -195,6 +203,16 @@ export default function DropDownLocation(
           />
         )}
         renderItem={renderItem}
+      />
+
+      {/* Text Input for Content */}
+      <TextInput
+        style={styles.textInput}
+        placeholder="Nhập nội dung"
+        placeholderTextColor="#888"
+        multiline
+        value={detail}
+        onChangeText={handleContentChange} // Cập nhật khi người dùng thay đổi
       />
     </View>
   );
@@ -207,19 +225,10 @@ const styles = StyleSheet.create({
   },
   dropdown: {
     height: 50,
-    borderColor: "#E0E0E0", // Màu viền xám nhạt
-    borderWidth: 1,
-    borderRadius: 8, // Bo tròn viền
-    paddingHorizontal: 12,
-    backgroundColor: "#FFFFFF", // Nền dropdown trắng
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.05, // Hiệu ứng bóng nhẹ
-    shadowRadius: 4,
-    elevation: 1,
+    borderColor: "gray",
+    borderWidth: 0.5,
+    borderRadius: 8,
+    paddingHorizontal: 8,
   },
   icon: {
     marginRight: 5,
@@ -228,20 +237,16 @@ const styles = StyleSheet.create({
     position: "absolute",
     backgroundColor: "white",
     left: 22,
-    top: -10,
+    top: 8,
     zIndex: 999,
     paddingHorizontal: 8,
     fontSize: 14,
-    color: "#6E6E6E", // Màu chữ nhạt cho label
   },
   placeholderStyle: {
     fontSize: 14,
-    color: "#B0B0B0", // Màu placeholder xám nhạt
   },
   selectedTextStyle: {
     fontSize: 14,
-    color: "#4F4F4F", // Màu chữ khi đã chọn
-    fontWeight: "400",
   },
   iconStyle: {
     width: 20,
@@ -250,34 +255,43 @@ const styles = StyleSheet.create({
   inputSearchStyle: {
     height: 40,
     fontSize: 14,
-    borderColor: "#E0E0E0", // Viền xám nhạt
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    backgroundColor: "#F7F7F7", // Nền ô search xám nhạt
-    color: "#333333", // Màu chữ trong ô search
   },
   item: {
-    padding: 15,
+    padding: 17,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    backgroundColor: "#FFFFFF", // Nền của mỗi item trắng
-    borderBottomWidth: 1,
-    borderBottomColor: "#F0F0F0", // Đường phân cách giữa các item
-  },
-  selectedItemText: {
-    color: "#0D99FF",
-    fontWeight: "500",
   },
   selectedStyle: {
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 14,
-    backgroundColor: "#EFEFEF", // Nền khi được chọn
+    backgroundColor: "white",
+    shadowColor: "#000",
     marginTop: 8,
     marginRight: 12,
     paddingHorizontal: 12,
     paddingVertical: 8,
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 1.41,
+    elevation: 2,
+  },
+  selectedItemText: {
+    color: "blue",
+    fontWeight: "bold",
+  },
+  textInput: {
+    height: 50,
+    borderWidth: 0.5,
+    borderColor: "gray",
+    borderRadius: 10,
+    padding: 10,
+    backgroundColor: "#fff",
+    textAlignVertical: "top",
   },
 });

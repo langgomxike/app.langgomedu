@@ -80,7 +80,11 @@ const notificationTab: TabItem = {
 
         {loading && notis.length < 1 && (
           fakeNotis.map(i => (
-            <CustomShimmer key={i} height={70} style={styles.item}/>
+            <View key={i} style={styles.container}>
+              <CustomShimmer height={25} style={styles.badge}/>
+
+              <CustomShimmer height={Math.floor(50 + (Math.random() * 10) * 7)} style={styles.item}/>
+            </View>
           ))
         )}
 
@@ -97,11 +101,26 @@ const notificationTab: TabItem = {
 export default notificationTab;
 
 const styles = StyleSheet.create({
-  item: {
+  container: {
     flex: 1,
     marginVertical: 5,
+    borderWidth: 0.5,
     borderRadius: 10,
-    minHeight: 70,
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    borderColor: TextColor.sub_primary,
+    gap: 5,
+  },
+
+  item: {
+    flex: 1,
+    borderRadius: 10,
+    minHeight: 50,
     width: "100%"
+  },
+
+  badge: {
+    width: 60,
+    borderRadius: 7,
   }
 });

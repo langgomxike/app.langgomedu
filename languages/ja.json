@@ -150,9 +150,21 @@
   "RESET_PASSWORD": "パスワードをリセット",
   "RESET_PASSWORD_HINT": "パスワードをリセットし、新しいものでログインしてください",
   "PASSWORD_RESET_ALREADY": "パスワードはすでにリセットされています",
-  "CHILDREN_CANNOT_CREATE_CHILDREN": "子供は子供を作成できません",
+  "HAVE_NO_PERMISSION_TO_CREATE_CHILD": "You don't have permission to create a child",
+  "HAVE_NO_PERMISSION_TO_MANAGE_CV": "You don't have permission to manage cv",
   "INVALID_RESET_PASSWORD": "パスワードのリセットに失敗しました。再試行してください",
   "APP_STORE_APP_ID": "アプリストアのアプリID",
+  "CANNOT_CHANGE_ADMIN_ROLE": "Cannot change admin role",
+  "ADMINISTRATION": "Administration",
+  "HAVE_NO_ADMINISTRATION": "You don't have permissions to be a administrator anymore. You're gonna be forced to logout",
+  "CANNOT_DELETE_SYSTEM_ROLE": "cannot delete system role",
+  "QR_INFO": "QR Information",
+  "CANNOT_SAVE_QR": "QR image cannot be saved in your device",
+  "SAVED_QR": "QR image has saved in your device already",
+  "OPEN_IMAGE_LIBRARY": "Open image library",
+  "FEATURE_DISABLED_IN_IOS": "This feature is disabled in IOS devices",
+  "CANNOT_SCAN_QR": "Can't scan QR",
+
   "PLAY_STORE_APP_ID": "Google PlayストアのアプリID",
 
   "HOANG": "Hoang",
@@ -348,5 +360,19 @@
   "ERR_MESSAGE_DATE_START_END": "開始日と終了日を選択してください。",
   "ERR_MESSAGE_AUTHOR": "作成者ではありません。",
 
-  "MESSAGE": "このタブにアクセスする権限がありません！"
+  "MESSAGE": "このタブにアクセスする権限がありません！",
+
+  "KHANG": "KHANG",
+  "CHOOSE": "選択 ...",
+  "LEARNING_CLASS": "クラス",
+  "EMPTY_TODAY_CLASS": "今日はクラスがありません",
+  "EDUCATION": "学歴",
+  "WORK_EXPERIENCE": "職務経験",
+  "CERTIFICATE": "証明書",
+  "WORKING_TITLE": "職名",
+  "NAME": "名前",
+  "INTERESTED_MAJOR": "専攻",
+  "BIRTHDAY": "生年月日",
+  "BIOGRAPHY": "自己紹介",
+  "PLACEHOLDER_BIO": "ここに自己紹介を入力してください"
 }

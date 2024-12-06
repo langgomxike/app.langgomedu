@@ -1,5 +1,6 @@
 import Lesson from "./Lesson";
 import User from "./User";
+import Class from "./Class";
 
 export default class Attendance {
     public id: number;
@@ -20,6 +21,7 @@ export default class Attendance {
     public price: number;
     public day: number ;
     public started_at: number;
+    public class: Class | undefined;
 
 
     constructor(id = 0 ,lesson: Lesson|undefined, user: User| undefined, attended = false, attended_at = 0, paid = false, paid_at = 0,  confirm_paid = false, confirm_paid_at = 0, payment_path = "", type = "", deferred = false, confirm_deferred = false, confirm_deferred_at = 0, 

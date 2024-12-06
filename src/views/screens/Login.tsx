@@ -24,6 +24,9 @@ export default function LoginScreen() {
   const accountContext = useContext(AccountContext);
   const languageContext = useContext(LanguageContext);
 
+    // Đường dẫn tạm đếm admin
+    // navigation?.navigate(ScreenName.PROFILE);
+
   //states
   const [usernameOrPhoneNumber, setUsernameOrPhoneNumber] = useState("");
   const [password, setPassword] = useState("");
@@ -77,7 +80,8 @@ export default function LoginScreen() {
       Alert.alert(languageContext.language.LOGIN, languageContext.language.LOGIN_FAILED, [
         {
           text: "OK",
-          onPress: () => {},
+          onPress: () => {
+          },
         },
       ]);
     }, 10000);
@@ -96,35 +100,21 @@ export default function LoginScreen() {
 
       if (accountContext.setAccount) {
         //save to global context
-        accountContext.setAccount(user); 
+        accountContext.setAccount(user);
 
         //save into storage
         SAsyncStorage.setData(AsyncStorageKeys.TOKEN, user.token, () => {
           SLog.log(LogType.Info, "store token", "stored token", user.token);
           //check if admin/superadmin or not
-          if (user.roles?.map(role => role.id).includes(RoleList.ADMIN) || user.roles?.map(role => role.id).includes(RoleList.SUPER_ADMIN)) {
-            navigation?.reset({
-              index: 0,
-              routes: [{ name: ScreenName.HOME_ADMIN }],
-            });
-            navigation?.navigate(ScreenName.HOME_ADMIN);
-          } else {
-            navigation?.reset({
-              index: 0,
-              routes: [{ name: ScreenName.NAV_BAR }],
-            });
-            navigation?.navigate(ScreenName.HOME);
-          }
-          Toast.show(`${languageContext.language.WELCOME} ${user.full_name}`, 2000);
+          navigation?.reset({
+            index: 0,
+            routes: [{name: ScreenName.WELCOME}],
+          });
+          navigation?.navigate(ScreenName.WELCOME);
+
         }, (error) => {
           SLog.log(LogType.Error, "login", "cannot store token", error);
-          Alert.alert(languageContext.language.LOGIN, languageContext.language.LOGIN_FAILED, [
-            {
-              text: "OK",
-              onPress: () => {
-              },
-            },
-          ]);
+          Alert.alert(languageContext.language.LOGIN, languageContext.language.LOGIN_FAILED);
           return;
         });
       }
