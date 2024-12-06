@@ -108,7 +108,7 @@ export default class ACV {
     onLoading(true);
     // console.log(`${baseURL}/uploadCV`);
     const data = JSON.stringify(insertData)
-    console.log(data);
+    // console.log(data);
 
     axios.post(`${baseURL}/uploadCV`, data, {
       headers: {

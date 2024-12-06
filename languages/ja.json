@@ -374,5 +374,8 @@
   "INTERESTED_MAJOR": "専攻",
   "BIRTHDAY": "生年月日",
   "BIOGRAPHY": "自己紹介",
-  "PLACEHOLDER_BIO": "ここに自己紹介を入力してください"
+  "PLACEHOLDER_BIO": "ここに自己紹介を入力してください",
+  "ANNOUNCE": "お知らせ",
+  "INPUT_CV_ALERT": "あなたのCVは送信され、管理者の承認を待っています",
+  "OK": "OK"
 }

@@ -383,5 +383,8 @@
   "INTERESTED_MAJOR": "Major",
   "BIRTHDAY": "Birthday",
   "BIOGRAPHY": "Biography",
-  "PLACEHOLDER_BIO": "Enter your biography here"
+  "PLACEHOLDER_BIO": "Enter your biography here",
+  "ANNOUNCE": "Announcement",
+  "INPUT_CV_ALERT": "Your CV has been submitted and is awaiting administrator approval",
+  "OK": "OK"
 }
