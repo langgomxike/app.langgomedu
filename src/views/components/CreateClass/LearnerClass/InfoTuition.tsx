@@ -10,10 +10,10 @@ import {
 } from "react-native";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import AStudent from "../../../apis/AStudent";
-import User from "../../../models/User";
-import DropDownLocation from "../dropdown/DropDownLocation";
-import { LanguageContext } from "../../../configs/LanguageConfig";
+import AStudent from "../../../../apis/AStudent";
+import User from "../../../../models/User";
+import DropDownLocation from "../../dropdown/DropDownLocation";
+import { LanguageContext } from "../../../../configs/LanguageConfig";
 
 type Props = {
   onNext: (
@@ -245,9 +245,9 @@ const InfoTuition = ({ onNext, userId }: Props) => {
         <View style={styles.details}>
           <Text>
             <Ionicons
-              name={isJoined ? "checkmark" : "close"} // Icon tùy trạng thái
+              name={isJoined ? "checkmark" : "checkmark"} // Icon tùy trạng thái
               size={35}
-              color={isJoined ? "green" : "red"} // Màu sắc tùy trạng thái
+              color={isJoined ? "#44bd32" : "black"} // Màu sắc tùy trạng thái
             />
           </Text>
           <Text style={styles.description}>

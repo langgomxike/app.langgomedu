@@ -370,6 +370,11 @@
   "ERR_MESSAGE_AUTHOR": "Not the author.",
 
   "MESSAGE": "You do not have permission to access this tab!",
+  "UPDATE_CLASS": "Update Class",
+
+  "USERNAME_INVALID_FORMAT": "The username must be between 6 and 20 characters long and not contain special characters.",
+  "PASSWORD_INVALID_FORMAT": "The password must be between 6 and 20 characters long.",
+  "NEW_PASSWORD_MUST_BE_DIFFERENT": "The new password must be different from the old password.",
 
   "KHANG": "KHANG",
   "CHOOSE": "choose ...",
