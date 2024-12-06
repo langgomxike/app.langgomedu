@@ -379,5 +379,12 @@
   "PLACEHOLDER_BIO": "Nhập mô tả bản thân của bạn tại đây",
   "ANNOUNCE": "Thông báo",
   "INPUT_CV_ALERT": "CV của bạn đã được gửi đi và đang chờ quản trị viên duyệt",
-  "OK": "OK"
+  "OK": "OK",
+  "POINT":"Điểm uy tín",
+  "DATE_JOIN":"Ngày tham gia",
+  "INTERESTED_LEVEL_CLASS":"Lớp học quan tâm",
+  "CONTACT":"Liên hệ:",
+  "NOT_INTERESTED_MAJORS":"Không có chuyên ngành quan tâm",
+  "NOT_INTERESTED_LEVEL_CLASS":"Không có lớp học quan tâm"
+
 }

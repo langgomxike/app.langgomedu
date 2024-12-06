@@ -20,7 +20,7 @@ import {BackgroundColor, TextColor} from "../../configs/ColorConfig";
 import ConfirmDialog from "../components/ConfirmDialog";
 import {AppInfoContext} from "../../configs/AppInfoContext";
 import {RoleList} from "../../models/Role";
-import {AttendanceNavigationType} from "../../configs/NavigationRouteTypeConfig";
+import {AttendanceNavigationType, IdNavigationType} from "../../configs/NavigationRouteTypeConfig";
 
 type FlatListItemProps = {
   item: AccountItemProps;

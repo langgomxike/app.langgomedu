@@ -1,6 +1,6 @@
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Picker } from "@react-native-picker/picker";
-import { useCallback, useState, useEffect } from "react";
+import { useCallback, useState, useEffect, useContext } from "react";
 import {
   Image,
   ScrollView,
@@ -16,29 +16,42 @@ import User from "../../models/User";
 import DateTimeConfig from "../../configs/DateTimeConfig";
 import Avatar from "../components/Avatar";
 import ReactAppUrl from "../../configs/ConfigUrl";
+import { AccountContext } from "../../configs/AccountConfig";
+import {
+  NavigationContext,
+  NavigationRouteContext,
+} from "@react-navigation/native";
+import { IdNavigationType } from "../../configs/NavigationRouteTypeConfig";
+import ScreenName from "../../constants/ScreenName";
+import { LanguageContext } from "../../configs/LanguageConfig";
 const URL = ReactAppUrl.PUBLIC_URL;
 export default function ProfileScreen() {
+  //contexts
+  const accountContext = useContext(AccountContext);
+  console.log("user Id", accountContext.account?.id);
+  const route = useContext(NavigationRouteContext);
+  const languageContext = useContext(LanguageContext).language;
+  console.log(languageContext.TYPE);
+
   //states
   const [loading, setLoading] = useState(true);
+  const navigation = useContext(NavigationContext);
   const [interestedField, setInterestedField] = useState("");
   const [userProfile, setUserProfile] = useState<User | null>(null);
-  const userId = "080204000002";
-  const isLoginUser = "080204000002";
-  const pastelColors = [
-    "#fff",
-    // "#ff80aa",
-    // "#3399ff",
-    // "#00e68a",
-    // "#b366ff",
-    // "#ffb84d",
-    // "#00cc44",
-    // "#33ccff",
-  ];
+  const pastelColors = ["#fff"];
+
   const randomColor =
     pastelColors[Math.floor(Math.random() * pastelColors.length)];
 
+  const userId = accountContext.account?.id;
+
   //laasy thoong tin porfile
   useEffect(() => {
+    const data: IdNavigationType = (route?.params as IdNavigationType) ?? {
+      id: accountContext.account?.id,
+    };
+    const userId: string = data?.id + "";
+
     AUser.getUserProfileById(
       userId,
       (data: User) => {
@@ -76,6 +89,12 @@ export default function ProfileScreen() {
   const handleSubmit = useCallback(() => {
     alert("Call api to save profile here");
   }, []);
+  const goToPersonalInfoScreen = useCallback(() => {
+    navigation?.navigate(ScreenName.UPDATE_PROFILE);
+  }, []);
+  const goToReport = useCallback(() => {
+    navigation?.navigate(ScreenName.CREATE_REPORT);
+  },[]);
   return (
     <View style={{ flex: 1 }}>
       <ScrollView>
@@ -112,7 +131,7 @@ export default function ProfileScreen() {
                   ) : (
                     <Image
                       style={{ width: 20, height: 20 }}
-                      source={require("../../../assets/icons/img_avatar_rabbit.png")}
+                      source={require("../../../assets/icons/ic_heart.png")}
                     />
                   )}
                 </View>
@@ -123,7 +142,7 @@ export default function ProfileScreen() {
         <View style={styles.form}>
           <View style={styles.row}>
             <View>
-              <Text style={styles.title2}>Điểm uy tín</Text>
+              <Text style={styles.title2}>{languageContext.POINT}</Text>
               <View>
                 <View style={styles.uytin}>
                   <Text
@@ -144,12 +163,12 @@ export default function ProfileScreen() {
             </View>
             <View>
               <View>
-                <Text style={styles.title2}>Ngày tham gia</Text>
+                <Text style={styles.title2}>{languageContext.DATE_JOIN}</Text>
                 <Text style={styles.content}>{dayatent}</Text>
               </View>
             </View>
           </View>
-          <Text style={styles.title2}>Chuyên ngành quan tâm</Text>
+          <Text style={styles.title2}>{languageContext.INTERESTED_MAJOR}</Text>
           <View style={styles.majorListContainer}>
             {userProfile?.interested_majors &&
             userProfile?.interested_majors?.length > 0 ? (
@@ -165,18 +184,67 @@ export default function ProfileScreen() {
                       source={{ uri: `${URL}${major.icon}` }}
                       style={styles.majorIcon}
                     />
-                    <Text style={styles.majorName}>{major.vn_name}</Text>
+                    <Text style={styles.majorName}>
+                      {
+                        languageContext.TYPE === "vi"
+                          ? major.vn_name
+                          : languageContext.TYPE === "en"
+                          ? major.en_name
+                          : languageContext.TYPE === "ja"
+                          ? major.ja_name
+                          : major.vn_name // Giá trị mặc định nếu không khớp
+                      }
+                    </Text>
                   </View>
                 );
               })
             ) : (
-              <Text>Không có chuyên ngành quan tâm</Text>
+              <Text>{languageContext.NOT_INTERESTED_MAJORS}</Text>
             )}
           </View>
-          <Text style={styles.title2}>Quê quán</Text>
+          <Text style={styles.title2}>
+            {languageContext.INTERESTED_LEVEL_CLASS}
+          </Text>
+          <View style={styles.majorListContainer}>
+            {userProfile?.interested_class_levels &&
+            userProfile?.interested_class_levels?.length > 0 ? (
+              userProfile?.interested_class_levels?.map(
+                (major: any, index: any) => {
+                  const randomColor =
+                    pastelColors[
+                      Math.floor(Math.random() * pastelColors.length)
+                    ];
+                  return (
+                    <View
+                      style={[
+                        styles.majorItem,
+                        { backgroundColor: randomColor },
+                      ]}
+                      key={index}
+                    >
+                      <Text style={styles.majorName}>
+                        {
+                          languageContext.TYPE === "vi"
+                            ? major.vn_name
+                            : languageContext.TYPE === "en"
+                            ? major.en_name
+                            : languageContext.TYPE === "ja"
+                            ? major.ja_name
+                            : major.vn_name // Giá trị mặc định nếu không khớp
+                        }
+                      </Text>
+                    </View>
+                  );
+                }
+              )
+            ) : (
+              <Text>{languageContext.NOT_INTERESTED_LEVEL_CLASS}</Text>
+            )}
+          </View>
+          <Text style={styles.title2}>{languageContext.HOMETOWN}</Text>
           <Text style={styles.content}>{userProfile?.hometown}</Text>
 
-          <Text style={styles.title2}>Địa chỉ</Text>
+          <Text style={styles.title2}>{languageContext.ADDRESS}</Text>
           <Text style={styles.content}>
             {userProfile?.address?.detail +
               ", " +
@@ -187,24 +255,31 @@ export default function ProfileScreen() {
               userProfile?.address?.province +
               " "}
           </Text>
-          <Text style={styles.title2}>Liên hệ</Text>
+          <Text style={styles.title2}>{languageContext.CONTACT}</Text>
 
           <View style={styles.contacts}>
             <Text>
-              <Text style={{ fontWeight: "bold" }}>Số điện thoại: </Text>
+              <Text style={{ fontWeight: "bold" }}>
+                {languageContext.PHONE_NUMBER}{" "}
+              </Text>
               {userProfile?.phone_number.slice(0, -7) + "*******"}
             </Text>
             <Text>
-              <Text style={{ fontWeight: "bold" }}>Địa chỉ email:</Text>{" "}
+              <Text style={{ fontWeight: "bold" }}>
+                {languageContext.CONTACT_EMAIL}
+              </Text>{" "}
               {userProfile?.email}
             </Text>
           </View>
         </View>
       </ScrollView>
       <View style={styles.btns}>
-        {userId === isLoginUser ? (
+        {userProfile?.id === accountContext.account?.id ? (
           // Nút Edit khi userId trùng với isLoginUser
-          <TouchableOpacity style={styles.buttonEdit} onPress={handleSubmit}>
+          <TouchableOpacity
+            style={styles.buttonEdit}
+            onPress={goToPersonalInfoScreen}
+          >
             <Text style={styles.buttonText}>Chỉnh sửa</Text>
           </TouchableOpacity>
         ) : (
@@ -215,7 +290,7 @@ export default function ProfileScreen() {
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.buttonReport}
-              onPress={handleSubmit}
+              onPress={goToReport}
             >
               <Image
                 style={{ width: 20, height: 20 }}
