@@ -410,7 +410,7 @@ const styles = StyleSheet.create({
   },
 
   bodyContainer: {
-    height: SCREEN_HEIGHT * 0.45,
+    // height: SCREEN_HEIGHT * 0.45,
   },
 
   headerNav: {

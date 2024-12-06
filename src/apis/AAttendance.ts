@@ -39,7 +39,8 @@ export default class AAttendance {
   public static getAttendanceByLearnerLesson(
     lessonId: number,
     userId: string,
-    onNext: (attendance: Attendance) => void,
+    classId: number,
+    onNext: (attendance: Attendance, defferedAttendances: Attendance[]) => void,
     onLoading: (loading: boolean) => void
   ) {
     onLoading(true);
@@ -48,12 +49,13 @@ export default class AAttendance {
     
 
     axios
-      .get(`${this.API_URL}/learner/${lessonId}/${userId}`)
+      .get(`${this.API_URL}/learner/${lessonId}/${userId}?class_id=${classId}`)
       .then((response) => {
         const data = response.data.data;
         const attendance = data.attendance;
+        const defferedAttendances =  data.deferredAttendances
         // console.log(">>> getAttendanceByLearnerClassLesson: ", JSON.stringify(data, null, 2));
-        onNext(attendance);
+        onNext(attendance, defferedAttendances);
         onLoading(false);
       })
       .catch((err) => {

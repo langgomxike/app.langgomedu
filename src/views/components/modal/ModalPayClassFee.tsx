@@ -17,11 +17,14 @@ import * as ImagePicker from "expo-image-picker";
 import * as MediaLibrary from "expo-media-library";
 import * as FileSystem from "expo-file-system";
 import {LanguageContext} from "../../../configs/LanguageConfig";
+import { AppInfoContext } from "../../../configs/AppInfoContext";
+import Class from "../../../models/Class";
 
 type ModalDialogForClassProps = {
   confirmTitle: string;
   visiable: string | null;
   onRequestCloseDialog: () => void;
+  classFee: number
   onSelectedImage: (image: any) => void;
   onPay: () => void;
 };
@@ -31,14 +34,16 @@ export default function ModalPayClassFee({
   confirmTitle,
   visiable,
   onRequestCloseDialog,
+  classFee,
   onSelectedImage,
   onPay,
 }: ModalDialogForClassProps) {
   // context
   const language = useContext(LanguageContext).language;
+  const appInfoContext = useContext(AppInfoContext).infos;
 
   // states -------------------------------------------------------------------
-  const image = `https://img.vietqr.io/image/MB-012345-compact2.jpg?amount=9999&addInfo=${"Tiền học của lớp"}&accountName=Langgomedu`;
+  const image = `https://img.vietqr.io/image/${appInfoContext.banking_code}-${appInfoContext.banking_number}-compact2.jpg?amount=${classFee}&addInfo=${"Phí tạo lớp"}&accountName=Langgomedu`;
 
   const [selectedImage, setSelectedImage] = useState<any>(null);
   const [loadingSaveImage, setLoadingSaveImage] = useState(false);
