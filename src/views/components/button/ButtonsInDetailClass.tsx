@@ -20,6 +20,7 @@ import {MessageNavigationType} from "../../../configs/NavigationRouteTypeConfig"
 import ModalDialogForClass from "../modal/ModalDialogForClass";
 import ButtonDisableInClassDetail from "./ButtonDisableInClassDetail";
 import { LanguageContext } from "../../../configs/LanguageConfig";
+import { AppInfoContext } from "../../../configs/AppInfoContext";
 
 type ButtonsInDetailClassProps = {
   classDetail: Class;
@@ -37,7 +38,13 @@ export default function ButtonsInDetailClass({
   const account = useContext(AccountContext).account;
   const navigation = useContext(NavigationContext);
   const language = useContext(LanguageContext).language;
+  const appInfoContext = useContext(AppInfoContext).infos;
 
+  const classFee = classDetail ? (classDetail.total_lessons * classDetail.price) * 
+      (classDetail.author?.id === classDetail.tutor?.id
+        ? appInfoContext.creation_fee_for_tutors
+        : appInfoContext.creation_fee_for_parents)
+  : 0;
   const isAuthor = classDetail?.user_status === "author";
   const isMember = classDetail?.user_status === "member";
   const isAuthorTutor = classDetail?.user_status === "author_and_tutor";
@@ -69,6 +76,7 @@ export default function ButtonsInDetailClass({
   const handlePayClassFee = useCallback(() => {
     const formData = new FormData();
     formData.append("class_id", String(classDetail.id));
+    formData.append("class_fee", String(classFee));
 
     if (selectedImage) {
       console.log("selected image", selectedImage);
@@ -248,6 +256,7 @@ export default function ButtonsInDetailClass({
         confirmTitle={language.PAYMENT}
         visiable={modalVisible}
         onRequestCloseDialog={() => setModalVisible(null)}
+        classFee = {classFee}
         onSelectedImage={setSelectedImage}
         onPay={handlePayClassFee}
       />

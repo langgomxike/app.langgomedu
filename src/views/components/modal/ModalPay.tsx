@@ -20,13 +20,15 @@ import * as MediaLibrary from "expo-media-library";
 import * as FileSystem from "expo-file-system";
 import User from "../../../models/User";
 import { LanguageContext } from "../../../configs/LanguageConfig";
+import Lesson from "../../../models/Lesson";
+import moment from "moment";
 
 
 type ModalDialogForClassProps = {
   confirmTitle: string;
   visiable: string | null;
   onRequestCloseDialog: () => void;
-  tutor?: User;
+  lessonData?: Lesson;
   price?: number;
   onSelectedImage: (image: any) => void;
   onSetPaymentMethod: (method: string) => void;
@@ -38,7 +40,7 @@ export default function ModalPay({
   confirmTitle,
   visiable,
   onRequestCloseDialog,
-  tutor,
+  lessonData,
   price,
   onSelectedImage,
   onSetPaymentMethod,
@@ -47,7 +49,7 @@ export default function ModalPay({
     // context 
     const language = useContext(LanguageContext).language;
     // states -------------------------------------------------------------------
-    const image = tutor ? `https://img.vietqr.io/image/${tutor.banking_code}-${tutor.banking_number}-compact2.jpg?amount=${price}&addInfo=${"Tiền học của lớp"}&accountName=${tutor.full_name}`: "";
+    const image = lessonData?.class?.tutor ? `https://img.vietqr.io/image/${lessonData.class.tutor.banking_code}-${lessonData?.class?.tutor.banking_number}-compact2.jpg?amount=${price}&addInfo=Tiền học cho môn học: ${lessonData?.class?.major?.vn_name}&accountName=${lessonData.class.tutor.full_name}`: "";
     
     
     const [paymentMethod, setPaymentMethod] = useState<"cash" | "bank">("cash");

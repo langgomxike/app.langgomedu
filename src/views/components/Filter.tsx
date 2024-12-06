@@ -12,26 +12,19 @@ import {
 
 import CustomInput from "./Inputs/CustomInput";
 import { BackgroundColor } from "../../configs/ColorConfig";
-import RadioButton from "./Inputs/CustomRadioButton";
 import ReactNativeModal from "react-native-modal";
 import { Octicons } from "@expo/vector-icons";
 import DropDownAddress from "./dropdown/DropDownAddress";
 import DropDownMajors from "./dropdown/DropDownMajors";
 import { TextInput } from "react-native-gesture-handler";
 import Filters from "../../models/Filters";
-import { startAt } from "firebase/database";
 import { LanguageContext } from "../../configs/LanguageConfig";
 
 type FilterProps = {
   isVisible: boolean;
   onRequestClose: () => void;
-  onSetFilterValues: (filterValues: Filters) => void;
+  onSetFilterValues: (filterValues: Filters | null) => void;
 };
-
-const optionForms = [
-  { label: "Online", value: "online" },
-  { label: "Offline", value: "offline" },
-];
 
 const SORT = {
   priceASC : "priceASC",
@@ -54,7 +47,7 @@ const Filter = ({ isVisible, onRequestClose, onSetFilterValues }: FilterProps) =
   const [sortValues, setSortValues] = useState<string>("");
 
   // ADDRESS 
-  const [selectedCities, setSelectedCities] = useState<string[]>([]);
+  const [selectedProvince, setSelectedProvince] = useState<string>("");
   const [selectedDistricts, setSelectedDistricts] = useState<string[]>([]);
   const [selectedWards, setSelectedWards] = useState<string[]>([]);
 
@@ -149,7 +142,7 @@ const Filter = ({ isVisible, onRequestClose, onSetFilterValues }: FilterProps) =
     const filterValues: Filters = {
       minPrice: minPrice === "" ? undefined : Number(minPrice.replace(/,/g, "")),
       maxPrice: maxPrice === "" ? undefined : Number(maxPrice.replace(/,/g, "")),
-      province: selectedCities.length == 0 ? undefined : selectedCities,
+      province: selectedProvince == "" ? undefined : selectedProvince,
       district: selectedDistricts.length == 0 ? undefined : selectedDistricts,
       ward: selectedWards.length == 0 ? undefined : selectedWards,
       classLevelId: selectedClassLevels.length === 0 ? undefined :convertStringArrayToNumberArray(selectedClassLevels),
@@ -163,12 +156,12 @@ const Filter = ({ isVisible, onRequestClose, onSetFilterValues }: FilterProps) =
     onSetFilterValues(filterValues)
     
     onRequestClose();
-  }, [selectedCities, selectedDistricts, selectedWards,selectedMajors, selectedClassLevels ,sortValues, minPrice, maxPrice, quantitys, fromDate]);
+  }, [selectedProvince, selectedDistricts, selectedWards,selectedMajors, selectedClassLevels ,sortValues, minPrice, maxPrice, quantitys, fromDate]);
 
   const handleResetFilter =  useCallback(() => {
     setSelectedType([]);
     setSortValues("");
-    setSelectedCities([]);
+    setSelectedProvince("");
     setSelectedDistricts([]);
     setSelectedWards([]);
     setSelectedMajors([]);
@@ -178,11 +171,12 @@ const Filter = ({ isVisible, onRequestClose, onSetFilterValues }: FilterProps) =
     setQuantitys("");
     setFromDate("");
     setToDate("");
+    onSetFilterValues(null)
   }, []);
 
   // effects
   useEffect(() => {
-    // console.log(">> selectedCities: ", selectedCities);
+    // console.log(">> selectedProvince: ", selectedProvince);
     // console.log(">> selectedDistricts: ", selectedDistricts);
     // console.log(">> selectedWards: ", selectedWards);
     // console.log(">> sort", sortValues)
@@ -194,7 +188,7 @@ const Filter = ({ isVisible, onRequestClose, onSetFilterValues }: FilterProps) =
     // console.log(">> morjors: ", selectedMajors);
     // console.log(">> class levels: ", selectedClassLevels);
     
-  }, [selectedCities, selectedDistricts, selectedWards,selectedMajors, selectedClassLevels ,sortValues, minPrice, maxPrice, quantitys, fromDate]);
+  }, [selectedProvince, selectedDistricts, selectedWards,selectedMajors, selectedClassLevels ,sortValues, minPrice, maxPrice, quantitys, fromDate]);
 
   
 
@@ -218,10 +212,10 @@ const Filter = ({ isVisible, onRequestClose, onSetFilterValues }: FilterProps) =
               {/* DIA DIEM */}
               <View style={styles.paddingCustom}>
                 <DropDownAddress 
-                  selectedCities={selectedCities}
+                  selectedProvince={selectedProvince}
                   selectedDistricts={selectedDistricts}
                   selectedWards={selectedWards}
-                  onSetSelectedCities={setSelectedCities} 
+                  onSetSelectedProvince={setSelectedProvince} 
                   onSetSelectedDistricts={setSelectedDistricts}
                   onSetSelectedWards={setSelectedWards}
                  />

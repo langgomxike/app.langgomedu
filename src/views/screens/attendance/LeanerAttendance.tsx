@@ -1,4 +1,4 @@
-import React, { useContext, useCallback, useState, useEffect } from "react";
+import React, {useContext, useCallback, useState, useEffect} from "react";
 import {
   StyleSheet,
   ScrollView,
@@ -7,12 +7,15 @@ import {
   Image,
   TouchableOpacity,
   Alert,
-  FlatList
+  FlatList,
 } from "react-native";
 import Octicons from "@expo/vector-icons/Octicons";
-import { BackgroundColor } from "../../../configs/ColorConfig";
-
-import {NavigationContext, NavigationRouteContext} from "@react-navigation/native";
+import {BackgroundColor} from "../../../configs/ColorConfig";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import {
+  NavigationContext,
+  NavigationRouteContext,
+} from "@react-navigation/native";
 import ScreenName from "../../../constants/ScreenName";
 import Lesson from "../../../models/Lesson";
 import AAttendance from "../../../apis/AAttendance";
@@ -21,24 +24,38 @@ import ReactAppUrl from "../../../configs/ConfigUrl";
 import ModalConfirmAttendClass from "../../components/modal/ModalConfirmAttendLesson";
 import Attendance from "../../../models/Attendance";
 import {AttendedForLearner} from "../../../configs/NavigationRouteTypeConfig";
-import ChildItem from "../../components/attendance/ChildItem";
 import ModalPay from "../../components/modal/ModalPay";
-import { AccountContext } from "../../../configs/AccountConfig";
+import {AccountContext} from "../../../configs/AccountConfig";
 import User from "../../../models/User";
-import SFirebase, { FirebaseNode } from "../../../services/SFirebase";
-import { LanguageContext } from "../../../configs/LanguageConfig";
+import SFirebase, {FirebaseNode} from "../../../services/SFirebase";
+import {LanguageContext} from "../../../configs/LanguageConfig";
+import {SCREEN_WIDTH} from "@gorhom/bottom-sheet";
+import moment from "moment";
 
 const URL = ReactAppUrl.PUBLIC_URL;
 
 export default function LeanerAttendance() {
   // contexts
   const route = useContext(NavigationRouteContext);
-  const param = route?.params as AttendedForLearner || {lesson: new Lesson, user: new User};
+  const param = (route?.params as AttendedForLearner) || {
+    lesson: new Lesson(),
+    user: new User(),
+  };
 
   //context
   const account = useContext(AccountContext).account;
   const navigation = useContext(NavigationContext);
   const language = useContext(LanguageContext).language;
+
+  const days = [
+    language.SUNDAY,
+    language.MONDAY,
+    language.TUESDAY,
+    language.WEDNESDAY,
+    language.THURSDAY,
+    language.FRIDAY,
+    language.SATURDAY,
+  ];
 
   // states
   const [modalVisible, setModalVisible] = useState<string | null>("");
@@ -47,7 +64,9 @@ export default function LeanerAttendance() {
   const [lessonDetail, setLessonDetail] = useState(new Lesson());
   const [user, setUser] = useState<User>(new User());
   const [attendance, setAttendance] = useState<Attendance>();
+  const [deffereds, setDefffereds] = useState<Attendance[]>([]);
   const [loading, setLoading] = useState(true);
+  const [totalPrice, setTotalPrice] = useState(0);
 
   const [paymentResult, setPaymentResult] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<string>("cash");
@@ -56,12 +75,21 @@ export default function LeanerAttendance() {
   const [realTimeStatus, setRealTimeStatus] = useState<number>(0);
 
   // Handler
+  function formatCurrency(amount: number, locale = "vi-VN", currency = "VND") {
+    // Kiểm tra nếu không phải số, trả về chuỗi lỗi
+    if (typeof amount !== "number") return "Invalid input";
+
+    return amount.toLocaleString(locale, {
+      style: "currency",
+      currency,
+    });
+  }
 
   // Xử lý chuyển đến màn hình lịch sử đăng nhập
   const handleNavigateAttendanceHistory = useCallback(() => {
     navigation?.navigate(ScreenName.ATTENDANCE_HISTORY);
   }, []);
-  
+
   const handlePayment = useCallback(
     async (status: string) => {
       let deferred = false;
@@ -79,71 +107,96 @@ export default function LeanerAttendance() {
       }
 
       console.log(`paid: ${paid}, deffered: ${deferred}`);
-        const formData = new FormData();
-        
-        // Thêm ảnh vào formData
-        if (selectedImage && paymentMethod === "bank") {
-          console.log("selected image", selectedImage);
-          formData.append("file", {
-            uri: selectedImage.uri,
-            name: selectedImage.fileName,
-            type: selectedImage.mimeType,
-          } as any);
-        }
+      const formData = new FormData();
 
-        // Thêm các dữ liệu khác vào formData
-        formData.append("lesson_id", String(lessonDetail.id));
-        formData.append("user_id", user.id);
-        formData.append("paid", String(paid));
-        formData.append("type", paymentMethod);
-        formData.append("deferred", String(deferred));
+      // Thêm ảnh vào formData
+      if (selectedImage && paymentMethod === "bank") {
+        console.log("selected image", selectedImage);
+        formData.append("file", {
+          uri: selectedImage.uri,
+          name: selectedImage.fileName,
+          type: selectedImage.mimeType,
+        } as any);
+      }
 
-        AAttendance.sendLearnerPayment(
-          formData,
-          (data) => {
-            setPaymentResult(data.result);
-          },
-          setLoading
-        );
-    }, [user, selectedImage]);
+      // Thêm các dữ liệu khác vào formData
+      formData.append("lesson_id", String(lessonDetail.id));
+      formData.append("user_id", user.id);
+      formData.append("paid", String(paid));
+      formData.append("type", paymentMethod);
+      formData.append("deferred", String(deferred));
+
+      if(deffereds.length > 0){
+        const deferredLessons = deffereds.map((attendance) => attendance.lesson_id);
+        const deferredIdsString = JSON.stringify(deferredLessons);
+        formData.append("deferred_lessons", deferredIdsString);
+      }
+
+      AAttendance.sendLearnerPayment(
+        formData,
+        (data) => {
+          setPaymentResult(data.result);
+        },
+        setLoading
+      );
+    },
+    [user, selectedImage, deffereds]
+  );
 
   const handlePay = () => {
-    setModalVisible("modalPay")
-  }
+    setModalVisible("modalPay");
+  };
 
   // effects
   useEffect(() => {
-    if(user){
+    if (user && lessonDetail.class) {
       AAttendance.getAttendanceByLearnerLesson(
         lessonDetail.id,
         user.id,
-        (data) => {
-          setAttendance(data);
+        lessonDetail.class.id,
+        (attendanceData, deferredsData) => {
+          setAttendance(attendanceData);
+          setDefffereds(deferredsData);
         },
         setLoading
       );
     }
   }, [user, lessonDetail, paymentResult, realTimeStatus]);
 
-  useEffect(()=> {
+  useEffect(() => {
     setUser(param.user);
     setLessonDetail(param.lesson);
-    
-  }, [param])
+  }, [param]);
 
   useEffect(() => {
-    SFirebase.track(FirebaseNode.Attendances, 
-      [{key: FirebaseNode.LessonId, value: lessonDetail.id}], () => {
-      const number = Math.floor(10 + Math.random() * 90);
+    SFirebase.track(
+      FirebaseNode.Attendances,
+      [{key: FirebaseNode.LessonId, value: lessonDetail.id}],
+      () => {
+        const number = Math.floor(10 + Math.random() * 90);
         setRealTimeStatus(number);
-      })
-    
-  }, [lessonDetail])
+      }
+    );
+  }, [lessonDetail]);
 
+  useEffect(() => {
+    if (lessonDetail.class) {
+      if (deffereds.length > 0) {
+        const currentPrice = lessonDetail.class?.price;
+
+        const deferredPrice = deffereds.length * currentPrice;
+        const totalDebtPrice = deferredPrice + (attendance?.deferred ? 0 : currentPrice);
+
+        setTotalPrice(totalDebtPrice);
+      } else {
+        setTotalPrice(lessonDetail.class?.price);
+      }
+    }
+  }, [attendance, deffereds]);
 
   return (
-    <View style={{ flex: 1 }}>
-      <View style={{ flex: 10 }}>
+    <View style={{flex: 1}}>
+      <View style={{flex: 10}}>
         <ScrollView showsVerticalScrollIndicator={false}>
           <View style={styles.container}>
             <View style={styles.headerContainer}>
@@ -161,22 +214,57 @@ export default function LeanerAttendance() {
               <View style={styles.classInfoContainer}>
                 {/* <ClassInfo/> */}
                 <View style={styles.userStatusInLessonContainer}>
-                  {attendance?.attended ? (
-                       <Text style={[styles.userStatus, styles.userStatusInLesson]}>{language.ALREADY_ATTENDED}</Text>
-                  ) : (
-                    <Text style={[styles.userStatus, styles.userStatusNotInLesson]}>{language.ABSENT}</Text>
-                  )}
+                  {attendance?.attended && (
+                    <Text
+                      style={[styles.userStatus, styles.userStatusInLesson]}
+                    >
+                      {language.ALREADY_ATTENDED}
+                    </Text>
+                    )}
+
+                    {attendance?.attended === false && 
+                    <Text
+                      style={[styles.userStatus, styles.userStatusNotInLesson]}
+                    >
+                      {language.ABSENT}
+                    </Text>
+                    }
+               
 
                   {attendance?.confirm_paid && (
-                       <Text style={[styles.userStatus, styles.userStatusConfirmPay]}>{language.PAYMENT_CONFIRMED}</Text>
-                  ) }
+                    <Text
+                      style={[styles.userStatus, styles.userStatusConfirmPay]}
+                    >
+                      {language.PAYMENT_CONFIRMED}
+                    </Text>
+                  )}
 
                   {attendance?.confirm_deferred && (
-                    <Text style={[styles.userStatus, styles.userStatusConfirmPay]}>{language.DELAY_CONFIRMED}</Text>
+                    <Text
+                      style={[styles.userStatus, styles.userStatusConfirmPay]}
+                    >
+                      {language.DELAY_CONFIRMED}
+                    </Text>
                   )}
-                 
                 </View>
-                  <ClassInfo lessonDetail={lessonDetail} />
+                <ClassInfo lessonDetail={lessonDetail} />
+                {deffereds.length > 0 && (
+                  <View style={styles.totalDebtContainer}>
+                    <View style={styles.lineTop}></View>
+                    <View style={styles.totalDebt}>
+                      <Text style={styles.totalDebtTextSub}>Số tiền nợ:</Text>
+                      <Text style={styles.totalDebtPriceSub}>
+                        {formatCurrency(deffereds.length * deffereds[0].price)}
+                      </Text>
+                    </View>
+                    <View style={styles.totalDebt}>
+                      <Text style={styles.totalDebtText}>Tổng tiền:</Text>
+                      <Text style={styles.totalDebtPrice}>
+                        {formatCurrency(totalPrice)}
+                      </Text>
+                    </View>
+                  </View>
+                )}
               </View>
 
               {/* Other user */}
@@ -196,33 +284,105 @@ export default function LeanerAttendance() {
                   </Text>
                 </View>
               </View>
+              {deffereds.length > 0 && (
+                <View style={styles.deferedContaier}>
+                  <Text
+                    style={[styles.titleContainer, {paddingHorizontal: 20}]}
+                  >
+                    Các buổi học bị nợ
+                  </Text>
+                  <FlatList
+                    horizontal={true}
+                    showsHorizontalScrollIndicator={true}
+                    data={deffereds}
+                    keyExtractor={(_, index) => index.toString()}
+                    renderItem={({item: deferredAttendance}) => (
+                      <View
+                        style={[
+                          styles.attendanceItemContainer,
+                          styles.boxShadow,
+                        ]}
+                      >
+                        <View style={styles.attendanceItem}>
+                          <View style={styles.contenLessonTitle}>
+                            <Ionicons
+                              name="today-outline"
+                              size={20}
+                              color="black"
+                            />
+                            <Text>{language.LESSON_DAY}</Text>
+                          </View>
+                          <Text>{days[deferredAttendance.day]}</Text>
+                        </View>
+                        <View style={styles.attendanceItem}>
+                          <View style={styles.contenLessonTitle}>
+                            <Ionicons
+                              name="today-outline"
+                              size={20}
+                              color="black"
+                            />
+                            <Text>Ngày</Text>
+                          </View>
+                          <Text>
+                            {moment(deferredAttendance.started_at).format(
+                              "DD/MM/YYYY"
+                            )}
+                          </Text>
+                        </View>
+                      </View>
+                    )}
+                    contentContainerStyle={{
+                      paddingHorizontal: 20,
+                      paddingTop: 10,
+                      paddingBottom: 20,
+                    }}
+                  />
+                </View>
+              )}
 
               {/* History attendce list */}
               <TouchableOpacity onPress={handleNavigateAttendanceHistory}>
                 <View style={styles.historyListContainer}>
                   <Octicons name="history" size={22} color="black" />
-                  <Text style={styles.historyTitle}>{language.ATTENDANCE_HISTORY}</Text>
+                  <Text style={styles.historyTitle}>
+                    {language.ATTENDANCE_HISTORY}
+                  </Text>
                 </View>
               </TouchableOpacity>
             </View>
           </View>
         </ScrollView>
       </View>
-      {attendance?.attended &&
-      <View style={styles.footerContainer}>
+      {attendance?.attended && (
+        <View style={styles.footerContainer}>
           <View style={styles.btnContainer}>
-              <TouchableOpacity
-                disabled={attendance?.deferred || attendance?.paid}
-                style={[styles.btn,  attendance?.deferred ? styles.btnDebtDisable : attendance?.paid ? styles.btnNotActive : styles.btnDebt
-                ]}
-                onPress={() => handlePayment("deferred")}
-              >
-                <Text style={styles.btnDebtText}> {attendance?.deferred ? "Đã trì hoãn" : "Trì hoãn"}</Text>
-              </TouchableOpacity>
+            <TouchableOpacity
+              disabled={attendance?.deferred || attendance?.paid}
+              style={[
+                styles.btn,
+                attendance?.deferred
+                  ? styles.btnDebtDisable
+                  : attendance?.paid
+                  ? styles.btnNotActive
+                  : styles.btnDebt,
+              ]}
+              onPress={() => handlePayment("deferred")}
+            >
+              <Text style={styles.btnDebtText}>
+                {" "}
+                {attendance?.deferred ? "Đã trì hoãn" : "Trì hoãn"}
+              </Text>
+            </TouchableOpacity>
 
             <TouchableOpacity
               disabled={attendance?.deferred || attendance?.paid}
-              style={[styles.btn, attendance?.paid ? styles.btnPayDisable : attendance?.deferred ? styles.btnNotActive : styles.btnPay,
+              style={[
+                styles.btn,
+                attendance?.paid
+                  ? styles.btnPayDisable
+                  : attendance?.deferred
+                  ? styles.btnNotActive
+                  : styles.btnPay,
               ]}
               onPress={() => handlePay()}
             >
@@ -231,26 +391,24 @@ export default function LeanerAttendance() {
               </Text>
             </TouchableOpacity>
           </View>
-      </View>
-      }
+        </View>
+      )}
 
       {/* Modal hiển thị thanh toán thành công */}
-      {
-        modalName === "showDeffered" && 
-      <ModalConfirmAttendClass
-        modalName={modalName}
-        confirmTitle="Xác nhận thành công"
-        confirmContent={
-          "Trì hoãn của bạn đã ghi được nhận. Gia sư sẽ sớm ghi nhận trì hoãn của bạn!"
-        }
-        imageStatus={"success"}
-        visiable={modalVisible}
-        onRequestCloseDialog={() => setModalVisible(null)}
-      />
-      }
+      {modalName === "showDeffered" && (
+        <ModalConfirmAttendClass
+          modalName={modalName}
+          confirmTitle="Xác nhận thành công"
+          confirmContent={
+            "Trì hoãn của bạn đã ghi được nhận. Gia sư sẽ sớm ghi nhận trì hoãn của bạn!"
+          }
+          imageStatus={"success"}
+          visiable={modalVisible}
+          onRequestCloseDialog={() => setModalVisible(null)}
+        />
+      )}
 
-      {
-        modalName === "showPaid" && 
+      {modalName === "showPaid" && (
         <ModalConfirmAttendClass
           modalName={modalName}
           confirmTitle="Xác nhận thành công"
@@ -261,18 +419,18 @@ export default function LeanerAttendance() {
           visiable={modalVisible}
           onRequestCloseDialog={() => setModalVisible(null)}
         />
-      }
+      )}
 
-        <ModalPay
-          confirmTitle="Thanh toán"
-          visiable={modalVisible}
-          onRequestCloseDialog={() => setModalVisible(null)}
-          tutor={lessonDetail.class?.tutor}
-          price={lessonDetail.class?.price}
-          onSelectedImage={setSelectedImage}
-          onSetPaymentMethod={setPaymentMethod}
-          onPay={() => handlePayment("pay")}
-        />
+      <ModalPay
+        confirmTitle="Thanh toán"
+        visiable={modalVisible}
+        onRequestCloseDialog={() => setModalVisible(null)}
+        lessonData={lessonDetail}
+        price={totalPrice}
+        onSelectedImage={setSelectedImage}
+        onSetPaymentMethod={setPaymentMethod}
+        onPay={() => handlePayment("pay")}
+      />
     </View>
   );
 }
@@ -350,8 +508,8 @@ const styles = StyleSheet.create({
   userStatus: {
     fontWeight: "500",
     paddingHorizontal: 10,
-     paddingVertical: 5,
-     borderRadius: 8,
+    paddingVertical: 5,
+    borderRadius: 8,
   },
 
   userStatusInLesson: {
@@ -419,135 +577,14 @@ const styles = StyleSheet.create({
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 1,
     },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
+    shadowOpacity: 0.22,
+    shadowRadius: 2.22,
 
-    elevation: 5,
-  },
-
-  payInfoContainer: {
-    marginTop: 10,
-    backgroundColor: BackgroundColor.white,
-    paddingHorizontal: 20,
-    paddingVertical: 20,
-  },
-
-  hintTitleContainer: {
-    flexDirection: "row",
-    gap: 10,
-  },
-
-  hintTitle: {
-    color: BackgroundColor.gray_c6,
-    marginBottom: 10,
-  },
-
-  payInfoContent: {
-    alignItems: "center",
-    marginTop: 10,
-  },
-
-  logoOfBankContainer: {
-    height: 50,
-    width: "100%",
-    marginTop: 10,
-  },
-
-  logoOfBank: {
-    width: "100%",
-    height: "100%",
-  },
-
-  bankingNumber: {
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-
-  bankingName: {
-    fontSize: 16,
-    fontWeight: "bold",
-    marginTop: 5,
-    paddingBottom: 10,
-  },
-
-  imageQrContainer: {
-    backgroundColor: BackgroundColor.white,
-    borderRadius: 10,
-    padding: 5,
-  },
-
-  imageQr: {
-    width: 170,
-    height: 170,
-  },
-
-  // upload payment
-  uploadPaymentContainer: {
-    alignItems: "center",
-    backgroundColor: BackgroundColor.white,
-    marginTop: 10,
-    paddingVertical: 20,
-  },
-  uploadImageButton: {
-    padding: 10,
-    backgroundColor: "#f0f0f0",
-    borderRadius: 10,
-    flexDirection: "row",
-    alignItems: "center",
-  },
-
-  buttonText: {
-    marginLeft: 8,
-    fontSize: 16,
-    fontWeight: "500",
-  },
-  textContainer: {
-    marginTop: 20,
-    alignItems: "center",
-  },
-  uploadText: {
-    fontSize: 16,
-    fontWeight: "500",
-    color: "#333",
-  },
-  subText: {
-    fontSize: 14,
-    color: "#666",
-    textAlign: "center",
-    marginTop: 4,
-    paddingHorizontal: 10, // Để văn bản không tràn khi có nhiều nội dung
-  },
-
-  paymentContainer: {
-    backgroundColor: BackgroundColor.white,
-    marginTop: 10,
-    paddingVertical: 20,
-    paddingHorizontal: 20,
-  },
-
-  selectedImage: {
-    width: 200,
-    height: 200,
-    resizeMode: "contain",
-    borderRadius: 10,
-    marginTop: 10,
-  },
-
-  option: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 15,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "#ddd",
-    marginBottom: 10,
-  },
-  optionText: {
-    fontSize: 16,
-    marginLeft: 10,
-    flex: 1,
+    elevation: 3,
+    borderWidth: 0.5,
+    borderColor: BackgroundColor.gray_e6,
   },
 
   // Hitory
@@ -600,7 +637,7 @@ const styles = StyleSheet.create({
   },
 
   btnNotActive: {
-    backgroundColor: "#ddd"
+    backgroundColor: "#ddd",
   },
 
   btnDebt: {
@@ -623,7 +660,7 @@ const styles = StyleSheet.create({
   },
 
   btnPayDisable: {
-    backgroundColor: BackgroundColor.primary_op05
+    backgroundColor: BackgroundColor.primary_op05,
   },
 
   btnPayText: {
@@ -631,5 +668,76 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontWeight: "bold",
     fontSize: 16,
+  },
+
+  // deferedContaier
+  deferedContaier: {
+    backgroundColor: BackgroundColor.white,
+    paddingTop: 20,
+    marginTop: 10,
+  },
+
+  attendanceItemContainer: {
+    backgroundColor: BackgroundColor.white,
+    marginRight: 10,
+    borderRadius: 8,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    width: SCREEN_WIDTH * 0.7,
+    gap: 10,
+  },
+
+  attendanceItem: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: 10,
+  },
+  contenLessonTitle: {
+    flexDirection: "row",
+    gap: 10,
+    alignItems: "center",
+  },
+
+  totalDebtContainer: {
+    paddingHorizontal: 20,
+    marginTop: 15,
+    // alignItems: "flex-end"
+  },
+
+  lineTop: {
+    height: 1,
+    backgroundColor: BackgroundColor.gray_e6,
+    marginBottom: 10,
+  },
+
+  totalDebt: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+
+  totalDebtText: {
+    fontWeight: "bold",
+    color: "#333",
+    fontSize: 15,
+  },
+
+  totalDebtPrice: {
+    fontWeight: "bold",
+    color: "#ff0000",
+    fontSize: 18,
+  },
+
+  totalDebtTextSub: {
+    fontWeight: "bold",
+    color: "#999",
+    fontSize: 14,
+    marginBottom: 5,
+  },
+
+  totalDebtPriceSub: {
+    fontWeight: "bold",
+    color: "#999",
+    fontSize: 14,
   },
 });

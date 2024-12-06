@@ -35,6 +35,7 @@ import moment from "moment";
 import ButtonsInDetailClass from "../components/button/ButtonsInDetailClass";
 import SFirebase, { FirebaseNode } from "../../services/SFirebase";
 import ScreenName from "../../constants/ScreenName";
+import { AppInfoContext } from "../../configs/AppInfoContext";
 
 const URL = ReactAppUrl.PUBLIC_URL;
 export default function ClassDetail() {
