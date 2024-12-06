@@ -38,6 +38,7 @@ import { NavigationContext } from "@react-navigation/native";
 import ScreenName from "../../constants/ScreenName";
 import { AccountContext } from "../../configs/AccountConfig";
 import { LanguageContext } from "../../configs/LanguageConfig";
+import ReactAppUrl from "../../configs/ConfigUrl";
 
 const AVATAR_SIZE = 100;
 
@@ -80,9 +81,13 @@ export default function InputCVScreen() {
   // const [newExperiences, ]
 
   const [loading, setLoading] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
+  const [titleError, setTilteError] = useState(false);
   //END_STATES >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
+  // console.log(account?.avatar);
+  
   //HANDLERS >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   const pickImage = useCallback(() => {
     ImagePicker.launchImageLibraryAsync({
@@ -109,7 +114,7 @@ export default function InputCVScreen() {
   }, [permission]);
 
   const handleSetBoxItem = useCallback((data: any) => {
-    console.log(JSON.stringify(data, null, 2));
+    // console.log(JSON.stringify(data, null, 2));
 
     if (data instanceof Education) {
       setEducations((prev) => [...prev, data]);
@@ -140,6 +145,14 @@ export default function InputCVScreen() {
 
   ///
   const handleConfirm = useCallback(async () => {
+    if(validate()){
+      console.log(titleError); 
+      return ;
+    }
+    setIsProcessing(true);
+    //validation
+    // validate();
+    
     // Step 1: save Images
     const educationFiles = new FormData();
     const experienceFiles = new FormData();
@@ -168,7 +181,7 @@ export default function InputCVScreen() {
     );
 
     try {
-      let educationResults: number[], experienceResults: number[], certificateResults: number[];
+      let educationResults: number[]= [], experienceResults: number[] = [] , certificateResults: number[] = [];
 
       if (eduImages.length > 0) {
         console.log("Đang tải file Education...");
@@ -197,7 +210,7 @@ export default function InputCVScreen() {
         console.log("Không có file Certificate để tải lên.");
       }
 
-      console.log("Bước upload file hoàn tất.");
+      // console.log("Bước upload file hoàn tất.");
 
       const oldEducations = educations.filter((education) => education.id !== -1);
       const newEducations = educations.filter((education) => education.id === -1);
@@ -236,16 +249,23 @@ export default function InputCVScreen() {
         console.log("update cv thành công: ", data);
         setShowAlert(true);
       }, (loading) => {
-        console.log(loading);
-
+        setIsProcessing(false);
       })
+      // setIsProcessing(true);
 
 
     } catch (error) {
       console.error("Lỗi trong quá trình tải file:", error);
     }
-  }, [eduImages, expImages, cerImages, cv, educations, experiences, certificates]);
-
+  }, [title, biography, eduImages, expImages, cerImages, cv, educations, experiences, certificates, isProcessing, titleError]);
+  
+  // VALIDATE
+  const validate = useCallback(()=> {
+    console.log(title);
+    
+    setTilteError(title.trim() === "");
+    return title.trim() === "";
+  }, [title, titleError] )
 
   //EFFECT >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   //lấy dữ liệu CV về để hiển thị
@@ -368,20 +388,14 @@ export default function InputCVScreen() {
   
 
   //testing >>------------------------------------<<
-  // useEffect(() => {
-  //   if (cv) {
-  //     console.log("cv identify: ", cv);
-  //   }
-  // }, [cv]);
-
-  // useEffect(() => {
-  //   console.log("Experiences updated:", expImages);
-  // }, [expImages]);
-
-  // useEffect(() => {
-  //   console.log("Certificates updated:", cerImages);
-  // }, [cerImages]);
-
+  useEffect(() => {
+   console.log("isProcessing: ", isProcessing);
+   
+  }, [isProcessing]);
+  useEffect(()=> {
+    console.log("education: ", JSON.stringify(educations, null, 2));
+    
+  }, [educations])
 
   //VIEW >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   return (
@@ -390,7 +404,7 @@ export default function InputCVScreen() {
         <View>
           <TouchableOpacity style={{ alignSelf: "center" }} onPress={pickImage}>
             <Image
-              source={require("../../../assets/avatar/img_avatar_cat.png")}
+              source={{uri :`${ReactAppUrl.PUBLIC_URL}${account?.avatar}`}}
               style={styles.avatar}
             />
           </TouchableOpacity>
@@ -402,36 +416,7 @@ export default function InputCVScreen() {
             value={title}
             require={true}
             editable={true}
-          />
-
-          <Input
-            label={languageContext.language.NAME}
-            onTextChange={() => { }}
-            placeholder={cv?.user?.full_name}
-          />
-
-          <Input
-            label={languageContext.language.INTERESTED_MAJOR}
-            onTextChange={() => { }}
-            placeholder={interestedMajor?.vn_name}
-          />
-
-          <Input
-            label={languageContext.language.BIRTHDAY}
-            onTextChange={() => { }}
-            placeholder={birthday}
-            datePicker={true} />
-
-          <Input
-            label={languageContext.language.PHONE_NUMBER}
-            onTextChange={() => { }}
-            placeholder={userInfo?.phone_number}
-          />
-
-          <Input
-            label={languageContext.language.ADDRESS}
-            onTextChange={() => { }}
-            placeholder={`${address?.province}, ${address?.district}, ${address?.ward}, ${address?.detail}`}
+            error={titleError}
           />
 
           <Input
@@ -450,10 +435,15 @@ export default function InputCVScreen() {
             onAddImage={handleSetBoxImages}
             title={languageContext.language.EDUCATION}>
             <FlatList
-              keyExtractor={(item, index) => index.toString()}
+              keyExtractor={(item) => item.id.toString()}
               scrollEnabled={false}
               data={educations}
-              renderItem={({ item }) => <EducationItem education={item} isEdit={true} />}
+              renderItem={({ item }) => <EducationItem 
+              education={item} 
+              isEdit={true} 
+              onDelete={(education)=> {
+                setEducations(prevItems => prevItems.filter(item => item.id !== education.id))
+              }}/>}
             />
           </CvBoxEdit>
 
@@ -464,10 +454,13 @@ export default function InputCVScreen() {
             onAddImage={handleSetBoxImages}
             title={languageContext.language.WORK_EXPERIENCE}>
             <FlatList
-              keyExtractor={(item, index) => index.toString()}
+              keyExtractor={(item) => item.id.toString()}
               scrollEnabled={false}
               data={experiences}
-              renderItem={({ item }) => <ExperienceItem experience={item} isEdit={true} />}
+              renderItem={({ item }) => <ExperienceItem 
+              experience={item} 
+              isEdit={true} 
+              onDelete={(experience)=> {setExperiences(prevItems => prevItems.filter(prevItem => prevItem.id !== experience.id) )}} />}
             />
           </CvBoxEdit>
           <CvBoxEdit
@@ -476,10 +469,13 @@ export default function InputCVScreen() {
             onAddImage={handleSetBoxImages}
             title={languageContext.language.CERTIFICATE}>
             <FlatList
-              keyExtractor={(item, index) => index.toString()}
+              keyExtractor={(item) => item.id.toString()}
               scrollEnabled={false}
               data={certificates}
-              renderItem={({ item }) => <CertificateItem certificate={item} isEdit={true} />}
+              renderItem={({ item }) => <CertificateItem 
+              certificate={item} 
+              isEdit={true} 
+              onDelete={(certificate)=>{setCertificates(prevItems => prevItems.filter(item => item.id !== certificate.id))}} />}
             />
           </CvBoxEdit>
         </View>
@@ -490,12 +486,12 @@ export default function InputCVScreen() {
           style={[styles.btn, styles.boxShadow,]}
         >
           <Text style={styles.btnText}>
-            Xac nhan
+            {languageContext.language.CONFIRM}
           </Text>
         </TouchableOpacity>
         <ModalAlertUpdateCV
-          confirmTitle="Thông báo"
-          confirmContent="CV của bạn đã được gửi đi và sẽ được Admin duyệt sau đó"
+          confirmTitle={languageContext.language.ANNOUNCE}
+          confirmContent={languageContext.language.INPUT_CV_ALERT}
           imageStatus="success"
           onRequestCloseDialog={() => {
             setShowAlert(false)

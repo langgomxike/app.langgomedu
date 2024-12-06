@@ -1,14 +1,17 @@
 import { Image, View, StyleSheet, Text } from "react-native"
 import Experience from "../../../models/Experience"
 import ReactAppUrl from "../../../configs/ConfigUrl"
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { TouchableOpacity } from "react-native-gesture-handler"
 import { BackgroundColor } from "../../../configs/ColorConfig"
 import Feather from '@expo/vector-icons/Feather';
+import ModalShowEvidence from "../modal/ModalShowEvidence"
+import File from "../../../models/File"
 
 
 export type ExperienceItemProp = {
-    experience?: Experience
+    onDelete: (experience: Experience) => void
+    experience: Experience
     isEdit?: boolean
 }
 export enum months {
@@ -27,11 +30,17 @@ export enum months {
 }
 
 
-const ExperienceItem = ({ experience, isEdit = false}: ExperienceItemProp) => {
+const ExperienceItem = ({ onDelete, experience, isEdit = false }: ExperienceItemProp) => {
     //state
     const [startedAt, setStartedAt] = useState<Date>(new Date());
     const [endedAt, setEndedAt] = useState<Date>(new Date());
+    const [isShowEvidence, setIsShowEvidence] = useState(false);
+    // HANDLERS >>>>>>>>>.
+    const handleOnDelete = useCallback(() => {
+        onDelete(experience)
+    }, [])
 
+    // EFFECTS >>>>>>>>>.
     useEffect(() => {
         // console.log(experience);
         if (experience) {
@@ -44,9 +53,11 @@ const ExperienceItem = ({ experience, isEdit = false}: ExperienceItemProp) => {
     return (
         <View style={styles.box}>
             <View style={styles.iconBox}>
-                <Image
-                    style={styles.icon}
-                    source={require('../../../../assets/icons/ic_gradute_and_scroll.png')} />
+                <TouchableOpacity onPress={()=> { setIsShowEvidence(true) }}>
+                    <Image
+                        style={styles.icon}
+                        source={require('../../../../assets/icons/ic_gradute_and_scroll.png')} />
+                </TouchableOpacity>
             </View>
             <View style={styles.textBox}>
                 <Text style={styles.title}>{experience?.name}</Text>
@@ -54,10 +65,15 @@ const ExperienceItem = ({ experience, isEdit = false}: ExperienceItemProp) => {
                 <Text>{`${months[startedAt.getMonth()]} ${startedAt.getFullYear()} - ${months[endedAt.getMonth()]} ${endedAt.getFullYear()} | ${endedAt.getFullYear() - startedAt.getFullYear()} yrs ${endedAt.getMonth() - startedAt.getMonth() === 0 ? `` : `${endedAt.getMonth() - startedAt.getMonth()} mons`} `}</Text>
             </View>
             {isEdit && <View style={styles.deleteContainer}>
-                <TouchableOpacity style={styles.deleteBtn}>
+                <TouchableOpacity onPress={handleOnDelete} style={styles.deleteBtn}>
                     <Feather name="trash-2" size={18} color={BackgroundColor.gray_c6} />
                 </TouchableOpacity>
             </View>}
+            <ModalShowEvidence
+                image_uri={(experience.evidence as File).path}
+                visiable={isShowEvidence}
+                onClose={setIsShowEvidence}
+            />
         </View>
     )
 }
