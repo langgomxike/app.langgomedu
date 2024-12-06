@@ -154,6 +154,8 @@
   "CHILDREN_CANNOT_CREATE_CHILDREN": "Trẻ em không thể tạo trẻ em",
   "APP_STORE_APP_ID": "ID ứng dụng trên App Store",
   "PLAY_STORE_APP_ID": "ID ứng dụng trên Google Play Store",
+
+  "NAME": "NHI",
   "CREATE_CLASS": "Tạo lớp học tuyển sinh",
   "CREATE_CLASS_FOR_TUTOR": "Gia sư tạo lớp học",
   "CREATE_CLASS_FOR_PARENT": "Phụ huynh tạo lớp học",
@@ -220,5 +222,11 @@
   "ERR_MESSAGE_AUTHOR": "Không phải là tác giả.",
 
   "NOTIFICATION": "Thông báo",
-  "MESSAGE": "Bạn không có quyền truy cập tab này!"
+  "MESSAGE": "Bạn không có quyền truy cập tab này!",
+
+  "UPDATE_CLASS": "Chỉnh Sửa Lớp Học",
+
+  "USERNAME_INVALID_FORMAT": "Tên đăng nhập phải dài từ 6 đến 20 ký tự và không chứa ký tự đặc biệt.",
+  "PASSWORD_INVALID_FORMAT": "Mật khẩu phải dài từ 6 đến 20 ký tự.",
+  "NEW_PASSWORD_MUST_BE_DIFFERENT": "Mật khẩu mới phải khác mật khẩu cũ."
 }

@@ -1,21 +1,31 @@
-import {Alert, Image, Linking, ScrollView, StyleSheet, Text, View} from "react-native";
+import {
+  Alert,
+  Image,
+  Linking,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import InputRegister from "../components/Inputs/InputRegister";
 import Button from "../components/Button";
-import {useCallback, useContext, useState} from "react";
-import {NavigationContext} from "@react-navigation/native";
+import { useCallback, useContext, useState } from "react";
+import { NavigationContext } from "@react-navigation/native";
 import ScreenName from "../../constants/ScreenName";
 import AUser from "../../apis/AUser";
-import {AccountContext} from "../../configs/AccountConfig";
-import {BackgroundColor, TextColor} from "../../configs/ColorConfig";
-import SAsyncStorage, {AsyncStorageKeys} from "../../services/SAsyncStorage";
-import Toast from 'react-native-simple-toast';
-import {RoleList} from "../../models/Role";
-import {LanguageContext} from "../../configs/LanguageConfig";
+import { AccountContext } from "../../configs/AccountConfig";
+import { BackgroundColor, TextColor } from "../../configs/ColorConfig";
+import SAsyncStorage, { AsyncStorageKeys } from "../../services/SAsyncStorage";
+import Toast from "react-native-simple-toast";
+import { RoleList } from "../../models/Role";
+import { LanguageContext } from "../../configs/LanguageConfig";
 import Spinner from "react-native-loading-spinner-overlay";
-import SLog, {LogType} from "../../services/SLog";
+import SLog, { LogType } from "../../services/SLog";
 
-const REGEX_PHONE_NUMBER = /^\s*(?:\+?(\d{1,3}))?[-. (]*(\d{3})[-. )]*(\d{3})[-. ]*(\d{4})(?: *x(\d+))?\s*$/;
-const REGEX_PASSWORD = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+const REGEX_PHONE_NUMBER =
+  /^\s*(?:\+?(\d{1,3}))?[-. (]*(\d{3})[-. )]*(\d{3})[-. ]*(\d{4})(?: *x(\d+))?\s*$/;
+const REGEX_PASSWORD =
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 const REGEX_EMAIL = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
 export default function LoginScreen() {
@@ -39,105 +49,184 @@ export default function LoginScreen() {
   }, []);
 
   const handleLogin = useCallback(() => {
+
+    // Kiểm tra username và password: dài từ 6 đến 20 ký tự, username không chứa ký tự đặc biệt
+    const usernameRegex = /^[a-zA-Z0-9]{6,20}$/;
+    const passwordRegex = /^.{6,20}$/;
+
     if (!usernameOrPhoneNumber) {
-      Alert.alert(languageContext.language.USERNAME_OR_PHONE_NUMBER, languageContext.language.INVALID_USERNAME_OR_PHONE_NUMBER, [
-        {
-          text: "OK",
-          onPress: () => {
+      Alert.alert(
+        languageContext.language.USERNAME_OR_PHONE_NUMBER,
+        languageContext.language.INVALID_USERNAME_OR_PHONE_NUMBER,
+        [
+          {
+            text: "OK",
+            onPress: () => {},
           },
-        },
-      ]);
+        ]
+      );
+      return;
+    }
+
+    if (
+      !/^[0-9]+$/.test(usernameOrPhoneNumber) &&
+      !usernameRegex.test(usernameOrPhoneNumber)
+    ) {
+      Alert.alert(
+        languageContext.language.USERNAME,
+        languageContext.language.USERNAME_INVALID_FORMAT,
+        [
+          {
+            text: "OK",
+            onPress: () => {},
+          },
+        ]
+      );
       return;
     }
 
     if (!password) {
-      Alert.alert(languageContext.language.PASSWORD, languageContext.language.INVALID_PASSWORD, [
-        {
-          text: "OK",
-          onPress: () => {
+      Alert.alert(
+        languageContext.language.PASSWORD,
+        languageContext.language.INVALID_PASSWORD,
+        [
+          {
+            text: "OK",
+            onPress: () => {},
           },
-        },
-      ]);
+        ]
+      );
       return;
     }
 
+    // Kiểm tra mật khẩu: dài từ 6 đến 20 ký tự
+    if (!passwordRegex.test(password)) {
+      Alert.alert(
+        languageContext.language.PASSWORD,
+        languageContext.language.PASSWORD_INVALID_FORMAT,
+        [
+          {
+            text: "OK",
+            onPress: () => {},
+          },
+        ]
+      );
+      return;
+    }
+
+    // xử lý đăng nhập kế tiếp
     const username = !/^[0-9]+$/.test(usernameOrPhoneNumber)
       ? usernameOrPhoneNumber
       : "";
 
     const phoneNumber =
-      /^\s*(?:\+?(\d{1,3}))?[-. (]*(\d{3})[-. )]*(\d{3})[-. ]*(\d{4})(?: *x(\d+))?\s*$/
-        .test(usernameOrPhoneNumber)
+      /^\s*(?:\+?(\d{1,3}))?[-. (]*(\d{3})[-. )]*(\d{3})[-. ]*(\d{4})(?: *x(\d+))?\s*$/.test(
+        usernameOrPhoneNumber
+      )
         ? usernameOrPhoneNumber
         : "";
 
     setLoading(true);
     const timeId = setTimeout(() => {
       setLoading(false);
-      Alert.alert(languageContext.language.LOGIN, languageContext.language.LOGIN_FAILED, [
-        {
-          text: "OK",
-          onPress: () => {},
-        },
-      ]);
-    }, 10000);
-
-    AUser.login(username, phoneNumber, password, (user) => {
-      if (!user) {
-        Alert.alert(languageContext.language.LOGIN, languageContext.language.LOGIN_FAILED, [
+      Alert.alert(
+        languageContext.language.LOGIN,
+        languageContext.language.LOGIN_FAILED,
+        [
           {
             text: "OK",
-            onPress: () => {
-            },
+            onPress: () => {},
           },
-        ]);
-        return;
-      }
+        ]
+      );
+    }, 10000);
 
-      if (accountContext.setAccount) {
-        //save to global context
-        accountContext.setAccount(user); 
-
-        //save into storage
-        SAsyncStorage.setData(AsyncStorageKeys.TOKEN, user.token, () => {
-          SLog.log(LogType.Info, "store token", "stored token", user.token);
-          //check if admin/superadmin or not
-          if (user.roles?.map(role => role.id).includes(RoleList.ADMIN) || user.roles?.map(role => role.id).includes(RoleList.SUPER_ADMIN)) {
-            navigation?.reset({
-              index: 0,
-              routes: [{ name: ScreenName.HOME_ADMIN }],
-            });
-            navigation?.navigate(ScreenName.HOME_ADMIN);
-          } else {
-            navigation?.reset({
-              index: 0,
-              routes: [{ name: ScreenName.NAV_BAR }],
-            });
-            navigation?.navigate(ScreenName.HOME);
-          }
-          Toast.show(`${languageContext.language.WELCOME} ${user.full_name}`, 2000);
-        }, (error) => {
-          SLog.log(LogType.Error, "login", "cannot store token", error);
-          Alert.alert(languageContext.language.LOGIN, languageContext.language.LOGIN_FAILED, [
-            {
-              text: "OK",
-              onPress: () => {
+    AUser.login(
+      username,
+      phoneNumber,
+      password,
+      (user) => {
+        if (!user) {
+          Alert.alert(
+            languageContext.language.LOGIN,
+            languageContext.language.LOGIN_FAILED,
+            [
+              {
+                text: "OK",
+                onPress: () => {},
               },
-            },
-          ]);
+            ]
+          );
           return;
-        });
+        }
+
+        if (accountContext.setAccount) {
+          //save to global context
+          accountContext.setAccount(user);
+
+          //save into storage
+          SAsyncStorage.setData(
+            AsyncStorageKeys.TOKEN,
+            user.token,
+            () => {
+              SLog.log(LogType.Info, "store token", "stored token", user.token);
+              //check if admin/superadmin or not
+              if (
+                user.roles?.map((role) => role.id).includes(RoleList.ADMIN) ||
+                user.roles
+                  ?.map((role) => role.id)
+                  .includes(RoleList.SUPER_ADMIN)
+              ) {
+                navigation?.reset({
+                  index: 0,
+                  routes: [{ name: ScreenName.HOME_ADMIN }],
+                });
+                navigation?.navigate(ScreenName.HOME_ADMIN);
+              } else {
+                navigation?.reset({
+                  index: 0,
+                  routes: [{ name: ScreenName.NAV_BAR }],
+                });
+                navigation?.navigate(ScreenName.HOME);
+              }
+              Toast.show(
+                `${languageContext.language.WELCOME} ${user.full_name}`,
+                2000
+              );
+            },
+            (error) => {
+              SLog.log(LogType.Error, "login", "cannot store token", error);
+              Alert.alert(
+                languageContext.language.LOGIN,
+                languageContext.language.LOGIN_FAILED,
+                [
+                  {
+                    text: "OK",
+                    onPress: () => {},
+                  },
+                ]
+              );
+              return;
+            }
+          );
+        }
+      },
+      () => {
+        setLoading(false);
+        clearTimeout(timeId);
       }
-    }, () => {
-      setLoading(false);
-      clearTimeout(timeId);
-    });
-  }, [usernameOrPhoneNumber, password, accountContext.account, accountContext.setAccount]);
+    );
+  }, [
+    usernameOrPhoneNumber,
+    password,
+    accountContext.account,
+    accountContext.setAccount,
+  ]);
 
   return (
     <ScrollView>
       <View style={styles.container}>
-        <Spinner visible={loading}/>
+        <Spinner visible={loading} />
 
         {/* illustration image */}
         <Image
@@ -148,7 +237,9 @@ export default function LoginScreen() {
         {/* screen title */}
         <View>
           <Text style={styles.title}>{languageContext.language.LOGIN}</Text>
-          <Text style={styles.content}>{languageContext.language.LOGIN_HINT}</Text>
+          <Text style={styles.content}>
+            {languageContext.language.LOGIN_HINT}
+          </Text>
         </View>
 
         {/* input email or phone number */}

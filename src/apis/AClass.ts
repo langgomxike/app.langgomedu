@@ -5,6 +5,7 @@ import Lesson from "../models/Lesson";
 import Values from "../constants/Values";
 import Pagination from "../models/Pagination";
 import Filters from "../models/Filters";
+import User from "../models/User";
 
 export default class AClass {
   private static API_URL = ReactAppUrl.API_BASE_URL;
@@ -245,7 +246,7 @@ export default class AClass {
     price: number,
     startedAt: number | null,
     endedAt: number | null,
-    maxLearners: number,
+    maxLearners: number | 1,
     province: string,
     district: string,
     ward: string,
@@ -266,7 +267,7 @@ export default class AClass {
           price,
           started_at: startedAt,
           ended_at: endedAt,
-          maxLearners,
+          max_learners: maxLearners || 1,
           province,
           district,
           ward,
@@ -289,7 +290,7 @@ export default class AClass {
         price,
         started_at: startedAt,
         ended_at: endedAt,
-        max_learners: maxLearners,
+        max_learners: maxLearners || 1,
         province,
         district,
         ward,

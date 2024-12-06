@@ -156,6 +156,7 @@
   "RESEND_OTP": "Resend OTP",
   "OTP_SERVICE_KEY": "OTP service key",
 
+  "NAME": "NHI",
   "CREATE_CLASS": "Create an enrollment class",
   "CREATE_CLASS_FOR_TUTOR": "Tutor creates a class",
   "CREATE_CLASS_FOR_PARENT": "Parent creates a class",
@@ -190,7 +191,7 @@
   "DETAIL_ADDRESS": "Detailed Address",
   "DETAIL_ADDRESS_PLACEHOLDER": "Add a specific address...",
   "ZALO": "Zalo Address",
-  "ZALO_PLACEHOLDER": "Add your Zalo address...", 
+  "ZALO_PLACEHOLDER": "Add your Zalo address...",
 
   "PROVICE": "Select province",
   "DISTRICT": "Select district",
@@ -222,5 +223,11 @@
   "ERR_MESSAGE_AUTHOR": "Not the author.",
 
   "NOTIFICATION": "Notification",
-  "MESSAGE": "You do not have permission to access this tab!"
+  "MESSAGE": "You do not have permission to access this tab!",
+
+  "UPDATE_CLASS": "Update Class",
+
+  "USERNAME_INVALID_FORMAT": "The username must be between 6 and 20 characters long and not contain special characters.",
+  "PASSWORD_INVALID_FORMAT": "The password must be between 6 and 20 characters long.",
+  "NEW_PASSWORD_MUST_BE_DIFFERENT": "The new password must be different from the old password."
 }

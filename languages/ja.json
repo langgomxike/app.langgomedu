@@ -154,6 +154,8 @@
   "INVALID_RESET_PASSWORD": "パスワードのリセットに失敗しました。再試行してください",
   "APP_STORE_APP_ID": "アプリストアのアプリID",
   "PLAY_STORE_APP_ID": "Google PlayストアのアプリID",
+
+  "NAME": "NHI",
   "CREATE_CLASS": "入学クラスを作成",
   "CREATE_CLASS_FOR_TUTOR": "家庭教師がクラスを作成",
   "CREATE_CLASS_FOR_PARENT": "保護者がクラスを作成",
@@ -220,5 +222,11 @@
   "ERR_MESSAGE_AUTHOR": "作成者ではありません。",
 
   "NOTIFICATION": "通知",
-  "MESSAGE": "このタブにアクセスする権限がありません！"
+  "MESSAGE": "このタブにアクセスする権限がありません！",
+
+  "UPDATE_CLASS": "クラスを更新",
+
+  "USERNAME_INVALID_FORMAT": "ユーザー名は6〜20文字で、特殊文字を含まない必要があります。",
+  "PASSWORD_INVALID_FORMAT": "パスワードは6〜20文字である必要があります。",
+  "NEW_PASSWORD_MUST_BE_DIFFERENT": "新しいパスワードは古いパスワードと異なる必要があります。"
 }

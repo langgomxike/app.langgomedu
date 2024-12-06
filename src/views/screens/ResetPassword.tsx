@@ -1,20 +1,24 @@
-import {ScrollView, Text, View, StyleSheet, Image, Alert} from "react-native";
-import MyIcon, {AppIcon} from "../components/MyIcon";
+import { ScrollView, Text, View, StyleSheet, Image, Alert } from "react-native";
+import MyIcon, { AppIcon } from "../components/MyIcon";
 import InputRegister from "../components/Inputs/InputRegister";
 import MyText from "../components/MyText";
 import Button from "../components/Button";
-import React, {useCallback, useContext, useState} from "react";
-import {NavigationContext} from "@react-navigation/native";
+import React, { useCallback, useContext, useState } from "react";
+import { NavigationContext } from "@react-navigation/native";
 import ScreenName from "../../constants/ScreenName";
-import {LanguageContext} from "../../configs/LanguageConfig";
+import { LanguageContext } from "../../configs/LanguageConfig";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import AUser from "../../apis/AUser";
-import SAsyncStorage, {AsyncStorageKeys} from "../../services/SAsyncStorage";
-import {AuthType, IdNavigationType, OTPNavigationType} from "../../configs/NavigationRouteTypeConfig";
+import SAsyncStorage, { AsyncStorageKeys } from "../../services/SAsyncStorage";
+import {
+  AuthType,
+  IdNavigationType,
+  OTPNavigationType,
+} from "../../configs/NavigationRouteTypeConfig";
 import Spinner from "react-native-loading-spinner-overlay";
-import {BackgroundColor, TextColor} from "../../configs/ColorConfig";
-import {AuthContext} from "../../configs/AuthContext";
-import {AccountContext} from "../../configs/AccountConfig";
+import { BackgroundColor, TextColor } from "../../configs/ColorConfig";
+import { AuthContext } from "../../configs/AuthContext";
+import { AccountContext } from "../../configs/AccountConfig";
 import Toast from "react-native-simple-toast";
 
 export default function ResetPasswordScreen() {
@@ -33,42 +37,63 @@ export default function ResetPasswordScreen() {
     navigation?.goBack();
   }, []);
 
-  const handleSubmit = useCallback((otp: number, onComplete: () => void) => {
-    AUser.resetPassword(phoneNumber, newPassword, otp,
-      (result) => {
-        if (result) {
-          Toast.show(languageContext.language.PASSWORD_RESET_ALREADY, 1000);
-          navigation?.reset({
-            index: 0,
-            routes: [{name: ScreenName.LOGIN}],
-          });
-        } else {
-          Alert.alert(languageContext.language.RESET_PASSWORD, languageContext.language.INVALID_RESET_PASSWORD);
-        }
-      },
-      onComplete
-    );
-  }, [newPassword, phoneNumber, authContext.onAfterAuth]);
+  const handleSubmit = useCallback(
+    (otp: number, onComplete: () => void) => {
+      AUser.resetPassword(
+        phoneNumber,
+        newPassword,
+        otp,
+        (result) => {
+          if (result) {
+            Toast.show(languageContext.language.PASSWORD_RESET_ALREADY, 1000);
+            navigation?.reset({
+              index: 0,
+              routes: [{ name: ScreenName.LOGIN }],
+            });
+          } else {
+            Alert.alert(
+              languageContext.language.RESET_PASSWORD,
+              languageContext.language.INVALID_RESET_PASSWORD
+            );
+          }
+        },
+        onComplete
+      );
+    },
+    [newPassword, phoneNumber, authContext.onAfterAuth]
+  );
 
   const handleAuth = useCallback(() => {
+    // Regex kiểm tra password
+    const passwordRegex = /^.{6,20}$/;
+
     if (!phoneNumber) {
-      Alert.alert(languageContext.language.PHONE_NUMBER, languageContext.language.INVALID_PHONE_NUMBER);
+      Alert.alert(
+        languageContext.language.PHONE_NUMBER,
+        languageContext.language.INVALID_PHONE_NUMBER
+      );
       return;
     }
 
-    if (!newPassword) {
-      Alert.alert(languageContext.language.NEW_PASSWORD, languageContext.language.INVALID_PASSWORD);
+    if (!newPassword || !passwordRegex.test(newPassword)) {
+      Alert.alert(
+        languageContext.language.NEW_PASSWORD,
+        languageContext.language.PASSWORD_INVALID_FORMAT
+      );
       return;
     }
 
     if (!confirmPassword || newPassword !== confirmPassword) {
-      Alert.alert(languageContext.language.CONFIRM_PASSWORD, languageContext.language.INVALID_CONFIRM_PASSWORD);
+      Alert.alert(
+        languageContext.language.CONFIRM_PASSWORD,
+        languageContext.language.INVALID_CONFIRM_PASSWORD
+      );
       return;
     }
 
     const data: OTPNavigationType = {
-      phone_number:phoneNumber,
-    }
+      phone_number: phoneNumber,
+    };
     navigation?.navigate(ScreenName.OTP, data);
 
     authContext.setOnAfterAuth(() => handleSubmit);
@@ -84,12 +109,16 @@ export default function ResetPasswordScreen() {
         onPress={goBack}
       />
 
-      <View style={{height: 100}}/>
+      <View style={{ height: 100 }} />
 
       {/* screen title */}
       <View>
-        <Text style={styles.title}>{languageContext.language.RESET_PASSWORD}</Text>
-        <Text style={styles.content}>{languageContext.language.RESET_PASSWORD_HINT}</Text>
+        <Text style={styles.title}>
+          {languageContext.language.RESET_PASSWORD}
+        </Text>
+        <Text style={styles.content}>
+          {languageContext.language.RESET_PASSWORD_HINT}
+        </Text>
       </View>
 
       {/* current password*/}
@@ -133,8 +162,12 @@ export default function ResetPasswordScreen() {
 
       {/* submit button*/}
       <View style={styles.btn}>
-        <Button title={languageContext.language.RESET_PASSWORD} textColor={TextColor.white}
-                backgroundColor={BackgroundColor.primary} onPress={handleAuth}/>
+        <Button
+          title={languageContext.language.RESET_PASSWORD}
+          textColor={TextColor.white}
+          backgroundColor={BackgroundColor.primary}
+          onPress={handleAuth}
+        />
       </View>
     </View>
   );
@@ -177,7 +210,7 @@ const styles = StyleSheet.create({
 
   title: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
 
   content: {
@@ -203,12 +236,12 @@ const styles = StyleSheet.create({
 
   row: {
     // Đặt các biểu tượng nằm trên cùng một hàng
-    marginLeft: '-40%', // Cân đối khoảng cách giữa các biểu tượng
-    marginBottom: ' -12%', // Thêm khoảng cách dưới hàng icon
+    marginLeft: "-40%", // Cân đối khoảng cách giữa các biểu tượng
+    marginBottom: " -12%", // Thêm khoảng cách dưới hàng icon
   },
 
   btn: {
-    marginTop: '40%',
-    width: '100%',
-  }
+    marginTop: "40%",
+    width: "100%",
+  },
 });
