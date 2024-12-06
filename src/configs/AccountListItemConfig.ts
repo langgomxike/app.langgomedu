@@ -15,6 +15,10 @@ export const ListItemVietnamese: Array<AccountItemProps> = [
         iconName: require("../../assets/settings/cv.png")
     },
     {
+        title: 'Attendance History', // Tutor CV
+        iconName: require("../../assets/settings/attendance.png")
+    },
+    {
         title: 'Gửi email đến quản trị viên', // Send email to administrator
         iconName: require("../../assets/settings/email.png")
     },
@@ -54,6 +58,10 @@ export const ListItemEnglish: Array<AccountItemProps> = [
         iconName: require("../../assets/settings/cv.png")
     },
     {
+        title: 'Attendance History', // Tutor CV
+        iconName: require("../../assets/settings/attendance.png")
+    },
+    {
         title: 'Send email to administrator',
         iconName: require("../../assets/settings/email.png")
     },
@@ -91,6 +99,10 @@ export const ListItemJapanese: Array<AccountItemProps> = [
     {
         title: '家庭教師の履歴書', // Tutor CV
         iconName: require("../../assets/settings/cv.png")
+    },
+    {
+        title: 'Attendance History', // Tutor CV
+        iconName: require("../../assets/settings/attendance.png")
     },
     {
         title: '保護者・生徒からのフィードバック', // Feedback from Parents and Students

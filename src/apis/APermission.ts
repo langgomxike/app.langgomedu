@@ -5,6 +5,7 @@ import axios from "axios";
 import Response from "../models/Response";
 import SLog, {LogType} from "../services/SLog";
 import ReactAppUrl from "../configs/ConfigUrl";
+import User from "../models/User";
 
 const permission_txt = `[
   {
@@ -270,6 +271,36 @@ export default class APermission {
       },
       (error) => {
         SLog.log(LogType.Error, "getPermissionsOfRole", "cannot get permissions", error);
+        onNext([]);
+        onComplete && onComplete();
+      }
+    );
+  }
+
+  public static getPermissionsOfUser(user: User, onNext: (permissions: Permission[]) => void, onComplete?: () => void) {
+    const url = this.BASE_URL + "/of-user";
+    const data = {user};
+
+    SAsyncStorage.getData(AsyncStorageKeys.TOKEN,
+      (token) => {
+        axios.post<Response>(url,data, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          }
+        })
+          .then(response => {
+            const permissions = response.data.data as Permission[] ?? [];
+            SLog.log(LogType.Info, "getPermissionsOfUser", "get permissions successfully", permissions.length);
+            onNext(permissions);
+          })
+          .catch(error => {
+            SLog.log(LogType.Error, "getPermissionsOfUser", "cannot get permissions", error);
+            onNext([]);
+          })
+          .finally(onComplete)
+      },
+      (error) => {
+        SLog.log(LogType.Error, "getPermissionsOfUser", "cannot get permissions", error);
         onNext([]);
         onComplete && onComplete();
       }

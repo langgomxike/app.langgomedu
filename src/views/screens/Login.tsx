@@ -34,6 +34,9 @@ export default function LoginScreen() {
   const accountContext = useContext(AccountContext);
   const languageContext = useContext(LanguageContext);
 
+    // Đường dẫn tạm đếm admin
+    // navigation?.navigate(ScreenName.PROFILE);
+
   //states
   const [usernameOrPhoneNumber, setUsernameOrPhoneNumber] = useState("");
   const [password, setPassword] = useState("");

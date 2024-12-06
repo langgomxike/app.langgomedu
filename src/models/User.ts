@@ -5,12 +5,14 @@ import Gender from "./Gender";
 import ClassLevel from "./ClassLevel";
 import Major from "./Major";
 import Attendance from "./Attendance";
+import Permission from "./Permission";
 import Lesson from "./Lesson";
 
 export default class User {
     public id: string;
     public full_name: string;
     public username: string;
+    public email: string;
     public phone_number: string;
     public password: string;
     public token: string;
@@ -34,11 +36,13 @@ export default class User {
     public cv_id: string | undefined;
     public lessons: Lesson[] | [];
     public parent_id: string = "";
+    public permissions: Permission[]  = [];
 
     constructor(
         id = "",
         full_name = "",
         username = "",
+        email="",
         phone_number = "",
         password = "",
         token = "",
@@ -66,6 +70,7 @@ export default class User {
         this.id = id;
         this.full_name = full_name;
         this.username = username;
+        this.email = email;
         this.phone_number = phone_number;
         this.password = password;
         this.token = token;

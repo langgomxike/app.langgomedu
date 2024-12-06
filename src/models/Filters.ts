@@ -2,7 +2,7 @@ export default class Filters {
       minPrice?: number;
       maxPrice?: number;
       classLevelId?: number[];
-      province?: string[]; // Địa chỉ - tỉnh
+      province?: string; // Địa chỉ - tỉnh
       district?: string[]; // Địa chỉ - quận
       ward?: string[]; // Địa chỉ - phường
       major?: number[]; // Ngành học
@@ -11,5 +11,5 @@ export default class Filters {
       startedAt?: number | undefined | null; // Ngày bắt đầu (từ)
       endedAt?: number | undefined | null; // Ngày kết thúc (đến)
       sort?: string;
-      gender?: number;
+      genders?: string[];
 }

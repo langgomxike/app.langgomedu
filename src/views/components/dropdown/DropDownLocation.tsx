@@ -5,6 +5,7 @@ import AntDesign from "@expo/vector-icons/AntDesign";
 import vietnamData from "../../../data/vietnam.json";
 import Feather from "@expo/vector-icons/Feather";
 import { LanguageContext } from "../../../configs/LanguageConfig";
+import { BackgroundColor } from "../../../configs/ColorConfig";
 
 // Định nghĩa kiểu dữ liệu cho JSON
 interface Dropdown {
@@ -40,9 +41,9 @@ export default function DropDownLocation(
 
   const [isFocus, setIsFocus] = useState(false);
 
-  // handle /////////////////////////////////////////////
+  // handle >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
-  // effect ////////////////////////////////////////////
+  // effect >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
   // Lấy danh sách quận huyện
   useEffect(() => {
@@ -75,6 +76,7 @@ export default function DropDownLocation(
     });
     
     setWard(updatedWards);
+    onSetSelectedWard("");
     onSetSelectedWard("");
   }, [selectedDistrict]);
 
@@ -149,6 +151,7 @@ export default function DropDownLocation(
         onBlur={() => setIsFocus(false)}
         onChange={(item) => {
           onSetSelectedDistrict(item.value);
+          onSetSelectedDistrict(item.value);
           setIsFocus(false);
         }}
         renderLeftIcon={() => (
@@ -179,6 +182,7 @@ export default function DropDownLocation(
         onFocus={() => setIsFocus(true)}
         onBlur={() => setIsFocus(false)}
         onChange={(item) => {
+          onSetSelectedWard(item.value);
           onSetSelectedWard(item.value);
           setIsFocus(false);
         }}

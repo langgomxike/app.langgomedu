@@ -9,8 +9,8 @@ export default class Report {
     public class: Class | undefined;
     public content: string;
     public reason: string;
-    public report_level: ReportLevel | undefined;
-    public createdAt: Date;
+    public report_level: number;
+    public created_at: number;
 
     constructor(
         id = -1,
@@ -19,8 +19,8 @@ export default class Report {
         classObj: Class | undefined = undefined,
         content = "",
         reason = "",
-        report_level: ReportLevel | undefined = undefined,
-        createdAt = new Date()
+        report_level: 4,
+        createdAt = new Date().getTime()
     ) {
         this.id = id;
         this.reporter = reporter;
@@ -29,6 +29,6 @@ export default class Report {
         this.content = content;
         this.reason = reason;
         this.report_level = report_level;
-        this.createdAt = createdAt;
+        this.created_at = createdAt;
     }
 }

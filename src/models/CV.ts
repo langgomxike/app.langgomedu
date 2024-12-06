@@ -32,4 +32,7 @@ export default class CV {
         this.educations = educations;
         this.experiences = experiences;
     }
+
+
+    
 }

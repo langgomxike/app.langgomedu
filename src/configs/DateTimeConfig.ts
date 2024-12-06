@@ -26,6 +26,22 @@ export default class DateTimeConfig {
         return result;
     }
 
+    public static getDateFormatFullYear(dateAsLong: number): string {
+        const date = new Date(dateAsLong);
+
+        const year = date.getFullYear();
+        const month = date.getMonth() + 1;
+        const day = date.getDate();
+
+        let result = "";
+
+        result += "/" + year;
+
+        result = this.formatTime(day) + "/" + this.formatTime(month) + result;
+
+        return result;
+    }
+
     public static formatTime(time: number): string {
         return time >= 10 ? time + "" : "0" + time;
     }

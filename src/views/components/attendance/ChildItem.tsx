@@ -1,11 +1,12 @@
 import { View, Text, StyleSheet, Image, TouchableOpacity, ActivityIndicator } from "react-native";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import { BackgroundColor } from "../../../configs/ColorConfig";
 import { Dimensions } from "react-native";
 import User from "../../../models/User";
 import ReactAppUrl from "../../../configs/ConfigUrl";
 import ModalPaidResult from "../modal/ModalPaidResult";
 import AAttendance from "../../../apis/AAttendance";
+import { LanguageContext } from "../../../configs/LanguageConfig";
 
 type ChildItemProps = {
   lessonId: number;
@@ -21,6 +22,8 @@ export default function ChildItem({
   learnerData,
   onConfirmStatus,
 }: ChildItemProps) {
+  // content ----------------------------------------------------------------
+  const language = useContext(LanguageContext).language;
   // states ----------------------------------------------------------------
   const [modalVisible, setModalVisible] = useState<string | null>("");
   const [loading, setLoading] = React.useState(false);
@@ -64,7 +67,7 @@ export default function ChildItem({
   }, []);
 
   const handleNotify = useCallback((userId: string) => {
-    alert("Đã gửi thông báo");
+    alert(language.NOTIFICATION_SENT);
   }, []);
 
   // effect ----------------------------------------------------------------
@@ -73,17 +76,17 @@ export default function ChildItem({
       if (learnerData.attendance?.paid) {
         return {
           image: require("../../../../assets/images/ic_pay.png"),
-          message: "Bạn học này đã thành toán.\nChờ bạn xác nhận!",
+          message: language.STUDENT_PAID,
         };
       } else if (learnerData.attendance?.deferred) {
         return {
           image: require("../../../../assets/images/ic_deferred.png"),
-          message: "Bạn học muốn được trì hoãn thanh toán.\nChờ bạn xác nhận!",
+          message: language.STUDENT_REQUEST_DELAY,
         };
       } else {
         return {
           image: require("../../../../assets/images/ic_no_money.png"),
-          message: "Bạn học này chưa thanh toán.\nHãy nhắc nhở họ!",
+          message: language.STUDENT_NOT_PAID,
         };
       }
     };
@@ -139,7 +142,7 @@ export default function ChildItem({
             >
               {learnerData.attendance?.type === "bank" ? (
                 <Text style={[styles.textSubTitle, styles.borderBottom]}>
-                  Xem thông tin
+                 {language.VIEW_INFORMATION}
                 </Text>
               ) : (
                 <Text style={styles.textSubTitle}> ... </Text>
@@ -164,8 +167,8 @@ export default function ChildItem({
                   style={[styles.btnText, { color: BackgroundColor.white }]}
                 >
                   {learnerData.attendance.confirm_paid
-                    ? "Đã xác nhận thanh toán"
-                    : "Xác nhân thanh toán"}
+                    ? `${language.PAYMENT_CONFIRMED}`
+                    : `${language.CONFIRM_PAYMENT}`}
                 </Text>
                 {loading && 
                 <ActivityIndicator color="#fff" />
@@ -191,8 +194,8 @@ export default function ChildItem({
                   style={[styles.btnText, { color: BackgroundColor.white }]}
                 >
                   {learnerData.attendance.confirm_deferred
-                    ? "Đã xác nhận trì hoãn"
-                    : "Xác nhận trì hoãn"}
+                    ? `${language.DELAY_CONFIRMED}`
+                    : `${language.CONFIRM_DELAY}`}
                 </Text>
                 {loading && 
                 <ActivityIndicator color="#fff" />}
@@ -208,7 +211,7 @@ export default function ChildItem({
                   <Text
                     style={[styles.btnText, { color: BackgroundColor.white }]}
                   >
-                    Gửi nhắc nhở
+                   {language.SEND_REMINDER}
                   </Text>
                   {/* <ActivityIndicator color="#fff" /> */}
                 </TouchableOpacity>

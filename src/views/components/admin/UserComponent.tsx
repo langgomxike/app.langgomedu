@@ -42,6 +42,7 @@ export default function UserComponent({
             style={styles.userAvatar}
           />
           <Text style={styles.userFullName}>{userData.full_name}</Text>
+
         </View>
         {userData.is_reported && <Text style={styles.badge}>Bị báo cáo</Text>}
       </View>
@@ -84,6 +85,7 @@ export default function UserComponent({
           </Text>
         </View>
       </View>
+
       {isButtonDetailReport && (
         <TouchableOpacity style={styles.btnShowDetail}>
           <Text style={styles.btnShowDetailText}>Chi tiết báo cáo</Text>

@@ -7,6 +7,7 @@ import Major from "../../../models/Major";
 import ReactAppUrl from "../../../configs/ConfigUrl";
 import ClassLevel from "../../../models/ClassLevel";
 import { Feather } from "@expo/vector-icons";
+import { LanguageContext } from "../../../configs/LanguageConfig";
 
 type DropdownMajorProps = {
   selectedMajors: string[],
@@ -22,6 +23,7 @@ export default function DropDownMajors({
    onSetSelectedClassLevels}: DropdownMajorProps) {
   //context
   const majorsLevelsContext = useContext(MajorsLevelsContext);
+  const language = useContext(LanguageContext).language;
 
   // states
   // const [selectedMajors, setSelectedMajors] = useState<string[]>([]);
@@ -59,7 +61,7 @@ export default function DropDownMajors({
   return (
     <View style={styles.container}>
     <View>
-      <Text style={styles.titleDropdown}>Chọn môn học</Text>
+      <Text style={styles.titleDropdown}>{language.SELECT_SUBJECT}</Text>
       <MultiSelect
         style={styles.dropdown}
         placeholderStyle={styles.placeholderStyle}
@@ -69,10 +71,10 @@ export default function DropDownMajors({
         data={majors}
         labelField="vn_name"
         valueField="id"
-        placeholder="Chọn môn học..."
+        placeholder={language.SELECT}
         value={selectedMajors}
         search
-        searchPlaceholder="Search..."
+        searchPlaceholder={language.SEARCH_P}
         onChange={(item) => {
           // setSelectedMajors(item);
           onSetSelectedMajors(item);
@@ -96,7 +98,7 @@ export default function DropDownMajors({
     </View>
 
         <View>
-        <Text style={styles.titleDropdown}>Chọn cấp học</Text>
+        <Text style={styles.titleDropdown}>{language.SELECT_GRADE_LEVEL}</Text>
         <MultiSelect
             style={styles.dropdown}
             placeholderStyle={styles.placeholderStyle}
@@ -106,10 +108,10 @@ export default function DropDownMajors({
             data={classLevels}
             labelField="vn_name"
             valueField="id"
-            placeholder="Chọn cấp học..."
+            placeholder={language.SELECT}
             value={selectedClassLevels}
             search
-            searchPlaceholder="Search..."
+            searchPlaceholder={language.SEARCH_P}
             onChange={(item) => {
             onSetSelectedClassLevels(item);
             }}

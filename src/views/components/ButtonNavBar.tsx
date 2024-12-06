@@ -14,6 +14,12 @@ import SFirebase, {FirebaseNode} from "../../services/SFirebase";
 import AMessage from "../../apis/AMessage";
 import Message from "../../models/Message";
 import {ChatTabContext} from "../../configs/AppContext";
+import AUser from "../../apis/AUser";
+import User from "../../models/User";
+import APermission from "../../apis/APermission";
+import SLog, {LogType} from "../../services/SLog";
+import AMajor from "../../apis/AMajor";
+import AClassLevel from "../../apis/AClassLevel";
 
 const TAB_BAR_BORDER_RADIUS = 20;
 const TAB_BAR_MARGIN = 8;
@@ -56,6 +62,54 @@ export default function ButtonNavBar() {
       });
     });
   }, []);
+
+  useEffect(() => {
+    if (!accountContext.account || accountContext.account.id.length < 5 || !accountContext.setAccount) return;
+
+    SFirebase.track(FirebaseNode.Users, [{key: FirebaseNode.Id, value: accountContext.account.id}], () => {
+      if (!accountContext.account || !accountContext.setAccount) return;
+
+      //track address
+      SFirebase.track(FirebaseNode.Addresses, [], () => {
+        if (!accountContext.account || !accountContext.setAccount) return;
+
+        AUser.getUserAddress(accountContext.account.id, address => {
+          const user: User = {...accountContext.account} as User;
+          user.address = address;
+
+          SFirebase.track(FirebaseNode.InterestedMajors, [], () => {
+            if (!accountContext.account || !accountContext.setAccount) return;
+
+            AMajor.getInterestedMajors(accountContext.account.id, majors => {
+              user.interested_majors = majors;
+
+              SFirebase.track(FirebaseNode.InterestedMajors, [], () => {
+                if (!accountContext.account || !accountContext.setAccount) return;
+
+                AMajor.getInterestedMajors(accountContext.account.id, majors => {
+                  user.interested_majors = majors;
+
+                  SFirebase.track(FirebaseNode.InterestedClassLevels, [], () => {
+                    if (!accountContext.account || !accountContext.setAccount) return;
+
+                    AClassLevel.getInterestedClassLevels(accountContext.account.id, classLevels => {
+                      user.interested_class_levels = classLevels;
+
+                      accountContext.setAccount && accountContext.setAccount(user);
+                    });
+                  });
+                });
+              });
+            });
+          });
+        });
+      });
+    });
+  }, [accountContext.account?.id]);
+
+  useEffect(() => {
+    SLog.log(LogType.Info, "check account", "", accountContext.account);
+  }, [accountContext.account]);
 
   return (
     <ChatTabContext.Provider value={[hasNoti, hasNewClassMessages, hasNewMessages]}>

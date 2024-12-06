@@ -19,13 +19,16 @@ import * as ImagePicker from "expo-image-picker";
 import * as MediaLibrary from "expo-media-library";
 import * as FileSystem from "expo-file-system";
 import User from "../../../models/User";
+import { LanguageContext } from "../../../configs/LanguageConfig";
+import Lesson from "../../../models/Lesson";
+import moment from "moment";
 
 
 type ModalDialogForClassProps = {
   confirmTitle: string;
   visiable: string | null;
   onRequestCloseDialog: () => void;
-  tutor?: User;
+  lessonData?: Lesson;
   price?: number;
   onSelectedImage: (image: any) => void;
   onSetPaymentMethod: (method: string) => void;
@@ -37,15 +40,16 @@ export default function ModalPay({
   confirmTitle,
   visiable,
   onRequestCloseDialog,
-  tutor,
+  lessonData,
   price,
   onSelectedImage,
   onSetPaymentMethod,
   onPay,
 }: ModalDialogForClassProps) {
-
+    // context 
+    const language = useContext(LanguageContext).language;
     // states -------------------------------------------------------------------
-    const image = tutor ? `https://img.vietqr.io/image/${tutor.banking_code}-${tutor.banking_number}-compact2.jpg?amount=${price}&addInfo=${"Tiền học của lớp"}&accountName=${tutor.full_name}`: "";
+    const image = lessonData?.class?.tutor ? `https://img.vietqr.io/image/${lessonData.class.tutor.banking_code}-${lessonData?.class?.tutor.banking_number}-compact2.jpg?amount=${price}&addInfo=Tiền học cho môn học: ${lessonData?.class?.major?.vn_name}&accountName=${lessonData.class.tutor.full_name}`: "";
     
     
     const [paymentMethod, setPaymentMethod] = useState<"cash" | "bank">("cash");
@@ -79,8 +83,8 @@ export default function ModalPay({
       const { status } = await MediaLibrary.requestPermissionsAsync();
       if (status !== "granted") {
         Alert.alert(
-          "Quyền truy cập bị từ chối",
-          "Ứng dụng cần quyền truy cập vào thư viện"
+          language.ACCESS_DENIED,
+          language.APP_NEEDS_PERMISSION
         );
         return;
       }
@@ -95,9 +99,9 @@ export default function ModalPay({
       await MediaLibrary.saveToLibraryAsync(uri);
 
       setLoadingSaveImage(false)
-      Alert.alert("Tải ảnh thành công", "Ảnh đã được lưu vào thư viện!");
+      Alert.alert(language.UPLOAD_SUCCESS, language.IMAGE_SAVED);
     } catch (error) {
-      Alert.alert("Lỗi", "Không thể tải ảnh");
+      Alert.alert(language.ERROR_A, language.UPLOAD_FAILED);
       console.error(error);
     }
   };
@@ -149,7 +153,7 @@ export default function ModalPay({
             {/* Uploading payment */}
             <View style={styles.paymentContainer}>
                 <Text style={styles.titleContainer}>
-                  Chọn phương thức thanh toán
+                 {language.SELECT_PAYMENT_METHOD}
                 </Text>
 
                 {/* Phương thức Tiền mặt */}
@@ -162,7 +166,7 @@ export default function ModalPay({
                     size={24}
                     color={paymentMethod === "cash" ? "green" : "gray"}
                   />
-                  <Text style={styles.optionText}>Thanh toán tiền mặt</Text>
+                  <Text style={styles.optionText}>{language.CASH_PAYMENT}</Text>
                   {paymentMethod === "cash" && (
                     <Ionicons name="checkmark" size={24} color="green" />
                   )}
@@ -178,7 +182,7 @@ export default function ModalPay({
                     size={24}
                     color={paymentMethod === "bank" ? "green" : "gray"}
                   />
-                  <Text style={styles.optionText}>Chuyển khoản</Text>
+                  <Text style={styles.optionText}>{language.BANK_TRANSFER}</Text>
                   {paymentMethod === "bank" && (
                     <Ionicons name="checkmark" size={24} color="green" />
                   )}
@@ -204,7 +208,7 @@ export default function ModalPay({
                         />
                       </View>
                       <TouchableOpacity onPress={handleSaveImage}  style={[styles.boxShadow, styles.btnSaveQR]}>
-                        <Text style={styles.btnSaveQRText}>Lưu QR</Text>
+                        <Text style={styles.btnSaveQRText}>{language.SAVE_QR_A}</Text>
                         {loadingSaveImage && <ActivityIndicator></ActivityIndicator>}
                         </TouchableOpacity>
                     </View>
@@ -218,16 +222,15 @@ export default function ModalPay({
                       style={[styles.uploadImageButton, styles.boxShadow]}
                     >
                       <Ionicons name="image-outline" size={24} color="black" />
-                      <Text style={styles.buttonText}>Chọn hình</Text>
+                      <Text style={styles.buttonText}>{language.SELECT_IMAGE}</Text>
                     </TouchableOpacity>
 
                     <View style={styles.textContainer}>
                       <Text style={styles.uploadText}>
-                        Tải ảnh minh chứng thanh toán
+                      {language.UPLOAD_PAYMENT_PROOF}
                       </Text>
                       <Text style={styles.subText}>
-                        Vui lòng tải lên ảnh chụp màn hình hoặc hóa đơn để xác
-                        nhận thanh toán.
+                      {language.UPLOAD_PAYMENT_INSTRUCTION}
                       </Text>
                     </View>
 
@@ -251,7 +254,7 @@ export default function ModalPay({
                 onPress={onPay}
                 style={[styles.btn, styles.btnSave, styles.boxShadow]}
               >
-                <Text style={styles.btnSaveText}>Thanh toán</Text>
+                <Text style={styles.btnSaveText}>{language.PAYMENT}</Text>
               </TouchableOpacity>
             </View>
       </Animated.View>

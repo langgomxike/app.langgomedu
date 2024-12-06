@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { StyleSheet, View, TouchableOpacity, Text } from "react-native";
-import { MultiSelect } from "react-native-element-dropdown";
+import { Dropdown, MultiSelect } from "react-native-element-dropdown";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import vietnamData from "../../../data/vietnam.json";
 import Feather from '@expo/vector-icons/Feather';
+import { LanguageContext } from "../../../configs/LanguageConfig";
 
 // Định nghĩa kiểu dữ liệu cho JSON
 type Dropdown  = {
@@ -12,10 +13,10 @@ type Dropdown  = {
 }
 
 type DropDownAddressProps = {
-  selectedCities: string[];
+  selectedProvince: string;
   selectedDistricts: string[];
   selectedWards: string[];
-  onSetSelectedCities: (cities: string[]) => void;
+  onSetSelectedProvince: (province: string) => void;
   onSetSelectedDistricts: (districts: string[]) => void;
   onSetSelectedWards: (wards: string[]) => void;
 }
@@ -23,37 +24,33 @@ type DropDownAddressProps = {
 
 
 export default function DropDownAddress({
-  selectedCities,
+  selectedProvince,
   selectedDistricts,
   selectedWards,
-  onSetSelectedCities,
+  onSetSelectedProvince,
   onSetSelectedDistricts,
   onSetSelectedWards,
 }: DropDownAddressProps) {
-  // states //////////////////////////////////////////////
+  // conntext --------------------------------------------------------------
+  const language = useContext(LanguageContext).language;
+  // states ----------------------------------------------------------------
   const [districts, setDistricts] = useState<Dropdown[]>([]);
   const [wards, setWards] = useState<Dropdown[]>([]);
 
-  // handle /////////////////////////////////////////////
-
-  // effect ////////////////////////////////////////////
-
+  // effect  ----------------------------------------------------------------
   // Lấy danh sách quận huyện
   useEffect(() => {
     // Cập nhật danh sách quận/huyện khi thay đổi danh sách thành phố
-    const selectedCityNames = selectedCities.map((city) => city);
     const updatedDistricts: { label: string; value: string }[] = [];
 
-    selectedCityNames.forEach((cityName) => {
-      const city = vietnamData.find((c) => c.name === cityName);
-      if (city) {
-        city.districts.forEach((district) => {
-          updatedDistricts.push({ label: district.name, value: district.name });
-        });
-      }
-    });
+    const city = vietnamData.find((c) => c.name === selectedProvince);
+    if (city) {
+      city.districts.forEach((district) => {
+        updatedDistricts.push({ label: district.name, value: district.name });
+      });
+    }
     setDistricts(updatedDistricts);
-  }, [selectedCities]);
+  }, [selectedProvince]);
 
   // Lấy danh sách quận/huyện khi thay đổi danh sách thành phố
   useEffect(() => {
@@ -104,11 +101,37 @@ export default function DropDownAddress({
       setWards(updatedWards);
   }, []);
 
-  const renderItem = (item: any) => {
+  const renderDistrict = (item: any) => {
+    const isSelected = selectedDistricts.includes(item.value); 
     return (
       <View style={styles.item}>
         <Text style={styles.selectedTextStyle}>{item.label}</Text>
-        <AntDesign style={styles.icon} color="black" name="Safety" size={20} />
+        {isSelected  && (
+          <AntDesign style={styles.icon} color="green" name="Safety" size={20} />
+        )}
+      </View>
+    );
+  };
+
+  const renderWard = (item: any) => {
+    const isSelected = selectedDistricts.includes(item.value); 
+    return (
+      <View style={styles.item}>
+        <Text style={styles.selectedTextStyle}>{item.label}</Text>
+        {isSelected  && (
+          <AntDesign style={styles.icon} color="green" name="Safety" size={20} />
+        )}
+      </View>
+    );
+  };
+
+  const renderProvince = (item: any) => {
+    return (
+      <View style={styles.item}>
+        <Text style={styles.selectedTextStyle}>{item.label}</Text>
+        {item.value === selectedProvince && (
+        <AntDesign style={styles.icon} color="green" name="Safety" size={20} />
+        )}
       </View>
     );
   };
@@ -116,48 +139,36 @@ export default function DropDownAddress({
   return (
     <View style={styles.container}>
       <View>
-        <Text style={styles.titleDropdown}>Tỉnh/TP:</Text>
-        <MultiSelect
-          style={styles.dropdown}
-          placeholderStyle={styles.placeholderStyle}
-          selectedTextStyle={styles.selectedTextStyle}
-          inputSearchStyle={styles.inputSearchStyle}
-          iconStyle={styles.iconStyle}
-          data={vietnamData.map((city) => ({
-            label: city.name,
-            value: city.name,
-          }))}
-          labelField="label"
-          valueField="value"
-          placeholder="Chọn..."
-          value={selectedCities}
-          search
-          searchPlaceholder="Search..."
-          onChange={(item) => {
-            onSetSelectedCities(item);
-          }}
-          renderLeftIcon={() => (
-            <AntDesign
-              style={styles.icon}
-              color="black"
-              name="Safety"
-              size={20}
-            />
-          )}
-          renderItem={renderItem}
-          renderSelectedItem={(item, unSelect) => (
-            <View style={styles.selectedStyle}>
-              <TouchableOpacity style={styles.selectedStyleButton} onPress={() => unSelect && unSelect(item)}>
-                <Text style={styles.textSelectedStyle}>{item.label}</Text>
-               <Feather name="trash-2" size={15} color="gray" />
-              </TouchableOpacity>
-            </View>
-          )}
-        />
+        <Text style={styles.titleDropdown}>{language.CITY_PROVINCE}:</Text>
+        <Dropdown
+        style={styles.dropdown}
+        placeholderStyle={styles.placeholderStyle}
+        selectedTextStyle={styles.selectedTextStyle}
+        inputSearchStyle={styles.inputSearchStyle}
+        iconStyle={styles.iconStyle}
+        data={vietnamData.map((city) => ({
+          label: city.name,
+          value: city.name,
+        }))}
+        search
+        maxHeight={300}
+        labelField="label"
+        valueField="value"
+        placeholder={language.SELECT}
+        searchPlaceholder={language.SEARCH_P}
+        value={selectedProvince}
+        onChange={item => {
+          onSetSelectedProvince(item.value);
+        }}
+        renderLeftIcon={() => (
+          <AntDesign style={styles.icon} color="black" name="Safety" size={20} />
+        )}
+        renderItem={renderProvince}
+      />
       </View>
 
       <View>
-        <Text style={styles.titleDropdown}>Quận/ huyện:</Text>
+        <Text style={styles.titleDropdown}>{language.DISTRICT_A}:</Text>
         <MultiSelect
           style={styles.dropdown}
           placeholderStyle={styles.placeholderStyle}
@@ -167,10 +178,10 @@ export default function DropDownAddress({
           data={districts}
           labelField="label"
           valueField="value"
-          placeholder="Chọn..."
+          placeholder={language.SELECT}
           value={selectedDistricts}
           search
-          searchPlaceholder="Search..."
+          searchPlaceholder={language.SEARCH_P}
           onChange={(items) => {
              // Cập nhật danh sách quận/huyện đã chọn
             onSetSelectedDistricts(items);
@@ -183,7 +194,7 @@ export default function DropDownAddress({
               size={20}
             />
           )}
-          renderItem={renderItem}
+          renderItem={renderDistrict}
           renderSelectedItem={(item, unSelect) => (
             <View style={styles.selectedStyle}>
               <TouchableOpacity  style={styles.selectedStyleButton} onPress={() => unSelect && unSelect(item)}>
@@ -196,7 +207,7 @@ export default function DropDownAddress({
       </View>
 
       <View>
-        <Text style={styles.titleDropdown}>Xã/phường</Text>
+        <Text style={styles.titleDropdown}>{language.COMMUNE_WARD}</Text>
         <MultiSelect
           style={styles.dropdown}
           placeholderStyle={styles.placeholderStyle}
@@ -206,10 +217,10 @@ export default function DropDownAddress({
           data={wards}
           labelField="label"
           valueField="value"
-          placeholder="Chọn..."
+           placeholder={language.SELECT}
           value={selectedWards}
           search
-          searchPlaceholder="Search..."
+          searchPlaceholder={language.SEARCH_P}
           onChange={(item) => {
             onSetSelectedWards(item);
           }}
@@ -221,7 +232,7 @@ export default function DropDownAddress({
               size={20}
             />
           )}
-          renderItem={renderItem}
+          renderItem={renderWard}
           renderSelectedItem={(item, unSelect) => (
             <View style={styles.selectedStyle}>
               <TouchableOpacity  style={styles.selectedStyleButton} onPress={() => unSelect && unSelect(item)}>

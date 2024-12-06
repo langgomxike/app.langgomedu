@@ -35,6 +35,7 @@ import moment from "moment";
 import ButtonsInDetailClass from "../components/button/ButtonsInDetailClass";
 import SFirebase, { FirebaseNode } from "../../services/SFirebase";
 import ScreenName from "../../constants/ScreenName";
+import { AppInfoContext } from "../../configs/AppInfoContext";
 
 const URL = ReactAppUrl.PUBLIC_URL;
 export default function ClassDetail() {
@@ -142,6 +143,7 @@ export default function ClassDetail() {
   }, [account, classDetail])
 
   useEffect(() => {
+
     //Get detail class
     if (userId) {
       // Lấy data chi tiết lớp học
@@ -170,7 +172,6 @@ export default function ClassDetail() {
       );
     }
   }, [resultResponse, userId]);
-
 
   useEffect(() => {
     if (account) {
@@ -271,7 +272,7 @@ export default function ClassDetail() {
                     </Text>
                   </View>
                   <Text style={styles.itemContent}>
-                    {classDetail.max_learners}
+                    {classDetail.max_learners} {languageContext.language.PERSON}
                   </Text>
                 </View>
 
@@ -288,17 +289,6 @@ export default function ClassDetail() {
                     </Text>
                   </View>
                   <Text style={styles.itemContent}>{classDetail.type}</Text>
-                </View>
-
-                {/* time each lesson */}
-                <View style={styles.itemInfo}>
-                  <View style={styles.row}>
-                    <Ionicons name="timer-outline" size={24} color="black" />
-                    <Text style={styles.infoTitle}>
-                      {languageContext.language.TIME}
-                    </Text>
-                  </View>
-                  <Text style={[styles.itemContent]}>time giờ/Buổi</Text>
                 </View>
 
                 <View style={styles.itemInfo}>
@@ -336,7 +326,7 @@ export default function ClassDetail() {
                     </Text>
                   </View>
                   <Text style={[styles.itemContent]}>
-                    {formatCurrency(classDetail.price)}/Buổi
+                    {formatCurrency(classDetail.price)}/{languageContext.language.SESSION}
                   </Text>
                 </View>
 

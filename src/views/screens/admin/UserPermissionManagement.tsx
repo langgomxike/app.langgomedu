@@ -3,7 +3,7 @@ import BackLayout from "../../layouts/Back";
 import SearchBar from "../../components/Inputs/SearchBar";
 import React, {useCallback, useContext, useEffect, useState} from "react";
 import {BackgroundColor, TextColor} from "../../../configs/ColorConfig";
-import Role from "../../../models/Role";
+import Role, {RoleList} from "../../../models/Role";
 import Spinner from "react-native-loading-spinner-overlay";
 import ARole from "../../../apis/ARole";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -94,7 +94,7 @@ export default function UserPermissionManagementScreen() {
 
       <View style={styles.headerContainer}>
         {/*  body */}
-        <RoleList allRols={roles} myRoles={user?.roles ?? []} user={user}/>
+        <UserRoleList allRols={roles} myRoles={user?.roles ?? []} user={user}/>
       </View>
     </BackLayout>
   );
@@ -112,7 +112,7 @@ for (let i = 0; i < 9; i++) {
   fakeRoleList.push(i);
 }
 
-function RoleList({allRols, myRoles, user}: RoleListProp) {
+function UserRoleList({allRols, myRoles, user}: RoleListProp) {
 //contexts
   const language = useContext(LanguageContext).language;
 
@@ -124,6 +124,11 @@ function RoleList({allRols, myRoles, user}: RoleListProp) {
 
   //handlers
   const select = useCallback((id: number) => {
+    if (id === RoleList.SUPER_ADMIN) {
+      Toast.show(language.CANNOT_CHANGE_ADMIN_ROLE, 1000);
+      return;
+    }
+
     if (selectedRoles.includes(id)) {
       setSelectedRoles(selectedRoles.filter(p => p != id));
     } else {
