@@ -48,7 +48,7 @@ import RegisterChildScreen from "./src/views/screens/RegisterChild";
 import UpdateClass from "./src/views/screens/UpdateClass";
 import ResetPasswordScreen from "./src/views/screens/ResetPassword";
 import UpdateReportedUser from "./src/views/screens/admin/UpdateReportedUser";
-
+import PersionalProfileScreen from "./src/views/screens/PersionalProfile";
 PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS);
 
 const Stack = createNativeStackNavigator();
@@ -94,6 +94,10 @@ export default function App() {
               <Stack.Screen
                 name={ScreenName.PROFILE}
                 component={ProfileScreen}
+              />
+               <Stack.Screen
+                name={ScreenName.UPDATE_PROFILE}
+                component={PersionalProfileScreen}
               />
               <Stack.Screen
                 name={ScreenName.SCANNER}

@@ -10,7 +10,7 @@ type IconReport = {
   userAvatar?: string;
   userName: string;
   credibility?: number;
-  onPress: () => void;
+  onPress?: () => void;
 };
 
 export default function IconRepor ({

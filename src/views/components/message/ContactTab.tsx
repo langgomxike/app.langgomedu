@@ -10,6 +10,7 @@ import {LanguageContext} from "../../../configs/LanguageConfig";
 import SFirebase, {FirebaseNode} from "../../../services/SFirebase";
 import CustomShimmer from "../skeleton/CustomShimmer";
 import {SearchContext} from "../../../configs/AppContext";
+import {IdNavigationType} from "../../../configs/NavigationRouteTypeConfig";
 
 const fakeContacts: number[] = [];
 
@@ -51,8 +52,11 @@ const contactTab: TabItem = {
       [searchContext]
     );
 
-    const handleGoToProfile = useCallback(() => {
-      navigation?.navigate(ScreenName.PROFILE);
+    const handleGoToProfile = useCallback((userId: string) => {
+      const data : IdNavigationType = {
+        id: userId,
+      }
+      navigation?.navigate(ScreenName.PROFILE, data);
     }, []);
 
     //effects
@@ -75,7 +79,7 @@ const contactTab: TabItem = {
           <ChatContactItem
             key={contact.id}
             user={contact}
-            onPress={handleGoToProfile}
+            onPress={() => handleGoToProfile(contact.id)}
           />
         ))}
 
