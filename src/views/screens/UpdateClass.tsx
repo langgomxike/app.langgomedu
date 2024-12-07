@@ -22,6 +22,7 @@ import UpdateInfoTuitionLearner from "../components/UpdateClass/UpdateLearnerCla
 import { AccountContext } from "../../configs/AccountConfig";
 import { RoleList } from "../../models/Role";
 import UpdateLearnerClass from "../components/UpdateClass/UpdateLearnerClass";
+import UpdateTutorClass from "../components/UpdateClass/UpdateTurtorClass";
 
 export default function UpdateClass() {
   // route, context
@@ -75,11 +76,8 @@ export default function UpdateClass() {
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
-      {/* <UpdateInfoClass classData={param.classData} />
-      {classData.lessons && <UpdateInfoLesson lessonData={classData.lessons} />}
-      {roleIds?.includes(RoleList.TUTOR) && <UpdateInfoTuition />}
-      {roleIds?.includes(RoleList.PARENT) && <UpdateInfoTuitionLearner />} */}
-      <UpdateLearnerClass/>
+      {roleIds?.includes(RoleList.TUTOR) && <UpdateTutorClass/> }
+      {roleIds?.includes(RoleList.PARENT) && <UpdateLearnerClass/>}
     </ScrollView>
   );
 }

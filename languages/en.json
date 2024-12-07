@@ -376,6 +376,10 @@
   "PASSWORD_INVALID_FORMAT": "The password must be between 6 and 20 characters long.",
   "NEW_PASSWORD_MUST_BE_DIFFERENT": "The new password must be different from the old password.",
 
+  "NO_ACCESS_USER": "Không thể truy cập. Vai trò của bạn không đủ quyền.",
+  "NO_ACCESS_PARENT": "Bạn không có quyền tạo lớp cho phụ huynh.",
+  "NO_ACCESS_TUTOR": "Bạn không có quyền tạo lớp cho gia sư.",
+
   "KHANG": "KHANG",
   "CHOOSE": "choose ...",
   "LEARNING_CLASS": "Learning class",

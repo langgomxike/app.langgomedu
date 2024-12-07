@@ -17,9 +17,8 @@ export default class AClass {
     onNext: (course: Class) => void,
     onLoading: (loading: boolean) => void
   ) {
-
     onLoading(true);
-    
+
     axios
       .get(`${this.API_URL}/classes/detail/${classId}?user_id=${userId}`)
       .then((response) => {
@@ -40,17 +39,19 @@ export default class AClass {
     onNext: (data: User[]) => void,
     onLoading: (loading: boolean) => void
   ) {
-    
     onLoading(true);
-    
+
     axios
-      .post(`${this.API_URL}/classes/conflicting`, {class_id: classId, user_id: userId})
+      .post(`${this.API_URL}/classes/conflicting`, {
+        class_id: classId,
+        user_id: userId,
+      })
       .then((response) => {
-        const datas:any[] = response.data.data;
-        const mergedData = datas.map(item => {
+        const datas: any[] = response.data.data;
+        const mergedData = datas.map((item) => {
           return {
             ...item,
-            lessons: item.conflicts || [] 
+            lessons: item.conflicts || [],
           };
         });
 
@@ -70,38 +71,45 @@ export default class AClass {
     userType: number,
     page: number,
     filters: Filters | undefined,
-    onNext: (classes: Class[], pagination:Pagination) => void,
+    onNext: (classes: Class[], pagination: Pagination) => void,
     onLoading: (loading: boolean) => void
   ) {
     const perPage = Values.PERPAGE;
     onLoading(true);
 
-     // Chuyển `filters` thành query string
-     let filterParams = ""
-     if(filters) {
+    // Chuyển `filters` thành query string
+    let filterParams = "";
+    if (filters) {
       filterParams = Object.entries(filters)
-      // Bỏ qua giá trị null/undefined/rỗng/NAN
-      .filter(([, value]) => value !== undefined && value !== null && value !== "")
-      .map(([key, value]) => {
-        if(Array.isArray(value)) {
-          return `${key}=${value.join(",")}`;
-        }
-        return `${key}=${value}`;
-      }).join("&");
-     }
+        // Bỏ qua giá trị null/undefined/rỗng/NAN
+        .filter(
+          ([, value]) => value !== undefined && value !== null && value !== ""
+        )
+        .map(([key, value]) => {
+          if (Array.isArray(value)) {
+            return `${key}=${value.join(",")}`;
+          }
+          return `${key}=${value}`;
+        })
+        .join("&");
+    }
 
-     const url = `${this.API_URL}/classes/suggests/${userId}?user_type=${userType}&page=${page}&perPage=${perPage}${filterParams ? `&${filterParams}` : ""}`
-     console.log(">>> suggest class url: ", url);
+    const url = `${
+      this.API_URL
+    }/classes/suggests/${userId}?user_type=${userType}&page=${page}&perPage=${perPage}${
+      filterParams ? `&${filterParams}` : ""
+    }`;
+    console.log(">>> suggest class url: ", url);
 
     axios
       .get(url)
       .then((response) => {
-        const data = response.data.data
-        onNext(data.classes, data.pagination );
+        const data = response.data.data;
+        onNext(data.classes, data.pagination);
       })
       .catch((err) => {
         console.log("Error: ", err);
-        onNext([], new Pagination);
+        onNext([], new Pagination());
         onLoading(true);
       });
   }
@@ -111,40 +119,45 @@ export default class AClass {
     userType: number,
     page: number,
     filters: Filters | undefined,
-    onNext: (classes: Class[], pagination:Pagination) => void,
+    onNext: (classes: Class[], pagination: Pagination) => void,
     onLoading: (loading: boolean) => void
   ) {
     const perPage = Values.PERPAGE;
     onLoading(true);
 
-     // Chuyển `filters` thành query string
-     let filterParams = ""
-     if(filters) {
+    // Chuyển `filters` thành query string
+    let filterParams = "";
+    if (filters) {
       filterParams = Object.entries(filters)
-      // Bỏ qua giá trị null/undefined/rỗng/NAN
-      .filter(([, value]) => value !== undefined && value !== null && value !== "")
-      .map(([key, value]) => {
-        if(Array.isArray(value)) {
-          return `${key}=${value.join(",")}`;
-        }
-        return `${key}=${value}`;
-      }).join("&");
-     }
+        // Bỏ qua giá trị null/undefined/rỗng/NAN
+        .filter(
+          ([, value]) => value !== undefined && value !== null && value !== ""
+        )
+        .map(([key, value]) => {
+          if (Array.isArray(value)) {
+            return `${key}=${value.join(",")}`;
+          }
+          return `${key}=${value}`;
+        })
+        .join("&");
+    }
 
-     
-     
-     const url = `${this.API_URL}/classes/filter/${userId}?user_type=${userType}&page=${page}&perPage=${perPage}${filterParams ? `&${filterParams}` : ""}`
-     console.log(">>> filter class url: ", url);
+    const url = `${
+      this.API_URL
+    }/classes/filter/${userId}?user_type=${userType}&page=${page}&perPage=${perPage}${
+      filterParams ? `&${filterParams}` : ""
+    }`;
+    console.log(">>> filter class url: ", url);
 
     axios
       .get(url)
       .then((response) => {
-        const data = response.data.data
-        onNext(data.classes, data.pagination );
+        const data = response.data.data;
+        onNext(data.classes, data.pagination);
       })
       .catch((err) => {
         console.log("Error: ", err);
-        onNext([], new Pagination);
+        onNext([], new Pagination());
         onLoading(true);
       });
   }
@@ -220,7 +233,6 @@ export default class AClass {
     lessons: Lesson[],
     onNext: (result: boolean, insertId?: number) => void
   ) {
-
     console.log(
       "create class data: ",
       JSON.stringify(
@@ -293,8 +305,13 @@ export default class AClass {
     tutorId: string | "",
     authorId: string,
     lessons: Lesson[],
+    userIds: string[],
     onNext: (result: boolean, insertId?: number) => void
   ) {
+    
+    // Kiểm tra và gán userIds nếu nó rỗng
+    const finalUserIds = userIds.length > 0 ? userIds : [authorId];
+    
     console.log(
       "create class data: ",
       JSON.stringify(
@@ -314,6 +331,7 @@ export default class AClass {
           tutor_id: tutorId || "", // Thêm vào payload
           author_id: authorId, // Thêm vào payload
           lessons,
+          userIds: finalUserIds,
         },
         null,
         2
@@ -337,6 +355,7 @@ export default class AClass {
         tutor_id: tutorId || "", // Thêm vào payload
         author_id: authorId, // Thêm vào payload
         lessons,
+        userIds: finalUserIds,
       })
       .then((response) => {
         console.log("Class created successfully:", response.data);
@@ -374,26 +393,26 @@ export default class AClass {
   }
 
   public static payFeeForClass(
-    formData: FormData, 
+    formData: FormData,
     onNext: (result: any) => void,
-    onLoading: (loading: boolean) => void){
-
+    onLoading: (loading: boolean) => void
+  ) {
     onLoading(true);
-      axios
-    .post(`${this.API_URL}/classes/class-fee/pay`, formData,  {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      }
-    })
-    .then((response) => {
-      onLoading(false);
-      console.log(">>> pay fee for class: ", response.data.data);
-      onNext(response.data.data);
-    })
-    .catch((err) => {
-      console.log("Error: ", err);
-      console.log(err.message);
-    });
+    axios
+      .post(`${this.API_URL}/classes/class-fee/pay`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      })
+      .then((response) => {
+        onLoading(false);
+        console.log(">>> pay fee for class: ", response.data.data);
+        onNext(response.data.data);
+      })
+      .catch((err) => {
+        console.log("Error: ", err);
+        console.log(err.message);
+      });
   }
 
   public static acceptTutorForClass(
@@ -406,7 +425,8 @@ export default class AClass {
 
     axios
       .put(`${this.API_URL}/classes/accept-tutor`, {
-        class_id: classId, author_accepted: authorAccepted
+        class_id: classId,
+        author_accepted: authorAccepted,
       })
       .then((response) => {
         onNext(response.data.data);
@@ -419,7 +439,7 @@ export default class AClass {
         onLoading(false);
       });
   }
-  
+
   //khoá lớp học
   // Hàm khoá lớp học
   public static lockClass(
