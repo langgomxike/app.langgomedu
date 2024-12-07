@@ -387,6 +387,38 @@
   "INTERESTED_LEVEL_CLASS":"Lớp học quan tâm",
   "CONTACT":"Liên hệ:",
   "NOT_INTERESTED_MAJORS":"Không có chuyên ngành quan tâm",
-  "NOT_INTERESTED_LEVEL_CLASS":"Không có lớp học quan tâm"
+  "NOT_INTERESTED_LEVEL_CLASS":"Không có lớp học quan tâm",
+  "CHAT":"Nhắn tin",
+  "SETTING":"chỉnh sửa",
+  "SCREEN_NAME_SETING_PROFILE":"Cập nhật thông tin",
+  "MAJORS_AND_CLASS_LEVEL":"Chuyên ngành và lớp học quan tâm",
+  "UPDATED_PROFILE":"Cập nhật thông tin",
+  "SCREEN_NAME_REPORT":"Tạo báo cáo",
+  "REPORTEE":"Người bị báo cáo",
+  "CONTENT_REPORT":"Nội dung báo cáo",
+  "INPUT_CONTENT":"Nhập nội dung báo cáo ở đây",
+  "PICK_IMAGE":"Hình ảnh báo cáo",
+  "PLEASE_UPLOAD_REPORT_IMAGES":"Vui lòng tải ít nhất 1 hình ảnh",
+  "PICKED_IMAGE":"Hình ảnh đã tải",
+  "NO_IMAGE_PICKED":"Không có hình ảnh báo cáo",
+  "REPORT":"Báo cáo",
+  "CHOOSE_CLASS_LEVEL":"Chọn cấp độ lớp học",
+  "CHOOSE_MAJORS":"Chọn môn học",
+  "SCREEN_NAME_OF_REPORT":"Chi tiết báo cáo",
+  "REPORTER":"Người báo cáo",
+  "CLASS_REPORT":"Lớp học bị báo cáo",
+  "REASON_DENNY":"Lý do từ chối",
+  "PROOF":"Minh chứng",
+  "CHOOSEN_LEVEL_REPORT":"Chọn mức độ của báo cáo",
+  "ALLOW":"Chấp nhận",
+  "DENNY":"Từ chối",
+  "MANAGEMENT_ROLES":"Quản lý quyền",
+  "INPUT_REASON_DENY":"Nhập lý do từ chối"
+
+
+
+
+
+
 
 }

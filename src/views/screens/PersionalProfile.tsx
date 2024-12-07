@@ -1,7 +1,7 @@
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Picker } from "@react-native-picker/picker";
 import * as ImagePicker from "expo-image-picker";
-import { useCallback, useState, useEffect, useContext } from "react";
+import React, { useCallback, useState, useEffect, useContext } from "react";
 import {
   Alert,
   Image,
@@ -14,6 +14,7 @@ import {
 import CustomInput from "../components/Inputs/CustomInput";
 import GenderInput from "../components/Inputs/GenderInput";
 import AUser from "../../apis/AUser";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import User from "../../models/User";
 import DateTimeConfig from "../../configs/DateTimeConfig";
 import ReactAppUrl from "../../configs/ConfigUrl";
@@ -26,6 +27,10 @@ import { TextInput } from "react-native-gesture-handler";
 import { set } from "firebase/database";
 import { FileInfo } from "expo-file-system";
 import { AccountContext } from "../../configs/AccountConfig";
+import { LanguageContext } from "../../configs/LanguageConfig";
+import { NavigationContext } from "@react-navigation/native";
+import MyIcon, { AppIcon } from "../components/MyIcon";
+import { BackgroundColor } from "../../configs/ColorConfig";
 
 const URL = ReactAppUrl.PUBLIC_URL;
 let userId = "-1";
@@ -43,6 +48,8 @@ export default function PersionalProfileScreen() {
   //contexts
   const accountContext = useContext(AccountContext);
   userId = accountContext.account?.id || "-1";
+  const languageContext = useContext(LanguageContext).language;
+  const navigation = useContext(NavigationContext);
 
   // States
   const [loading, setLoading] = useState(true);
@@ -58,7 +65,6 @@ export default function PersionalProfileScreen() {
   const [selectedDetail, setSelectedDetail] = useState<string>("");
   const [selectedMajors, setSelectedMajors] = useState<string[]>([]);
   const [selectedClassLevels, setSelectedClassLevels] = useState<string[]>([]);
-
   // Giới tính
   const [gender, setGender] = useState(GENDER.MALE); // Default to MALE
 
@@ -104,8 +110,12 @@ export default function PersionalProfileScreen() {
     if (province) setSelectedCity(province);
     if (district) setSelectedDistrict(district);
     if (ward) setSelectedWard(ward);
+
+  }, [province, district, ward]);
+
+  useEffect(() => {
     if (selectedDetail) setSelectedDetail(selectedDetail);
-  }, [province, district, ward, selectedDetail]);
+  }, [selectedDetail]);
 
   // Chuyển đổi thời gian
   const timestamp = userProfile?.birthday ?? 0;
@@ -189,13 +199,19 @@ export default function PersionalProfileScreen() {
   };
 
   const handleUpdateProfile = async () => {
+    // Kiểm tra các trường bắt buộc
+    if (!selectedCity || !selectedDistrict || !selectedWard) {
+      Alert.alert("Thông báo", "Vui lòng chọn đầy đủ Tỉnh, Quận/Huyện và Xã.");
+      return;
+    }
+
     const formData = new FormData();
 
     // Thêm thông tin vào formData
     formData.append("gender", gender + "");
-    if (province) formData.append("province", selectedCity);
-    if (district) formData.append("district", selectedDistrict);
-    if (ward) formData.append("ward", selectedWard);
+    if (selectedCity) formData.append("province", selectedCity);
+    if (selectedDistrict) formData.append("district", selectedDistrict);
+    if (selectedWard) formData.append("ward", selectedWard);
     if (selectedDetail) formData.append("detail", selectedDetail);
     if (selectedClassLevels.length > 0) {
       formData.append("classes", JSON.stringify(selectedClassLevels));
@@ -226,14 +242,31 @@ export default function PersionalProfileScreen() {
 
   console.log("user Id", accountContext.account?.id);
   // console.log("user Id", userId);
-
+  useEffect(() => {
+    if (navigation) {
+      navigation.setOptions({
+        title: languageContext.SCREEN_NAME_SETING_PROFILE,
+        headerShown: true,
+        contentStyle: {
+          padding: 0,
+        },
+        headerStyle: {
+          backgroundColor: BackgroundColor.primary,
+        },
+        headerTintColor: "#fff",
+        headerLeft: () => (
+          <TouchableOpacity onPress={() => navigation.goBack()} style={{ paddingRight: 10 }}>
+            <Ionicons name="chevron-back" size={24} color="white" />
+          </TouchableOpacity>
+        )
+      });
+    }
+  }, [navigation, userProfile]);
   return (
-    <View>
+    <View style={{flex: 1, backgroundColor:"#FFF"}}>
       <ScrollView>
         <View style={styles.container}>
-          {/* Screen Title */}
-          <Text style={styles.title}>Cập nhật thông tin cá nhân</Text>
-
+       
           {/* Avatar */}
           <View style={styles.avatarContainer}>
             <Image
@@ -255,25 +288,25 @@ export default function PersionalProfileScreen() {
           {/* Form */}
           <View style={styles.form}>
             {/* Full Name */}
-            <Text style={styles.label}>Họ và tên</Text>
+            <Text style={styles.label}>{languageContext.NAME}</Text>
             <View style={styles.textInput}>
               <Text>{userProfile?.full_name}</Text>
             </View>
 
             {/* Phone Number */}
-            <Text style={styles.label}>Số điện thoại</Text>
+            <Text style={styles.label}>{languageContext.PHONE_NUMBER}</Text>
             <View style={styles.textInput}>
               <Text>{userProfile?.phone_number}</Text>
             </View>
 
             {/* Date of Birth */}
-            <Text style={styles.label}>Ngày tháng năm sinh</Text>
+            <Text style={styles.label}>{languageContext.BIRTHDAY}</Text>
             <View style={styles.textInput}>
               <Text>{brithday}</Text>
             </View>
 
             {/* Gender */}
-            <Text style={styles.label}>Giới tính</Text>
+            <Text style={styles.label}>{languageContext.GENDER}</Text>
             <View style={styles.genderDropdown}>
               <Picker
                 selectedValue={gender} // Giá trị hiện tại của giới tính
@@ -286,7 +319,7 @@ export default function PersionalProfileScreen() {
               </Picker>
             </View>
             {/* Address */}
-            <Text style={styles.label}>Địa chỉ</Text>
+            <Text style={styles.label}>{languageContext.ADDRESS}</Text>
             <DropDownLocationCustom
               selectedCity={selectedCity}
               selectedDistrict={selectedDistrict}
@@ -294,13 +327,19 @@ export default function PersionalProfileScreen() {
               onSelectedDistrict={setSelectedDistrict}
               selectedWard={selectedWard}
               onSelectedWard={setSelectedWard}
-              content={selectedDetail || ""}
-              onSelectedContent={setSelectedDetail}
+            />
+            <TextInput
+              style={styles.detailAddress}
+              placeholder="Nhập nội dung"
+              placeholderTextColor="#888"
+              multiline
+              value={selectedDetail}
+              onChangeText={setSelectedDetail}
             />
 
             {/* Majors */}
             <Text style={styles.label}>
-              Chuyên ngành và cấp độ lớp quan tâm
+              {languageContext.MAJORS_AND_CLASS_LEVEL}
             </Text>
             <DropDownMajorsCustom
               selectedMajors={selectedMajors}
@@ -309,17 +348,20 @@ export default function PersionalProfileScreen() {
               onSetSelectedClassLevels={setSelectedClassLevels}
             />
 
-            {/* Save Button */}
-            <TouchableOpacity
+            
+          </View>
+        </View>
+      </ScrollView>
+      {/* Save Button */}
+      <TouchableOpacity
               style={[styles.buttonNext, loading && { opacity: 0.7 }]}
               onPress={handleUpdateProfile}
               disabled={loading}
             >
-              <Text style={styles.buttonText}>Cập nhật thông tin</Text>
+              <Text style={styles.buttonText}>
+                {languageContext.UPDATED_PROFILE}
+              </Text>
             </TouchableOpacity>
-          </View>
-        </View>
-      </ScrollView>
     </View>
   );
 }
@@ -420,6 +462,18 @@ const styles = StyleSheet.create({
     textAlign: "left",
     paddingHorizontal: 10,
     paddingVertical: 15,
+  },
+  detailAddress:{
+    height: 100,
+    textAlignVertical: 'top',
+    paddingHorizontal:10,
+    borderWidth: 0.5,
+    borderColor: "gray",
+    borderRadius: 10,
+    backgroundColor: "#fff",
+    textAlign: "left",
+    paddingVertical: 15,
+    marginTop:15,
   },
 
   genderDropdown: {
