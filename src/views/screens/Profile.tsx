@@ -24,6 +24,7 @@ import {
 import { IdNavigationType } from "../../configs/NavigationRouteTypeConfig";
 import ScreenName from "../../constants/ScreenName";
 import { LanguageContext } from "../../configs/LanguageConfig";
+import MyIcon, { AppIcon } from "../components/MyIcon";
 const URL = ReactAppUrl.PUBLIC_URL;
 export default function ProfileScreen() {
   //contexts
@@ -31,7 +32,7 @@ export default function ProfileScreen() {
   console.log("user Id", accountContext.account?.id);
   const route = useContext(NavigationRouteContext);
   const languageContext = useContext(LanguageContext).language;
-  console.log(languageContext.TYPE);
+
 
   //states
   const [loading, setLoading] = useState(true);
@@ -102,6 +103,7 @@ export default function ProfileScreen() {
           {/* screen title */}
           {/* <Text style={styles.title}>Thông Tin </Text> */}
           <View style={styles.infor}>
+            <MyIcon size="24" icon={AppIcon.back_button} onPress={navigation?.goBack}/>
             <View style={styles.avt}>
               <Image
                 source={
@@ -264,29 +266,24 @@ export default function ProfileScreen() {
               </Text>
               {userProfile?.phone_number.slice(0, -7) + "*******"}
             </Text>
-            <Text>
-              <Text style={{ fontWeight: "bold" }}>
-                {languageContext.CONTACT_EMAIL}
-              </Text>{" "}
-              {userProfile?.email}
-            </Text>
+           
           </View>
         </View>
       </ScrollView>
       <View style={styles.btns}>
-        {userProfile?.id === accountContext.account?.id ? (
+        {userProfile?.id !== accountContext.account?.id ? (
           // Nút Edit khi userId trùng với isLoginUser
           <TouchableOpacity
             style={styles.buttonEdit}
             onPress={goToPersonalInfoScreen}
           >
-            <Text style={styles.buttonText}>Chỉnh sửa</Text>
+            <Text style={styles.buttonText}>{languageContext.SETTING}</Text>
           </TouchableOpacity>
         ) : (
           // Hiển thị nút Nhắn Tin và Báo Cáo khi không trùng
           <>
             <TouchableOpacity style={styles.buttonNext} onPress={handleSubmit}>
-              <Text style={styles.buttonText}>Nhắn Tin</Text>
+              <Text style={styles.buttonText}>{languageContext.CHAT}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.buttonReport}

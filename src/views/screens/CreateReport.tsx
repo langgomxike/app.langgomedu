@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   Alert,
   FlatList,
@@ -17,13 +17,32 @@ import ImageViewer from "react-native-image-zoom-viewer";
 import MyIcon, { AppIcon } from "../components/MyIcon";
 import IconReport from "../components/ItemUserReport";
 import AUserReport from "../../apis/AUserReport";
+import { AccountContext } from "../../configs/AccountConfig";
+import { LanguageContext } from "../../configs/LanguageConfig";
+import { NavigationContext } from "@react-navigation/native";
+import AUser from "../../apis/AUser";
+import User from "../../models/User";
+import ReactAppUrl from "../../configs/ConfigUrl";
+import Class from "../../models/Class";
+import AClass from "../../apis/AClass";
+const URL = ReactAppUrl.PUBLIC_URL;
 
 export default function CreateReport() {
-  const [content, setContent] = useState<string>(""); // Nội dung báo cáo
-  const [selectedImages, setselectedImages] = useState<any[]>([]); // Mảng lưu trữ File[]
-  const [isModalVisible, setModalVisible] = useState(false); // Trạng thái hiển thị modal
-  const [currentImageIndex, setCurrentImageIndex] = useState(0); // Ảnh được chọn để xem
+  //contexts
+  const accountContext = useContext(AccountContext);
+  const languageContext = useContext(LanguageContext).language;
+  const navigation = useContext(NavigationContext);
 
+  const reporter = "089204000001";
+  const reportee = "080204000002";
+  const class_id = "2";
+
+  const [content, setContent] = useState<string>("");
+  const [selectedImages, setselectedImages] = useState<any[]>([]);
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [reporteeInfor, setreporteeInfor] = useState<User | null>(null);
+  const [classReport, setClassReport] = useState<Class | null>(null);
 
   // Hàm mở thư viện ảnh
   const pickImage = async () => {
@@ -69,10 +88,10 @@ export default function CreateReport() {
     }
 
     const formdata = new FormData();
-    formdata.append("reporter", "1");
-    formdata.append("reportee", "2");
+    formdata.append("reporter", reporter);
+    formdata.append("reportee", reportee);
     formdata.append("content", content);
-    formdata.append("class_id", "0");
+    formdata.append("class_id", class_id);
 
     selectedImages.forEach((image, index) => {
       formdata.append(`reports`, {
@@ -109,23 +128,77 @@ export default function CreateReport() {
     setModalVisible(true);
   };
 
+  useEffect(() => {
+    AUser.getUserProfileById(
+      reportee,
+      (data: User) => {
+        // console.log(data);
+        setreporteeInfor(data); // Lưu dữ liệu nhận được vào state
+      },
+      (isLoading: boolean) => {}
+    );
+  }, [reportee]);
+
+  useEffect(() => {
+    if (class_id && class_id !== 0+"") {
+      AClass.getClassById(
+        class_id,
+        (classDetails) => {
+          if (classDetails) {
+            setClassReport(classDetails);
+          } else {
+            setClassReport(null);
+          }
+        },
+        (isLoading) => {
+          console.log("Loading:", isLoading);
+        }
+      );
+    } else {
+      setClassReport(null);
+    }
+  }, [class_id]);
+
+  console.log("class_id", class_id);
+  console.log("class", classReport?.title);
+
   return (
     <ScrollView style={styles.container}>
       <View style={styles.component1}>
         <View style={styles.screenName}>
           <TouchableOpacity style={styles.backBtn}>
-            <MyIcon icon={AppIcon.back_button} size="20" />
+            <MyIcon
+              size="20"
+              icon={AppIcon.back_button}
+              onPress={navigation?.goBack}
+            />
           </TouchableOpacity>
-          <Text style={styles.screenTitle}>Báo cáo người dùng</Text>
+          <Text style={styles.screenTitle}>
+            {languageContext.SCREEN_NAME_REPORT}
+          </Text>
         </View>
-        <Text style={styles.smallTitle}>Người dùng bị báo cáo</Text>
+        <Text style={styles.smallTitle}>{languageContext.REPORTEE}</Text>
         <View style={styles.iconReport}>
-          <IconReport userName="USA" credibility={100}  />
+          <IconReport
+            userAvatar={reporteeInfor?.avatar + ""}
+            userName={reporteeInfor?.full_name + ""}
+            credibility={reporteeInfor?.point}
+          />
         </View>
-        <Text style={styles.smallTitle}>Nội dung báo cáo</Text>
+        {class_id !== 0 + "" ? (
+          <>
+            <Text style={styles.smallTitle}>
+              {languageContext.CLASS_DETAILS}
+            </Text>
+            <View style={styles.classReport}>
+              <Text>{classReport?.title}</Text>
+            </View>
+          </>
+        ) : null}
+        <Text style={styles.smallTitle}>{languageContext.CONTENT_REPORT}</Text>
         <TextInput
           style={styles.textInput}
-          placeholder="Nhập nội dung"
+          placeholder={languageContext.INPUT_CONTENT}
           placeholderTextColor="#888"
           multiline
           value={content}
@@ -135,14 +208,14 @@ export default function CreateReport() {
       <View style={styles.componentn}>
         <TouchableOpacity style={styles.uploadBtn} onPress={pickImage}>
           <Ionicons name="image-outline" size={24} color="black" />
-          <Text style={styles.uploadText}>Chọn ảnh</Text>
+          <Text style={styles.uploadText}>{languageContext.PICK_IMAGE}</Text>
         </TouchableOpacity>
         <Text style={styles.uploadGuideText}>
-          Vui lòng tải ảnh minh chứng khi báo cáo
+          {languageContext.PLEASE_UPLOAD_REPORT_IMAGES}
         </Text>
       </View>
       <View style={styles.component1}>
-        <Text style={styles.smallTitle}>Hình ảnh đã chọn</Text>
+        <Text style={styles.smallTitle}>{languageContext.PICKED_IMAGE}</Text>
         {selectedImages.length > 0 ? (
           <FlatList
             data={selectedImages}
@@ -170,13 +243,13 @@ export default function CreateReport() {
           />
         ) : (
           <Text style={styles.noImageText}>
-            Chưa có hình ảnh nào được chọn.
+            {languageContext.NO_IMAGE_PICKED}
           </Text>
         )}
       </View>
       <View style={styles.component1}>
         <TouchableOpacity style={styles.reportBtn} onPress={handleReportSubmit}>
-          <Text style={styles.reportBtnText}>Báo cáo</Text>
+          <Text style={styles.reportBtnText}>{languageContext.REPORT}</Text>
         </TouchableOpacity>
       </View>
 
@@ -309,6 +382,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   iconReport: {},
+  classReport: {
+    borderWidth: 0.5,
+    height: 55,
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+    marginBottom: 10,
+    justifyContent: "center",
+    borderRadius: 10,
+  },
+
   modalContainer: {
     flex: 1,
     backgroundColor: "rgba(0, 0, 0, 0.9)", // Màu nền tối
