@@ -8,6 +8,7 @@ import ScreenName from '../../../constants/ScreenName';
 import moment from 'moment';
 import Lesson from '../../../models/Lesson';
 import User from '../../../models/User';
+import { LanguageContext } from '../../../configs/LanguageConfig';
 
 export type LessionItemProps = {
     selectedUser?: User
@@ -26,6 +27,7 @@ const URL = ReactAppUrl.PUBLIC_URL;
 const LessionItem = ({selectedUser ,lessonData, classId, classIcon, title, classType, tutorName, startedAt, duration, selectedDate}: LessionItemProps) => {
     const endedAt: Date = new Date(startedAt?.getTime() + duration * 1000);
     const navigation = useContext(NavigationContext);
+    const language = useContext(LanguageContext).language;
 
     const handleNavigateToLeanerAttendance = () => {
         navigation?.navigate(ScreenName.ATTENDED_FOR_LEARNER, { lesson:lessonData, user: selectedUser });
@@ -51,7 +53,7 @@ const LessionItem = ({selectedUser ,lessonData, classId, classIcon, title, class
                     </Text>
                 </View>
                 <Text style={lessonStyle.textStyle} id="type">
-                    {classType === 1 ? "Lớp Học" : "Lớp Dạy"}
+                    {classType === 1 ? language.ATTEND_CLASS : language.TEACH_CLASS}
                 </Text>
             </View>
             <View style={lessonStyle.itemspace}>

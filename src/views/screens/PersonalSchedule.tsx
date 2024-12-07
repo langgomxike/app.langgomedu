@@ -149,10 +149,10 @@ export default function PersonalScheduleScreen() {
 
   //testing ///////////////////////////////////////////
   useEffect(() => {
-    console.log(users);
-    // console.log(selectedUser);
+    // console.log(users);
+    console.log(selectedUser);
 
-  }, [users])
+  }, [selectedUser])
 
   return (
     <View style={styles.container}>
@@ -180,7 +180,7 @@ export default function PersonalScheduleScreen() {
           }>
           <WeekCalendar today={currentDay} currentDay={currentDay} currentDate={currentDate} currentWeek={currentWeek} activeDate={activeDate} setActiveDate={handlerSetActiveDate} setCurrentWeek={handlerSetWeek} setSelectedDate={setSelectedDate} />
           {/* <TimeLine lessons={lessons}/> */}
-          <TimeLine selectedUser={account} lessons={todayLessons} selectedDate={selectedDate} type={type} onChangeType={setType} />
+          <TimeLine selectedUser={selectedUser} lessons={todayLessons} selectedDate={selectedDate} type={type} onChangeType={setType} />
         </ScrollView>
         {/* <RatingScreen/> */}
 
