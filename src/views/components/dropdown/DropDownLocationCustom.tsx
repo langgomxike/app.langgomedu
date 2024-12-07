@@ -13,11 +13,11 @@ type DropDownLocationCustomProps = {
   selectedCity: string;
   selectedDistrict: string;
   selectedWard: string;
-  content: string;
+
   onSelectedCity: (city: string) => void;
   onSelectedDistrict: (district: string) => void;
   onSelectedWard: (ward: string) => void;
-  onContentChange: (content: string) => void; // Callback mới để xử lý nội dung
+
 };
 
 export default function DropDownLocationCustom({
@@ -27,13 +27,12 @@ export default function DropDownLocationCustom({
   onSelectedCity,
   onSelectedDistrict,
   onSelectedWard,
-  content,
-  onContentChange,
+
 }: DropDownLocationCustomProps) {
   const [districtOptions, setDistrictOptions] = useState<DropdownOption[]>([]);
   const [wardOptions, setWardOptions] = useState<DropdownOption[]>([]);
   const [isFocus, setIsFocus] = useState(false);
-  const [detail, setDetail] = useState(content);
+
 
   // Lấy danh sách quận/huyện khi thành phố thay đổi
   useEffect(() => {
@@ -75,10 +74,6 @@ export default function DropDownLocationCustom({
   }, [selectedDistrict]);
 
   // Cập nhật nội dung chi tiết khi content thay đổi từ bên ngoài
-  useEffect(() => {
-    setDetail(content);
-  }, [content]);
-
   const renderItem = (item: DropdownOption, isSelected: boolean) => (
     <View style={styles.item}>
       <Text style={[styles.itemText, isSelected && styles.selectedItemText]}>
@@ -180,18 +175,8 @@ export default function DropDownLocationCustom({
         renderItem={(item) => renderItem(item, item.value === selectedWard)}
       />
 
-      {/* Nội dung */}
-      <TextInput
-        style={styles.textInput}
-        placeholder="Nhập nội dung"
-        placeholderTextColor="#888"
-        multiline
-        value={detail}
-        onChangeText={(text) => {
-          setDetail(text); // Cập nhật state nội bộ
-          onContentChange(text); // Gửi nội dung ra ngoài
-        }}
-      />
+
+    
     </View>
   );
 }

@@ -23,9 +23,12 @@ import {CreateReportNavigationType} from "../../configs/NavigationRouteTypeConfi
 import {NavigationContext, NavigationRouteContext} from "@react-navigation/native";
 import {BackgroundColor} from "../../configs/ColorConfig";
 import {LanguageContext} from "../../configs/LanguageConfig";
+import { AccountContext } from "../../configs/AccountConfig";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function CreateReport() {
   const route = useContext(NavigationRouteContext);
+  const acountContext = useContext(AccountContext);
   const navigation = useContext(NavigationContext);
   const language = useContext(LanguageContext).language;
 
@@ -61,10 +64,10 @@ export default function CreateReport() {
   };
 
   useEffect(() => {
-    console.log(
-      "text pick many images selectedImages",
-      JSON.stringify(selectedImages, null, 2)
-    );
+    // console.log(
+    //   "text pick many images selectedImages",
+    //   JSON.stringify(selectedImages, null, 2)
+    // );
   }, [selectedImages]);
 
   // Hàm xóa ảnh đã chọn
@@ -73,47 +76,148 @@ export default function CreateReport() {
   };
 
   // Hàm gửi báo cáo
-  const handleReportSubmit = () => {
-    if (!content.trim()) {
-      Alert.alert("Lỗi", "Vui lòng nhập nội dung báo cáo.");
-      return;
-    }
+  // const handleReportSubmit = async () => {
+  //   // Kiểm tra nội dung báo cáo
+  //   if (!content.trim()) {
+  //     Alert.alert("Lỗi", "Vui lòng nhập nội dung báo cáo.");
+  //     return;
+  //   }
+  
+  //   // Kiểm tra danh sách hình ảnh
+  //   if (selectedImages.length === 0) {
+  //     Alert.alert("Lỗi", "Vui lòng thêm ít nhất một hình ảnh.");
+  //     return;
+  //   }
 
-    const formdata = new FormData();
-    formdata.append("reporter", reporter);
-    formdata.append("reportee", reportee);
-    formdata.append("content", content);
-    formdata.append("class_id", class_id);
+  // // Lấy số lần báo cáo hiện tại của người báo cáo đối với người bị báo cáo
+  // const reportKey = `report_count_${acountContext.account?.id + ""}_${reportee?.id ?? "-1"}`;
+  // const currentReportCount = await localStorage.getItem(reportKey);
+  // const reportCount = currentReportCount ? parseInt(currentReportCount, 10) : 0;
 
-    selectedImages.forEach((image, index) => {
-      formdata.append(`reports`, {
-        uri: image.uri,
-        type: image.mimeType,
-        name: image.name || `image_${index}.jpg`, // Tên tệp
-      } as any);
-    });
+  // console.log("-----------------------------");
+  // console.log("reporter",acountContext.account?.id + "");
+  // console.log("reportee",reportee?.id ?? "-1");
+  // console.log("reportKey",reportKey);
+  // console.log("currentReportCount",currentReportCount);
+  // console.log("reportCount",reportCount);
+  // // Kiểm tra xem người dùng đã báo cáo 3 lần chưa
+  // if (reportCount >= 3) {
+  //   Alert.alert("Lỗi", "Bạn đã báo cáo người này 3 lần. Bạn không thể báo cáo thêm.");
+  //   return;
+  // }
 
-    // Gọi API tạo báo cáo
-    AUserReport.createReport(
-      formdata, // Dữ liệu báo cáo
-      (response: any) => {
-        if (response.success) {
-          Alert.alert("Thành công", "Báo cáo đã được gửi thành công!");
-          setContent("");
-        } else {
-          Alert.alert("Thất bại", response.message || "Không thể gửi báo cáo.");
-        }
-      },
-      (loading: boolean) => {
-        if (loading) {
-          console.log("Đang gửi báo cáo...");
-        } else {
-          console.log("Đã gửi báo cáo xong.");
-        }
+  //   const formdata = new FormData();
+  //   formdata.append("reporter", acountContext.account?.id + "");
+  //   formdata.append("reportee", reportee?.id ?? "-1");
+  //   formdata.append("content", content);
+  
+  //   if (_class) {
+  //     formdata.append("class_id", _class.id + "");
+  //   }
+  
+  //   selectedImages.forEach((image, index) => {
+  //     formdata.append(`reports`, {
+  //       uri: image.uri,
+  //       type: image.mimeType,
+  //       name: image.name || `image_${index}.jpg`, // Tên tệp
+  //     } as any);
+  //   });
+  //   // Gọi API tạo báo cáo
+  //   AUserReport.createReport(
+  //     formdata, // Dữ liệu báo cáo
+  //     async (response: any) => {
+  //       if (response.success) {
+  //         await localStorage.setItem(reportKey, (reportCount + 1).toString());
+  //         Alert.alert("Thành công", "Báo cáo đã được gửi thành công!");
+  //         setContent("");
+  //         navigation?.goBack();
+  //       } else {
+  //         Alert.alert("Thất bại", response.message || "Không thể gửi báo cáo.");
+  //       }
+  //     },
+  //     (loading: boolean) => {
+  //       if (loading) {
+  //         console.log("Đang gửi báo cáo...");
+  //       } else {
+  //         console.log("Đã gửi báo cáo xong.");
+  //       }
+  //     }
+  //   );
+  // };
+  
+ 
+const handleReportSubmit = async () => {
+  // Kiểm tra nội dung báo cáo
+  if (!content.trim()) {
+    Alert.alert("Lỗi", "Vui lòng nhập nội dung báo cáo.");
+    return;
+  }
+
+  // Kiểm tra danh sách hình ảnh
+  if (selectedImages.length === 0) {
+    Alert.alert("Lỗi", "Vui lòng thêm ít nhất một hình ảnh.");
+    return;
+  }
+
+  // Lấy số lần báo cáo hiện tại của người báo cáo đối với người bị báo cáo
+  const reportKey = `report_count_${acountContext.account?.id + ""}_${reportee?.id ?? "-1"}`;
+  const currentReportCount = await AsyncStorage.getItem(reportKey); // Sử dụng AsyncStorage
+  const reportCount = currentReportCount ? parseInt(currentReportCount, 10) : 0;
+
+  console.log("-----------------------------");
+  console.log("reporter", acountContext.account?.id + "");
+  console.log("reportee", reportee?.id ?? "-1");
+  console.log("reportKey", reportKey);
+  console.log("currentReportCount", currentReportCount);
+  console.log("reportCount", reportCount);
+
+  // Kiểm tra xem người dùng đã báo cáo 3 lần chưa
+  if (reportCount >= 3) {
+    Alert.alert("Lỗi", "Bạn đã báo cáo người này 3 lần. Bạn không thể báo cáo thêm.");
+    return;
+  }
+
+  const formdata = new FormData();
+  formdata.append("reporter", acountContext.account?.id + "");
+  formdata.append("reportee", reportee?.id ?? "-1");
+  formdata.append("content", content);
+
+  if (_class) {
+    formdata.append("class_id", _class.id + "");
+  }
+
+  selectedImages.forEach((image, index) => {
+    formdata.append(`reports`, {
+      uri: image.uri,
+      type: image.mimeType,
+      name: image.name || `image_${index}.jpg`, // Tên tệp
+    } as any);
+  });
+
+  // Gọi API tạo báo cáo
+  AUserReport.createReport(
+    formdata, // Dữ liệu báo cáo
+    async (response: any) => {
+      if (response.success) {
+        // Cập nhật số lần báo cáo thành công vào AsyncStorage
+        await AsyncStorage.setItem(reportKey, (reportCount + 1).toString());
+        Alert.alert("Thành công", "Báo cáo đã được gửi thành công!");
+        setContent("");
+        navigation?.goBack();
+      } else {
+        Alert.alert("Thất bại", response.message || "Không thể gửi báo cáo.");
       }
-    );
-  };
-
+    },
+    (loading: boolean) => {
+      if (loading) {
+        console.log("Đang gửi báo cáo...");
+      } else {
+        console.log("Đã gửi báo cáo xong.");
+      }
+    }
+  );
+};
+  
   // Hàm mở modal xem ảnh
   const openModal = (index: number) => {
     setCurrentImageIndex(index);
@@ -172,7 +276,7 @@ export default function CreateReport() {
         <Text style={styles.smallTitle}>Nội dung báo cáo</Text>
         <TextInput
           style={styles.textInput}
-          placeholder={languageContext.INPUT_CONTENT}
+          placeholder={language.INPUT_CONTENT}
           placeholderTextColor="#888"
           multiline
           value={content}
@@ -185,11 +289,11 @@ export default function CreateReport() {
           <Text style={styles.uploadText}>Chọn ảnh</Text>
         </TouchableOpacity>
         <Text style={styles.uploadGuideText}>
-          {languageContext.PLEASE_UPLOAD_REPORT_IMAGES}
+          {language.PLEASE_UPLOAD_REPORT_IMAGES}
         </Text>
       </View>
       <View style={styles.component1}>
-        <Text style={styles.smallTitle}>{languageContext.PICKED_IMAGE}</Text>
+        <Text style={styles.smallTitle}>{language.PICKED_IMAGE}</Text>
         {selectedImages.length > 0 ? (
           <FlatList
             data={selectedImages}
@@ -217,13 +321,13 @@ export default function CreateReport() {
           />
         ) : (
           <Text style={styles.noImageText}>
-            {languageContext.NO_IMAGE_PICKED}
+            {language.NO_IMAGE_PICKED}
           </Text>
         )}
       </View>
       <View style={styles.component1}>
         <TouchableOpacity style={styles.reportBtn} onPress={handleReportSubmit}>
-          <Text style={styles.reportBtnText}>{languageContext.REPORT}</Text>
+          <Text style={styles.reportBtnText}>{language.REPORT}</Text>
         </TouchableOpacity>
       </View>
 

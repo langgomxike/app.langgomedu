@@ -1,6 +1,6 @@
 import DateTimePicker from "@react-native-community/datetimepicker";
-import {Picker} from "@react-native-picker/picker";
-import React, {useCallback, useState, useEffect, useContext} from "react";
+import { Picker } from "@react-native-picker/picker";
+import React, { useCallback, useState, useEffect, useContext } from "react";
 import {
   Image,
   ScrollView,
@@ -16,7 +16,7 @@ import User from "../../models/User";
 import DateTimeConfig from "../../configs/DateTimeConfig";
 import Avatar from "../components/Avatar";
 import ReactAppUrl from "../../configs/ConfigUrl";
-import {AccountContext} from "../../configs/AccountConfig";
+import { AccountContext } from "../../configs/AccountConfig";
 import {
   NavigationContext,
   NavigationRouteContext,
@@ -24,14 +24,15 @@ import {
 import {
   CreateReportNavigationType,
   IdNavigationType,
-  MessageNavigationType
+  MessageNavigationType,
 } from "../../configs/NavigationRouteTypeConfig";
 import ScreenName from "../../constants/ScreenName";
-import {LanguageContext} from "../../configs/LanguageConfig";
-import {RoleList} from "../../models/Role";
-import {BackgroundColor} from "../../configs/ColorConfig";
+import { LanguageContext } from "../../configs/LanguageConfig";
+import { RoleList } from "../../models/Role";
+import { BackgroundColor } from "../../configs/ColorConfig";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import MyIcon, { AppIcon } from "../components/MyIcon";
+import SFirebase, { FirebaseNode } from "../../services/SFirebase";
 const URL = ReactAppUrl.PUBLIC_URL;
 export default function ProfileScreen() {
   //contexts
@@ -60,14 +61,20 @@ export default function ProfileScreen() {
     };
     const userId: string = data?.id + "";
 
-    AUser.getUserProfileById(
-      userId,
-      (data: User) => {
-        // console.log(data);
-        setUserProfile(data); // Lưu dữ liệu nhận được vào state
-      },
-      (isLoading: boolean) => {
-        setLoading(isLoading); // Cập nhật trạng thái tải
+    SFirebase.track(
+      FirebaseNode.Users,
+      [{ key: FirebaseNode.Id, value: userId }],
+      () => {
+        AUser.getUserProfileById(
+          userId,
+          (data: User) => {
+            // console.log(data);
+            setUserProfile(data); // Lưu dữ liệu nhận được vào state
+          },
+          (isLoading: boolean) => {
+            setLoading(isLoading); // Cập nhật trạng thái tải
+          }
+        );
       }
     );
   }, [userId]);
@@ -99,7 +106,7 @@ export default function ProfileScreen() {
 
     const data: MessageNavigationType = {
       user: userProfile,
-    }
+    };
 
     navigation?.navigate(ScreenName.MESSAGE, data);
   }, [userProfile]);
@@ -113,7 +120,7 @@ export default function ProfileScreen() {
 
     const data: CreateReportNavigationType = {
       reportee: userProfile,
-    }
+    };
 
     navigation?.navigate(ScreenName.CREATE_REPORT, data);
   }, [userProfile]);
@@ -131,10 +138,13 @@ export default function ProfileScreen() {
         },
         headerTintColor: "#fff",
         headerLeft: () => (
-          <TouchableOpacity onPress={() => navigation.goBack()} style={{ paddingRight: 10 }}>
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            style={{ paddingRight: 10 }}
+          >
             <Ionicons name="chevron-back" size={24} color="white" />
           </TouchableOpacity>
-        )
+        ),
       });
     }
   }, [navigation, userProfile]);
@@ -142,23 +152,27 @@ export default function ProfileScreen() {
   useEffect(() => {
     if (!accountContext.account) return;
 
-    const isAdmin = !!(accountContext.account?.roles.map(r => r.id).includes(RoleList.SUPER_ADMIN) || accountContext.account?.roles.map(r => r.id).includes(RoleList.ADMIN));
+    const isAdmin = !!(
+      accountContext.account?.roles
+        .map((r) => r.id)
+        .includes(RoleList.SUPER_ADMIN) ||
+      accountContext.account?.roles.map((r) => r.id).includes(RoleList.ADMIN)
+    );
     setIsAdmin(isAdmin);
   }, [accountContext.account]);
 
   return (
-    <View style={{flex: 1, backgroundColor: BackgroundColor.white}}>
+    <View style={{ flex: 1, backgroundColor: BackgroundColor.white }}>
       <ScrollView>
         <View style={styles.container}>
           {/* screen title */}
           {/* <Text style={styles.title}>Thông Tin </Text> */}
           <View style={styles.infor}>
-            <MyIcon size="24" icon={AppIcon.back_button} onPress={navigation?.goBack}/>
             <View style={styles.avt}>
               <Image
                 source={
                   userProfile?.avatar
-                    ? {uri: `${URL}/${userProfile.avatar}`} // Nếu userAvatar tồn tại, sử dụng URI
+                    ? { uri: `${URL}${userProfile.avatar}` } // Nếu userAvatar tồn tại, sử dụng URI
                     : require("../../../assets/avatar/img_avatar_cat.png") // Nếu không, sử dụng ảnh mặc định
                 }
                 style={styles.avatar}
@@ -166,23 +180,23 @@ export default function ProfileScreen() {
             </View>
             <View style={styles.inf}>
               <Text style={styles.name}>{userProfile?.full_name}</Text>
-              <View style={{flexDirection: "row", gap: 10}}>
+              <View style={{ flexDirection: "row", gap: 10 }}>
                 <Text style={styles.birthday}>{brithday}</Text>
                 <View>
                   {/* {userProfile?.gender_id==1?"nam":"nữ"} */}
                   {userProfile?.gender?.id === 0 ? (
                     <Image
-                      style={{width: 20, height: 20}}
+                      style={{ width: 20, height: 20 }}
                       source={require("../../../assets/icons/ic_boy.png")}
                     />
                   ) : userProfile?.gender?.id === 1 ? (
                     <Image
-                      style={{width: 20, height: 20}}
+                      style={{ width: 20, height: 20 }}
                       source={require("../../../assets/icons/girl.png")}
                     />
                   ) : (
                     <Image
-                      style={{width: 20, height: 20}}
+                      style={{ width: 20, height: 20 }}
                       source={require("../../../assets/icons/ic_heart.png")}
                     />
                   )}
@@ -229,11 +243,11 @@ export default function ProfileScreen() {
                   pastelColors[Math.floor(Math.random() * pastelColors.length)];
                 return (
                   <View
-                    style={[styles.majorItem, {backgroundColor: randomColor}]}
+                    style={[styles.majorItem, { backgroundColor: randomColor }]}
                     key={index}
                   >
                     <Image
-                      source={{uri: `${URL}${major.icon}`}}
+                      source={{ uri: `${URL}${major.icon}` }}
                       style={styles.majorIcon}
                     />
                     <Text style={styles.majorName}>
@@ -241,10 +255,10 @@ export default function ProfileScreen() {
                         languageContext.TYPE === "vi"
                           ? major.vn_name
                           : languageContext.TYPE === "en"
-                            ? major.en_name
-                            : languageContext.TYPE === "ja"
-                              ? major.ja_name
-                              : major.vn_name // Giá trị mặc định nếu không khớp
+                          ? major.en_name
+                          : languageContext.TYPE === "ja"
+                          ? major.ja_name
+                          : major.vn_name // Giá trị mặc định nếu không khớp
                       }
                     </Text>
                   </View>
@@ -265,12 +279,12 @@ export default function ProfileScreen() {
                   const randomColor =
                     pastelColors[
                       Math.floor(Math.random() * pastelColors.length)
-                      ];
+                    ];
                   return (
                     <View
                       style={[
                         styles.majorItem,
-                        {backgroundColor: randomColor},
+                        { backgroundColor: randomColor },
                       ]}
                       key={index}
                     >
@@ -279,10 +293,10 @@ export default function ProfileScreen() {
                           languageContext.TYPE === "vi"
                             ? major.vn_name
                             : languageContext.TYPE === "en"
-                              ? major.en_name
-                              : languageContext.TYPE === "ja"
-                                ? major.ja_name
-                                : major.vn_name // Giá trị mặc định nếu không khớp
+                            ? major.en_name
+                            : languageContext.TYPE === "ja"
+                            ? major.ja_name
+                            : major.vn_name // Giá trị mặc định nếu không khớp
                         }
                       </Text>
                     </View>
@@ -311,18 +325,17 @@ export default function ProfileScreen() {
 
           <View style={styles.contacts}>
             <Text>
-              <Text style={{fontWeight: "bold"}}>
+              <Text style={{ fontWeight: "bold" }}>
                 {languageContext.PHONE_NUMBER}{" "}
               </Text>
               {userProfile?.phone_number.slice(0, -7) + "*******"}
             </Text>
-           
           </View>
         </View>
       </ScrollView>
 
       <View style={styles.btns}>
-        {userProfile?.id !== accountContext.account?.id ? (
+        {userProfile?.id === accountContext.account?.id ? (
           // Nút Edit khi userId trùng với isLoginUser
           <TouchableOpacity
             style={styles.buttonEdit}
@@ -332,24 +345,28 @@ export default function ProfileScreen() {
           </TouchableOpacity>
         ) : (
           // Hiển thị nút Nhắn Tin và Báo Cáo khi không trùng
-          !isAdmin && <>
-            <TouchableOpacity style={styles.buttonNext} onPress={handleSubmit}>
-              <Text style={styles.buttonText}>{languageContext.CHAT}</Text>
-            </TouchableOpacity>
+          !isAdmin && (
+            <>
+              <TouchableOpacity
+                style={styles.buttonNext}
+                onPress={handleSubmit}
+              >
+                <Text style={styles.buttonText}>{languageContext.CHAT}</Text>
+              </TouchableOpacity>
 
-            <TouchableOpacity
-              style={styles.buttonReport}
-              onPress={goToReport}
-            >
-              <Image
-                style={{width: 20, height: 20}}
-                source={require("../../../assets/icons/ic_report_account.png")}
-              />
-            </TouchableOpacity>
-          </>
+              <TouchableOpacity
+                style={styles.buttonReport}
+                onPress={goToReport}
+              >
+                <Image
+                  style={{ width: 20, height: 20 }}
+                  source={require("../../../assets/icons/ic_report_account.png")}
+                />
+              </TouchableOpacity>
+            </>
+          )
         )}
       </View>
-
     </View>
   );
 }
@@ -510,7 +527,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 8,
     shadowColor: "#000",
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 5,

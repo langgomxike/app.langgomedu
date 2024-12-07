@@ -1,7 +1,7 @@
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Picker } from "@react-native-picker/picker";
 import * as ImagePicker from "expo-image-picker";
-import { useCallback, useState, useEffect, useContext } from "react";
+import React, { useCallback, useState, useEffect, useContext } from "react";
 import {
   Alert,
   Image,
@@ -14,6 +14,7 @@ import {
 import CustomInput from "../components/Inputs/CustomInput";
 import GenderInput from "../components/Inputs/GenderInput";
 import AUser from "../../apis/AUser";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import User from "../../models/User";
 import DateTimeConfig from "../../configs/DateTimeConfig";
 import ReactAppUrl from "../../configs/ConfigUrl";
@@ -29,6 +30,7 @@ import { AccountContext } from "../../configs/AccountConfig";
 import { LanguageContext } from "../../configs/LanguageConfig";
 import { NavigationContext } from "@react-navigation/native";
 import MyIcon, { AppIcon } from "../components/MyIcon";
+import { BackgroundColor } from "../../configs/ColorConfig";
 
 const URL = ReactAppUrl.PUBLIC_URL;
 let userId = "-1";
@@ -108,13 +110,13 @@ export default function PersionalProfileScreen() {
     if (province) setSelectedCity(province);
     if (district) setSelectedDistrict(district);
     if (ward) setSelectedWard(ward);
-    if (selectedDetail) setSelectedDetail(selectedDetail);
-  }, [province, district, ward, selectedDetail]);
-  
+
+  }, [province, district, ward]);
+
   useEffect(() => {
     if (selectedDetail) setSelectedDetail(selectedDetail);
   }, [selectedDetail]);
-  
+
   // Chuyển đổi thời gian
   const timestamp = userProfile?.birthday ?? 0;
   const date = new Date(timestamp);
@@ -202,9 +204,9 @@ export default function PersionalProfileScreen() {
       Alert.alert("Thông báo", "Vui lòng chọn đầy đủ Tỉnh, Quận/Huyện và Xã.");
       return;
     }
-  
+
     const formData = new FormData();
-  
+
     // Thêm thông tin vào formData
     formData.append("gender", gender + "");
     if (selectedCity) formData.append("province", selectedCity);
@@ -217,7 +219,7 @@ export default function PersionalProfileScreen() {
     if (selectedMajors.length > 0) {
       formData.append("majors", JSON.stringify(selectedMajors));
     }
-  
+
     // Gọi API cập nhật
     AUser.updateUserProfile(
       userId,
@@ -237,18 +239,34 @@ export default function PersionalProfileScreen() {
       }
     );
   };
-  
 
   console.log("user Id", accountContext.account?.id);
   // console.log("user Id", userId);
-
+  useEffect(() => {
+    if (navigation) {
+      navigation.setOptions({
+        title: languageContext.SCREEN_NAME_SETING_PROFILE,
+        headerShown: true,
+        contentStyle: {
+          padding: 0,
+        },
+        headerStyle: {
+          backgroundColor: BackgroundColor.primary,
+        },
+        headerTintColor: "#fff",
+        headerLeft: () => (
+          <TouchableOpacity onPress={() => navigation.goBack()} style={{ paddingRight: 10 }}>
+            <Ionicons name="chevron-back" size={24} color="white" />
+          </TouchableOpacity>
+        )
+      });
+    }
+  }, [navigation, userProfile]);
   return (
-    <View>
+    <View style={{flex: 1, backgroundColor:"#FFF"}}>
       <ScrollView>
         <View style={styles.container}>
-          {/* Screen Title */}
-          <Text style={styles.title}>{languageContext.SCREEN_NAME_SETING_PROFILE}</Text>
-          <MyIcon size="20" icon={AppIcon.back_button} onPress={navigation?.goBack}/>
+       
           {/* Avatar */}
           <View style={styles.avatarContainer}>
             <Image
@@ -309,13 +327,19 @@ export default function PersionalProfileScreen() {
               onSelectedDistrict={setSelectedDistrict}
               selectedWard={selectedWard}
               onSelectedWard={setSelectedWard}
-              content={selectedDetail || ""}
-              onContentChange={setSelectedDetail}
+            />
+            <TextInput
+              style={styles.detailAddress}
+              placeholder="Nhập nội dung"
+              placeholderTextColor="#888"
+              multiline
+              value={selectedDetail}
+              onChangeText={setSelectedDetail}
             />
 
             {/* Majors */}
             <Text style={styles.label}>
-            {languageContext.MAJORS_AND_CLASS_LEVEL}
+              {languageContext.MAJORS_AND_CLASS_LEVEL}
             </Text>
             <DropDownMajorsCustom
               selectedMajors={selectedMajors}
@@ -324,17 +348,20 @@ export default function PersionalProfileScreen() {
               onSetSelectedClassLevels={setSelectedClassLevels}
             />
 
-            {/* Save Button */}
-            <TouchableOpacity
+            
+          </View>
+        </View>
+      </ScrollView>
+      {/* Save Button */}
+      <TouchableOpacity
               style={[styles.buttonNext, loading && { opacity: 0.7 }]}
               onPress={handleUpdateProfile}
               disabled={loading}
             >
-              <Text style={styles.buttonText}>{languageContext.UPDATED_PROFILE}</Text>
+              <Text style={styles.buttonText}>
+                {languageContext.UPDATED_PROFILE}
+              </Text>
             </TouchableOpacity>
-          </View>
-        </View>
-      </ScrollView>
     </View>
   );
 }
@@ -435,6 +462,18 @@ const styles = StyleSheet.create({
     textAlign: "left",
     paddingHorizontal: 10,
     paddingVertical: 15,
+  },
+  detailAddress:{
+    height: 100,
+    textAlignVertical: 'top',
+    paddingHorizontal:10,
+    borderWidth: 0.5,
+    borderColor: "gray",
+    borderRadius: 10,
+    backgroundColor: "#fff",
+    textAlign: "left",
+    paddingVertical: 15,
+    marginTop:15,
   },
 
   genderDropdown: {
