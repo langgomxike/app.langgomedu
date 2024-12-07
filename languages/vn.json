@@ -362,6 +362,9 @@
   "ERR_MESSAGE_AUTHOR": "Không phải là tác giả.",
 
   "MESSAGE": "Bạn không có quyền truy cập tab này!",
+  "PASSWORD_INVALID_FORMAT": "Mật khẩu phải từ 6 đến 20 ký tự.",
+  "USERNAME_INVALID_FORMAT": "Username phải từ 6 đến 20 ký tự và không có ký tự đặc biệt.",
+  "NEW_PASSWORD_MUST_BE_DIFFERENT": "Mật khẩu mới không được trùng với mật khẩu cũ.",
 
   "KHANG": "KHANG",
   "CHOOSE":"chọn ...",
@@ -375,5 +378,15 @@
   "INTERESTED_MAJOR": "Chuyên Ngành",
   "BIRTHDAY": "Ngày sinh",
   "BIOGRAPHY": "Mô tả bản thân",
-  "PLACEHOLDER_BIO": "Nhập mô tả bản thân của bạn tại đây"
+  "PLACEHOLDER_BIO": "Nhập mô tả bản thân của bạn tại đây",
+  "ANNOUNCE": "Thông báo",
+  "INPUT_CV_ALERT": "CV của bạn đã được gửi đi và đang chờ quản trị viên duyệt",
+  "OK": "OK",
+  "POINT":"Điểm uy tín",
+  "DATE_JOIN":"Ngày tham gia",
+  "INTERESTED_LEVEL_CLASS":"Lớp học quan tâm",
+  "CONTACT":"Liên hệ:",
+  "NOT_INTERESTED_MAJORS":"Không có chuyên ngành quan tâm",
+  "NOT_INTERESTED_LEVEL_CLASS":"Không có lớp học quan tâm"
+
 }

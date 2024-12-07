@@ -4,12 +4,13 @@ import {NavigationContext} from "@react-navigation/native";
 import User from "../../../models/User";
 import ScreenName from "../../../constants/ScreenName";
 import AMessage from "../../../apis/AMessage";
-import {ScrollView, StyleSheet, Text, View} from "react-native";
+import {Image, ScrollView, StyleSheet, Text, View} from "react-native";
 import ChatContactItem from "../ChatContactItem";
 import {LanguageContext} from "../../../configs/LanguageConfig";
 import SFirebase, {FirebaseNode} from "../../../services/SFirebase";
 import CustomShimmer from "../skeleton/CustomShimmer";
 import {SearchContext} from "../../../configs/AppContext";
+import {IdNavigationType} from "../../../configs/NavigationRouteTypeConfig";
 
 const fakeContacts: number[] = [];
 
@@ -51,8 +52,11 @@ const contactTab: TabItem = {
       [searchContext]
     );
 
-    const handleGoToProfile = useCallback(() => {
-      navigation?.navigate(ScreenName.PROFILE);
+    const handleGoToProfile = useCallback((userId: string) => {
+      const data : IdNavigationType = {
+        id: userId,
+      }
+      navigation?.navigate(ScreenName.PROFILE, data);
     }, []);
 
     //effects
@@ -75,7 +79,7 @@ const contactTab: TabItem = {
           <ChatContactItem
             key={contact.id}
             user={contact}
-            onPress={handleGoToProfile}
+            onPress={() => handleGoToProfile(contact.id)}
           />
         ))}
 
@@ -90,7 +94,14 @@ const contactTab: TabItem = {
         )}
 
         {!loading && contacts.length < 1 && (
-          <Text style={{flex: 1, alignSelf: "center", marginTop: 20}}>{language.EMPTY_LIST}</Text>
+          <>
+            <Image
+              source={require("../../../../assets/images/ic_empty.png")}
+              style={[styles.emptyImage]}
+            />
+
+            <Text style={{flex: 1, alignSelf: "center"}}>{language.EMPTY_LIST}</Text>
+          </>
         )}
 
         <View style={{height: 70}}/>
@@ -108,6 +119,14 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     minHeight: 60,
     width: "100%"
+  },
+
+  emptyImage: {
+    width: 200,
+    height: 200,
+    backgroundColor: "#fff",
+    alignSelf: "center",
+    margin: 15,
   },
 
   avatar: {

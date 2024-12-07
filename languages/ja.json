@@ -363,6 +363,11 @@
   "ERR_MESSAGE_AUTHOR": "作成者ではありません。",
 
   "MESSAGE": "このタブにアクセスする権限がありません！",
+  "UPDATE_CLASS": "クラスを更新",
+
+  "USERNAME_INVALID_FORMAT": "ユーザー名は6〜20文字で、特殊文字を含まない必要があります。",
+  "PASSWORD_INVALID_FORMAT": "パスワードは6〜20文字である必要があります。",
+  "NEW_PASSWORD_MUST_BE_DIFFERENT": "新しいパスワードは古いパスワードと異なる必要があります。",
 
   "KHANG": "KHANG",
   "CHOOSE": "選択 ...",
@@ -376,5 +381,14 @@
   "INTERESTED_MAJOR": "専攻",
   "BIRTHDAY": "生年月日",
   "BIOGRAPHY": "自己紹介",
-  "PLACEHOLDER_BIO": "ここに自己紹介を入力してください"
+  "PLACEHOLDER_BIO": "ここに自己紹介を入力してください",
+  "ANNOUNCE": "お知らせ",
+  "INPUT_CV_ALERT": "あなたのCVは送信され、管理者の承認を待っています",
+  "OK": "OK",
+  "POINT": "信用ポイント",
+  "DATE_JOIN": "参加日",
+  "INTERESTED_LEVEL_CLASS": "関心のあるクラス",
+  "CONTACT": "連絡先:",
+  "NOT_INTERESTED_MAJORS": "興味のある専攻はありません",
+  "NOT_INTERESTED_LEVEL_CLASS": "関心のあるクラスはありません"
 }

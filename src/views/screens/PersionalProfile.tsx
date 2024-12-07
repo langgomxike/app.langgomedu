@@ -1,7 +1,7 @@
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Picker } from "@react-native-picker/picker";
 import * as ImagePicker from "expo-image-picker";
-import { useCallback, useState, useEffect } from "react";
+import { useCallback, useState, useEffect, useContext } from "react";
 import {
   Alert,
   Image,
@@ -25,9 +25,10 @@ import DropDownMajorsCustom from "../components/dropdown/DropDownMajorsCustom";
 import { TextInput } from "react-native-gesture-handler";
 import { set } from "firebase/database";
 import { FileInfo } from "expo-file-system";
+import { AccountContext } from "../../configs/AccountConfig";
 
 const URL = ReactAppUrl.PUBLIC_URL;
-const userId = "089204000001";
+let userId = "-1";
 const GENDER = {
   MALE: 0,
   FEMALE: 1,
@@ -39,6 +40,10 @@ const GENDER_TEXT = {
   OTHER: "Khác",
 };
 export default function PersionalProfileScreen() {
+  //contexts
+  const accountContext = useContext(AccountContext);
+  userId = accountContext.account?.id || "-1";
+
   // States
   const [loading, setLoading] = useState(true);
   const [userProfile, setUserProfile] = useState<User | null>(null);
@@ -218,6 +223,9 @@ export default function PersionalProfileScreen() {
       }
     );
   };
+
+  console.log("user Id", accountContext.account?.id);
+  // console.log("user Id", userId);
 
   return (
     <View>

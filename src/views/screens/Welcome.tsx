@@ -88,8 +88,8 @@ export default function WelcomeScreen() {
               let isAdmin = false;
 
               //is super admin
-              isAdmin = isAdmin || user.roles?.map(role => role.id).includes(RoleList.SUPER_ADMIN);
-              isAdmin = isAdmin || user.roles?.map(role => role.id).includes(RoleList.ADMIN);
+              isAdmin = isAdmin || !!(user.roles?.map(role => role.id).includes(RoleList.SUPER_ADMIN));
+              isAdmin = isAdmin || !!(user.roles?.map(role => role.id).includes(RoleList.ADMIN));
 
               if (isAdmin) {
                 navigation?.reset({

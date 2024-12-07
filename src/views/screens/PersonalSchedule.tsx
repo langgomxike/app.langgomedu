@@ -147,13 +147,6 @@ export default function PersonalScheduleScreen() {
   }, [account])
 
 
-  //testing ///////////////////////////////////////////
-  useEffect(() => {
-    // console.log(users);
-    console.log(selectedUser);
-
-  }, [selectedUser])
-
   return (
     <View style={styles.container}>
       <View style={styles.infoBox}>

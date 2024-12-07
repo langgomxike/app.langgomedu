@@ -1,12 +1,19 @@
-import { Image, StyleSheet, Text, View, TouchableOpacity } from "react-native";
-import React from "react";
-import { BackgroundColor } from "../../../configs/ColorConfig";
-import { MaterialIcons, FontAwesome, Ionicons } from "@expo/vector-icons";
+import {Image, Pressable, StyleSheet, Text, View} from "react-native";
+import React, {useCallback, useContext} from "react";
+import {BackgroundColor} from "../../../configs/ColorConfig";
+import {Ionicons} from "@expo/vector-icons";
 import Class from "../../../models/Class";
 import ReactAppUrl from "../../../configs/ConfigUrl";
-import { ScrollView } from "react-native-gesture-handler";
+import {ScrollView} from "react-native-gesture-handler";
 import moment from "moment";
-import AuthorTuorInClass from "../AuthorTuorInClass";
+import {
+  ClassManagerNavigationType,
+  IdNavigationType,
+  UserManagerNavigationType
+} from "../../../configs/NavigationRouteTypeConfig";
+import {NavigationContext} from "@react-navigation/native";
+import ScreenName from "../../../constants/ScreenName";
+import SLog, {LogType} from "../../../services/SLog";
 
 const ICON_SIZE = 20;
 const URL = ReactAppUrl.PUBLIC_URL;
@@ -16,6 +23,7 @@ type ClassComponentProps = {
 };
 
 export default function ClassComponent({ classData }: ClassComponentProps) {
+  const naviagation = useContext(NavigationContext);
 
   function formatCurrency(amount: number, locale = "vi-VN", currency = "VND") {
     // Kiểm tra nếu không phải số, trả về chuỗi lỗi
@@ -30,6 +38,16 @@ export default function ClassComponent({ classData }: ClassComponentProps) {
     // console.log(formatCurrency(price, "ja-JP", "JPY")); // "￥123,456,789" (Nhật)
     // console.log(formatCurrency(price, "vi-VN", "VND")); // "123.456.789 ₫" (Việt Nam)
   }
+
+  const handleOpenAuthor = useCallback(() => {
+    if (!classData.author) return;
+
+    const data: IdNavigationType = {
+      id: classData.author?.id ?? "-1"
+    }
+
+    naviagation?.navigate(ScreenName.PROFILE, data);
+  }, [classData]);
 
   return (
     <View>
@@ -117,7 +135,7 @@ export default function ClassComponent({ classData }: ClassComponentProps) {
 
           <View style={styles.line}></View>
           <View style={styles.authorContainer}>
-            <View style={styles.authorContent}>
+            <Pressable onPress={handleOpenAuthor} style={styles.authorContent}>
               <Image
                 source={{
                   uri: `${URL}${classData.author?.avatar}`,
@@ -127,7 +145,7 @@ export default function ClassComponent({ classData }: ClassComponentProps) {
               <Text style={styles.authorName}>
                 {classData.author?.full_name}
               </Text>
-            </View>
+            </Pressable>
             {classData?.author?.id == classData?.tutor?.id && (
               <View style={styles.authorStatusContainer}>
                <View style={styles.colorAuthor}></View>

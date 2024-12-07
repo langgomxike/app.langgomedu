@@ -4,7 +4,7 @@ import {ListItemVietnamese, ListItemEnglish, ListItemJapanese} from "../../confi
 import AccountItem, {AccountItemProps} from "../components/AccountItem";
 import QRInfo from "../components/QRInfo";
 import {QRItems} from "../../configs/QRConfig";
-import {ElementRef, useCallback, useContext, useEffect, useRef, useState} from "react";
+import React, {ElementRef, useCallback, useContext, useEffect, useRef, useState} from "react";
 import {NavigationContext} from "@react-navigation/native";
 import ScreenName from "../../constants/ScreenName";
 import SAsyncStorage, {AsyncStorageKeys} from "../../services/SAsyncStorage";
@@ -20,7 +20,7 @@ import {BackgroundColor, TextColor} from "../../configs/ColorConfig";
 import ConfirmDialog from "../components/ConfirmDialog";
 import {AppInfoContext} from "../../configs/AppInfoContext";
 import {RoleList} from "../../models/Role";
-import {AttendanceNavigationType} from "../../configs/NavigationRouteTypeConfig";
+import {AttendanceNavigationType, IdNavigationType} from "../../configs/NavigationRouteTypeConfig";
 
 type FlatListItemProps = {
   item: AccountItemProps;
@@ -40,6 +40,7 @@ function FlatListItem({item, index}: FlatListItemProps) {
   //states
   const [handlers, setHandler] = useState<Array<any>>([]);
   const [showConfirmLogout, setShowConfirmLogout] = useState(false);
+  const [canOpen, setCanOpen] = useState(true);
 
   //handlers
   const goToPersonalInfoScreen = useCallback(() => {
@@ -47,50 +48,45 @@ function FlatListItem({item, index}: FlatListItemProps) {
   }, []);
 
   const goToRegisterChileScreen = useCallback(() => {
-    let canOpen = false;
-
-    canOpen = !(accountContext.account?.parent_id ?? false);
-
-    canOpen = canOpen || !(accountContext.account?.roles?.map(role => role.id).includes(RoleList.SUPER_ADMIN) ?? false);
-    canOpen = canOpen || !(accountContext.account?.roles?.map(role => role.id).includes(RoleList.ADMIN) ?? false);
-
     if (canOpen) {
       navigation?.navigate(ScreenName.REGISTER_STEP_CHILD);
     } else {
       Toast.show(languageContext.language.HAVE_NO_PERMISSION_TO_CREATE_CHILD, 1000);
     }
-  }, [accountContext.account]);
+  }, [accountContext.account, canOpen]);
 
   const goToCVScreen = useCallback(() => {
-    let canOpen = false;
-
-    canOpen = canOpen || !(accountContext.account?.roles?.map(role => role.id).includes(RoleList.SUPER_ADMIN) ?? false);
-    canOpen = canOpen || !(accountContext.account?.roles?.map(role => role.id).includes(RoleList.ADMIN) ?? false);
-
     if (canOpen) {
       navigation?.navigate(ScreenName.SETTING_PERSONAL_CV);
     } else {
       Toast.show(languageContext.language.HAVE_NO_PERMISSION_TO_MANAGE_CV, 1000);
     }
-  }, []);
+  }, [canOpen]);
 
   const goToAttendanceHistories = useCallback(() => {
+    if (canOpen) {
+      const data: AttendanceNavigationType = {
+        userId: accountContext.account?.id ?? "-1",
+        classId: -1,
+      }
 
-    const data: AttendanceNavigationType = {
-      userId: accountContext.account?.id ?? "-1",
-      classId: -1,
+      navigation?.navigate(ScreenName.ATTENDANCE_HISTORY, data);
+    } else {
+      Toast.show(languageContext.language.HAVE_NO_PERMISSION_TO_MANAGE_CV, 1000);
     }
-
-    navigation?.navigate(ScreenName.ATTENDANCE_HISTORY, data);
   }, [accountContext.account]);
 
   const sendEmail = useCallback(() => {
-    const email = appInfos.contact_email;
-    const subject = languageContext.language.TO_ADMIN_EMAIL_SUBJECT;
-    const body = languageContext.language.TO_ADMIN_EMAIL_BODY;
-    const emailUrl = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    if (canOpen) {
+      const email = appInfos.contact_email;
+      const subject = languageContext.language.TO_ADMIN_EMAIL_SUBJECT;
+      const body = languageContext.language.TO_ADMIN_EMAIL_BODY;
+      const emailUrl = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 
-    Linking.openURL(emailUrl);
+      Linking.openURL(emailUrl);
+    } else {
+      Toast.show(languageContext.language.HAVE_NO_PERMISSION_TO_MANAGE_CV, 1000);
+    }
   }, []);
 
   const goToChangePasswordScreen = useCallback(() => {
@@ -113,7 +109,7 @@ function FlatListItem({item, index}: FlatListItemProps) {
   const handleChangeLanguage = useCallback((language: typeof vn) => {
     languageContext.setLanguage && languageContext.setLanguage(language);
 
-    refRBSheet.current?.close(); 
+    refRBSheet.current?.close();
   }, []);
 
   const handleLogout = useCallback(() => {
@@ -147,6 +143,15 @@ function FlatListItem({item, index}: FlatListItemProps) {
 
     setHandler(handlers);
   }, []);
+
+  useEffect(() => {
+    let canOpen = false;
+
+    canOpen = canOpen || !(accountContext.account?.roles?.map(role => role.id).includes(RoleList.SUPER_ADMIN) ?? false);
+    canOpen = canOpen || !(accountContext.account?.roles?.map(role => role.id).includes(RoleList.ADMIN) ?? false);
+
+    setCanOpen(canOpen);
+  }, [accountContext.account]);
 
   return (
     <>
@@ -191,12 +196,41 @@ export default function AccountScreen() {
   //contexts
   const languageContext = useContext(LanguageContext);
   const accountContext = useContext(AccountContext);
+  const navigation = useContext(NavigationContext);
 
   //states
   const [ListItem, setListItem] = useState<AccountItemProps[]>(ListItemVietnamese);
   const [isAdmin, setIsAdmin] = useState(false);
 
   //effects
+  useEffect(() => {
+    let isAdmin = false;
+
+    isAdmin = (accountContext.account?.roles?.map(role => role.id).includes(RoleList.SUPER_ADMIN) ?? false);
+    isAdmin = isAdmin || (accountContext.account?.roles?.map(role => role.id).includes(RoleList.ADMIN) ?? false);
+
+    if (!isAdmin) return;
+
+    if (navigation) {
+      navigation.setOptions({
+        title: languageContext.language.SESSION,
+        headerShown: true,
+        contentStyle: {
+          padding: 0,
+        },
+        headerStyle: {
+          backgroundColor: BackgroundColor.primary,
+        },
+        headerTintColor: "#fff",
+        headerLeft: () => (
+          <TouchableOpacity onPress={() => navigation.goBack()} style={{paddingRight: 10}}>
+            <Ionicons name="chevron-back" size={24} color="white"/>
+          </TouchableOpacity>
+        )
+      });
+    }
+  }, [navigation, accountContext.account]);
+
   useEffect(() => {
     switch (languageContext.language.TYPE) {
       case "vi": //vn

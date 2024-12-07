@@ -11,7 +11,6 @@ import HLine, { HLineType } from '../../components/HLine'
 import CvBox from '../../components/CV/CvBox'
 import ExperienceItem from '../../components/CV/ExperienceItem'
 import EducationItem from '../../components/CV/EducationItem'
-import SkillItem from '../../components/CV/SkillItem'
 import ACV from '../../../apis/ACV'
 import CV from '../../../models/CV'
 import { UserContext } from '../../../configs/UserContext'
@@ -45,8 +44,10 @@ export default function PersonalCV() {
     
     if(account){
       ACV.getPersonalCV(account.id, (cvs)=>{
-        const viewCV = cvs.find(cv => cv.id === `${account.id}_t`) ? cvs.find(cv => cv.id === `${account.id}_t`) : cvs[0] ;
+        console.log(account.id);
+        // console.log(JSON.stringify(cvs, null, 2));
         
+        const viewCV = cvs.find(cv => cv.id === `${account.id}_t`) || cvs[0];
         // console.log(JSON.stringify(viewCV, null, 2));
         if(viewCV){
           // console.log(JSON.stringify(cv, null, 2));
@@ -142,7 +143,7 @@ export default function PersonalCV() {
             <FlatList 
               scrollEnabled = {false}
               data={cv?.educations}
-              renderItem={({ item }) => <EducationItem education={item} />}
+              renderItem={({ item }) => <EducationItem education={item} onDelete={()=>{}} />}
             />
             
           </CvBox>
@@ -153,7 +154,7 @@ export default function PersonalCV() {
           <FlatList 
               scrollEnabled = {false}
               data={cv?.experiences}
-              renderItem={({ item }) => <ExperienceItem experience={item} />}
+              renderItem={({ item }) => <ExperienceItem experience={item} onDelete={()=>{}} />}
             />
           </CvBox>
         </View>
@@ -163,7 +164,7 @@ export default function PersonalCV() {
             <FlatList
               scrollEnabled= {false}
               data={cv?.certificates}
-              renderItem={({ item }) => <CertificateItem certificate={item}/>}
+              renderItem={({ item }) => <CertificateItem certificate={item} onDelete={()=>{}}/>}
             />
           </CvBox>
         </View>

@@ -1,34 +1,29 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Button, StyleSheet, Text, TextInput, View } from "react-native";
-import CustomInput from "./Inputs/CustomInput";
+import CustomInput from "../Inputs/CustomInput";
 import { Picker } from "@react-native-picker/picker";
-import AClassLevel from "../../apis/AClassLevel";
-import ClassLevel from "../../models/ClassLevel";
-import AMajor from "../../apis/AMajor";
-import { LanguageContext } from "../../configs/LanguageConfig";
+import AClassLevel from "../../../apis/AClassLevel";
+import ClassLevel from "../../../models/ClassLevel";
+import AMajor from "../../../apis/AMajor";
+import { LanguageContext } from "../../../configs/LanguageConfig";
+import Class from "../../../models/Class";
 
 type props = {
-  onNext: (
-    title?: string,
-    desc?: string,
-    monHoc?: string,
-    capHoc?: number,
-    maxLearners?: number
-  ) => void;
+  classData: Class;
 };
-
-const InfoClass = ({ onNext }: props) => {
+// { onNext }: props
+const UpdateInfoClass = ({classData} : props) => {
   // context
   const languageContext = useContext(LanguageContext).language;
 
   // state
-  const [title, setTitle] = useState("");
-  const [desc, setDesc] = useState("");
+  const [title, setTitle] = useState(classData.title || "");
+  const [desc, setDesc] = useState(classData.description || "");
   const [capHocList, setCapHocList] = useState<ClassLevel[]>([]); // đặt select
-  const [selectedCapHoc, setSelectedCapHoc] = useState<number>(-1);
-  const [maxLearners, setMaxLearners] = useState<number>(0);
+  const [selectedCapHoc, setSelectedCapHoc] = useState<number>(classData.class_level?.id ?? -1);
+  const [maxLearners, setMaxLearners] = useState<number>(classData.max_learners ?? 0);
   // useState MÔN HỌC, FETCH DATA
-  const [monHoc, setMonHoc] = useState<number>(-1); // đặt select
+  const [monHoc, setMonHoc] = useState<number>(classData.major?.id ?? -1); // đặt select
   const [isOtherSelected, setIsOtherSelected] = useState(false); // Kiểm tra khi chọn "Khác"
   const [customInput, setCustomInput] = useState(""); // Giá trị nhập khi chọn "Khác"
   const [isLoading, setIsLoading] = useState(false);
@@ -48,18 +43,12 @@ const InfoClass = ({ onNext }: props) => {
             : major.ja_name,
         value: major.id,
       }));
-      // setPickerItems((prevItems) => {
-      //   const existingIds = new Set(prevItems.map((item) => item.value));
-      //   const uniqueMajorItems = majorItems.filter(
-      //     (item) => !existingIds.has(item.value)
-      //   );
-      //   return [...uniqueMajorItems, ...prevItems];
-      // });
       setPickerItems([...majorItems, { label: "Khác", value: "other" }]);
       
     }, setIsLoading);
   }, [languageContext.TYPE]);
 
+   // Fetch danh sách cấp học
   useEffect(() => {
     AClassLevel.getAllClassLevels((classLevels) => {
       setCapHocList(classLevels);
@@ -67,60 +56,43 @@ const InfoClass = ({ onNext }: props) => {
   }, []);
 
   // handle
+  // xử lý thay đổi chọn môn học
   const handleSelectChange = (itemValue: any | "other") => {
     if (itemValue === "other") {
       setIsOtherSelected(true); // Chuyển Picker thành TextInput nếu chọn "Khác"
     } else {
       setMonHoc(itemValue); // Cập nhật giá trị đã chọn từ Picker
-      onNext(undefined, undefined, itemValue, undefined);
       setIsOtherSelected(false); // Ẩn TextInput nếu chọn lại từ các mục khác
     }
   };
 
-  const handleAddCustomValue = () => {
+   // Thêm giá trị tùy chỉnh vào danh sách môn học
+   const handleAddCustomValue = () => {
     if (customInput.trim() !== "") {
       const newItem = {
         label: customInput,
-        value: Date.now(), // Giả sử đặt tạm 0 cho value nếu cần
+        value: Date.now(),
       };
-      setPickerItems((prevItems) => {
-        const otherItem = prevItems.find((item) => item.value === "other");
-        const itemsWithoutOther = prevItems.filter(
-          (item) => item.value !== "other"
-        );
-        return otherItem
-          ? [newItem, ...itemsWithoutOther, otherItem] // Thêm giá trị mới vào trước mục "Khác"
-          : [newItem, ...itemsWithoutOther]; // Trường hợp "Khác" không tồn tại
-      });
-      setMonHoc(newItem.value); // Cập nhật giá trị được chọn là giá trị mới nhập
-      setCustomInput(""); // Reset lại ô nhập
-      setIsOtherSelected(false); // Quay lại Picker sau khi nhập xong
+      setPickerItems((prevItems) => [
+        newItem,
+        ...prevItems.filter((item) => item.value !== "other"),
+        { label: "Khác", value: "other" },
+      ]);
+      setMonHoc(newItem.value);
+      setCustomInput("");
+      setIsOtherSelected(false);
     }
   };
 
   const handleChangeCapHoc = (value: number) => {
     setSelectedCapHoc(value);
     console.log("value cap hoc: ", value);
-
-    onNext(undefined, undefined, undefined, value);
   };
 
-  // TITLE
-  const handleChangeTitle = (value: any) => {
-    setTitle(value);
-    onNext(value);
-  };
-
-  // DESCRIPTION
-  const handleChangeDesc = (value: any) => {
-    setDesc(value);
-    onNext(undefined, value, undefined, undefined);
-  };
 
   // MAX LEARNER
-  const handleChangeMaxLearner = (value: any) => {
-    setMaxLearners(value); // Cập nhật state của component con
-    onNext(undefined, undefined, undefined, undefined, value);
+  const handleChangeMaxLearner = (value: string) => {
+    setMaxLearners(parseInt(value) || 1); // Cập nhật state của component con
   };
 
   return (
@@ -130,7 +102,7 @@ const InfoClass = ({ onNext }: props) => {
           placeholder={languageContext.TITLE_PLACEHOLDER}
           type="text"
           label={languageContext.TITLE}
-          onChangeText={handleChangeTitle}
+          onChangeText={setTitle}
           required
           value={title}
         />
@@ -140,7 +112,7 @@ const InfoClass = ({ onNext }: props) => {
           placeholder={languageContext.DESCRIPTION_PLACEHOLDER}
           type="textarea"
           label={languageContext.DESCRIPTION}
-          onChangeText={handleChangeDesc}
+          onChangeText={setDesc}
           required
           value={desc}
         />
@@ -167,7 +139,7 @@ const InfoClass = ({ onNext }: props) => {
             <View style={styles.pickerContainer}>
               <Picker
                 selectedValue={monHoc}
-                onValueChange={(itemValue) => handleSelectChange(itemValue)}
+                onValueChange={handleSelectChange}
                 style={styles.picker}
                 key={languageContext.TYPE}
               >
@@ -191,7 +163,7 @@ const InfoClass = ({ onNext }: props) => {
           <View style={styles.pickerContainer}>
             <Picker
               selectedValue={selectedCapHoc}
-              onValueChange={(itemValue) => handleChangeCapHoc(itemValue)}
+              onValueChange={handleChangeCapHoc}
               style={styles.picker}
             >
               {capHocList.map((classLevel) => (
@@ -293,4 +265,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default InfoClass;
+export default UpdateInfoClass;

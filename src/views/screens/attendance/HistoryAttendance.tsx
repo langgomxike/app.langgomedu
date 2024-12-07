@@ -1,7 +1,7 @@
 import React, {useCallback, useContext, useEffect, useState} from "react";
 import {FlatList, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View,} from "react-native";
 import CustomInput from "../../components/Inputs/CustomInput";
-import {BackgroundColor, TextColor} from "../../../configs/ColorConfig";
+import {BackgroundColor} from "../../../configs/ColorConfig";
 import DetailHistoryBottonSheet from "../../components/bottom-sheet/DetailHistoryBottomSheet";
 import Attendance from "../../../models/Attendance";
 import SearchBar from "../../components/Inputs/SearchBar";
@@ -18,6 +18,8 @@ import DateTimeConfig from "../../../configs/DateTimeConfig";
 import ReactAppUrl from "../../../configs/ConfigUrl";
 import SLog, {LogType} from "../../../services/SLog";
 import Toast from "react-native-simple-toast";
+import {LanguageContext} from "../../../configs/LanguageConfig";
+import Ionicons from "@expo/vector-icons/Ionicons";
 
 interface AttendanceItem {
   date: number,
@@ -29,13 +31,14 @@ export default function HistoryAttendance() {
   const navigation = useContext(NavigationContext);
   const accountContext = useContext(AccountContext);
   const route = useContext(NavigationRouteContext);
+  const language = useContext(LanguageContext).language;
 
   // states
-  const [fromDate, setFromDate] = useState(new Date(2024, 1, 1).getTime());
+  const [fromDate, setFromDate] = useState(new Date(2024, 0, 1).getTime());
   const [toDate, setToDate] = useState(new Date().getTime());
-  const [isVisible, setIsVisible] = useState(false);
   const [historyList, setHistoryList] = useState<AttendanceItem[]>([]);
   const [attendanceList, setAttendanceList] = useState<Attendance[]>([]);
+  const [attendanceListInClass, setAttendanceListInClass] = useState<Attendance[]>([]);
   const [user, setUser] = useState<User | undefined>(undefined);
   const [searchKey, setSearchKey] = useState("");
   const [activeAttendance, setActiveAttendance] = useState<Attendance | undefined>(undefined);
@@ -86,17 +89,35 @@ export default function HistoryAttendance() {
 
   //effects
   useEffect(() => {
+    if (navigation) {
+      navigation.setOptions({
+        title: language.ATTENDANCE_HISTORY,
+        headerShown: true,
+        contentStyle: {
+          padding: 0,
+        },
+        headerStyle: {
+          backgroundColor: BackgroundColor.primary,
+        },
+        headerTintColor: "#fff",
+        headerLeft: () => (
+          <TouchableOpacity onPress={() => navigation.goBack()} style={{ paddingRight: 10 }}>
+            <Ionicons name="chevron-back" size={24} color="white" />
+          </TouchableOpacity>
+        )
+      });
+    }
+  }, [navigation]);
+
+  useEffect(() => {
     const data: AttendanceNavigationType = route?.params as AttendanceNavigationType ?? {userId: accountContext.account?.id};
     let userId: string = data.userId;
-    const classTitle: string = data.classTitle ?? "Lp Khoa Hc t Nhin";
-
-    setSearchKey(classTitle);
 
     if (userId === "-1") {
       userId = accountContext.account?.id + "";
     }
 
-    userId = "000004_child001";
+    // userId = "000004_child001";
 
     SFirebase.track(FirebaseNode.Users, [{key: FirebaseNode.Id, value: userId}], () => {
       AUser.getUserById(userId, user => {
@@ -112,7 +133,13 @@ export default function HistoryAttendance() {
   }, [accountContext.account]);
 
   useEffect(() => {
+    const data: AttendanceNavigationType = route?.params as AttendanceNavigationType ?? {classId: -1};
+    let classId: number = data.classId;
+
+    // classId = 2;
+
     const attendances = attendanceList
+      .filter(a => classId > 0 ? a.class?.id === classId : true)
       .filter(a => (a.class?.title ?? "").toUpperCase().includes(searchKey?.toUpperCase().trim()) || searchKey?.toUpperCase()?.trim()?.includes((a.class?.title ?? "").toUpperCase()));
 
     const dates = Array.from(new Set(attendances.map(a => (a.lesson?.started_at ?? 0)).filter(d => d > 0)));
@@ -131,8 +158,6 @@ export default function HistoryAttendance() {
   // render
   return (
     <View style={styles.container}>
-      <Text style={[styles.title, {textAlign: "center", fontSize: 20}]}>Attendance History</Text>
-
       <View style={{margin: 10}}>
         <IconReport
           userAvatar={user?.avatar + ""}
