@@ -19,9 +19,11 @@ import AUserAdmin from "../../../apis/admin/AUserAdmin";
 import User from "../../../models/User";
 import PaginationModal from "../../../models/Pagination";
 import UserComponentSkeleton from "../../components/skeleton/UserComponentSkeleton";
-import { NavigationContext } from "@react-navigation/native";
+import {NavigationContext, NavigationRouteContext} from "@react-navigation/native";
 import ScreenName from "../../../constants/ScreenName";
 import { USER_TAB } from "../../../constants/TabListAdmin";
+import {IdNavigationType, UserManagerNavigationType} from "../../../configs/NavigationRouteTypeConfig";
+import SLog, {LogType} from "../../../services/SLog";
 
 const tabList = [
   { label: "Tất cả", value: USER_TAB.ALL },
@@ -34,6 +36,7 @@ const PERPAGE = 5
 export default function UserManager () {
   // context ----------------------------------------------------------------
   const navigation = useContext(NavigationContext);
+  const route = useContext(NavigationRouteContext);
 
 
   //state ----------------------------------------------------------------------
@@ -48,7 +51,7 @@ export default function UserManager () {
 
   const [page, setPage] = useState(1);
   const [paginations, setPaginations] = useState(new PaginationModal);
-  
+
 
   // handlers
   // Hàm để mở BottomSheet từ component con

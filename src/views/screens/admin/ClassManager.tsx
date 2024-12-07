@@ -8,11 +8,11 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import React, {useCallback, useContext, useEffect, useState} from "react";
 import ClassComponent from "../../components/admin/ClassComponent";
 import Pagination from "../../components/Pagination";
 import DetailClassBottomSheet from "../../components/bottom-sheet/DetailClassBottomSheet";
-import { BackgroundColor } from "../../../configs/ColorConfig";
+import {BackgroundColor} from "../../../configs/ColorConfig";
 import TabHeader from "../../components/admin/TabHeader";
 import SearchBar from "../../components/Inputs/SearchBar";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -21,23 +21,25 @@ import AClassAdmin from "../../../apis/admin/AClassAdmin";
 import ClassComponentSkeleton from "../../components/skeleton/ClassComponentSkeleton";
 import PaginationModal from "../../../models/Pagination";
 import BackLayout from "../../layouts/Back";
-import { NavigationContext } from "@react-navigation/native";
-import { CLASS_TAB } from "../../../constants/TabListAdmin";
-import { UserContext } from "../../../configs/UserContext";
-import { ScrollView } from "react-native-gesture-handler";
+import {NavigationContext, NavigationRouteContext} from "@react-navigation/native";
+import {CLASS_TAB} from "../../../constants/TabListAdmin";
+import {UserContext} from "../../../configs/UserContext";
+import {ScrollView} from "react-native-gesture-handler";
+import {IdNavigationType} from "../../../configs/NavigationRouteTypeConfig";
 
 const tabList = [
-  { label: "Tất cả", value: CLASS_TAB.ALL },
-  { label: "Lớp chờ duyệt", value: CLASS_TAB.PENDING_APPROVAL },
-  { label: "Lớp chờ thanh toán", value: CLASS_TAB.PENDING_PAY },
-  { label: "Bị báo cáo", value: CLASS_TAB.REPORTED },
+  {label: "Tất cả", value: CLASS_TAB.ALL},
+  {label: "Lớp chờ duyệt", value: CLASS_TAB.PENDING_APPROVAL},
+  {label: "Lớp chờ thanh toán", value: CLASS_TAB.PENDING_PAY},
+  {label: "Bị báo cáo", value: CLASS_TAB.REPORTED},
 ];
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("screen");
+const {width: SCREEN_WIDTH, height: SCREEN_HEIGHT} = Dimensions.get("screen");
 const PERPAGE = 10;
 export default function ClassManager() {
   // context ----------------------------------------------------------------
   const navigation = useContext(NavigationContext);
+  const route = useContext(NavigationRouteContext);
 
   //states ---------------------------------------------------------------------------------
   const [isVisible, setIsVisible] = useState(false);
@@ -56,8 +58,8 @@ export default function ClassManager() {
   // handlers --------------------------------------------------------------------------------
   // Hàm để mở BottomSheet từ component con
   const handleOpenBottomSheet = useCallback((_class: Class) => {
-    setIsVisible(true);
     setSelectedClass(_class);
+    setIsVisible(true);
   }, []);
 
   const handleTabChange = (tab: string) => {
@@ -68,8 +70,8 @@ export default function ClassManager() {
         setEmptyMessage("Không có lớp học chờ duyệt");
         break;
       case CLASS_TAB.PENDING_PAY:
-         setEmptyMessage("Không có lớp học chờ thanh toán");
-         break;
+        setEmptyMessage("Không có lớp học chờ thanh toán");
+        break;
       default:
         setEmptyMessage("Không có dữ liệu");
     }
@@ -84,6 +86,7 @@ export default function ClassManager() {
       (classData, pagination) => {
         setClasses(classData);
         setPaginations(pagination);
+
         onComplete?.();
       },
       setLoading
@@ -124,9 +127,9 @@ export default function ClassManager() {
         headerLeft: () => (
           <TouchableOpacity
             onPress={() => navigation.goBack()}
-            style={{ paddingRight: 10 }}
+            style={{paddingRight: 10}}
           >
-            <Ionicons name="chevron-back" size={24} color="white" />
+            <Ionicons name="chevron-back" size={24} color="white"/>
           </TouchableOpacity>
         ),
       });
@@ -144,10 +147,10 @@ export default function ClassManager() {
           <SearchBar
             value={searchKey}
             onChangeText={setSearchKey}
-            style={{ flex: 1 }}
+            style={{flex: 1}}
           />
         </View>
-        <TabHeader tabList={tabList} onTabChange={handleTabChange} />
+        <TabHeader tabList={tabList} onTabChange={handleTabChange}/>
         <View style={styles.colorStatusContainer}>
           <View style={styles.colorStatus}>
             <Text style={styles.colorStatusName}>Người tạo</Text>
@@ -160,15 +163,15 @@ export default function ClassManager() {
         </View>
       </View>
 
-      <View style={[styles.classListContainer, { flex: 1 }]}>
-        {loading && <ClassComponentSkeleton />}
+      <View style={[styles.classListContainer, {flex: 1}]}>
+        {loading && <ClassComponentSkeleton/>}
         {!loading && classes.length > 0 && (
           <FlatList
             scrollEnabled={true}
             showsVerticalScrollIndicator={false}
             data={classes}
             keyExtractor={(_, index) => index.toString()}
-            renderItem={({ item }) => {
+            renderItem={({item}) => {
               return (
                 <View
                   style={[
@@ -179,24 +182,24 @@ export default function ClassManager() {
                   ]}
                 >
                   <TouchableOpacity onPress={() => handleOpenBottomSheet(item)}>
-                    <ClassComponent classData={item} />
+                    <ClassComponent classData={item}/>
                   </TouchableOpacity>
                 </View>
               );
             }}
-            contentContainerStyle={{ paddingHorizontal: 10, paddingBottom: 90 }}
+            contentContainerStyle={{paddingHorizontal: 10, paddingBottom: 90}}
             refreshing={isRefreshing}
             onRefresh={handleRefresh}
           />
         )}
-          {!loading && classes && classes.length === 0 && (
-          <ScrollView 
-          refreshControl={
-            <RefreshControl
-              refreshing={isRefreshing}
-              onRefresh={handleRefresh}
-            />
-          }
+        {!loading && classes && classes.length === 0 && (
+          <ScrollView
+            refreshControl={
+              <RefreshControl
+                refreshing={isRefreshing}
+                onRefresh={handleRefresh}
+              />
+            }
           >
             <View style={[styles.emptyContainer]}>
               <Image
@@ -206,10 +209,10 @@ export default function ClassManager() {
               <Text style={styles.emptyText}>{emptyMessage}</Text>
             </View>
           </ScrollView>
-          )}
+        )}
       </View>
 
-      <View style={{ marginHorizontal: 10 }}>
+      <View style={{marginHorizontal: 10}}>
         <View style={[styles.paginationContainer, styles.boxshadow]}>
           <Pagination
             totalPage={paginations.total_pages}
