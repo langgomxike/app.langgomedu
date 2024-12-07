@@ -23,7 +23,8 @@ export enum BackgroundColor {
     cyan_overlay = "#06b6d411",
     green_light = "#76E5D8",
     author_color = "rgb(201, 230, 255)",
-    tutor_color = "rgba(28, 186, 17, 0.5)"
+    tutor_color = "rgba(28, 186, 17, 0.5)",
+    success = "#39C753"
 }
 
 export enum TextColor {

@@ -98,7 +98,6 @@ export default function MessageScreen() {
   const goBack = useCallback(() => {
     AMessage.markAsRead(user?.id ?? "-1", accountContext.account?.id ?? "-1", () => {
       navigation?.goBack();
-      navigation?.navigate(ScreenName.CHAT);
     });
   }, [user, accountContext.account, messages.length]);
 
@@ -114,6 +113,33 @@ export default function MessageScreen() {
     const data: MessageNavigationType = route?.params as MessageNavigationType;
     setUser(data.user);
   }, []);
+
+  useEffect(() => {
+    if (navigation) {
+      navigation.setOptions({
+        title: user?.full_name,
+        headerShown: true,
+        contentStyle: {
+          padding: 0,
+        },
+        headerStyle: {
+          backgroundColor: BackgroundColor.primary,
+        },
+        headerTintColor: "#fff",
+        headerLeft: () => (
+          <TouchableOpacity onPress={() => navigation.goBack()} style={{paddingRight: 10, flexDirection: "row", gap: 5}}>
+            <Ionicons name="chevron-back" size={24} color="white" style={{alignSelf: "center"}}/>
+          </TouchableOpacity>
+        ),
+        headerRight: () => (
+          <TouchableOpacity onPress={goToProfile} style={{paddingRight: 10, flexDirection: "row", gap: 5}}>
+            <Text></Text>
+            <Image src={ReactAppUrl.PUBLIC_URL + user?.avatar} style={styles.avatar} />
+          </TouchableOpacity>
+        ),
+      });
+    }
+  }, [navigation, user]);
 
   useEffect(() => {
     if (!permission || !permission.granted) {
@@ -140,20 +166,6 @@ export default function MessageScreen() {
   return (
     <View style={styles.container}>
       <Spinner visible={loading}/>
-
-      <Ionicons
-        name="close"
-        size={30}
-        style={styles.backButton}
-        onPress={goBack}
-      />
-
-      {/* user */}
-      <Pressable style={{alignSelf: "center"}} onPress={goToProfile}>
-        <Image src={ReactAppUrl.PUBLIC_URL + user?.avatar} style={styles.avatar}/>
-
-        <Text style={styles.userName}>{user?.full_name}</Text>
-      </Pressable>
 
       <View style={[styles.container, styles.chatContent]}>
 
@@ -208,13 +220,13 @@ export default function MessageScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: BackgroundColor.primary,
   },
 
   chatContent: {
     padding: 10,
     paddingTop: 20,
-    marginTop: 10,
-    backgroundColor: BackgroundColor.gray_e6,
+    backgroundColor: BackgroundColor.white,
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     shadowColor: BackgroundColor.sub_primary,
@@ -242,14 +254,13 @@ const styles = StyleSheet.create({
   },
 
   avatar: {
-    width: 60,
-    height: 60,
+    width: 50,
+    height: 50,
+    marginVertical: 10,
     borderRadius: 50,
-    backgroundColor: BackgroundColor.white,
-    borderWidth: 0.7,
-    borderColor: BackgroundColor.sub_primary,
-    marginTop: 50,
-    alignSelf: "center",
+    backgroundColor: BackgroundColor.sub_primary,
+    borderWidth: 1,
+    borderColor: BackgroundColor.white,
   },
 
   chatContainer: {

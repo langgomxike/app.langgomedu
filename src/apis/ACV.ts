@@ -104,6 +104,20 @@ export default class ACV {
       })
   }
 
+  public static getTempCV(cv_id: string, onNext: (cv: any[])=> void){
+    axios.get<any>(baseURL + '/temp/' + cv_id)
+      .then((response) => {
+        const data = response.data.data
+        // console.log("data in ACV", JSON.stringify(data, null, 2));
+        onNext(data)
+      })
+      .catch((err) => {
+        console.log(err);
+
+        onNext([])
+      })
+  }
+
   public static sendRequestCV(insertData: any, onNext: (data: any) => void, onLoading: (loading: boolean) => void) {
     onLoading(true);
     // console.log(`${baseURL}/uploadCV`);

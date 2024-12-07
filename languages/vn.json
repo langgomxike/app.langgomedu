@@ -360,6 +360,9 @@
   "ERR_MESSAGE_AUTHOR": "Không phải là tác giả.",
 
   "MESSAGE": "Bạn không có quyền truy cập tab này!",
+  "PASSWORD_INVALID_FORMAT": "Mật khẩu phải từ 6 đến 20 ký tự.",
+  "USERNAME_INVALID_FORMAT": "Username phải từ 6 đến 20 ký tự và không có ký tự đặc biệt.",
+  "NEW_PASSWORD_MUST_BE_DIFFERENT": "Mật khẩu mới không được trùng với mật khẩu cũ.",
 
   "KHANG": "KHANG",
   "CHOOSE":"chọn ...",

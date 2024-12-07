@@ -1,19 +1,19 @@
 import { ScrollView, StyleSheet, Text } from "react-native";
-import InfoClass from "./InfoClass";
-import InfoLesson from "./InfoLesson";
-import InfoTuition from "./LearnerClass/InfoTuition";
+import UpdateInfoClass from "./UpdateInfoClass";
+import UpdateInfoLesson from "./UpdateInfoLesson";
+import UpdateInfoTuition from "./UpdateTurtorClass/UpdateInfoTuition";
 import { TouchableOpacity } from "react-native-gesture-handler";
-import { useCallback, useContext, useState } from "react";
-import AClass from "../../apis/AClass";
-import Lesson from "../../models/Lesson";
+import { useCallback, useContext, useEffect, useState } from "react";
+import AClass from "../../../apis/AClass";
+import Lesson from "../../../models/Lesson";
 import Dialog from "react-native-dialog";
 import { NavigationContext } from "@react-navigation/native";
-import ScreenName from "../../constants/ScreenName";
-import { AccountContext } from "../../configs/AccountConfig";
-import { RoleList } from "../../models/Role";
-import { LanguageContext } from "../../configs/LanguageConfig";
+import ScreenName from "../../../constants/ScreenName";
+import { AccountContext } from "../../../configs/AccountConfig";
+import { RoleList } from "../../../models/Role";
+import { LanguageContext } from "../../../configs/LanguageConfig";
 
-const LearnerClass = () => {
+const TurtorClass = () => {
   // context
   const navigation = useContext(NavigationContext);
   const user = useContext(AccountContext); // get account info
@@ -34,47 +34,63 @@ const LearnerClass = () => {
   const [dataDesc, setDataDesc] = useState<string>("");
   const [dataMajorId, setDataMajorId] = useState<number>(-1);
   const [dataClassLevel, setDataClassLevel] = useState<number>(-1);
+  const [dataMaxLearner, setDataMaxLearner] = useState<number>(0);
 
-  // address state
-  const [dataProvinces, setDataProvinces] = useState("");
-  const [dataDistrict, setDataDistrict] = useState("");
-  const [dataWard, setDataWard] = useState("");
-  const [dataDetail, setDataDetail] = useState("");
-
-  // error state
+  // thêm state để báo lỗi khi các trường để trống
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // lesson state
+  // lesson
   const [lessons, setLessons] = useState<Lesson[]>([]);
 
-  // tuition state
   const [dataPrice, setDataPrice] = useState<number | null>(null);
   const [dataDateStart, setDataDateStart] = useState("");
   const [dataDateEnd, setDataDateEnd] = useState("");
 
-  // max learners state
-  const [maxLearners, setMaxLearners] = useState<number>(0);
+  // state address
+  const [dataProvinces, setDataProvinces] = useState(""); // tỉnh - thành phố
+  const [dataDistrict, setDataDistrict] = useState(""); // quận - huyện
+  const [dataWard, setDataWard] = useState(""); // phường - xã
+  const [dataDetail, setDataDetail] = useState(""); // địa chỉ cụa thể
 
-  // newly created class id
+  // luu class id vua tao
   const [createClassId, setCreateClassId] = useState<number>(-1);
 
-  // dialog visibility state
+  /*===================================================================================*/
+
+  // Dialog state
   const [isDialogVisible, setIsDialogVisible] = useState(false);
 
-  // Data change handlers
   const handleDataChangeClass = (
     title?: string,
     desc?: string,
     monHoc?: string,
-    capHoc?: number
+    capHoc?: number,
+    maxLearners?: number
   ) => {
-    if (title) setDataTitle(title);
-    if (desc) setDataDesc(desc);
-    if (monHoc) setDataMajorId(parseInt(monHoc));
-    if (capHoc) setDataClassLevel(capHoc);
+    if (title) {
+      setDataTitle(title);
+    }
+
+    if (desc) {
+      setDataDesc(desc);
+    }
+
+    if (monHoc) {
+      setDataMajorId(parseInt(monHoc));
+    }
+
+    if (capHoc) {
+      setDataClassLevel(capHoc);
+    }
+
+    if (maxLearners) {
+      setDataMaxLearner(maxLearners);
+    }
   };
 
   const handleDataChangeLesson = (lessons: Lesson[]) => {
+    console.log("class session", lessons);
+
     setLessons(lessons);
   };
 
@@ -82,36 +98,73 @@ const LearnerClass = () => {
     price?: string,
     dateStart?: string,
     dateEnd?: string,
-    maxLearner?: number,
     provice?: string,
     district?: string,
     ward?: string,
     detail?: string
   ) => {
-    if (price) setDataPrice(parseFloat(price));
-    if (dateStart) setDataDateStart(dateStart);
-    if (dateEnd) setDataDateEnd(dateEnd);
-    if (provice) setDataProvinces(provice);
-    if (district) setDataDistrict(district);
-    if (ward) setDataWard(ward);
-    if (detail) setDataDetail(detail);
-    if (maxLearner !== undefined) setMaxLearners(maxLearner);
+    if (price) {
+      setDataPrice(parseFloat(price));
+    }
+    if (dateStart) {
+      setDataDateStart(dateStart);
+    }
+    if (dateEnd) {
+      setDataDateEnd(dateEnd);
+    }
+
+    if (provice) {
+      setDataProvinces(provice);
+    }
+    if (district) {
+      setDataDistrict(district);
+    }
+    if (ward) {
+      setDataWard(ward);
+    }
+    if (detail) {
+      setDataDetail(detail);
+    }
   };
 
+  // convert string to date
   const convertStringToTimestamp = (dateString: string) => {
+    // Tách ngày, tháng, năm từ chuỗi ngày
     const [day, month, year] = dateString.split("/").map(Number);
+
+    // Tạo đối tượng Date với thứ tự là (year, month - 1, day)
+    // Lưu ý: tháng trong Date là từ 0 - 11, nên cần trừ đi 1
     const dateObj = new Date(year, month - 1, day);
-    return !isNaN(dateObj.getTime()) ? dateObj.getTime() : null;
+
+    // Kiểm tra tính hợp lệ của dateObj
+    if (!isNaN(dateObj.getTime())) {
+      // Trả về giá trị thời gian tính bằng milliseconds
+      return dateObj.getTime();
+    } else {
+      // Trả về null nếu dateString không hợp lệ
+      return null;
+    }
   };
 
-  const handleNavigateToDetail = useCallback(
-    (classId: number) => {
-      navigation?.navigate(ScreenName.DETAIL_CLASS, { classId });
-    },
-    [navigation]
-  );
+  const handleNavigateToDetail = useCallback((classId: number) => {
+    navigation?.navigate(ScreenName.DETAIL_CLASS, { classId });
+  }, []);
 
   const handleSaveClass = useCallback(() => {
+    console.log("title: ", dataTitle);
+    console.log("description: ", dataDesc);
+    console.log("majorId: ", dataMajorId);
+    console.log("classLevelId: ", dataClassLevel);
+    console.log("max learner: ", dataMaxLearner);
+    console.log("gia: ", dataPrice);
+    console.log("startedAt: ", dataDateStart);
+    console.log("endedAt: ", dataDateEnd);
+
+    console.log("province: ", dataProvinces);
+    console.log("district: ", dataDistrict);
+    console.log("ward: ", dataWard);
+    console.log("detail: ", dataDetail);
+
     if (!dataTitle.trim()) {
       setErrorMessage(languageContext.ERR_MESSAGE_TITLE);
       return;
@@ -136,35 +189,35 @@ const LearnerClass = () => {
       setErrorMessage(languageContext.ERR_MESSAGE_DATE_START_END);
       return;
     }
-    if (!authorId) {
-      setErrorMessage(languageContext.ERR_MESSAGE_AUTHOR);
-      return;
-    }
 
+    // Reset lỗi trước khi tiếp tục
     setErrorMessage(null);
 
     if (dataDateStart && dataDateEnd) {
-      AClass.createClassForLearner(
+      AClass.createClass(
         dataTitle,
         dataDesc,
         dataMajorId,
         dataClassLevel,
+        dataMaxLearner,
         dataPrice,
         convertStringToTimestamp(dataDateStart),
         convertStringToTimestamp(dataDateEnd),
-        maxLearners,
         dataProvinces,
         dataDistrict,
         dataWard,
         dataDetail,
-        tutorId, // Pass tutorId from context
-        authorId, // Pass authorId from context
+        tutorId,
+        authorId,
         lessons,
         (isSuccess, insertId) => {
+          // kiem tra dung thi tra ve classId
           if (isSuccess && insertId) {
             setCreateClassId(insertId);
-            setIsDialogVisible(true); // Show dialog on success
           }
+
+          // Hiển thị dialog khi lớp học được tạo thành công
+          setIsDialogVisible(true);
         }
       );
     }
@@ -173,27 +226,42 @@ const LearnerClass = () => {
     dataDesc,
     dataMajorId,
     dataClassLevel,
+    dataMaxLearner,
     dataPrice,
     dataDateStart,
     dataDateEnd,
-    maxLearners,
     dataProvinces,
     dataDistrict,
     dataWard,
     dataDetail,
-    tutorId, // Ensure tutorId is available here
-    authorId, // Ensure authorId is available here
+    tutorId,
+    authorId,
     lessons,
   ]);
 
+  // reset lại các giá trị trong ô input
+  const handleResetInput = () => {
+    // Reset các trường về giá trị ban đầu
+    setDataTitle("");
+    setDataDesc("");
+    setDataMajorId(-1);
+    setDataClassLevel(-1);
+    setDataMaxLearner(0);
+    setDataPrice(null);
+    setDataDateStart("");
+    setDataDateEnd("");
+    setDataProvinces("");
+    setDataDistrict("");
+    setDataWard("");
+    setDataDetail("");
+    setLessons([]);
+  };
+
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
-      <InfoClass onNext={handleDataChangeClass} />
-      <InfoLesson handleGetLesson={handleDataChangeLesson} />
-      <InfoTuition
-        onNext={handleDataChangeTuition}
-        userId={user.account?.id ?? ""}
-      />
+      <UpdateInfoClass onNext={handleDataChangeClass} />
+      <UpdateInfoLesson handleGetLesson={handleDataChangeLesson} />
+      <UpdateInfoTuition onNext={handleDataChangeTuition} />
 
       <TouchableOpacity style={styles.btnNext} onPress={handleSaveClass}>
         <Text style={styles.txtNext}>{languageContext.BTN_TAO_LOP}</Text>
@@ -201,17 +269,19 @@ const LearnerClass = () => {
 
       {errorMessage && <Text style={styles.errorText}>{errorMessage}</Text>}
 
+      {/* Dialog thông báo thành công */}
       <Dialog.Container visible={isDialogVisible}>
         <Dialog.Title>{languageContext.DIALOG_TITLE}</Dialog.Title>
         <Dialog.Description>
-          {languageContext.DIALOG_TITLE}: {createClassId}.
+          {languageContext.DIALOG_DESC}: {createClassId}.
         </Dialog.Description>
         <Dialog.Button
           label="OK"
           onPress={() => {
+            handleResetInput();
             setIsDialogVisible(false);
             handleNavigateToDetail(createClassId);
-          }}
+          }} // Đóng dialog khi nhấn "OK"
         />
       </Dialog.Container>
     </ScrollView>
@@ -246,4 +316,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default LearnerClass;
+export default TurtorClass;

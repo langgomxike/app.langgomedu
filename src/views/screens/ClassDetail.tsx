@@ -1,41 +1,30 @@
-import React, { useCallback, useContext, useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  ScrollView,
-  StyleSheet,
-  Image,
-  TouchableOpacity,
-  FlatList,
-  RefreshControl,
-} from "react-native";
-import { BackgroundColor, BorderColor } from "../../configs/ColorConfig";
+import React, {useCallback, useContext, useEffect, useState} from "react";
+import {FlatList, Image, RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View,} from "react-native";
+import {BackgroundColor} from "../../configs/ColorConfig";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import Feather from '@expo/vector-icons/Feather';
-import {
-  NavigationContext,
-  NavigationRouteContext,
-} from "@react-navigation/native";
-import { ClassDetailRoute } from "../../configs/NavigationRouteTypeConfig";
+import {NavigationContext, NavigationRouteContext,} from "@react-navigation/native";
+import {ClassDetailRoute} from "../../configs/NavigationRouteTypeConfig";
 import AClass from "../../apis/AClass";
 import ReactAppUrl from "../../configs/ConfigUrl";
 import Class from "../../models/Class";
 import DetailClassSkeleton from "../components/skeleton/DetailClassSkeleton";
-import { UserContext, UserType } from "../../configs/UserContext";
+import {UserContext, UserType} from "../../configs/UserContext";
 import ModalJoinClass from "../components/modal/ModalJoinClass";
 import AStudent from "../../apis/AStudent";
 import ModalConfirmJoinClass from "../components/modal/ModalConfirmJoinClass";
 import LessonItem from "../components/LessonItem";
-import DateTimeConfig from "../../configs/DateTimeConfig";
 import User from "../../models/User";
-import { LanguageContext } from "../../configs/LanguageConfig";
-import { AccountContext } from "../../configs/AccountConfig";
+import {LanguageContext} from "../../configs/LanguageConfig";
+import {AccountContext} from "../../configs/AccountConfig";
 import AuthorTuorInClass from "../components/AuthorTuorInClass";
 import moment from "moment";
 import ButtonsInDetailClass from "../components/button/ButtonsInDetailClass";
-import SFirebase, { FirebaseNode } from "../../services/SFirebase";
+import SFirebase, {FirebaseNode} from "../../services/SFirebase";
 import ScreenName from "../../constants/ScreenName";
-import { AppInfoContext } from "../../configs/AppInfoContext";
+import QRInfo from "../components/QRInfo";
+import {QRItems} from "../../configs/QRConfig";
+import {RoleList} from "../../models/Role";
 
 const URL = ReactAppUrl.PUBLIC_URL;
 export default function ClassDetail() {
@@ -59,6 +48,7 @@ export default function ClassDetail() {
   const [resultResponse, setResultResponse] = useState(false);
   const [realTimeStatus, setRealTimeStatus] = useState<number>(0);
   const [ refresh, setRefresh ] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   // handlers -------------------------------------------------------------------------
   function formatCurrency(amount: number, locale = "vi-VN", currency = "VND") {
@@ -199,10 +189,19 @@ export default function ClassDetail() {
     
   }, [realTimeStatus])
 
+  useEffect(() => {
+    if (!account) return;
+
+    const isAdmin = !!(account?.roles.map(r => r.id).includes(RoleList.SUPER_ADMIN) ||  account?.roles.map(r => r.id).includes(RoleList.ADMIN));
+    setIsAdmin(isAdmin);
+  }, [account]);
 
   // render ----------------------------------------------------------------
   return (
     <View style={styles.container}>
+
+      <QRInfo id={classDetail?.id ?? -1} type={QRItems.CLASS} />
+
       {loading && <DetailClassSkeleton />}
       {!loading && classDetail && (
         <ScrollView
@@ -389,7 +388,7 @@ export default function ClassDetail() {
         </ScrollView>
       )}
 
-      {classDetail && (
+      {!isAdmin && classDetail && (
         <ButtonsInDetailClass
           classDetail={classDetail}
           handleJoinClass={handleJoinClass}

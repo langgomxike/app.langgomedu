@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, {useContext, useEffect, useState} from "react";
 import {
   Alert,
   FlatList,
@@ -14,35 +14,27 @@ import {
 import Ionicons from "@expo/vector-icons/Ionicons";
 import * as ImagePicker from "expo-image-picker";
 import ImageViewer from "react-native-image-zoom-viewer";
-import MyIcon, { AppIcon } from "../components/MyIcon";
+import MyIcon, {AppIcon} from "../components/MyIcon";
 import IconReport from "../components/ItemUserReport";
 import AUserReport from "../../apis/AUserReport";
-import { AccountContext } from "../../configs/AccountConfig";
-import { LanguageContext } from "../../configs/LanguageConfig";
-import { NavigationContext } from "@react-navigation/native";
-import AUser from "../../apis/AUser";
 import User from "../../models/User";
-import ReactAppUrl from "../../configs/ConfigUrl";
 import Class from "../../models/Class";
-import AClass from "../../apis/AClass";
-const URL = ReactAppUrl.PUBLIC_URL;
+import {CreateReportNavigationType} from "../../configs/NavigationRouteTypeConfig";
+import {NavigationContext, NavigationRouteContext} from "@react-navigation/native";
+import {BackgroundColor} from "../../configs/ColorConfig";
+import {LanguageContext} from "../../configs/LanguageConfig";
 
 export default function CreateReport() {
-  //contexts
-  const accountContext = useContext(AccountContext);
-  const languageContext = useContext(LanguageContext).language;
+  const route = useContext(NavigationRouteContext);
   const navigation = useContext(NavigationContext);
+  const language = useContext(LanguageContext).language;
 
-  const reporter = "089204000001";
-  const reportee = "080204000002";
-  const class_id = "2";
-
-  const [content, setContent] = useState<string>("");
-  const [selectedImages, setselectedImages] = useState<any[]>([]);
-  const [isModalVisible, setModalVisible] = useState(false);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [reporteeInfor, setreporteeInfor] = useState<User | null>(null);
-  const [classReport, setClassReport] = useState<Class | null>(null);
+  const [content, setContent] = useState<string>(""); // Nội dung báo cáo
+  const [selectedImages, setselectedImages] = useState<any[]>([]); // Mảng lưu trữ File[]
+  const [isModalVisible, setModalVisible] = useState(false); // Trạng thái hiển thị modal
+  const [currentImageIndex, setCurrentImageIndex] = useState(0); // Ảnh được chọn để xem
+  const [reportee, setReportee] = useState<User>();
+  const [_class, setClass] = useState<Class | undefined>();
 
   // Hàm mở thư viện ảnh
   const pickImage = async () => {
@@ -129,73 +121,55 @@ export default function CreateReport() {
   };
 
   useEffect(() => {
-    AUser.getUserProfileById(
-      reportee,
-      (data: User) => {
-        // console.log(data);
-        setreporteeInfor(data); // Lưu dữ liệu nhận được vào state
-      },
-      (isLoading: boolean) => {}
-    );
-  }, [reportee]);
+    if (navigation) {
+      navigation.setOptions({
+        title: language.CREATE_CLASS,
+        headerShown: true,
+        contentStyle: {
+          padding: 0,
+        },
+        headerStyle: {
+          backgroundColor: BackgroundColor.primary,
+        },
+        headerTintColor: "#fff",
+        headerLeft: () => (
+          <TouchableOpacity onPress={() => navigation.goBack()} style={{ paddingRight: 10 }}>
+            <Ionicons name="chevron-back" size={24} color="white" />
+          </TouchableOpacity>
+        )
+      });
+    }
+  }, [navigation]);
 
   useEffect(() => {
-    if (class_id && class_id !== 0+"") {
-      AClass.getClassById(
-        class_id,
-        (classDetails) => {
-          if (classDetails) {
-            setClassReport(classDetails);
-          } else {
-            setClassReport(null);
-          }
-        },
-        (isLoading) => {
-          console.log("Loading:", isLoading);
-        }
-      );
-    } else {
-      setClassReport(null);
-    }
-  }, [class_id]);
+    const data: CreateReportNavigationType = route?.params as CreateReportNavigationType;
 
-  console.log("class_id", class_id);
-  console.log("class", classReport?.title);
+    setReportee(data.reportee);
+    if (data.class) {
+      setClass(data.class);
+    }
+  }, []);
 
   return (
     <ScrollView style={styles.container}>
       <View style={styles.component1}>
-        <View style={styles.screenName}>
-          <TouchableOpacity style={styles.backBtn}>
-            <MyIcon
-              size="20"
-              icon={AppIcon.back_button}
-              onPress={navigation?.goBack}
-            />
-          </TouchableOpacity>
-          <Text style={styles.screenTitle}>
-            {languageContext.SCREEN_NAME_REPORT}
-          </Text>
-        </View>
-        <Text style={styles.smallTitle}>{languageContext.REPORTEE}</Text>
+
+        <Text style={styles.smallTitle}>Người dùng bị báo cáo</Text>
         <View style={styles.iconReport}>
-          <IconReport
-            userAvatar={reporteeInfor?.avatar + ""}
-            userName={reporteeInfor?.full_name + ""}
-            credibility={reporteeInfor?.point}
-          />
+          <IconReport userName={reportee?.full_name ?? ""} credibility={reportee?.point ?? 0}
+                      userAvatar={reportee?.avatar}/>
         </View>
-        {class_id !== 0 + "" ? (
+
+        {_class &&
           <>
-            <Text style={styles.smallTitle}>
-              {languageContext.CLASS_DETAILS}
-            </Text>
-            <View style={styles.classReport}>
-              <Text>{classReport?.title}</Text>
+            <Text style={styles.smallTitle}>Lop hoc bị báo cáo</Text>
+            <View style={styles.iconReport}>
+              <IconReport userName={_class?.title ?? ""} credibility={reportee?.point ?? 0}
+                          userAvatar={_class?.major?.icon} isClass={true}/>
             </View>
-          </>
-        ) : null}
-        <Text style={styles.smallTitle}>{languageContext.CONTENT_REPORT}</Text>
+          </>}
+
+        <Text style={styles.smallTitle}>Nội dung báo cáo</Text>
         <TextInput
           style={styles.textInput}
           placeholder={languageContext.INPUT_CONTENT}
@@ -207,8 +181,8 @@ export default function CreateReport() {
       </View>
       <View style={styles.componentn}>
         <TouchableOpacity style={styles.uploadBtn} onPress={pickImage}>
-          <Ionicons name="image-outline" size={24} color="black" />
-          <Text style={styles.uploadText}>{languageContext.PICK_IMAGE}</Text>
+          <Ionicons name="image-outline" size={24} color="black"/>
+          <Text style={styles.uploadText}>Chọn ảnh</Text>
         </TouchableOpacity>
         <Text style={styles.uploadGuideText}>
           {languageContext.PLEASE_UPLOAD_REPORT_IMAGES}
@@ -219,11 +193,11 @@ export default function CreateReport() {
         {selectedImages.length > 0 ? (
           <FlatList
             data={selectedImages}
-            renderItem={({ item, index }) => {
+            renderItem={({item, index}) => {
               return (
                 <TouchableOpacity onPress={() => openModal(index)}>
                   <View style={styles.imageContainer}>
-                    <Image source={{ uri: item.uri }} style={styles.image} />
+                    <Image source={{uri: item.uri}} style={styles.image}/>
                     <TouchableOpacity
                       style={styles.deleteIcon}
                       onPress={() => removeImage(index)}
@@ -260,7 +234,7 @@ export default function CreateReport() {
             style={styles.closeButton}
             onPress={() => setModalVisible(false)}
           >
-            <Ionicons name="close" size={30} color="#FFF" />
+            <Ionicons name="close" size={30} color="#FFF"/>
           </TouchableOpacity>
 
           {/* Image Viewer */}

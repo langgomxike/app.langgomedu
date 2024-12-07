@@ -95,12 +95,6 @@ export default function HomeScreen() {
     navigation?.navigate(ScreenName.CV);
   }, []);
 
-  // Đường dẫn tạm đếm admin
-  // navigation?.navigate(ScreenName.PROFILE);
-  // const handleOpenDrawer = () => {
-  //   // navigation
-  // }, []);
-
   const onRefresh = useCallback(() => {
     setRefresh(true);
   }, [refresh]);

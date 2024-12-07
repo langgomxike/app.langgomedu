@@ -16,11 +16,15 @@ import ModalPayClassFee from "../modal/ModalPayClassFee";
 import AClass from "../../../apis/AClass";
 import {NavigationContext} from "@react-navigation/native";
 import ScreenName from "../../../constants/ScreenName";
-import {MessageNavigationType} from "../../../configs/NavigationRouteTypeConfig";
+import {
+  CreateReportNavigationType,
+  MessageNavigationType,
+  ReportNavigationType
+} from "../../../configs/NavigationRouteTypeConfig";
 import ModalDialogForClass from "../modal/ModalDialogForClass";
 import ButtonDisableInClassDetail from "./ButtonDisableInClassDetail";
-import { LanguageContext } from "../../../configs/LanguageConfig";
-import { AppInfoContext } from "../../../configs/AppInfoContext";
+import {LanguageContext} from "../../../configs/LanguageConfig";
+import {AppInfoContext} from "../../../configs/AppInfoContext";
 
 type ButtonsInDetailClassProps = {
   classDetail: Class;
@@ -29,10 +33,10 @@ type ButtonsInDetailClassProps = {
 };
 
 export default function ButtonsInDetailClass({
-  classDetail,
-  handleJoinClass,
-  handleAcceptClass,
-}: ButtonsInDetailClassProps) {
+                                               classDetail,
+                                               handleJoinClass,
+                                               handleAcceptClass,
+                                             }: ButtonsInDetailClassProps) {
   // contexts ----------------------------------------------------------------
   const user = useContext(UserContext).user;
   const account = useContext(AccountContext).account;
@@ -40,11 +44,11 @@ export default function ButtonsInDetailClass({
   const language = useContext(LanguageContext).language;
   const appInfoContext = useContext(AppInfoContext).infos;
 
-  const classFee = classDetail ? (classDetail.total_lessons * classDetail.price) * 
-      (classDetail.author?.id === classDetail.tutor?.id
-        ? appInfoContext.creation_fee_for_tutors
-        : appInfoContext.creation_fee_for_parents)
-  : 0;
+  const classFee = classDetail ? (classDetail.total_lessons * classDetail.price) *
+    (classDetail.author?.id === classDetail.tutor?.id
+      ? appInfoContext.creation_fee_for_tutors
+      : appInfoContext.creation_fee_for_parents)
+    : 0;
   const isAuthor = classDetail?.user_status === "author";
   const isMember = classDetail?.user_status === "member";
   const isAuthorTutor = classDetail?.user_status === "author_and_tutor";
@@ -108,6 +112,13 @@ export default function ButtonsInDetailClass({
     }
   };
 
+  const goToCReport = () => {
+    if (classDetail.author) {
+      const data: CreateReportNavigationType = {reportee: classDetail.author, class: classDetail};
+      navigation?.navigate(ScreenName.CREATE_REPORT, data);
+    }
+  };
+
   const handleAcceptTutorForClass = (authorAccepted: boolean) => {
     setModalVisible("modalDialogForClass");
     if (authorAccepted) {
@@ -125,7 +136,8 @@ export default function ButtonsInDetailClass({
     AClass.acceptTutorForClass(
       classDetail.id,
       authorAccepted,
-      () => {},
+      () => {
+      },
       setWaitResponse
     );
   };
@@ -174,13 +186,27 @@ export default function ButtonsInDetailClass({
           >
             <Text style={styles.btnAcceptText}>{getButtonText()}</Text>
           </TouchableOpacity>
+
+          {isMember && (
+            <TouchableOpacity
+              onPress={goToCReport}
+              style={[styles.btn, styles.btnChat, styles.boxShadowBlue]}
+            >
+              <Ionicons
+                name="alert"
+                size={20}
+                color="black"
+              />
+            </TouchableOpacity>
+          )}
+
           <TouchableOpacity
             onPress={goToChatWithAuthor}
             style={[styles.btn, styles.btnChat, styles.boxShadowBlue]}
           >
             <Ionicons
               name="chatbubble-ellipses-outline"
-              size={24}
+              size={20}
               color="black"
             />
           </TouchableOpacity>
@@ -195,7 +221,7 @@ export default function ButtonsInDetailClass({
       )}
 
       {/* Lớp mình tham gia để dạy và người tạo chấp nhận sau đó phải đóng phí */}
-      {!isAuthor && isTutorAccept && !classDetail.paid_path &&(
+      {!isAuthor && isTutorAccept && !classDetail.paid_path && (
         <View style={[styles.buttonContainer, styles.boxShadow]}>
           <TouchableOpacity
             onPress={() => setModalVisible("modalPayClassFee")}
@@ -207,7 +233,7 @@ export default function ButtonsInDetailClass({
       )}
 
       {/* Chấp nhận từ chối khi có tutor tham gia vào lớp mình tạo */}
-      {isAuthor && classDetail?.tutor?.id && !classDetail?.author_accepted &&  (
+      {isAuthor && classDetail?.tutor?.id && !classDetail?.author_accepted && (
         <View style={[styles.buttonContainer, styles.boxShadow]}>
           <TouchableOpacity
             onPress={() => handleAcceptTutorForClass(false)}
@@ -227,7 +253,7 @@ export default function ButtonsInDetailClass({
       {/* Chờ admin duyệt lớp mà mình tạo ra */}
       {isAuthorTutor && !classDetail.admin_accepted && (
         <View style={[styles.buttonContainer, styles.boxShadow]}>
-          <ButtonDisableInClassDetail content={language.PLEASE_WAIT_CLASS_APPROVAL} />
+          <ButtonDisableInClassDetail content={language.PLEASE_WAIT_CLASS_APPROVAL}/>
         </View>
       )}
 
@@ -236,11 +262,11 @@ export default function ButtonsInDetailClass({
         !classDetail.paid &&
         classDetail.paid_path && (
           <View style={[styles.buttonContainer, styles.boxShadow]}>
-            <ButtonDisableInClassDetail content={language.PLEASE_WAIT_PAYMENT_CONFIRMATION} />
+            <ButtonDisableInClassDetail content={language.PLEASE_WAIT_PAYMENT_CONFIRMATION}/>
           </View>
         )}
 
-        {/* Thanh toán phí tạo lớp cho admin */}
+      {/* Thanh toán phí tạo lớp cho admin */}
       {isAuthorTutor && classDetail.admin_accepted && !classDetail.paid_path && (
         <View style={[styles.buttonContainer, styles.boxShadow]}>
           <TouchableOpacity
@@ -256,7 +282,7 @@ export default function ButtonsInDetailClass({
         confirmTitle={language.PAYMENT}
         visiable={modalVisible}
         onRequestCloseDialog={() => setModalVisible(null)}
-        classFee = {classFee}
+        classFee={classFee}
         onSelectedImage={setSelectedImage}
         onPay={handlePayClassFee}
       />
@@ -266,7 +292,10 @@ export default function ButtonsInDetailClass({
         confirmContent={modalContent.message}
         imageStatus={"success"}
         visiable={modalVisible}
-        onRequestCloseDialog={() => {setModalVisible(null); setWaitResponse(false)}}
+        onRequestCloseDialog={() => {
+          setModalVisible(null);
+          setWaitResponse(false)
+        }}
         loading={waitResponse}
       />
     </View>

@@ -8,7 +8,7 @@ import {MessageNavigationType} from "../../../configs/NavigationRouteTypeConfig"
 import ScreenName from "../../../constants/ScreenName";
 import SFirebase, {FirebaseNode} from "../../../services/SFirebase";
 import AMessage from "../../../apis/AMessage";
-import {ScrollView, StyleSheet, Text, View} from "react-native";
+import {Image, ScrollView, StyleSheet, Text, View} from "react-native";
 import ChatMessageItem from "../ChatMessageItem";
 import SLog, {LogType} from "../../../services/SLog";
 import {LanguageContext} from "../../../configs/LanguageConfig";
@@ -94,7 +94,14 @@ const messageTab: TabItem = {
         )}
 
         {!loading && chatMessages.length < 1 && (
-          <Text style={{flex: 1, alignSelf: "center", marginTop: 20}}>{language.EMPTY_LIST}</Text>
+          <>
+            <Image
+              source={require("../../../../assets/images/ic_empty.png")}
+              style={[styles.emptyImage]}
+            />
+
+            <Text style={{flex: 1, alignSelf: "center"}}>{language.EMPTY_LIST}</Text>
+          </>
         )}
 
         <View style={{height: 70}}/>
@@ -112,6 +119,14 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     minHeight: 60,
     width: "100%"
+  },
+
+  emptyImage: {
+    width: 200,
+    height: 200,
+    backgroundColor: "#fff",
+    alignSelf: "center",
+    margin: 15,
   },
 
   avatar: {

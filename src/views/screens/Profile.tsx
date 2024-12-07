@@ -1,6 +1,6 @@
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { Picker } from "@react-native-picker/picker";
-import { useCallback, useState, useEffect, useContext } from "react";
+import {Picker} from "@react-native-picker/picker";
+import React, {useCallback, useState, useEffect, useContext} from "react";
 import {
   Image,
   ScrollView,
@@ -16,14 +16,21 @@ import User from "../../models/User";
 import DateTimeConfig from "../../configs/DateTimeConfig";
 import Avatar from "../components/Avatar";
 import ReactAppUrl from "../../configs/ConfigUrl";
-import { AccountContext } from "../../configs/AccountConfig";
+import {AccountContext} from "../../configs/AccountConfig";
 import {
   NavigationContext,
   NavigationRouteContext,
 } from "@react-navigation/native";
-import { IdNavigationType } from "../../configs/NavigationRouteTypeConfig";
+import {
+  CreateReportNavigationType,
+  IdNavigationType,
+  MessageNavigationType
+} from "../../configs/NavigationRouteTypeConfig";
 import ScreenName from "../../constants/ScreenName";
-import { LanguageContext } from "../../configs/LanguageConfig";
+import {LanguageContext} from "../../configs/LanguageConfig";
+import {RoleList} from "../../models/Role";
+import {BackgroundColor} from "../../configs/ColorConfig";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import MyIcon, { AppIcon } from "../components/MyIcon";
 const URL = ReactAppUrl.PUBLIC_URL;
 export default function ProfileScreen() {
@@ -33,13 +40,13 @@ export default function ProfileScreen() {
   const route = useContext(NavigationRouteContext);
   const languageContext = useContext(LanguageContext).language;
 
-
   //states
   const [loading, setLoading] = useState(true);
   const navigation = useContext(NavigationContext);
   const [interestedField, setInterestedField] = useState("");
   const [userProfile, setUserProfile] = useState<User | null>(null);
   const pastelColors = ["#fff"];
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const randomColor =
     pastelColors[Math.floor(Math.random() * pastelColors.length)];
@@ -88,16 +95,59 @@ export default function ProfileScreen() {
 
   //handlers
   const handleSubmit = useCallback(() => {
-    alert("Call api to save profile here");
-  }, []);
+    if (!userProfile) return;
+
+    const data: MessageNavigationType = {
+      user: userProfile,
+    }
+
+    navigation?.navigate(ScreenName.MESSAGE, data);
+  }, [userProfile]);
+
   const goToPersonalInfoScreen = useCallback(() => {
     navigation?.navigate(ScreenName.UPDATE_PROFILE);
   }, []);
+
   const goToReport = useCallback(() => {
-    navigation?.navigate(ScreenName.CREATE_REPORT);
-  },[]);
+    if (!userProfile) return;
+
+    const data: CreateReportNavigationType = {
+      reportee: userProfile,
+    }
+
+    navigation?.navigate(ScreenName.CREATE_REPORT, data);
+  }, [userProfile]);
+
+  useEffect(() => {
+    if (navigation) {
+      navigation.setOptions({
+        title: userProfile?.full_name,
+        headerShown: true,
+        contentStyle: {
+          padding: 0,
+        },
+        headerStyle: {
+          backgroundColor: BackgroundColor.primary,
+        },
+        headerTintColor: "#fff",
+        headerLeft: () => (
+          <TouchableOpacity onPress={() => navigation.goBack()} style={{ paddingRight: 10 }}>
+            <Ionicons name="chevron-back" size={24} color="white" />
+          </TouchableOpacity>
+        )
+      });
+    }
+  }, [navigation, userProfile]);
+
+  useEffect(() => {
+    if (!accountContext.account) return;
+
+    const isAdmin = !!(accountContext.account?.roles.map(r => r.id).includes(RoleList.SUPER_ADMIN) || accountContext.account?.roles.map(r => r.id).includes(RoleList.ADMIN));
+    setIsAdmin(isAdmin);
+  }, [accountContext.account]);
+
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{flex: 1, backgroundColor: BackgroundColor.white}}>
       <ScrollView>
         <View style={styles.container}>
           {/* screen title */}
@@ -108,7 +158,7 @@ export default function ProfileScreen() {
               <Image
                 source={
                   userProfile?.avatar
-                    ? { uri: `${URL}/${userProfile.avatar}` } // Nếu userAvatar tồn tại, sử dụng URI
+                    ? {uri: `${URL}/${userProfile.avatar}`} // Nếu userAvatar tồn tại, sử dụng URI
                     : require("../../../assets/avatar/img_avatar_cat.png") // Nếu không, sử dụng ảnh mặc định
                 }
                 style={styles.avatar}
@@ -116,23 +166,23 @@ export default function ProfileScreen() {
             </View>
             <View style={styles.inf}>
               <Text style={styles.name}>{userProfile?.full_name}</Text>
-              <View style={{ flexDirection: "row", gap: 10 }}>
+              <View style={{flexDirection: "row", gap: 10}}>
                 <Text style={styles.birthday}>{brithday}</Text>
                 <View>
                   {/* {userProfile?.gender_id==1?"nam":"nữ"} */}
                   {userProfile?.gender?.id === 0 ? (
                     <Image
-                      style={{ width: 20, height: 20 }}
+                      style={{width: 20, height: 20}}
                       source={require("../../../assets/icons/ic_boy.png")}
                     />
                   ) : userProfile?.gender?.id === 1 ? (
                     <Image
-                      style={{ width: 20, height: 20 }}
+                      style={{width: 20, height: 20}}
                       source={require("../../../assets/icons/girl.png")}
                     />
                   ) : (
                     <Image
-                      style={{ width: 20, height: 20 }}
+                      style={{width: 20, height: 20}}
                       source={require("../../../assets/icons/ic_heart.png")}
                     />
                   )}
@@ -179,11 +229,11 @@ export default function ProfileScreen() {
                   pastelColors[Math.floor(Math.random() * pastelColors.length)];
                 return (
                   <View
-                    style={[styles.majorItem, { backgroundColor: randomColor }]}
+                    style={[styles.majorItem, {backgroundColor: randomColor}]}
                     key={index}
                   >
                     <Image
-                      source={{ uri: `${URL}${major.icon}` }}
+                      source={{uri: `${URL}${major.icon}`}}
                       style={styles.majorIcon}
                     />
                     <Text style={styles.majorName}>
@@ -191,10 +241,10 @@ export default function ProfileScreen() {
                         languageContext.TYPE === "vi"
                           ? major.vn_name
                           : languageContext.TYPE === "en"
-                          ? major.en_name
-                          : languageContext.TYPE === "ja"
-                          ? major.ja_name
-                          : major.vn_name // Giá trị mặc định nếu không khớp
+                            ? major.en_name
+                            : languageContext.TYPE === "ja"
+                              ? major.ja_name
+                              : major.vn_name // Giá trị mặc định nếu không khớp
                       }
                     </Text>
                   </View>
@@ -215,12 +265,12 @@ export default function ProfileScreen() {
                   const randomColor =
                     pastelColors[
                       Math.floor(Math.random() * pastelColors.length)
-                    ];
+                      ];
                   return (
                     <View
                       style={[
                         styles.majorItem,
-                        { backgroundColor: randomColor },
+                        {backgroundColor: randomColor},
                       ]}
                       key={index}
                     >
@@ -229,10 +279,10 @@ export default function ProfileScreen() {
                           languageContext.TYPE === "vi"
                             ? major.vn_name
                             : languageContext.TYPE === "en"
-                            ? major.en_name
-                            : languageContext.TYPE === "ja"
-                            ? major.ja_name
-                            : major.vn_name // Giá trị mặc định nếu không khớp
+                              ? major.en_name
+                              : languageContext.TYPE === "ja"
+                                ? major.ja_name
+                                : major.vn_name // Giá trị mặc định nếu không khớp
                         }
                       </Text>
                     </View>
@@ -261,7 +311,7 @@ export default function ProfileScreen() {
 
           <View style={styles.contacts}>
             <Text>
-              <Text style={{ fontWeight: "bold" }}>
+              <Text style={{fontWeight: "bold"}}>
                 {languageContext.PHONE_NUMBER}{" "}
               </Text>
               {userProfile?.phone_number.slice(0, -7) + "*******"}
@@ -270,6 +320,7 @@ export default function ProfileScreen() {
           </View>
         </View>
       </ScrollView>
+
       <View style={styles.btns}>
         {userProfile?.id !== accountContext.account?.id ? (
           // Nút Edit khi userId trùng với isLoginUser
@@ -281,22 +332,24 @@ export default function ProfileScreen() {
           </TouchableOpacity>
         ) : (
           // Hiển thị nút Nhắn Tin và Báo Cáo khi không trùng
-          <>
+          !isAdmin && <>
             <TouchableOpacity style={styles.buttonNext} onPress={handleSubmit}>
               <Text style={styles.buttonText}>{languageContext.CHAT}</Text>
             </TouchableOpacity>
+
             <TouchableOpacity
               style={styles.buttonReport}
               onPress={goToReport}
             >
               <Image
-                style={{ width: 20, height: 20 }}
+                style={{width: 20, height: 20}}
                 source={require("../../../assets/icons/ic_report_account.png")}
               />
             </TouchableOpacity>
           </>
         )}
       </View>
+
     </View>
   );
 }
@@ -457,7 +510,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 8,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 5,

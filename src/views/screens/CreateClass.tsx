@@ -1,12 +1,11 @@
 import { Alert, StyleSheet, TouchableOpacity } from "react-native";
 import { Text, View } from "react-native";
 import { useContext, useState } from "react";
-import LearnerClass from "../components/LearnerClass"; // Phụ huynh tạo lớp
-import TurtorClass from "../components/TurtorClass"; // Gia sư tạo lớp
+import LearnerClass from "../components/CreateClass/LearnerClass"; // Phụ huynh tạo lớp
+import TurtorClass from "../components/CreateClass/TurtorClass"; // Gia sư tạo lớp
 import { AccountContext } from "../../configs/AccountConfig";
 import { RoleList } from "../../models/Role";
 import { LanguageContext } from "../../configs/LanguageConfig";
-import { lang } from "moment";
 
 export default function CreateClassScreen() {
   // lấy vai trò (role)
@@ -20,14 +19,27 @@ export default function CreateClassScreen() {
   const handleTabPress = (tabIndex: number) => {
     const roleIds = accountContext.account?.roles?.map((role) => role.id);
 
-    // Kiểm tra quyền truy cập tab
-    if (
-      (tabIndex === 0 && roleIds?.includes(RoleList.TUTOR)) ||
-      (tabIndex === 1 && roleIds?.includes(RoleList.PARENT))
-    ) {
+    // kiểm tra nếu user chỉ có quyền user
+    if ( roleIds?.includes(RoleList.BANNED_USER) || roleIds?.includes(RoleList.CHILD)) {
       Alert.alert(languageContext.NOTIFICATION.toUpperCase(), languageContext.MESSAGE);
       return;
     }
+
+    // Kiểm tra quyền truy cập tab
+    if (tabIndex === 0) {
+      // Tab "Tạo lớp cho phụ huynh"
+      if (!roleIds?.includes(RoleList.USER) && !roleIds?.includes(RoleList.PARENT)) {
+        Alert.alert(languageContext.NOTIFICATION.toUpperCase(), languageContext.MESSAGE);
+        return;
+      }
+    } else if (tabIndex === 1) {
+      // Tab "Tạo lớp cho gia sư"
+      if (!roleIds?.includes(RoleList.TUTOR)) {
+        Alert.alert(languageContext.NOTIFICATION.toUpperCase(), languageContext.MESSAGE);
+        return;
+      }
+    }
+    
     setActiveTab(tabIndex); // Đặt tab đang được chọn
   };
 

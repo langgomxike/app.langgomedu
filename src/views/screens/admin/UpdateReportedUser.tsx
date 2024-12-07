@@ -22,7 +22,7 @@ import {NavigationContext, NavigationRouteContext} from "@react-navigation/nativ
 import {LanguageContext} from "../../../configs/LanguageConfig";
 import {AppInfoContext} from "../../../configs/AppInfoContext";
 import Report from "../../../models/Report";
-import {IdNavigationType, ReportNavigationType} from "../../../configs/NavigationRouteTypeConfig";
+import {ClassDetailRoute, IdNavigationType, ReportNavigationType} from "../../../configs/NavigationRouteTypeConfig";
 import AUserAdmin from "../../../apis/admin/AUserAdmin";
 import ScreenName from "../../../constants/ScreenName";
 import {IImageInfo} from "react-native-image-zoom-viewer/built/image-viewer.type";
@@ -70,9 +70,10 @@ export default function UpdateReportedUser() {
   }, []);
 
   const openClass = useCallback(() => {
-    const data: IdNavigationType = {
-      id: report?.class?.id ?? -1
+    const data: ClassDetailRoute = {
+      classId: report?.class?.id ?? -1
     };
+
     navigation?.navigate(ScreenName.DETAIL_CLASS, data);
   }, [report]);
 
@@ -246,13 +247,19 @@ export default function UpdateReportedUser() {
 
         {/* lớp học bị báo cáo */}
         {report?.class && (
-          <View>
-            <Text style={styles.smallTitle2}>{languageContext.CLASS_REPORT}</Text>
-            <View style={styles.classInfor}>
-              <Text>{report?.class?.title}</Text>
-              <Ionicons onPress={openClass} name="chevron-forward" size={20} color="black"/>
+          <>
+            <View style={styles.infor}>
+              <Text style={styles.smallTitle2}>Lop hoc bi báo cáo </Text>
+              <Text style={styles.smallTitle2}>Class</Text>
             </View>
-          </View>
+
+            <IconReport
+              userAvatar={report?.class?.major?.icon + ""}
+              userName={report?.class?.title + ""}
+              onPress={openClass}
+              isClass={true}
+            />
+          </>
         )}
 
       </View>

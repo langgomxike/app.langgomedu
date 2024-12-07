@@ -149,7 +149,7 @@ export default function PersonalScheduleScreen() {
 
   //testing ///////////////////////////////////////////
   useEffect(() => {
-    console.log(users);
+    console.log("users: ", users);
     // console.log(selectedUser);
 
   }, [users])

@@ -5,6 +5,7 @@ import Pagination from "../../models/Pagination";
 import Response from "../../models/Response";
 import SLog, {LogType} from "../../services/SLog";
 import Report from "../../models/Report";
+import Class from "../../models/Class";
 
 export default class AUserAdmin {
   private static BASE_URL = `${ReactAppUrl.API_BASE_URL}/admin`;
@@ -68,6 +69,22 @@ export default class AUserAdmin {
       })
       .catch(error => {
         SLog.log(LogType.Error, "getReportsOfUser", "cannot get reports", error);
+        onNext([]);
+      });
+  }
+
+  public static getReportsOfClass(_class: Class, onNext: (reports: Report[]) => void) {
+    const url = `${this.BASE_URL}/classes/reports`;
+
+    const data = {class: _class};
+
+    axios.post<Response>(url, data)
+      .then(response => {
+        SLog.log(LogType.Info, "getReportsOfClass", "get reports successfully", response.data.status);
+        onNext(response.data.data as Report[]);
+      })
+      .catch(error => {
+        SLog.log(LogType.Error, "getReportsOfClass", "cannot get reports", error);
         onNext([]);
       });
   }

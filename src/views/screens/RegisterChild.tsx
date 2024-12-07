@@ -1,20 +1,23 @@
-import {ScrollView, Text, View, StyleSheet, Image, Alert} from "react-native";
-import MyIcon, {AppIcon} from "../components/MyIcon";
+import { ScrollView, Text, View, StyleSheet, Image, Alert } from "react-native";
+import MyIcon, { AppIcon } from "../components/MyIcon";
 import InputRegister from "../components/Inputs/InputRegister";
 import Button from "../components/Button";
-import {useCallback, useContext, useState} from "react";
-import {NavigationContext} from "@react-navigation/native";
+import { useCallback, useContext, useState } from "react";
+import { NavigationContext } from "@react-navigation/native";
 import ScreenName from "../../constants/ScreenName";
-import {BackgroundColor, TextColor} from "../../configs/ColorConfig";
-import {LanguageContext} from "../../configs/LanguageConfig";
-import {OTPNavigationType, RegisterType} from "../../configs/NavigationRouteTypeConfig";
+import { BackgroundColor, TextColor } from "../../configs/ColorConfig";
+import { LanguageContext } from "../../configs/LanguageConfig";
+import {
+  OTPNavigationType,
+  RegisterType,
+} from "../../configs/NavigationRouteTypeConfig";
 import Spinner from "react-native-loading-spinner-overlay";
 import Toast from "react-native-simple-toast";
 import AUser from "../../apis/AUser";
-import {AccountContext} from "../../configs/AccountConfig";
+import { AccountContext } from "../../configs/AccountConfig";
 import User from "../../models/User";
 import BackLayout from "../layouts/Back";
-import {AuthContext} from "../../configs/AuthContext";
+import { AuthContext } from "../../configs/AuthContext";
 
 export default function RegisterChildScreen() {
   //contexts, refs
@@ -32,54 +35,74 @@ export default function RegisterChildScreen() {
   const [loading, setLoading] = useState(false);
 
   // kiem tra du lieu khi nhan nut tiep tuc
-  const handleSubmit = useCallback((otp: number, onComplete: () => void) => {
-    const child = new User();
-    child.full_name = fullname;
-    child.username = username;
-    child.password = password;
+  const handleSubmit = useCallback(
+    (otp: number, onComplete: () => void) => {
+      const child = new User();
+      child.full_name = fullname;
+      child.username = username;
+      child.password = password;
 
-    if (!accountContext.account) {
-      Toast.show(languageContext.language.REGISTER_FAILED, 1000);
-      return;
-    }
+      if (!accountContext.account) {
+        Toast.show(languageContext.language.REGISTER_FAILED, 1000);
+        return;
+      }
 
-    AUser.registerChild(otp, child, accountContext.account,
-      (result) => {
-        if (result) {
-          Alert.alert(languageContext.language.REGISTER, languageContext.language.REGISTER_FOR_CHILD_SUCCESS, [
-            {
-              onPress: () => {
-                navigation?.goBack();
-              }
-            }
-          ]);
-        } else {
-          Toast.show(languageContext.language.REGISTER_FAILED, 1000);
-        }
-      },
-      onComplete
-    );
-
-  }, [password, fullname, username, confirmPassword, accountContext.account]);
+      AUser.registerChild(
+        otp,
+        child,
+        accountContext.account,
+        (result) => {
+          if (result) {
+            Alert.alert(
+              languageContext.language.REGISTER,
+              languageContext.language.REGISTER_FOR_CHILD_SUCCESS,
+              [
+                {
+                  onPress: () => {
+                    navigation?.goBack();
+                  },
+                },
+              ]
+            );
+          } else {
+            Toast.show(languageContext.language.REGISTER_FAILED, 1000);
+          }
+        },
+        onComplete
+      );
+    },
+    [password, fullname, username, confirmPassword, accountContext.account]
+  );
 
   const handleAuth = useCallback(() => {
+    // Regex kiểm tra username
+    const usernameRegex = /^[a-zA-Z0-9_]{6,20}$/;
+    // Regex kiểm tra password
+    const passwordRegex = /^.{6,20}$/;
+
     if (!fullname) {
-      Alert.alert(languageContext.language.FULL_NAME, languageContext.language.INVALID_FULL_NAME);
+      Alert.alert(
+        languageContext.language.FULL_NAME,
+        languageContext.language.INVALID_FULL_NAME
+      );
       return;
     }
 
-    if (!username) {
-      Alert.alert(languageContext.language.USERNAME, languageContext.language.INVALID_USERNAME);
+    if (!username || !usernameRegex.test(username)) {
+      Alert.alert(languageContext.language.USERNAME, languageContext.language.USERNAME_INVALID_FORMAT);
       return;
     }
 
-    if (!password) {
-      Alert.alert(languageContext.language.PASSWORD, languageContext.language.INVALID_PASSWORD);
+    if (!password || !passwordRegex.test(password)) {
+      Alert.alert(languageContext.language.PASSWORD, languageContext.language.PASSWORD_INVALID_FORMAT);
       return;
     }
 
     if (password !== confirmPassword) {
-      Alert.alert(languageContext.language.CONFIRM_PASSWORD, languageContext.language.INVALID_CONFIRM_PASSWORD);
+      Alert.alert(
+        languageContext.language.CONFIRM_PASSWORD,
+        languageContext.language.INVALID_CONFIRM_PASSWORD
+      );
       return;
     }
 
@@ -90,17 +113,16 @@ export default function RegisterChildScreen() {
 
     const data: OTPNavigationType = {
       phone_number: accountContext.account?.phone_number ?? "-1",
-    }
+    };
 
     navigation?.navigate(ScreenName.OTP, data);
     authContext.setOnAfterAuth(() => handleSubmit);
-  }, [password, fullname, username, confirmPassword, accountContext.account])
+  }, [password, fullname, username, confirmPassword, accountContext.account]);
 
   return (
     <BackLayout>
       <ScrollView>
         <View style={styles.container}>
-
           {/* illustration image*/}
           <Image
             style={styles.img}
@@ -110,8 +132,12 @@ export default function RegisterChildScreen() {
           {/* screen title */}
           <View style={styles.row}>
             <View>
-              <Text style={styles.title}>{languageContext.language.REGISTER_FOR_CHILD}</Text>
-              <Text style={styles.content}>{languageContext.language.REGISTER_FOR_CHILD_HINT}</Text>
+              <Text style={styles.title}>
+                {languageContext.language.REGISTER_FOR_CHILD}
+              </Text>
+              <Text style={styles.content}>
+                {languageContext.language.REGISTER_FOR_CHILD_HINT}
+              </Text>
             </View>
           </View>
 
@@ -167,7 +193,7 @@ export default function RegisterChildScreen() {
           </View>
 
           {errorMessage ? (
-            <Text style={{color: "red"}}>{errorMessage}</Text>
+            <Text style={{ color: "red" }}>{errorMessage}</Text>
           ) : null}
           <>
             {/* submit button */}

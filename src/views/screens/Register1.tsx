@@ -1,13 +1,13 @@
-import {ScrollView, Text, View, StyleSheet, Image, Alert} from "react-native";
-import MyIcon, {AppIcon} from "../components/MyIcon";
+import { ScrollView, Text, View, StyleSheet, Image, Alert } from "react-native";
+import MyIcon, { AppIcon } from "../components/MyIcon";
 import InputRegister from "../components/Inputs/InputRegister";
 import Button from "../components/Button";
-import {useCallback, useContext, useState} from "react";
-import {NavigationContext} from "@react-navigation/native";
+import { useCallback, useContext, useState } from "react";
+import { NavigationContext } from "@react-navigation/native";
 import ScreenName from "../../constants/ScreenName";
-import {BackgroundColor, TextColor} from "../../configs/ColorConfig";
-import {LanguageContext} from "../../configs/LanguageConfig";
-import {RegisterType} from "../../configs/NavigationRouteTypeConfig";
+import { BackgroundColor, TextColor } from "../../configs/ColorConfig";
+import { LanguageContext } from "../../configs/LanguageConfig";
+import { RegisterType } from "../../configs/NavigationRouteTypeConfig";
 
 export default function RegisterStep1Screen() {
   //contexts, refs
@@ -23,43 +23,83 @@ export default function RegisterStep1Screen() {
 
   // kiem tra du lieu khi nhan nut tiep tuc
   const handleNext = useCallback(() => {
+    // regex username và password
+    const usernameRegex = /^[a-zA-Z0-9_]{6,20}$/;
+    const passwordRegex = /^.{6,20}$/;
+
     if (!phone) {
-      Alert.alert(languageContext.language.PHONE_NUMBER, languageContext.language.INVALID_PHONE_NUMBER, [
-        {
-          text: "OK",
-          onPress: () => {}
-        }
-      ]);
+      Alert.alert(
+        languageContext.language.PHONE_NUMBER,
+        languageContext.language.INVALID_PHONE_NUMBER,
+        [
+          {
+            text: "OK",
+            onPress: () => {},
+          },
+        ]
+      );
       return false;
     }
 
     if (!username) {
-      Alert.alert(languageContext.language.USERNAME, languageContext.language.INVALID_USERNAME, [
-        {
-          text: "OK",
-          onPress: () => {}
-        }
-      ]);
+      Alert.alert(
+        languageContext.language.USERNAME,
+        languageContext.language.INVALID_USERNAME,
+        [
+          {
+            text: "OK",
+            onPress: () => {},
+          },
+        ]
+      );
+      return false;
+    }
+
+    // kiểm tra regex với username nhập vào
+    if (!usernameRegex.test(username)) {
+      Alert.alert(
+        languageContext.language.USERNAME,
+        languageContext.language.USERNAME_INVALID_FORMAT,
+        [{ text: "OK" }]
+      );
       return false;
     }
 
     if (!password) {
-      Alert.alert(languageContext.language.PASSWORD, languageContext.language.INVALID_PASSWORD, [
-        {
-          text: "OK",
-          onPress: () => {}
-        }
-      ]);
+      Alert.alert(
+        languageContext.language.PASSWORD,
+        languageContext.language.INVALID_PASSWORD,
+        [
+          {
+            text: "OK",
+            onPress: () => {},
+          },
+        ]
+      );
+      return false;
+    }
+
+    // kiểm tra regex với username nhập vào
+    if (!passwordRegex.test(password)) {
+      Alert.alert(
+        languageContext.language.PASSWORD,
+        languageContext.language.PASSWORD_INVALID_FORMAT,
+        [{ text: "OK" }]
+      );
       return false;
     }
 
     if (password !== confirmPassword) {
-      Alert.alert(languageContext.language.CONFIRM_PASSWORD, languageContext.language.INVALID_CONFIRM_PASSWORD, [
-        {
-          text: "OK",
-          onPress: () => {}
-        }
-      ]);
+      Alert.alert(
+        languageContext.language.CONFIRM_PASSWORD,
+        languageContext.language.INVALID_CONFIRM_PASSWORD,
+        [
+          {
+            text: "OK",
+            onPress: () => {},
+          },
+        ]
+      );
       return false;
     }
 
@@ -72,8 +112,8 @@ export default function RegisterStep1Screen() {
       const data: RegisterType = {
         password: password,
         phone_number: phone,
-        username: username
-      }
+        username: username,
+      };
       navigation?.navigate(ScreenName.REGISTER_STEP_2, data);
     }
   }, [handleNext]);
@@ -95,8 +135,12 @@ export default function RegisterStep1Screen() {
         {/* screen title */}
         <View style={styles.row}>
           <View>
-            <Text style={styles.title}>{languageContext.language.REGISTER}</Text>
-            <Text style={styles.content}>{languageContext.language.REGISTER_HINT}</Text>
+            <Text style={styles.title}>
+              {languageContext.language.REGISTER}
+            </Text>
+            <Text style={styles.content}>
+              {languageContext.language.REGISTER_HINT}
+            </Text>
           </View>
         </View>
 
@@ -153,7 +197,7 @@ export default function RegisterStep1Screen() {
         </View>
 
         {errorMessage ? (
-          <Text style={{color: "red"}}>{errorMessage}</Text>
+          <Text style={{ color: "red" }}>{errorMessage}</Text>
         ) : null}
         <>
           {/* submit button */}

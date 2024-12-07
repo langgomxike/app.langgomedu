@@ -4,14 +4,14 @@ import InfoLesson from "./InfoLesson";
 import InfoTuition from "./TurtorClass/InfoTuition";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { useCallback, useContext, useEffect, useState } from "react";
-import AClass from "../../apis/AClass";
-import Lesson from "../../models/Lesson";
+import AClass from "../../../apis/AClass";
+import Lesson from "../../../models/Lesson";
 import Dialog from "react-native-dialog";
 import { NavigationContext } from "@react-navigation/native";
-import ScreenName from "../../constants/ScreenName";
-import { AccountContext } from "../../configs/AccountConfig";
-import { RoleList } from "../../models/Role";
-import { LanguageContext } from "../../configs/LanguageConfig";
+import ScreenName from "../../../constants/ScreenName";
+import { AccountContext } from "../../../configs/AccountConfig";
+import { RoleList } from "../../../models/Role";
+import { LanguageContext } from "../../../configs/LanguageConfig";
 
 const TurtorClass = () => {
   // context
