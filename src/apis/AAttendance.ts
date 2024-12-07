@@ -144,4 +144,24 @@ export default class AAttendance {
         console.log("Error: ", err);
       });
   }
+
+  public static sendNotifyLearners(
+    learnerId: string,
+    parentId: string,
+    learnerMessage: string, parentMessage: string,
+    onNext: (data: any) => void,
+    onLoading: (loading: boolean) => void,
+  ) {
+    onLoading(true)
+    axios
+      .post(`${this.API_URL}/notify`, {learner_id: learnerId, parent_id: parentId, learner_message: learnerMessage, parent_message: parentMessage})
+      .then((response) => {
+        console.log(">>> send notification for learner: ", response.data.data);
+        onNext(response.data.data);
+        onLoading(false)
+      })
+      .catch((err) => {
+        console.log("Error: ", err);
+      });
+  }
 }

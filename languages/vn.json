@@ -168,6 +168,8 @@
 
   "HOANG": "Hoang",
   "ATTENDING_CLASS": "Lớp đang học",
+  "ATTEND_CLASS": "Lớp Học",
+  "TEACH_CLASS": "Lớp Dạy",
   "CREATED_CLASS": "Lớp đã tạo",
   "TEACHING_CLASS": "Lớp đang dạy",
   "PENDING_PAY": "Lớp chờ thanh toán",

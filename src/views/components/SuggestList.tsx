@@ -256,7 +256,6 @@ export default function SuggestList() {
     fetchDataByTabCV(1, setLoadingCV, true);
     setRefresh(false);
   }, [refresh]);
-
   // render ----------------------------------------------------------------
 
   return (
