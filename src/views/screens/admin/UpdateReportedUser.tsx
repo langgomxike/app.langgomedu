@@ -52,6 +52,7 @@ export default function UpdateReportedUser() {
   const [report, setReport] = useState<Report | undefined>(undefined);
   const [evidences, setEvidences] = useState<string[]>([]);
   const [isPerformed, setIsPerformed] = useState(ReportMode.NOT_PERFORMED);
+  
 
   //handlers
   const handleSelectLevel = useCallback((levelId: number) => {

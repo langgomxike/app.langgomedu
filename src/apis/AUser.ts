@@ -486,7 +486,10 @@ export default class AUser {
         }
       )
       .then((response) => {
+        console.log("response.data",response.data);
+        
         onNext(response.data); // Gọi callback với dữ liệu phản hồi
+        
       })
       .catch((error) => {
         console.error("Error updating profile:", error.message);

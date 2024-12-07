@@ -5,6 +5,7 @@ import React, { useCallback, useState, useEffect, useContext } from "react";
 import {
   Alert,
   Image,
+  Modal,
   ScrollView,
   StyleSheet,
   Text,
@@ -31,6 +32,7 @@ import { LanguageContext } from "../../configs/LanguageConfig";
 import { NavigationContext } from "@react-navigation/native";
 import MyIcon, { AppIcon } from "../components/MyIcon";
 import { BackgroundColor } from "../../configs/ColorConfig";
+import ImageViewer from "react-native-image-zoom-viewer";
 
 const URL = ReactAppUrl.PUBLIC_URL;
 let userId = "-1";
@@ -65,6 +67,8 @@ export default function PersionalProfileScreen() {
   const [selectedDetail, setSelectedDetail] = useState<string>("");
   const [selectedMajors, setSelectedMajors] = useState<string[]>([]);
   const [selectedClassLevels, setSelectedClassLevels] = useState<string[]>([]);
+  const [showModal, setShowModal] = useState(false);
+  const [showImageModal, setShowImageModal] = useState(false);
   // Giới tính
   const [gender, setGender] = useState(GENDER.MALE); // Default to MALE
 
@@ -110,7 +114,6 @@ export default function PersionalProfileScreen() {
     if (province) setSelectedCity(province);
     if (district) setSelectedDistrict(district);
     if (ward) setSelectedWard(ward);
-
   }, [province, district, ward]);
 
   useEffect(() => {
@@ -172,7 +175,7 @@ export default function PersionalProfileScreen() {
           if (response.success) {
             Alert.alert("Thành công", "Cập nhật ảnh đại diện thành công!");
           } else {
-            Alert.alert("Lỗi", response.message || "Cập nhật ảnh thất bại.");
+            Alert.alert(response.message || "Cập nhật ảnh thất bại.");
           }
         },
         (loading) => {
@@ -226,12 +229,11 @@ export default function PersionalProfileScreen() {
       formData,
       (response) => {
         if (response.success) {
-          Alert.alert("Thành công", "Thông tin cá nhân đã được cập nhật.");
+          // Alert.alert("Thành công", "Thông tin cá nhân đã được cập nhật.");
+          Alert.alert("Cập nhật thông tin thành công");
         } else {
-          Alert.alert(
-            "Lỗi",
-            response.message || "Có lỗi xảy ra, vui lòng thử lại."
-          );
+          Alert.alert(response.message || "Có lỗi xảy ra, vui lòng thử lại.");
+          // Alert.alert("Cập nhật thất bại vui lòng thử lại");
         }
       },
       (isLoading) => {
@@ -240,7 +242,7 @@ export default function PersionalProfileScreen() {
     );
   };
 
-  console.log("user Id", accountContext.account?.id);
+  // console.log("user Id", `${ReactAppUrl.PUBLIC_URL}${userProfile?.avatar}`);
   // console.log("user Id", userId);
   useEffect(() => {
     if (navigation) {
@@ -255,18 +257,24 @@ export default function PersionalProfileScreen() {
         },
         headerTintColor: "#fff",
         headerLeft: () => (
-          <TouchableOpacity onPress={() => navigation.goBack()} style={{ paddingRight: 10 }}>
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            style={{ paddingRight: 10 }}
+          >
             <Ionicons name="chevron-back" size={24} color="white" />
           </TouchableOpacity>
-        )
+        ),
       });
     }
   }, [navigation, userProfile]);
+  const handleViewImage = () => {
+    // Hiển thị modal chứa ImageViewer
+    setShowImageModal(true);
+  };
   return (
-    <View style={{flex: 1, backgroundColor:"#FFF"}}>
+    <View style={{ flex: 1, backgroundColor: "#FFF" }}>
       <ScrollView>
         <View style={styles.container}>
-       
           {/* Avatar */}
           <View style={styles.avatarContainer}>
             <Image
@@ -277,7 +285,10 @@ export default function PersionalProfileScreen() {
               }
               style={styles.avatar}
             />
-            <TouchableOpacity style={styles.button} onPress={handleImageUpload}>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => setShowModal(true)} // Hiển thị modal khi nhấn vào avatar
+            >
               <Image
                 style={styles.clickButtonImage}
                 source={require("../../../assets/icons/ic_camera.png")}
@@ -347,21 +358,82 @@ export default function PersionalProfileScreen() {
               onSetSelectedMajors={setSelectedMajors}
               onSetSelectedClassLevels={setSelectedClassLevels}
             />
-
-            
           </View>
         </View>
       </ScrollView>
       {/* Save Button */}
       <TouchableOpacity
-              style={[styles.buttonNext, loading && { opacity: 0.7 }]}
-              onPress={handleUpdateProfile}
-              disabled={loading}
+        style={[styles.buttonNext, loading && { opacity: 0.7 }]}
+        onPress={handleUpdateProfile}
+        disabled={loading}
+      >
+        <Text style={styles.buttonText}>{languageContext.UPDATED_PROFILE}</Text>
+      </TouchableOpacity>
+      <Modal
+        visible={showModal}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setShowModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => setShowModal(false)} // Đóng modal
             >
-              <Text style={styles.buttonText}>
-                {languageContext.UPDATED_PROFILE}
-              </Text>
+              <Text style={styles.closeButtonText}>X</Text>
             </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.modalButton}
+              onPress={() => {
+                setShowModal(false); // Đóng modal
+                handleImageUpload(); // Gọi hàm cập nhật hình ảnh
+              }}
+            >
+              <Text style={styles.modalButtonText}>Cập nhật hình ảnh</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.modalButton}
+              onPress={() => {
+                setShowModal(false); // Đóng modal
+                handleViewImage(); // Gọi hàm xem ảnh
+              }}
+            >
+              <Text style={styles.modalButtonText}>Xem ảnh</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+      {/* Modal xem hình ảnh */}
+      <Modal
+        visible={showImageModal}
+        transparent={true}
+        onRequestClose={() => setShowImageModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContentImg}>
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => setShowImageModal(false)} // Đóng modal
+            >
+              <Text style={styles.closeButtonText}>X</Text>
+            </TouchableOpacity>
+
+            {/* ImageViewer */}
+            <ImageViewer
+              imageUrls={[
+                {
+                  url: `${ReactAppUrl.PUBLIC_URL}${userProfile?.avatar}` || "",
+                },
+              ]}
+              enableSwipeDown={true}
+              onSwipeDown={() => setShowImageModal(false)} // Đóng modal khi vuốt xuống
+              saveToLocalByLongPress={false} // Tùy chọn nếu bạn không muốn người dùng lưu ảnh
+              style={{ width: "100%", height: "100%" }} // Đảm bảo image viewer chiếm toàn bộ modal
+            />
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -458,22 +530,21 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 10,
     backgroundColor: "#fff",
-    // textAlignVertical: "top",
     textAlign: "left",
     paddingHorizontal: 10,
     paddingVertical: 15,
   },
-  detailAddress:{
+  detailAddress: {
     height: 100,
-    textAlignVertical: 'top',
-    paddingHorizontal:10,
+    textAlignVertical: "top",
+    paddingHorizontal: 10,
     borderWidth: 0.5,
     borderColor: "gray",
     borderRadius: 10,
     backgroundColor: "#fff",
     textAlign: "left",
     paddingVertical: 15,
-    marginTop:15,
+    marginTop: 15,
   },
 
   genderDropdown: {
@@ -487,5 +558,58 @@ const styles = StyleSheet.create({
   picker: {
     height: 50,
     width: "100%",
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  modalContent: {
+    backgroundColor: "white",
+    padding: 20,
+    borderRadius: 10,
+    width: 300,
+    alignItems: "center",
+    paddingTop: 50,
+  },
+  modalContentImg: {
+    backgroundColor: "white",
+    padding: 0,
+    borderRadius: 10,
+    width: "90%",
+    height: "80%",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalButton: {
+    marginBottom: 10,
+    padding: 10,
+    backgroundColor: "#fff",
+    borderRadius: 5,
+    width: "100%",
+    alignItems: "center",
+    borderWidth: 0.5,
+  },
+  modalButtonText: {
+    color: "#000",
+    fontSize: 14,
+  },
+  closeButton: {
+    position: "absolute",
+    top: 10,
+    right: 10,
+    backgroundColor: "transparent",
+    alignItems: "center",
+    borderRadius: 50,
+    borderColor: "#ddd",
+    width: 40,
+    height: 40,
+    zIndex: 1, // Đảm bảo nút đóng luôn ở trên các nút khác
+  },
+  closeButtonText: {
+    fontSize: 18,
+    color: "#333",
+    fontWeight: "bold",
   },
 });
