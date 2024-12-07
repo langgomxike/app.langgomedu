@@ -204,14 +204,14 @@ export default function UpdateReportedUser() {
           <View style={styles.backBtn}>
             <Ionicons name={"arrow-back-outline"} size={30} onPress={navigation?.goBack}/>
           </View>
-          <Text style={styles.screenTitle}>Chi tiết báo cáo </Text>
+          <Text style={styles.screenTitle}>{languageContext.SCREEN_NAME_OF_REPORT}</Text>
         </View>
 
         <Text
           style={styles.badge}>{isPerformed === ReportMode.NOT_PERFORMED ? "Chua xu ly" : isPerformed === ReportMode.APPROVED ? "Da chap nhan" : "Da tu choi"}</Text>
 
         <View style={styles.infor}>
-          <Text style={styles.smallTitle1}>Tài khoản báo cáo </Text>
+          <Text style={styles.smallTitle1}>{languageContext.REPORTER} </Text>
           <Text style={styles.smallTitle1}>
             {
               !report?.class ? "User" :
@@ -229,7 +229,7 @@ export default function UpdateReportedUser() {
 
         {/* tài khoản bị báo cáo */}
         <View style={styles.infor}>
-          <Text style={styles.smallTitle2}>Tài khoản bi báo cáo </Text>
+          <Text style={styles.smallTitle2}>{languageContext.REPORTEE} </Text>
           <Text style={styles.smallTitle2}>
             {
               !report?.class ? "User" :
@@ -265,19 +265,19 @@ export default function UpdateReportedUser() {
       </View>
 
       <View style={styles.component1}>
-        <Text style={styles.smallTitle3}>Noi dung bao cao</Text>
+        <Text style={styles.smallTitle3}>{languageContext.CONTENT_REPORT}</Text>
         <Text style={[styles.reportContent, {minHeight: 100}]}>{report?.content ?? "Noi dung trong"}</Text>
       </View>
 
       {isPerformed === ReportMode.DENIED && (
         <View style={styles.component1}>
-          <Text style={styles.smallTitle3}>Li do tu choi</Text>
+          <Text style={styles.smallTitle3}>{languageContext.REASON_DENNY}</Text>
           <Text style={[styles.reportContent, {minHeight: 100}]}>{report?.reason}</Text>
         </View>
       )}
 
       <View style={styles.component2}>
-        <Text style={styles.smallTitle3}>Minh chứng:</Text>
+        <Text style={styles.smallTitle3}>{languageContext.PROOF}</Text>
         <View style={styles.images}>
           <FlatList
             data={evidences}
@@ -297,7 +297,7 @@ export default function UpdateReportedUser() {
         </View>
 
         <View style={styles.reportLevelContainer}>
-          <Text style={styles.title}>Chọn mức độ báo cáo:</Text>
+          <Text style={styles.title}>{languageContext.CHOOSEN_LEVEL_REPORT}</Text>
           {reportLevels.map((level) => (
             <TouchableOpacity
               key={level.id}
@@ -322,14 +322,14 @@ export default function UpdateReportedUser() {
                 style={[styles.btn, styles.btnAccept]}
                 onPress={handlePerformReport}
               >
-                <Text style={styles.textBtnAccept}>Chấp nhận</Text>
+                <Text style={styles.textBtnAccept}>{languageContext.ALLOW}</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
                 style={[styles.btn, styles.btnDeney]}
                 onPress={() => setModalVisible(true)}
               >
-                <Text style={styles.textBtnDeney}>Từ chối</Text>
+                <Text style={styles.textBtnDeney}>{languageContext.DENNY}</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -341,7 +341,7 @@ export default function UpdateReportedUser() {
               style={[styles.btn, styles.deleteUser]}
               onPress={goToUserPermission}
             >
-              <Text style={styles.textBtnDeleteUser}>Quan ly quyen cua tài khoản</Text>
+              <Text style={styles.textBtnDeleteUser}>{languageContext.MANAGEMENT_ROLES}</Text>
             </TouchableOpacity>
           )}
       </View>
@@ -365,10 +365,10 @@ export default function UpdateReportedUser() {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Nhập lý do từ chối</Text>
+            <Text style={styles.modalTitle}>{languageContext.INPUT_REASON_DENY}</Text>
             <TextInput
               style={styles.textInput}
-              placeholder="Lý do từ chối báo cáo"
+              placeholder={languageContext.INPUT_REASON_DENY}
               value={reason}
               multiline={true}
               numberOfLines={5}
@@ -380,13 +380,13 @@ export default function UpdateReportedUser() {
                 style={[styles.btn, styles.btnCancel]}
                 onPress={() => setModalVisible(false)}
               >
-                <Text style={styles.textBtnCancel}>Hủy</Text>
+                <Text style={styles.textBtnCancel}>{languageContext.CANCEL}</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.btnD, styles.btnConfirm]}
                 onPress={handlePerformReport}
               >
-                <Text style={styles.textBtnConfirm}>Xác nhận</Text>
+                <Text style={styles.textBtnConfirm}>{languageContext.ALLOW}</Text>
               </TouchableOpacity>
             </View>
           </View>

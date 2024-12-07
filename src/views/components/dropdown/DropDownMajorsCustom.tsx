@@ -7,22 +7,27 @@ import Major from "../../../models/Major";
 import ReactAppUrl from "../../../configs/ConfigUrl";
 import ClassLevel from "../../../models/ClassLevel";
 import { Feather } from "@expo/vector-icons";
+import { LanguageContext } from "../../../configs/LanguageConfig";
+
+
 
 type DropdownMajorProps = {
-  selectedMajors: string[],
-  selectedClassLevels: string[],
+  selectedMajors: string[];
+  selectedClassLevels: string[];
   onSetSelectedMajors: (major: string[]) => void;
   onSetSelectedClassLevels: (classLevel: string[]) => void;
-}
+};
 
 export default function DropDownMajors({
   selectedMajors,
   selectedClassLevels,
   onSetSelectedMajors,
-   onSetSelectedClassLevels}: DropdownMajorProps) {
+  onSetSelectedClassLevels,
+}: DropdownMajorProps) {
   //context
+  const languageContext = useContext(LanguageContext).language;
   const majorsLevelsContext = useContext(MajorsLevelsContext);
-console.log(majorsLevelsContext?.classLevels);
+  // console.log(majorsLevelsContext?.classLevels);
 
   // states
   // const [selectedMajors, setSelectedMajors] = useState<string[]>([]);
@@ -32,8 +37,8 @@ console.log(majorsLevelsContext?.classLevels);
 
   useEffect(() => {
     if (majorsLevelsContext?.majors && majorsLevelsContext.classLevels) {
-        setMajors(majorsLevelsContext?.majors);
-        setClassLevels(majorsLevelsContext?.classLevels);
+      setMajors(majorsLevelsContext?.majors);
+      setClassLevels(majorsLevelsContext?.classLevels);
     }
   }, [majorsLevelsContext?.majors]);
 
@@ -44,7 +49,17 @@ console.log(majorsLevelsContext?.classLevels);
           source={{ uri: `${ReactAppUrl.PUBLIC_URL}${item.icon}` }}
           style={styles.majorIcon}
         />
-        <Text style={styles.selectedTextStyle}>{item.vn_name}</Text>
+        <Text style={styles.selectedTextStyle}>
+          {
+            languageContext.TYPE === "vi"
+              ? item.vn_name
+              : languageContext.TYPE === "en"
+              ? item.en_name
+              : languageContext.TYPE === "ja"
+              ? item.ja_name
+              : item.vn_name 
+          }
+        </Text>
       </View>
     );
   };
@@ -59,84 +74,107 @@ console.log(majorsLevelsContext?.classLevels);
 
   return (
     <View style={styles.container}>
-    <View>
-      <Text style={styles.titleDropdown}>Chọn môn học</Text>
-      <MultiSelect
-        style={styles.dropdown}
-        placeholderStyle={styles.placeholderStyle}
-        selectedTextStyle={styles.selectedTextStyle}
-        inputSearchStyle={styles.inputSearchStyle}
-        iconStyle={styles.iconStyle}
-        data={majors}
-        labelField="vn_name"
-        valueField="id"
-        placeholder="Chọn môn học..."
-        value={selectedMajors}
-        search
-        searchPlaceholder="Search..."
-        onChange={(item) => {
-          // setSelectedMajors(item);
-          onSetSelectedMajors(item);
-        }}
-        renderLeftIcon={() => (
-          <AntDesign
-            style={styles.icon}
-            color="black"
-            name="Safety"
-            size={20}
-          />
-        )}
-        renderItem={renderMajors}
-        renderSelectedItem={(item, unSelect) => (
-          <TouchableOpacity style={styles.selectedStyle} onPress={() => unSelect && unSelect(item)}>
-              <Text style={styles.textSelectedStyle}>{item.vn_name}</Text>
-              <Feather name="trash-2" size={15} color="gray" />
-          </TouchableOpacity>
-        )}
-      />
-    </View>
-
-        <View>
-        <Text style={styles.titleDropdown}>Chọn cấp học</Text>
+      <View>
+        <Text style={styles.titleDropdown}>{languageContext.CHOOSE_MAJORS}</Text>
         <MultiSelect
-            style={styles.dropdown}
-            placeholderStyle={styles.placeholderStyle}
-            selectedTextStyle={styles.selectedTextStyle}
-            inputSearchStyle={styles.inputSearchStyle}
-            iconStyle={styles.iconStyle}
-            data={classLevels}
-            labelField="vn_name"
-            valueField="id"
-            placeholder="Chọn cấp học..."
-            value={selectedClassLevels}
-            search
-            searchPlaceholder="Search..."
-            onChange={(item) => {
-            onSetSelectedClassLevels(item);
-            }}
-            renderLeftIcon={() => (
+          style={styles.dropdown}
+          placeholderStyle={styles.placeholderStyle}
+          selectedTextStyle={styles.selectedTextStyle}
+          inputSearchStyle={styles.inputSearchStyle}
+          iconStyle={styles.iconStyle}
+          data={majors}
+          labelField="vn_name"
+          valueField="id"
+          placeholder={languageContext.CHOOSE_MAJORS+"..."}
+          value={selectedMajors}
+          search
+          searchPlaceholder={languageContext.SEARCH}
+
+          onChange={(item) => {
+            // setSelectedMajors(item);
+            onSetSelectedMajors(item);
+          }}
+          renderLeftIcon={() => (
             <AntDesign
-                style={styles.icon}
-                color="black"
-                name="Safety"
-                size={20}
+              style={styles.icon}
+              color="black"
+              name="Safety"
+              size={20}
             />
-            )}
-            renderItem={renderClassLevels}
-            renderSelectedItem={(item, unSelect) => (
-            <TouchableOpacity style={styles.selectedStyle} onPress={() => unSelect && unSelect(item)}>
-                <Text style={styles.textSelectedStyle}>{item.vn_name}</Text>
-                <Feather name="trash-2" size={15} color="gray" />
+          )}
+          renderItem={renderMajors}
+          renderSelectedItem={(item, unSelect) => (
+            <TouchableOpacity
+              style={styles.selectedStyle}
+              onPress={() => unSelect && unSelect(item)}
+            >
+              <Text style={styles.textSelectedStyle}> {
+            languageContext.TYPE === "vi"
+              ? item.vn_name
+              : languageContext.TYPE === "en"
+              ? item.en_name
+              : languageContext.TYPE === "ja"
+              ? item.ja_name
+              : item.vn_name 
+          }</Text>
+              <Feather name="trash-2" size={15} color="gray" />
             </TouchableOpacity>
-            )}
+          )}
         />
-        </View>
+      </View>
+
+      <View>
+        <Text style={styles.titleDropdown}>{languageContext.CHOOSE_CLASS_LEVEL}</Text>
+        <MultiSelect
+          style={styles.dropdown}
+          placeholderStyle={styles.placeholderStyle}
+          selectedTextStyle={styles.selectedTextStyle}
+          inputSearchStyle={styles.inputSearchStyle}
+          iconStyle={styles.iconStyle}
+          data={classLevels}
+          labelField="vn_name"
+          valueField="id"
+          placeholder={languageContext.CHOOSE_CLASS_LEVEL+"..."}
+          value={selectedClassLevels}
+          search
+          searchPlaceholder={languageContext.SEARCH}
+          onChange={(item) => {
+            onSetSelectedClassLevels(item);
+          }}
+          renderLeftIcon={() => (
+            <AntDesign
+              style={styles.icon}
+              color="black"
+              name="Safety"
+              size={20}
+            />
+          )}
+          renderItem={renderClassLevels}
+          renderSelectedItem={(item, unSelect) => (
+            <TouchableOpacity
+              style={styles.selectedStyle}
+              onPress={() => unSelect && unSelect(item)}
+            >
+              <Text style={styles.textSelectedStyle}>{
+            languageContext.TYPE === "vi"
+              ? item.vn_name
+              : languageContext.TYPE === "en"
+              ? item.en_name
+              : languageContext.TYPE === "ja"
+              ? item.ja_name
+              : item.vn_name 
+          }</Text>
+              <Feather name="trash-2" size={15} color="gray" />
+            </TouchableOpacity>
+          )}
+        />
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { padding: 5, gap: 20, },
+  container: { padding: 5, gap: 20 },
   dropdown: {
     height: 50,
     backgroundColor: "white",
