@@ -43,7 +43,7 @@ export default function MembersInClass({members}: MembersInClassProps) {
                 <View style={styles.notificationContent}>
                     <Feather name="check-circle" size={24} color="green" />
                     <Text style={styles.notificationText}>
-                     language.CHILD_ALREADY_ENROLLED
+                     {language.CHILD_ALREADY_ENROLLED}
                     </Text>
                   </View>
 
