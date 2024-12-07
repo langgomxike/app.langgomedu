@@ -296,6 +296,9 @@
   "PLEASE_WAIT_ACCEPTANCE": "承認をお待ちください",
   "TAKE_CLASS": "クラスを受ける",
 
+   "CLASS_CHILDREN_LIST": "クラス内の子供リスト",
+  "CHILD_ALREADY_ENROLLED": "この子はすでにこのクラスに参加しています",
+
   "NHI": "Nhi",
   "CREATE_CLASS": "入学クラスを作成",
   "CREATE_CLASS_FOR_TUTOR": "家庭教師がクラスを作成",

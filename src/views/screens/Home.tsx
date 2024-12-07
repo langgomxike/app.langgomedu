@@ -134,7 +134,7 @@ export default function HomeScreen() {
               onPress={handleChangeUserType}
               style={[styles.btnSwitchRole, styles.boxShadow]}
             >
-              <Text>{user.TYPE === UserType.LEANER ? language.TUTOR : language.LEARNER}</Text>
+              <Text>{user.TYPE === UserType.LEANER ? language.LEARNER : language.LEARNER}</Text>
             </TouchableOpacity>
           </View>
 
