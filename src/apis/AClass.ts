@@ -14,7 +14,7 @@ export default class AClass {
   public static getClassDetailWithUser(
     classId: number,
     userId: string,
-    onNext: (course: Class) => void,
+    onNext: (course: Class, membersInClass: User[]) => void,
     onLoading: (loading: boolean) => void
   ) {
 
@@ -24,12 +24,15 @@ export default class AClass {
       .get(`${this.API_URL}/classes/detail/${classId}?user_id=${userId}`)
       .then((response) => {
         const data = response.data.data;
-        onNext(data.class);
+        const classData: Class =  data.class;
+        const membersInClass: User[] =  data.members_in_class;
+
+        onNext(classData, membersInClass);
         onLoading(false);
       })
       .catch((err) => {
         console.log("Error: ", err);
-        onNext(new Class());
+        onNext(new Class(), []);
         onLoading(true);
       });
   }

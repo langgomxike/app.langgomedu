@@ -305,6 +305,9 @@
   "PLEASE_WAIT_ACCEPTANCE": "Please wait for acceptance",
   "TAKE_CLASS": "Take class",
 
+   "CLASS_CHILDREN_LIST": "List of children in the class",
+  "CHILD_ALREADY_ENROLLED": "This child is already and currently attending this class",
+
   "NHI": "Nhi",
   "CREATE_CLASS": "Create an enrollment class",
   "CREATE_CLASS_FOR_TUTOR": "Tutor creates a class",
