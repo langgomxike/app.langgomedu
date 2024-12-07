@@ -237,18 +237,19 @@ export default function DetailUserBottomSheet({
             </TouchableOpacity>
           </View>
 
-          <View style={{flex: 1, marginTop: 20,}}>
-            <Text style={[styles.btnReportText, {color: TextColor.danger}]}>
-              Danh sach bao cao
-            </Text>
 
-            {userData.is_reported && (
+          {userData.is_reported && (
+            <View style={{flex: 1, marginTop: 20,}}>
+              <Text style={[styles.btnReportText, {color: TextColor.danger}]}>
+                Danh sach bao cao
+              </Text>
               <ScrollView showsHorizontalScrollIndicator={false} horizontal={true} style={{flex: 1}}>
                 {reportList.map((report, index) => (
                   <Pressable key={index} style={[styles.btnReport, styles.btnShowdow, reportListStyle.container]}
                              onPress={() => goToViewReport(report)}>
                     <View style={{flexDirection: "row"}}>
-                      <Text style={reportListStyle.level}>{reportLevelList.find(rl => rl.id === report.report_level)?.label}</Text>
+                      <Text
+                        style={reportListStyle.level}>{reportLevelList.find(rl => rl.id === report.report_level)?.label}</Text>
                       <Text
                         style={reportListStyle.time}>⏰{DateTimeConfig.getDateFormat(new Date(report.created_at).getTime(), true, true)}</Text>
                     </View>
@@ -265,9 +266,8 @@ export default function DetailUserBottomSheet({
                   </Pressable>
                 ))}
               </ScrollView>
-
-            )}
-          </View>
+            </View>
+          )}
 
           <View style={styles.userBodyContainer}>
             <UserClassManager userId={userData.id}/>
@@ -468,4 +468,4 @@ const reportListStyle = StyleSheet.create({
     color: TextColor.danger,
   }
 
-})
+});

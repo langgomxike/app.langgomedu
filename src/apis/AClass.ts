@@ -14,7 +14,7 @@ export default class AClass {
   public static getClassDetailWithUser(
     classId: number,
     userId: string,
-    onNext: (course: Class) => void,
+    onNext: (course: Class, membersInClass: User[]) => void,
     onLoading: (loading: boolean) => void
   ) {
     onLoading(true);
@@ -23,12 +23,15 @@ export default class AClass {
       .get(`${this.API_URL}/classes/detail/${classId}?user_id=${userId}`)
       .then((response) => {
         const data = response.data.data;
-        onNext(data.class);
+        const classData: Class =  data.class;
+        const membersInClass: User[] =  data.members_in_class;
+
+        onNext(classData, membersInClass);
         onLoading(false);
       })
       .catch((err) => {
         console.log("Error: ", err);
-        onNext(new Class());
+        onNext(new Class(), []);
         onLoading(true);
       });
   }
@@ -482,4 +485,39 @@ export default class AClass {
         onNext();
       });
   }
+
+  public static getClassById(
+    classId: string,
+    onNext: (classDetails: Class | undefined) => void,
+    onLoading: (loading: boolean) => void
+  ) {
+    // Bắt đầu trạng thái tải
+    onLoading(true);
+  
+    // Sửa lại URL API với :id làm tham số trong URL
+    axios
+      .get(`${this.API_URL}/classes/get_class_by_id/${classId}`) // Chú ý đường dẫn đã thay đổi
+      .then((response) => {
+        // Xử lý phản hồi từ API
+        const classDetails = response.data.data; // Lấy dữ liệu lớp học từ phản hồi
+  
+        // Trả về dữ liệu lớp học qua onNext
+        onNext(classDetails);
+  
+        // Kết thúc trạng thái tải
+        onLoading(false);
+      })
+      .catch((error) => {
+        // Log lỗi nếu xảy ra
+        console.error("Error fetching class by ID: ", error);
+  
+        // Trả về undefined nếu có lỗi
+        onNext(undefined);
+  
+        // Kết thúc trạng thái tải
+        onLoading(false);
+      });
+  }
+  
+  
 }

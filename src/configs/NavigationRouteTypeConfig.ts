@@ -72,7 +72,20 @@ export type ReportNavigationType = {
   reporter: User;
 }
 
+export type CreateReportNavigationType = {
+  reportee: User;
+  class?: Class;
+}
+
 export type AttendanceNavigationType = {
   userId: string;
-  classTitle: string;
+  classId: number;
+}
+
+export type ClassManagerNavigationType = {
+  class: Class;
+}
+
+export type UserManagerNavigationType = {
+  user: User;
 }

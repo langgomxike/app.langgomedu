@@ -1,41 +1,31 @@
-import React, { useCallback, useContext, useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  ScrollView,
-  StyleSheet,
-  Image,
-  TouchableOpacity,
-  FlatList,
-  RefreshControl,
-} from "react-native";
-import { BackgroundColor, BorderColor } from "../../configs/ColorConfig";
+import React, {useCallback, useContext, useEffect, useState} from "react";
+import {FlatList, Image, RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View,} from "react-native";
+import {BackgroundColor} from "../../configs/ColorConfig";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import Feather from '@expo/vector-icons/Feather';
-import {
-  NavigationContext,
-  NavigationRouteContext,
-} from "@react-navigation/native";
-import { ClassDetailRoute } from "../../configs/NavigationRouteTypeConfig";
+import {NavigationContext, NavigationRouteContext,} from "@react-navigation/native";
+import {ClassDetailRoute} from "../../configs/NavigationRouteTypeConfig";
 import AClass from "../../apis/AClass";
 import ReactAppUrl from "../../configs/ConfigUrl";
 import Class from "../../models/Class";
 import DetailClassSkeleton from "../components/skeleton/DetailClassSkeleton";
-import { UserContext, UserType } from "../../configs/UserContext";
+import {UserContext, UserType} from "../../configs/UserContext";
 import ModalJoinClass from "../components/modal/ModalJoinClass";
 import AStudent from "../../apis/AStudent";
 import ModalConfirmJoinClass from "../components/modal/ModalConfirmJoinClass";
 import LessonItem from "../components/LessonItem";
-import DateTimeConfig from "../../configs/DateTimeConfig";
 import User from "../../models/User";
-import { LanguageContext } from "../../configs/LanguageConfig";
-import { AccountContext } from "../../configs/AccountConfig";
+import {LanguageContext} from "../../configs/LanguageConfig";
+import {AccountContext} from "../../configs/AccountConfig";
 import AuthorTuorInClass from "../components/AuthorTuorInClass";
 import moment from "moment";
 import ButtonsInDetailClass from "../components/button/ButtonsInDetailClass";
-import SFirebase, { FirebaseNode } from "../../services/SFirebase";
+import SFirebase, {FirebaseNode} from "../../services/SFirebase";
 import ScreenName from "../../constants/ScreenName";
-import { AppInfoContext } from "../../configs/AppInfoContext";
+import QRInfo from "../components/QRInfo";
+import {QRItems} from "../../configs/QRConfig";
+import {RoleList} from "../../models/Role";
+import MembersInClass from "../components/MembersInClass";
 
 const URL = ReactAppUrl.PUBLIC_URL;
 export default function ClassDetail() {
@@ -56,9 +46,11 @@ export default function ClassDetail() {
   const [modalVisible, setModalVisible] = useState<string | null>("");
   const [classLearners, setclassLearners] = useState<User[]>([]);
   const [userChildren, setUserChildren] = useState<User[]>([]);
+  const [membersInClass, setMembersInClass] = useState<User[]>([]);
   const [resultResponse, setResultResponse] = useState(false);
   const [realTimeStatus, setRealTimeStatus] = useState<number>(0);
   const [ refresh, setRefresh ] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   // handlers -------------------------------------------------------------------------
   function formatCurrency(amount: number, locale = "vi-VN", currency = "VND") {
@@ -150,8 +142,11 @@ export default function ClassDetail() {
       AClass.getClassDetailWithUser(
         param.classId,
         userId,
-        (_class) => {
+        (_class, membersInClass) => {
           setClassDetail(_class);
+          console.log("User class: ", membersInClass);
+          
+          setMembersInClass(membersInClass);
           if (user.TYPE === UserType.LEANER && _class) {
             AClass.getconflictingLessonsWithClassUsers(_class.id, userId, (data) => {
               setUserChildren(data);
@@ -185,7 +180,7 @@ export default function ClassDetail() {
     if(classDetail) {
       SFirebase.track(FirebaseNode.Classes,  [{key: FirebaseNode.Id, value: classDetail.id}], () => {
         const number = Math.floor(10 + Math.random() * 90);
-        // console.log("realTimeStatus number: ", number);
+        console.log(">>> class detail realTimeStatus number: ", number);
          
           setRealTimeStatus(number);
         })
@@ -199,10 +194,19 @@ export default function ClassDetail() {
     
   }, [realTimeStatus])
 
+  useEffect(() => {
+    if (!account) return;
+
+    const isAdmin = !!(account?.roles.map(r => r.id).includes(RoleList.SUPER_ADMIN) ||  account?.roles.map(r => r.id).includes(RoleList.ADMIN));
+    setIsAdmin(isAdmin);
+  }, [account]);
 
   // render ----------------------------------------------------------------
   return (
     <View style={styles.container}>
+
+      <QRInfo id={classDetail?.id ?? -1} type={QRItems.CLASS} />
+
       {loading && <DetailClassSkeleton />}
       {!loading && classDetail && (
         <ScrollView
@@ -368,7 +372,18 @@ export default function ClassDetail() {
                 <Text>{classDetail.description}</Text>
               </View>
 
-              {/* Các lớp học liên quan */}
+            {/* Child in class */}
+            {membersInClass.length > 0 && 
+              <View style={styles.childContainer}>
+                <Text style={[styles.containerTitle, { paddingHorizontal: 20, paddingTop: 20, paddingBottom: 10 }]}>
+                  {languageContext.language.CLASS_CHILDREN_LIST}
+                </Text>
+              <MembersInClass members={membersInClass}/>
+               
+              </View>
+            }
+
+              {/* Các buổi học*/}
               <View style={styles.lessonContainer}>
                 <Text style={[styles.containerTitle, { padding: 20 }]}>
                   {languageContext.language.LESSONS}
@@ -389,7 +404,7 @@ export default function ClassDetail() {
         </ScrollView>
       )}
 
-      {classDetail && (
+      {!isAdmin && classDetail && (
         <ButtonsInDetailClass
           classDetail={classDetail}
           handleJoinClass={handleJoinClass}
@@ -599,4 +614,9 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
   },
+
+  childContainer: {
+    marginBottom: 10,
+    backgroundColor: BackgroundColor.white,
+  }
 });

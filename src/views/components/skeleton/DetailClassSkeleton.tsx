@@ -8,12 +8,14 @@ import {
   TouchableOpacity,
   FlatList,
   Pressable,
+  Dimensions,
 } from "react-native";
 import { BackgroundColor, BorderColor } from "../../../configs/ColorConfig";
 import CourseItem from "../CourseItem";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import CustomShimmer from "./CustomShimmer";
 
+const {width: SCREEN_WIDTH} = Dimensions.get("screen");
 export default function ClassDetail() {
 
   // render
@@ -75,34 +77,11 @@ export default function ClassDetail() {
 
                 {/* Stduent infomation */}
                 <View style={styles.studentInfomationContainer}>
-                  <Text style={[styles.containerTitle, { marginBottom: 10 }]}>
-                    Mô tả
-                  </Text>
-                  
+                <CustomShimmer width={SCREEN_WIDTH * 0.8} height={70}/>
                 </View>
 
-                {/* Các lớp học liên quan */}
-                <View style={styles.relatedClassContainer}>
-                  <Text style={[styles.containerTitle, { padding: 20 }]}>
-                    Các lớp liên quan
-                  </Text>
-                  <FlatList
-                    data={[1,2]}
-                    renderItem={({ item:relatedClass }) => (
-                      <View style={styles.classItem}>
-                        <Pressable>
-                        <CustomShimmer width={300} height={300}/>
-                        </Pressable>
-                      </View>
-                    )}
-                    keyExtractor={(index) => index.toString()}
-                    horizontal={true}
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={[
-                      styles.classList,
-                    ]}
-                  />
-                 
+                <View style={styles.studentInfomationContainer}>
+                <CustomShimmer width={SCREEN_WIDTH * 0.8} height={50}/>
                 </View>
               </View>
             </View>

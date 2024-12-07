@@ -7,18 +7,22 @@ import ReactAppUrl from "../../../configs/ConfigUrl";
 import ModalPaidResult from "../modal/ModalPaidResult";
 import AAttendance from "../../../apis/AAttendance";
 import { LanguageContext } from "../../../configs/LanguageConfig";
+import moment from "moment";
+import Lesson from "../../../models/Lesson";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 type ChildItemProps = {
-  lessonId: number;
+  lessonData: Lesson;
   learnerData: User;
   onConfirmStatus: (status: boolean) => void;
 };
 
 const { width: SCREEN_WIDTH } = Dimensions.get("screen");
 const URL = ReactAppUrl.PUBLIC_URL;
+const USER_NOTIFY_KEY = "NOTIFYDATA_USER";
 
 export default function ChildItem({
-  lessonId,
+  lessonData,
   learnerData,
   onConfirmStatus,
 }: ChildItemProps) {
@@ -37,7 +41,7 @@ export default function ChildItem({
   const handleConformPay = useCallback((userId: string) => {
     const action = "confirm_paid";
     AAttendance.confirmPaidForLearner(
-      lessonId,
+      lessonData.id,
       userId,
       action,
       (data) => {
@@ -53,7 +57,7 @@ export default function ChildItem({
   const handleConformDeferred = useCallback((userId: string) => {
     const action = "confirm_deferred";
     AAttendance.confirmPaidForLearner(
-      lessonId,
+      lessonData.id,
       userId,
       action,
       (data) => {
@@ -66,8 +70,32 @@ export default function ChildItem({
     );
   }, []);
 
-  const handleNotify = useCallback((userId: string) => {
-    alert(language.NOTIFICATION_SENT);
+  const handleNotify = useCallback(async (user: User) => {
+    const date: string = moment(lessonData.started_at).format("DD/MM/YYYY")
+    const learnerMessage = `${user.full_name}, bạn vừa hoàn thành buổi học của môn ${lessonData.class?.major?.vn_name} vào ${date}. Vui lòng thanh toán học phí cho buổi học ngày nhé. Xin cảm ơn!`;
+    const parentMessage = `Quý phụ huynh, con bạn ${user.full_name} vừa hoàn thành buổi học của môn ${lessonData.class?.major?.vn_name} vào ${date}. Học phí của con bạn vẫn chưa được thanh toán. Xin cảm ơn!`;
+
+    const now = moment();
+    const lessonId = lessonData.id;
+    const notifyData = JSON.parse(await AsyncStorage.getItem(USER_NOTIFY_KEY) || "{}");
+
+    // Kiểm tra nếu đã gửi thông báo trong vòng 1 ngày
+  if (notifyData[lessonId]?.[user.id] && now.diff(moment(notifyData[lessonId][user.id]), "days") < 1) {
+    alert("Bạn chỉ có thể nhắc nhở 1 lần mỗi ngày cho buổi học này. Vui lòng thử lại sau.");
+    return;
+  }
+
+
+    // Lưu thông tin thời gian gửi thông báo cho học viên
+    notifyData[lessonId] = notifyData[lessonId] || {};
+    notifyData[lessonId][user.id] = now.toISOString();
+    await AsyncStorage.setItem(USER_NOTIFY_KEY, JSON.stringify(notifyData));
+
+    AAttendance.sendNotifyLearners(user.id, user.parent_id, learnerMessage,parentMessage, (data) => {
+      if(data){
+        alert(language.NOTIFICATION_SENT);
+      }
+    }, setLoading)
   }, []);
 
   // effect ----------------------------------------------------------------
@@ -205,7 +233,7 @@ export default function ChildItem({
             {!learnerData.attendance?.deferred &&
               !learnerData.attendance?.paid && (
                 <TouchableOpacity
-                  onPress={() => handleNotify(learnerData.id)}
+                  onPress={() => handleNotify(learnerData)}
                   style={[styles.btn, styles.btnNotify, styles.boxshadow]}
                 >
                   <Text

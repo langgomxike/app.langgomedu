@@ -12,7 +12,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   Image,
-  Dimensions,
+  Dimensions, Pressable,
 } from "react-native";
 import BottomSheet, {
   BottomSheetBackdrop,
@@ -21,7 +21,7 @@ import BottomSheet, {
 } from "@gorhom/bottom-sheet";
 import { FlatList, ScrollView } from "react-native-gesture-handler";
 import CourseItem from "../CourseItem";
-import { BackgroundColor } from "../../../configs/ColorConfig";
+import {BackgroundColor, TextColor} from "../../../configs/ColorConfig";
 import { Ionicons, AntDesign } from "@expo/vector-icons";
 import ClassComponent from "../admin/ClassComponent";
 import Class from "../../../models/Class";
@@ -40,6 +40,11 @@ import ReactAppUrl from "../../../configs/ConfigUrl";
 import { CLASS_TAB } from "../../../constants/TabListAdmin";
 import ModalDialogForClass from "../modal/ModalDialogForClass";
 import ModalInputReason from "../modal/ModalInputReason";
+import DateTimeConfig from "../../../configs/DateTimeConfig";
+import Report from "../../../models/Report";
+import {ReportNavigationType} from "../../../configs/NavigationRouteTypeConfig";
+import {AppInfoContext} from "../../../configs/AppInfoContext";
+import AUserAdmin from "../../../apis/admin/AUserAdmin";
 
 type DetailHistoryBottonSheetProps = {
   isVisible: boolean;
@@ -80,9 +85,12 @@ export default function ({
   const [modalContent, setModalContent] = useState<{title: string, content: string}>({title:"", content:""})
   const [approveResult, setApproveResult] = useState(false);
   const [approvePayResult, setApprovePayResult] = useState(false);
+  const [reportList, setReportList] = useState<Report[]>([]);
+  const [reportLevelList, setReportLevelList] = useState<{ id: number, label: string, points: number }[]>([]);
 
   // ref
   const bottomSheetRef = useRef<BottomSheet>(null);
+  const appInfo = useContext(AppInfoContext).infos;
 
   // Định nghĩa chiều cao BottomSheet
   const snapPoints = useMemo(() => ["50%", "90%"], []);
@@ -145,6 +153,14 @@ export default function ({
       setModalResult("modalInputReason")
   }
 
+  const goToViewReport = useCallback((report: Report) => {
+    const data: ReportNavigationType = {
+      id: report.id,
+      reporter: report.reporter ?? new User(),
+    }
+    navigation?.navigate(ScreenName.UPDATE_REPORT_USER, data);
+  }, [])
+
   // effect ----------------------------------------------------------------
   useEffect(() => {
     if (classData) {
@@ -167,6 +183,45 @@ export default function ({
     bottomSheetRef.current.snapToIndex(1);
   }
 
+  // effects
+  useEffect(() => {
+    if (!classData) return;
+
+    AUserAdmin.getReportsOfClass(classData, reports => {
+      setReportList(reports);
+    });
+  }, [classData]);
+
+  useEffect(() => {
+    const reportLevelList: { id: number, label: string, points: number }[] = [];
+
+    reportLevelList.push({
+      id: 1,
+      label: languageContext.language.NOT_SERIOUS,
+      points: appInfo.report_class_level_1
+    });
+
+    reportLevelList.push({
+      id: 2,
+      label: languageContext.language.QUITE_SERIOUS,
+      points: appInfo.report_class_level_2
+    });
+
+    reportLevelList.push({
+      id: 3,
+      label: languageContext.language.SERIOUS,
+      points: appInfo.report_class_level_3
+    });
+
+    reportLevelList.push({
+      id: 4,
+      label: languageContext.language.EXTREMELY_SERIOUS,
+      points: appInfo.report_class_level_4
+    });
+
+    setReportLevelList(reportLevelList);
+  }, []);
+
   //render ----------------------------------------------------------------
   return (
     <BottomSheet
@@ -184,13 +239,34 @@ export default function ({
           </View>
 
           {classData?.is_reported && (
-            <View style={{ alignItems: "center", paddingVertical: 20 }}>
-              <TouchableOpacity
-                onPress={goToReportClass}
-                style={[styles.btnReport, styles.btnShowdow]}
-              >
-                <Text style={styles.btnReportText}>Xem các báo cáo</Text>
-              </TouchableOpacity>
+            <View style={{flex: 1, margin: 20,}}>
+              <Text style={[styles.btnReportText, {color: TextColor.danger}]}>
+                Danh sach bao cao
+              </Text>
+
+              <ScrollView showsHorizontalScrollIndicator={false} horizontal={true} style={{flex: 1}}>
+                {reportList.map((report, index) => (
+                  <Pressable key={index} style={[styles.btnReport, styles.btnShowdow, reportListStyle.container]}
+                             onPress={() => goToViewReport(report)}>
+                    <View style={{flexDirection: "row"}}>
+                      <Text
+                        style={reportListStyle.level}>{reportLevelList.find(rl => rl.id === report.report_level)?.label}</Text>
+                      <Text
+                        style={reportListStyle.time}>⏰{DateTimeConfig.getDateFormat(new Date(report.created_at).getTime(), true, true)}</Text>
+                    </View>
+
+                    <View style={{flexDirection: "row", marginTop: 10,}}>
+                      <Image src={ReactAppUrl.PUBLIC_URL + report.reporter?.avatar} style={reportListStyle.avatar}/>
+
+                      <View style={{flex: 1}}>
+                        <Text style={reportListStyle.username}>{report.reporter?.full_name}</Text>
+                        <Text style={reportListStyle.content}>{report.content.substring(0, 50)}...</Text>
+                      </View>
+                    </View>
+
+                  </Pressable>
+                ))}
+              </ScrollView>
             </View>
           )}
 
@@ -610,4 +686,56 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
   },
+});
+
+const reportListStyle = StyleSheet.create({
+  container: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    width: 300,
+    borderWidth: 0.8,
+    borderColor: BackgroundColor.sub_danger,
+    marginHorizontal: 10,
+    marginBottom: 5,
+    marginTop: 5,
+    borderRadius: 20,
+  },
+
+  avatar: {
+    width: 50,
+    height: 50,
+    borderRadius: 35,
+    borderWidth: 0.5,
+    borderColor: BackgroundColor.sub_danger,
+  },
+
+  username: {
+    fontWeight: "700",
+    paddingHorizontal: 10,
+    fontSize: 14,
+  },
+
+  content: {
+    paddingHorizontal: 10,
+    fontSize: 10,
+  },
+
+  level: {
+    backgroundColor: BackgroundColor.warning,
+    paddingHorizontal: 5,
+    paddingVertical: 1,
+    borderRadius: 10,
+    fontSize: 10,
+    textAlign: "center",
+    textAlignVertical: 'center',
+  },
+
+  time: {
+    flex: 1,
+    textAlign: "right",
+    fontSize: 10,
+    textAlignVertical: 'center',
+    color: TextColor.danger,
+  }
+
 });

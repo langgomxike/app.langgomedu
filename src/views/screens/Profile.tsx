@@ -1,6 +1,6 @@
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Picker } from "@react-native-picker/picker";
-import { useCallback, useState, useEffect, useContext } from "react";
+import React, { useCallback, useState, useEffect, useContext } from "react";
 import {
   Image,
   ScrollView,
@@ -21,9 +21,18 @@ import {
   NavigationContext,
   NavigationRouteContext,
 } from "@react-navigation/native";
-import { IdNavigationType } from "../../configs/NavigationRouteTypeConfig";
+import {
+  CreateReportNavigationType,
+  IdNavigationType,
+  MessageNavigationType,
+} from "../../configs/NavigationRouteTypeConfig";
 import ScreenName from "../../constants/ScreenName";
 import { LanguageContext } from "../../configs/LanguageConfig";
+import { RoleList } from "../../models/Role";
+import { BackgroundColor } from "../../configs/ColorConfig";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import MyIcon, { AppIcon } from "../components/MyIcon";
+import SFirebase, { FirebaseNode } from "../../services/SFirebase";
 const URL = ReactAppUrl.PUBLIC_URL;
 export default function ProfileScreen() {
   //contexts
@@ -31,7 +40,6 @@ export default function ProfileScreen() {
   console.log("user Id", accountContext.account?.id);
   const route = useContext(NavigationRouteContext);
   const languageContext = useContext(LanguageContext).language;
-  console.log(languageContext.TYPE);
 
   //states
   const [loading, setLoading] = useState(true);
@@ -39,6 +47,7 @@ export default function ProfileScreen() {
   const [interestedField, setInterestedField] = useState("");
   const [userProfile, setUserProfile] = useState<User | null>(null);
   const pastelColors = ["#fff"];
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const randomColor =
     pastelColors[Math.floor(Math.random() * pastelColors.length)];
@@ -52,14 +61,20 @@ export default function ProfileScreen() {
     };
     const userId: string = data?.id + "";
 
-    AUser.getUserProfileById(
-      userId,
-      (data: User) => {
-        // console.log(data);
-        setUserProfile(data); // Lưu dữ liệu nhận được vào state
-      },
-      (isLoading: boolean) => {
-        setLoading(isLoading); // Cập nhật trạng thái tải
+    SFirebase.track(
+      FirebaseNode.Users,
+      [{ key: FirebaseNode.Id, value: userId }],
+      () => {
+        AUser.getUserProfileById(
+          userId,
+          (data: User) => {
+            // console.log(data);
+            setUserProfile(data); // Lưu dữ liệu nhận được vào state
+          },
+          (isLoading: boolean) => {
+            setLoading(isLoading); // Cập nhật trạng thái tải
+          }
+        );
       }
     );
   }, [userId]);
@@ -87,16 +102,67 @@ export default function ProfileScreen() {
 
   //handlers
   const handleSubmit = useCallback(() => {
-    alert("Call api to save profile here");
-  }, []);
+    if (!userProfile) return;
+
+    const data: MessageNavigationType = {
+      user: userProfile,
+    };
+
+    navigation?.navigate(ScreenName.MESSAGE, data);
+  }, [userProfile]);
+
   const goToPersonalInfoScreen = useCallback(() => {
     navigation?.navigate(ScreenName.UPDATE_PROFILE);
   }, []);
+
   const goToReport = useCallback(() => {
-    navigation?.navigate(ScreenName.CREATE_REPORT);
-  },[]);
+    if (!userProfile) return;
+
+    const data: CreateReportNavigationType = {
+      reportee: userProfile,
+    };
+
+    navigation?.navigate(ScreenName.CREATE_REPORT, data);
+  }, [userProfile]);
+
+  useEffect(() => {
+    if (navigation) {
+      navigation.setOptions({
+        title: userProfile?.full_name,
+        headerShown: true,
+        contentStyle: {
+          padding: 0,
+        },
+        headerStyle: {
+          backgroundColor: BackgroundColor.primary,
+        },
+        headerTintColor: "#fff",
+        headerLeft: () => (
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            style={{ paddingRight: 10 }}
+          >
+            <Ionicons name="chevron-back" size={24} color="white" />
+          </TouchableOpacity>
+        ),
+      });
+    }
+  }, [navigation, userProfile]);
+
+  useEffect(() => {
+    if (!accountContext.account) return;
+
+    const isAdmin = !!(
+      accountContext.account?.roles
+        .map((r) => r.id)
+        .includes(RoleList.SUPER_ADMIN) ||
+      accountContext.account?.roles.map((r) => r.id).includes(RoleList.ADMIN)
+    );
+    setIsAdmin(isAdmin);
+  }, [accountContext.account]);
+
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: BackgroundColor.white }}>
       <ScrollView>
         <View style={styles.container}>
           {/* screen title */}
@@ -106,7 +172,7 @@ export default function ProfileScreen() {
               <Image
                 source={
                   userProfile?.avatar
-                    ? { uri: `${URL}/${userProfile.avatar}` } // Nếu userAvatar tồn tại, sử dụng URI
+                    ? { uri: `${URL}${userProfile.avatar}` } // Nếu userAvatar tồn tại, sử dụng URI
                     : require("../../../assets/avatar/img_avatar_cat.png") // Nếu không, sử dụng ảnh mặc định
                 }
                 style={styles.avatar}
@@ -264,15 +330,10 @@ export default function ProfileScreen() {
               </Text>
               {userProfile?.phone_number.slice(0, -7) + "*******"}
             </Text>
-            <Text>
-              <Text style={{ fontWeight: "bold" }}>
-                {languageContext.CONTACT_EMAIL}
-              </Text>{" "}
-              {userProfile?.email}
-            </Text>
           </View>
         </View>
       </ScrollView>
+
       <View style={styles.btns}>
         {userProfile?.id === accountContext.account?.id ? (
           // Nút Edit khi userId trùng với isLoginUser
@@ -280,24 +341,30 @@ export default function ProfileScreen() {
             style={styles.buttonEdit}
             onPress={goToPersonalInfoScreen}
           >
-            <Text style={styles.buttonText}>Chỉnh sửa</Text>
+            <Text style={styles.buttonText}>{languageContext.SETTING}</Text>
           </TouchableOpacity>
         ) : (
           // Hiển thị nút Nhắn Tin và Báo Cáo khi không trùng
-          <>
-            <TouchableOpacity style={styles.buttonNext} onPress={handleSubmit}>
-              <Text style={styles.buttonText}>Nhắn Tin</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.buttonReport}
-              onPress={goToReport}
-            >
-              <Image
-                style={{ width: 20, height: 20 }}
-                source={require("../../../assets/icons/ic_report_account.png")}
-              />
-            </TouchableOpacity>
-          </>
+          !isAdmin && (
+            <>
+              <TouchableOpacity
+                style={styles.buttonNext}
+                onPress={handleSubmit}
+              >
+                <Text style={styles.buttonText}>{languageContext.CHAT}</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.buttonReport}
+                onPress={goToReport}
+              >
+                <Image
+                  style={{ width: 20, height: 20 }}
+                  source={require("../../../assets/icons/ic_report_account.png")}
+                />
+              </TouchableOpacity>
+            </>
+          )
         )}
       </View>
     </View>

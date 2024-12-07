@@ -7,7 +7,7 @@ import Message from "../../../models/Message";
 import AMessage from "../../../apis/AMessage";
 import SFirebase, {FirebaseNode} from "../../../services/SFirebase";
 import SAsyncStorage, {AsyncStorageKeys} from "../../../services/SAsyncStorage";
-import {ScrollView, StyleSheet, Text, View} from "react-native";
+import {Image, ScrollView, StyleSheet, Text, View} from "react-native";
 import {BackgroundColor, TextColor} from "../../../configs/ColorConfig";
 import NotificationItem from "../NotificationItem";
 import CustomShimmer from "../skeleton/CustomShimmer";
@@ -89,7 +89,14 @@ const notificationTab: TabItem = {
         )}
 
         {!loading && notis.length < 1 && (
-          <Text style={{flex: 1, alignSelf: "center"}}>{language.EMPTY_LIST}</Text>
+          <>
+            <Image
+              source={require("../../../../assets/images/ic_empty.png")}
+              style={[styles.emptyImage]}
+            />
+
+            <Text style={{flex: 1, alignSelf: "center"}}>{language.EMPTY_LIST}</Text>
+          </>
         )}
 
         <View style={{height: 70}}/>
@@ -110,6 +117,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     borderColor: TextColor.sub_primary,
     gap: 5,
+  },
+
+  emptyImage: {
+    width: 200,
+    height: 200,
+    backgroundColor: "#fff",
+    alignSelf: "center",
+    margin: 15,
   },
 
   item: {

@@ -1,51 +1,60 @@
 import React from "react";
-import { View, TouchableOpacity, Image, StyleSheet, Text } from "react-native";
+import {View, TouchableOpacity, Image, StyleSheet, Text} from "react-native";
 
 import Ionicons from "@expo/vector-icons/Ionicons";
-import MyIcon, { AppIcon } from "./MyIcon";
+import MyIcon, {AppIcon} from "./MyIcon";
 import ReactAppUrl from "../../configs/ConfigUrl";
 // Định nghĩa enum AppIcon ở đầu file
-const URL= ReactAppUrl.PUBLIC_URL;
+const URL = ReactAppUrl.PUBLIC_URL;
 type IconReport = {
   userAvatar?: string;
   userName: string;
   credibility?: number;
   onPress?: () => void;
+  isClass?: boolean;
 };
 
-export default function IconRepor ({
-  userAvatar,
-  userName,
-  credibility,
-  onPress
-}:IconReport)  {
+export default function IconRepor({
+                                    userAvatar,
+                                    userName,
+                                    credibility,
+                                    onPress,
+                                    isClass
+                                  }: IconReport) {
   return (
     <View style={styles.user}>
       <View style={styles.userInfor}>
         <Image
-       source={
-        userAvatar
-          ? { uri: `${URL}/${userAvatar}` } // Nếu userAvatar tồn tại, sử dụng URI
-          : require("../../../assets/avatar/img_avatar_cat.png") // Nếu không, sử dụng ảnh mặc định
-      }
-    
+          source={
+            userAvatar
+              ? {uri: `${URL}/${userAvatar}`} // Nếu userAvatar tồn tại, sử dụng URI
+              : require("../../../assets/avatar/img_avatar_cat.png") // Nếu không, sử dụng ảnh mặc định
+          }
+
           style={styles.avatar}
         />
         <Text style={styles.userName}>{userName}</Text>
       </View>
 
       <View style={styles.containerRight}>
-        <Text style={styles.credibility}>{credibility ? (credibility < 0 ? 0 : credibility) : 0}</Text>
-        <View style={styles.diemuytin}>
-          {/* <MyIcon icon={AppIcon.ic_diemuytin}></MyIcon> */}
-          <Image
-            source={require("../../../assets/icons/ic_diemuytin.png")}
-            style={styles.icon}
-          />
-        </View>
-        <View style={styles.iconBack}>
-          <Ionicons onPress={onPress} name="chevron-forward" size={20} color="black" />
-        </View>
+        {!isClass && (
+          <>
+            <Text style={styles.credibility}>{credibility ? (credibility < 0 ? 0 : credibility) : 0}</Text>
+            <View style={styles.diemuytin}>
+              {/* <MyIcon icon={AppIcon.ic_diemuytin}></MyIcon> */}
+              <Image
+                source={require("../../../assets/icons/ic_diemuytin.png")}
+                style={styles.icon}
+              />
+            </View>
+          </>
+        )}
+
+        {onPress && (
+          <View style={styles.iconBack}>
+            <Ionicons onPress={onPress} name="chevron-forward" size={20} color="black"/>
+          </View>
+        )}
       </View>
     </View>
   );

@@ -95,12 +95,6 @@ export default function HomeScreen() {
     navigation?.navigate(ScreenName.CV);
   }, []);
 
-  // Đường dẫn tạm đếm admin
-  // navigation?.navigate(ScreenName.PROFILE);
-  // const handleOpenDrawer = () => {
-  //   // navigation
-  // }, []);
-
   const onRefresh = useCallback(() => {
     setRefresh(true);
   }, [refresh]);
@@ -140,7 +134,7 @@ export default function HomeScreen() {
               onPress={handleChangeUserType}
               style={[styles.btnSwitchRole, styles.boxShadow]}
             >
-              <Text>{user.TYPE === UserType.LEANER ? language.TUTOR : language.LEARNER}</Text>
+              <Text>{user.TYPE === UserType.LEANER ? language.LEARNER : language.LEARNER}</Text>
             </TouchableOpacity>
           </View>
 
