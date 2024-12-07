@@ -18,15 +18,6 @@ import {
 import Octicons from "@expo/vector-icons/Octicons";
 import { BackgroundColor } from "../../../configs/ColorConfig";
 import ModalStudentList from "../../components/modal/ModalStudentList";
-import Animated, {
-  Extrapolation,
-  interpolate,
-  useAnimatedRef,
-  useAnimatedStyle,
-  useDerivedValue,
-  useSharedValue,
-  withTiming,
-} from "react-native-reanimated";
 import ClassInfo from "../../components/ClassInfo";
 import AAttendance from "../../../apis/AAttendance";
 import Attendance from "../../../models/Attendance";
@@ -45,9 +36,12 @@ import DropdownLearners from "../../components/dropdown/DropDownLearners";
 import moment from "moment";
 import { ActivityIndicator } from "react-native";
 import { LanguageContext } from "../../../configs/LanguageConfig";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Ionicons } from "@expo/vector-icons";
 
 const URL = ReactAppUrl.PUBLIC_URL;
 const { width: SCREEN_WIDTH } = Dimensions.get("screen");
+const LESSON_NOTIFY_KEY = "NOTIFYDATA_LESSON";
 export default function TutorAttendance() {
   const route = useContext(NavigationRouteContext);
   const param = route?.params as AttendedForTutor || new Lesson();
@@ -60,6 +54,7 @@ export default function TutorAttendance() {
   // state ----------------------------------------------------------------
   const [modalVisible, setModalVisible] = React.useState<string | null>("");
   const [loading, setLoading] = React.useState(false);
+  const [loadingNotify, setLoadingNotify] = React.useState(false);
   const [lessonDetail, setLessonDetail] = useState(new Lesson());
   const [attendStudents, setAttendStudents] = useState<Attendance[]>([]);
   const [learners, setLearners] = useState<User[]>();
@@ -103,7 +98,99 @@ export default function TutorAttendance() {
     }
   };
 
+  const handleNotifyAll = useCallback(async () => {
+    const date: string = moment(lessonDetail.started_at).format("DD/MM/YYYY");
+
+    // Lấy danh sách nhắc nhở từ AsyncStorage
+  const notifyData = JSON.parse(await AsyncStorage.getItem(LESSON_NOTIFY_KEY) || "{}");
+  const lessonId = lessonDetail.id;
+  const now = moment();
+
+   // Kiểm tra nếu đã gửi thông báo trong vòng 1 ngày
+  if (notifyData[lessonId] && now.diff(moment(notifyData[lessonId]), "days") < 1) {
+    alert("Bạn chỉ có thể nhắc nhở 1 lần mỗi ngày cho buổi học này. Vui lòng thử lại sau.");
+    return;
+  }
+
+
+    if (learners) {
+      // Lọc danh sách learner chưa thanh toán hoặc hoãn thanh toán
+      const unpaidLearners = learners.filter(
+        (learner) => !learner.attendance?.attended  &&  (!learner.attendance?.paid || !learner.attendance?.deferred)
+      );
+  
+      if (unpaidLearners.length === 0) {
+        alert("Không có học viên nào cần nhắc nhở.");
+        return;
+      }
+  
+      // Tạo danh sách ID và thông báo cho từng learner
+      const learnerIds = [];
+      const parentIds = [];
+      const messages = unpaidLearners.map((learner) => {
+        learnerIds.push(learner.id);
+        if (learner.parent_id) {
+          parentIds.push(learner.parent_id);
+        }
+  
+        const learnerMessage = `${learner.full_name}, bạn vừa hoàn thành buổi học của môn ${lessonDetail.class?.major?.vn_name} vào ${date}. Vui lòng thanh toán học phí cho buổi học ngày nhé. Xin cảm ơn!`;
+  
+        const parentMessage = learner.parent_id
+          ? `Quý phụ huynh, con bạn ${learner.full_name} vừa hoàn thành buổi học của môn ${lessonDetail.class?.major?.vn_name} vào ${date}. Học phí của con bạn vẫn chưa được thanh toán. Xin cảm ơn!`
+          : "";
+  
+        return { learnerId: learner.id, parentId: learner.parent_id, learnerMessage, parentMessage };
+      });
+  
+      // Gửi thông báo
+      messages.forEach(({ learnerId, parentId, learnerMessage, parentMessage }) => {
+        setLoadingNotify(true)
+        AAttendance.sendNotifyLearners(
+          learnerId,
+          parentId,
+          learnerMessage,
+          parentMessage,
+          (data) => {
+            if (data) {
+              console.log(`Thông báo đã được gửi cho học viên ID: ${learnerId}`);
+            }
+          },
+          setLoading
+        );
+      });
+      
+      // Cập nhật thời gian nhắc nhở cho lessonId
+    notifyData[lessonId] = now.toISOString();
+    await AsyncStorage.setItem(LESSON_NOTIFY_KEY, JSON.stringify(notifyData));
+      setLoadingNotify(false)
+      alert(language.NOTIFICATION_SENT);
+    }
+  }, [learners, lessonDetail, lessonDetail]);
+  
+
   // effects ----------------------------------------------------------------
+  useEffect(() => {
+    // Đặt lại title của header khi màn hình được hiển thị
+    if (navigation) {
+      navigation.setOptions({
+        title: language.ATTENDANCE,
+        headerShown: true,
+        contentStyle: {
+          padding: 0,
+        },
+        headerStyle: {
+          backgroundColor: BackgroundColor.primary,
+        },
+        headerTintColor: "#fff",
+        headerLeft: () => (
+          <TouchableOpacity onPress={() => navigation.goBack()} style={{ paddingRight: 10 }}>
+            <Ionicons name="chevron-back" size={24} color="white" />
+          </TouchableOpacity>
+        )
+      });
+    }
+  }, [navigation]);
+
   useEffect(() => {
     if(classId && lessonId) {  
       console.log("Fetch time: ", moment().format('MMMM Do YYYY, h:mm:ss a'));
@@ -136,6 +223,27 @@ export default function TutorAttendance() {
       })
     
   }, [lessonDetail])
+
+  useEffect(() => {
+    const checkAllPaid = async () => {
+      if(learners){
+        const unpaidLearners = learners.filter(
+          (learner) => learner.attendance?.attended !== false &&  (!learner.attendance?.paid || !learner.attendance?.deferred)
+        );
+  
+        // Nếu tất cả học viên đã thanh toán, xóa thông tin nhắc nhở
+        if (unpaidLearners.length === 0) {
+          let notifyData = JSON.parse(await AsyncStorage.getItem(LESSON_NOTIFY_KEY) || "{}");
+          delete notifyData[lessonId];
+          await AsyncStorage.setItem(LESSON_NOTIFY_KEY, JSON.stringify(notifyData));
+          console.log("Xóa notifyData với lesson id: ", lessonId);
+        }
+      }
+    };
+
+    // Kiểm tra khi có sự thay đổi trong learners
+    checkAllPaid();
+  }, [learners, lessonId]);
 
   return (
     <View style={{ flex: 1 }}>
@@ -188,7 +296,7 @@ export default function TutorAttendance() {
                 data={filteredLearners}
                 renderItem={({item: learner}) => {
                   return (
-                    <ChildItem lessonId={lessonDetail.id} onConfirmStatus={setConfirmStatus} learnerData={learner}/>
+                    <ChildItem lessonData={lessonDetail} onConfirmStatus={setConfirmStatus} learnerData={learner}/>
                   )
                 }}
                 contentContainerStyle={[{padding: 10}, filteredLearners?.length === 1 && styles.centeredItem]}
@@ -196,9 +304,9 @@ export default function TutorAttendance() {
                 />
 
                 <View style={styles.btnNotifyAllCContainer}>
-                  <TouchableOpacity style={styles.btnNotifyAll} >
+                  <TouchableOpacity style={styles.btnNotifyAll} onPress={handleNotifyAll}>
                     <Text style={styles.btnNotifyAllText} >{language.SEND_REMINDERS_TO_ALL}</Text>
-                    <ActivityIndicator color={"#fff"}/>
+                    {loadingNotify && <ActivityIndicator color={"#fff"}/>}
                   </TouchableOpacity>
                 </View>
               </View>
@@ -557,7 +665,6 @@ const styles = StyleSheet.create({
    // children list
    childrenComponent : {
     backgroundColor: BackgroundColor.white,
-    paddingHorizontal: 20,
     paddingTop: 20,
     paddingBottom: 30,
   },
@@ -567,6 +674,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 15,
+    paddingHorizontal: 20
   },
 
   childrenComponentTitle: {

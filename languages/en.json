@@ -165,6 +165,8 @@
 
   "HOANG": "Hoang",
   "ATTENDING_CLASS": "Attending Class",
+  "ATTEND_CLASS": "Class",
+  "TEACH_CLASS": "Teaching Class",
   "CREATED_CLASS": "Created Class",
   "TEACHING_CLASS": "Teaching Class",
   "PENDING_PAY": "Pending Payment",

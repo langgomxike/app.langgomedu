@@ -169,6 +169,8 @@
 
   "HOANG": "Hoang",
   "ATTENDING_CLASS": "受講中のクラス",
+  "ATTEND_CLASS": "クラス",
+  "TEACH_CLASS": "教えるクラス",
   "CREATED_CLASS": "作成したクラス",
   "TEACHING_CLASS": "教えているクラス",
   "PENDING_PAY": "支払い待ちのクラス",

@@ -194,6 +194,11 @@ export default function LeanerAttendance() {
     }
   }, [attendance, deffereds]);
 
+  useEffect(() => {
+    // console.log("user",user);
+    
+  },[param.lesson, param.user])
+
   return (
     <View style={{flex: 1}}>
       <View style={{flex: 10}}>
