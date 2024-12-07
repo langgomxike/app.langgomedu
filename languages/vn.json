@@ -295,6 +295,9 @@
   "PLEASE_WAIT_ACCEPTANCE": "Vui lòng chờ chấp nhận",
   "TAKE_CLASS": "Nhận dạy lớp",
 
+    "CLASS_CHILDREN_LIST": "Danh sách con trong lớp",
+  "CHILD_ALREADY_ENROLLED": "Bạn này đã và đang học lớp này",
+
   "NHI": "Nhi",
   "CREATE_CLASS": "Tạo lớp học tuyển sinh",
   "CREATE_CLASS_FOR_TUTOR": "Gia sư tạo lớp học",
