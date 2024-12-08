@@ -7,13 +7,7 @@ import {
   Pressable,
   Image,
 } from "react-native";
-import React, {
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import React, {useCallback, useContext, useEffect, useState} from "react";
 import {BackgroundColor} from "../../configs/ColorConfig";
 import ClassListSkeleton from "./skeleton/ClassListSkeleten";
 import CourseItem from "./CourseItem";
@@ -26,11 +20,14 @@ import {AccountContext} from "../../configs/AccountConfig";
 import {ScrollView, FlatList} from "react-native-gesture-handler";
 import {UserContext, UserType} from "../../configs/UserContext";
 import {LanguageContext} from "../../configs/LanguageConfig";
+import moment from "moment";
 
 const TAB = {
   ATTENDING_CLASS: "attendingClass",
+  CLASS_COMPLETED: "completedClass",
   TEACHING_CLASS: "teachingClass",
-  PENDING_APPROVAL: "pendingApproval",
+  CLASS_TAUGHT: "taughtClass",
+  PENDING_RATING: "pendingRating",
   PENDING_PAY: "pendingPay",
   CREATED_CLASS: "createdClass",
   PENDING_APPROVAL_ADMIN: "pendingApprovalAdmin",
@@ -57,8 +54,12 @@ export default function UserClassManager({userId}: UserClassManagerProps) {
   // const
   const tabs = (userRole: number) => {
     const commonTabs = [
-      {label: language.ATTENDING_CLASS, value: TAB.ATTENDING_CLASS},
       {label: language.CREATED_CLASS, value: TAB.CREATED_CLASS},
+    ];
+
+    const learnerTabs = [
+      {label: language.ATTENDING_CLASS, value: TAB.ATTENDING_CLASS},
+      {label: language.WAITING_FOR_REVIEW, value: TAB.PENDING_RATING},
     ];
 
     const tutorTabs = [
@@ -77,10 +78,24 @@ export default function UserClassManager({userId}: UserClassManagerProps) {
       },
     ];
 
+    const complatedClassTab = {
+      label: language.CLASS_COMPLETED,
+      value: TAB.CLASS_COMPLETED,
+    };
+    const taughtClassTab = {
+      label: language.CLASS_TAUGHT,
+      value: TAB.CLASS_TAUGHT,
+    };
+
     if (userRole === UserType.TUTOR) {
-      return [...commonTabs, ...tutorTabs, ...approvalTabs];
+      return [...commonTabs, ...tutorTabs, ...approvalTabs, taughtClassTab];
     } else if (userRole === UserType.LEANER) {
-      return [...commonTabs, ...approvalTabs];
+      return [
+        ...commonTabs,
+        ...learnerTabs,
+        ...approvalTabs,
+        complatedClassTab,
+      ];
     }
 
     return commonTabs;
@@ -93,18 +108,56 @@ export default function UserClassManager({userId}: UserClassManagerProps) {
 
   const filterClassesByTab = (selectedTab: string): Class[] => {
     if (!userId) return [];
+    const now = new Date().getTime();
+
     switch (selectedTab) {
-      case TAB.ATTENDING_CLASS:
+      case TAB.ATTENDING_CLASS: // Các lớp đang tham gia
         return classList.filter(
-          (cls) => cls.author?.id !== userId && cls.tutor?.id !== userId
+          (cls) =>
+            cls.author?.id !== userId &&
+            cls.tutor?.id !== userId &&
+            cls.ended_at >= now
         );
-      case TAB.TEACHING_CLASS:
-        return classList.filter((cls) => cls.tutor?.id === userId);
-      case TAB.PENDING_APPROVAL:
+
+      case TAB.TEACHING_CLASS: // Các lớp đang dạy
+        return classList.filter((cls) => cls.tutor?.id === userId &&  cls.ended_at >= now);
+
+      case TAB.PENDING_APPROVAL_ADMIN: //Các lớp đang chờ admin chấp nhận
         return classList.filter((cls) => cls.admin_accepted === false);
-      case TAB.PENDING_PAY:
+
+      case TAB.PENDING_APPROVAL_TUTOR: //Các lớp đang chờ người tạo chấp nhận
+        return classList.filter(
+          (cls) =>
+            cls.admin_accepted === true &&
+            cls.tutor?.id !== userId &&
+            cls.author_accepted === false
+        );
+
+      case TAB.PENDING_RATING: // Các lớp đang chờ đánh giá
+        return classList.filter(
+          (cls) =>
+            cls.author?.id !== userId &&
+            cls.tutor?.id !== userId && !cls.is_rating &&
+            cls.ended_at <= now
+        );
+
+        case TAB.CLASS_TAUGHT: // Các lớp đã dạy
+        return classList.filter(
+          (cls) => cls.tutor?.id === userId &&  cls.ended_at <= now
+        );
+
+        case TAB.CLASS_COMPLETED: // Các lớp đã học
+        return classList.filter(
+          (cls) =>
+            cls.author?.id !== userId &&
+            cls.tutor?.id !== userId &&
+            cls.ended_at <= now
+        );
+
+      case TAB.PENDING_PAY: // Các lớp đang chờ thanh toán
         return classList.filter((cls) => cls.paid === false);
-      case TAB.CREATED_CLASS:
+
+      case TAB.CREATED_CLASS: // Các lớp đã tạo
         return classList.filter((cls) => cls.author?.id === userId);
       default:
         return [];
@@ -115,16 +168,20 @@ export default function UserClassManager({userId}: UserClassManagerProps) {
     switch (activeTab) {
       case TAB.ATTENDING_CLASS:
         return language.NO_ATTENDING_CLASS;
+      case TAB.CLASS_COMPLETED:
+        return language.NO_CLASS_LEARNED;
       case TAB.TEACHING_CLASS:
         return language.NO_TEACHING_CLASS;
-      case TAB.PENDING_APPROVAL:
-        return language.NO_PENDING_APPROVAL;
+      case TAB.CLASS_TAUGHT:
+        return language.NO_CLASS_TAUGHT;
       case TAB.PENDING_APPROVAL_ADMIN:
         return language.NO_PENDING_APPROVAL_ADMIN;
       case TAB.PENDING_APPROVAL_TUTOR:
         return language.NO_PENDING_APPROVAL_TUTOR;
       case TAB.PENDING_PAY:
         return language.NO_PENDING_PAY;
+      case TAB.PENDING_RATING:
+        return language.NO_RATING_CLASS;
       case TAB.CREATED_CLASS:
         return language.NO_CREATED_CLASS;
       default:
@@ -167,7 +224,7 @@ export default function UserClassManager({userId}: UserClassManagerProps) {
         <FlatList
           data={tabs(userContext.TYPE)}
           keyExtractor={(item, index) => `${index}`}
-          horizontal // Nếu muốn danh sách ngang
+          horizontal
           renderItem={({item}) => (
             <View style={styles.headerItem}>
               <TouchableOpacity onPress={() => handleTabChange(item.value)}>
@@ -224,13 +281,15 @@ export default function UserClassManager({userId}: UserClassManagerProps) {
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: 20,
+    // paddingHorizontal: 20,
   },
 
   headerNavList: {
     flexDirection: "row",
     borderBottomColor: BackgroundColor.gray_c9,
     borderBottomWidth: 1,
+    marginBottom: 10,
+    marginHorizontal: 20,
   },
 
   headerItem: {
@@ -240,7 +299,7 @@ const styles = StyleSheet.create({
   },
 
   tabListContentContainer: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 10,
     justifyContent: "space-between",
     flexGrow: 1,
   },

@@ -178,8 +178,29 @@
   "NO_PENDING_APPROVAL_ADMIN": "No classes waiting for admin approval",
   "NO_PENDING_APPROVAL_TUTOR": "No classes waiting for creator approval",
   "NO_PENDING_PAY": "No pending payment classes",
+  "NO_RATING_CLASS": "No classes waiting for rating",
   "NO_CREATED_CLASS": "No created classes",
   "NO_DATA": "No data",
+
+  "NO_SUGGESTED_CLASSES": "No suggested classes",
+  "NO_SUGGESTED_TUTORS": "No suggested tutors",
+  "CLASS_RATING": "Tutor Rating",
+  "RATED_TUTOR": "Tutor rated",
+  "CLASS_COMPLETED": "Completed class",
+  "CLASS_TAUGHT": "Taught class",
+  "NO_CLASS_LEARNED": "No classes learned",
+  "NO_CLASS_TAUGHT": "No classes taught",
+
+  "OVER_CAPACITY": "Over capacity",
+  "CLASS_AVAILABLE": "Class available",
+  "EXCEEDED_SELECTION": "seats left, you have selected more than the limit.",
+  "SELECT_FEWER_OR_CONTACT_TUTOR": "Please select fewer students or contact the tutor for more information!",
+
+  "WANT_TO_JOIN_CLASS": "Do you want to join this class?",
+  "WANT_TO_TEACH_CLASS": "Do you want to teach this class?",
+  "CLASS_FULL_CONTACT_TEACHER": "The class is full.\nIf you want to join, please contact the teacher of the class!",
+
+
   "HAVE_NO_PERMISSION_TO_CREATE_CHILD": "You don't have permission to create a child",
   "HAVE_NO_PERMISSION_TO_MANAGE_CV": "You don't have permission to manage cv",
   "CANNOT_CHANGE_ADMIN_ROLE": "Cannot change admin role",
@@ -192,7 +213,6 @@
   "OPEN_IMAGE_LIBRARY": "Open image library",
   "FEATURE_DISABLED_IN_IOS": "This feature is disabled in IOS devices",
   "CANNOT_SCAN_QR": "Can't scan QR",
-
 
   "CLASS_SUGGESTIONS": "Class Suggestions",
   "TUTOR_SUGGESTIONS": "Tutor Suggestions",
@@ -305,8 +325,10 @@
   "PLEASE_WAIT_ACCEPTANCE": "Please wait for acceptance",
   "TAKE_CLASS": "Take class",
 
-   "CLASS_CHILDREN_LIST": "List of children in the class",
+  "CLASS_CHILDREN_LIST": "List of children in the class",
   "CHILD_ALREADY_ENROLLED": "This child is already and currently attending this class",
+
+  "WAITING_FOR_REVIEW": "Waiting for rating",
 
   "NHI": "Nhi",
   "CREATE_CLASS": "Create an enrollment class",
@@ -429,5 +451,4 @@
   "DENNY": "Deny",
   "MANAGEMENT_ROLES": "Management Roles",
   "INPUT_REASON_DENY": "Enter Denial Reason"
-
 }
