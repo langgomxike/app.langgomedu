@@ -18,7 +18,7 @@ import User from "../../models/User";
 import {LanguageContext} from "../../configs/LanguageConfig";
 import {AccountContext} from "../../configs/AccountConfig";
 import AuthorTuorInClass from "../components/AuthorTuorInClass";
-import moment from "moment";
+import moment, { lang } from "moment";
 import ButtonsInDetailClass from "../components/button/ButtonsInDetailClass";
 import SFirebase, {FirebaseNode} from "../../services/SFirebase";
 import ScreenName from "../../constants/ScreenName";
@@ -26,6 +26,8 @@ import QRInfo from "../components/QRInfo";
 import {QRItems} from "../../configs/QRConfig";
 import {RoleList} from "../../models/Role";
 import MembersInClass from "../components/MembersInClass";
+import { AppInfoContext } from "../../configs/AppInfoContext";
+import ModalDialogForClass from "../components/modal/ModalDialogForClass";
 
 const URL = ReactAppUrl.PUBLIC_URL;
 export default function ClassDetail() {
@@ -38,6 +40,7 @@ export default function ClassDetail() {
   const languageContext = useContext(LanguageContext);
   const account = useContext(AccountContext).account;
   const user = useContext(UserContext).user;
+  const appInfoContext = useContext(AppInfoContext).infos;
 
   // state -------------------------------------------------------------------------
   const [userId, setUserId] = useState("");
@@ -51,6 +54,7 @@ export default function ClassDetail() {
   const [realTimeStatus, setRealTimeStatus] = useState<number>(0);
   const [ refresh, setRefresh ] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [classFee, setClassFee] = useState(0);
 
   // handlers -------------------------------------------------------------------------
   function formatCurrency(amount: number, locale = "vi-VN", currency = "VND") {
@@ -63,11 +67,16 @@ export default function ClassDetail() {
     });
   }
 
-  const handleJoinClass = useCallback(() => {
-    setModalVisible(
-      userChildren.length > 0 ? "modalJoinClass" : "modalConfirmJoinClass"
-    );
-  }, [userChildren]);
+  const handleJoinClass =() => {
+    if(classLearners && classDetail && classLearners.length >= classDetail?.max_learners) {
+      setModalVisible("modalDialogForClass");
+    }
+    else {
+      setModalVisible(
+        userChildren.length > 0 ? "modalJoinClass" : "modalConfirmJoinClass"
+      );
+    }
+  }
 
   const handleAcceptClass = () => {
     if (classDetail?.author) {
@@ -134,9 +143,8 @@ export default function ClassDetail() {
     }
   }, [account, classDetail])
 
+  //Get detail class
   useEffect(() => {
-
-    //Get detail class
     if (userId) {
       // Lấy data chi tiết lớp học
       AClass.getClassDetailWithUser(
@@ -152,16 +160,16 @@ export default function ClassDetail() {
               setUserChildren(data);
               
             }, setLoading)
-          } else {
-            //Get student in class for tutor
-            AStudent.getStudentsInClass(
-              param.classId,
-              (data) => {
-                setclassLearners(data);
-              },
-              setLoading
-            );
           }
+
+          //Get student in class
+          AStudent.getStudentsInClass(
+            param.classId,
+            (data) => {              
+              setclassLearners(data);
+            },
+            setLoading
+          );
         },
         () => {}
       );
@@ -176,7 +184,6 @@ export default function ClassDetail() {
   }, [account]);
 
   useEffect(() => {
-    if(classDetail) console.log(classDetail.id);
     if(classDetail) {
       SFirebase.track(FirebaseNode.Classes,  [{key: FirebaseNode.Id, value: classDetail.id}], () => {
         const number = Math.floor(10 + Math.random() * 90);
@@ -185,6 +192,15 @@ export default function ClassDetail() {
           setRealTimeStatus(number);
         })
     }
+
+     // Tính phí tạo lớp
+  const fee = classDetail  ? classDetail.total_lessons * classDetail.price *  
+    (classDetail.author?.id === classDetail.tutor?.id
+      ? appInfoContext.creation_fee_for_tutors
+      : appInfoContext.creation_fee_for_parents)
+  : 0;
+
+  setClassFee(fee);
     
   }, [classDetail])
 
@@ -280,6 +296,18 @@ export default function ClassDetail() {
                   </Text>
                 </View>
 
+                <View style={styles.itemInfo}>
+                  <View style={styles.row}>
+                  <Feather name="users" size={21} color="black" />
+                    <Text style={styles.infoTitle}>
+                      {languageContext.language.JOIN}
+                    </Text>
+                  </View>
+                  <Text style={styles.itemContent}>
+                    {classLearners.length} {languageContext.language.PERSON}
+                  </Text>
+                </View>
+
                 {/* detail */}
                 <View style={styles.itemInfo}>
                   <View style={styles.row}>
@@ -357,7 +385,7 @@ export default function ClassDetail() {
                     </Text>
                   </View>
                   <Text style={[styles.itemContentFee]}>
-                    {formatCurrency(classDetail.class_creation_fee)}
+                    {formatCurrency(classFee)}
                   </Text>
                 </View>
               </View>
@@ -373,7 +401,7 @@ export default function ClassDetail() {
               </View>
 
             {/* Child in class */}
-            {membersInClass.length > 0 && 
+            {membersInClass && membersInClass.length > 0 && 
               <View style={styles.childContainer}>
                 <Text style={[styles.containerTitle, { paddingHorizontal: 20, paddingTop: 20, paddingBottom: 10 }]}>
                   {languageContext.language.CLASS_CHILDREN_LIST}
@@ -406,6 +434,7 @@ export default function ClassDetail() {
 
       {!isAdmin && classDetail && (
         <ButtonsInDetailClass
+          classFee = {classFee}
           classDetail={classDetail}
           handleJoinClass={handleJoinClass}
           handleAcceptClass={handleAcceptClass}
@@ -419,6 +448,8 @@ export default function ClassDetail() {
             <ModalJoinClass
               classId={classDetail.id}
               studentList={userChildren}
+              classLearners = {classLearners.length}
+              maxLearners = {classDetail.max_learners}
               visiable={modalVisible}
               onRequestClose={() => setModalVisible(null)}
               onResultValue={setResultResponse}
@@ -426,7 +457,7 @@ export default function ClassDetail() {
           )}
           {classDetail && userChildren.length === 0 && (
             <ModalConfirmJoinClass
-              confirmContent="Bạn muốn tham gia lớp học này?"
+              confirmContent={languageContext.language.WANT_TO_JOIN_CLASS}
               visiable={modalVisible}
               onRequestClose={() => setModalVisible(null)}
               classId={classDetail.id}
@@ -438,7 +469,7 @@ export default function ClassDetail() {
 
       {user.TYPE === UserType.TUTOR && classDetail && (
         <ModalConfirmJoinClass
-          confirmContent="Bạn muốn nhận dạy lớp học này?"
+          confirmContent={languageContext.language.WANT_TO_TEACH_CLASS}
           visiable={modalVisible}
           onRequestClose={() => setModalVisible(null)}
           classId={classDetail.id}
@@ -446,6 +477,14 @@ export default function ClassDetail() {
           onResultValue={setResultResponse}
         />
       )}
+
+      <ModalDialogForClass
+      confirmTitle={languageContext.language.JOIN}
+      confirmContent={languageContext.language.CLASS_FULL_CONTACT_TEACHER}
+      imageStatus="confirm"
+      visiable={modalVisible}
+      onRequestCloseDialog={() => setModalVisible(null)}
+      />
     </View>
   );
 }
