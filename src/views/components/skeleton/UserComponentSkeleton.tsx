@@ -48,7 +48,7 @@ export default function UserComponentSkeleton() {
               </View>
 
               <View style={styles.row}>
-              <CustomShimmer height={10} width={300} style={{marginRight: 10}}/>
+              <CustomShimmer height={10} width={width * 0.7} style={{marginRight: 10}}/>
               </View>
             </View>
           </View>
