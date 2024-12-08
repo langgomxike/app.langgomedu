@@ -48,7 +48,6 @@ export default function PersonalScheduleScreen() {
    */
   const [selectedDate, setSelectedDate] = useState(new Date());
   // Người được chọn từ dropdown
-  const [selectedUserId, setSelectedUserId] = useState(account?.id);
   const [users, setUsers] = useState<User[]>([]);
   const [selectedUser, setSelectedUser] = useState<User>(new User());
 

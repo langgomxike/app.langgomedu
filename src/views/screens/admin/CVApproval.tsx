@@ -1,5 +1,5 @@
 import { Text, View, StyleSheet, Image, ScrollView, FlatList, TouchableOpacity } from "react-native";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 //config
 import { BackgroundColor, TextColor } from "../../../configs/ColorConfig";
 //icon
@@ -23,6 +23,10 @@ import Education from "../../../models/Education";
 import Experience from "../../../models/Experience";
 import Certificate from "../../../models/Certificate";
 import File from "../../../models/File";
+import CVApprovalSkeleton from "../../components/skeleton/CVApprovalSkeleton";
+import ModalApproveCVReason from "../../components/modal/ModalApproveCVReson";
+import SFirebase, { FirebaseNode } from "../../../services/SFirebase";
+import ScreenName from "../../../constants/ScreenName";
 
 export default function CVApproval() {
   // context, route ----------------------------------------------------------------
@@ -45,10 +49,55 @@ export default function CVApproval() {
   const [newEducations, setNewEducations] = useState<Education[]>([]);
   const [newExperiences, setNewExperiences] = useState<Experience[]>([]);
   const [newCertificates, setNewCertificates] = useState<Certificate[]>([]);
+
+  const [loading, setLoading] = useState(false);
+  const [isApproved, setIsApproved] = useState<boolean>();
+  const [isChange, setIsChange] = useState(false);
+  const [showModal, setShowModal] = useState<boolean>(false);
+  // const [reason, setReason] = useState("");
+  //handler -----------------------------------------------------------------------
+  const handleConfirm = useCallback(() => {
+    const cvId = newCv.id;
+    const oldCvId = cv.id;
+    const approveData = {
+      oldCvId: oldCvId,
+      cvId: cvId,
+    }
+
+    ACV.approveCV(approveData, (result) => {
+      console.log(result);
+      setIsApproved(result.status);
+      navigation?.navigate(ScreenName.SHOW_CV, {cv_id :cv.id});
+    }, (loading) => {
+      console.log(loading);
+
+    })
+  }, [cv, newCv])
+
+  const handleCancel = useCallback((reason : string)=> {
+    const cvId = newCv.id;
+    const oldCvId = cv.id;
+
+    const approveData = {
+      oldCvId: oldCvId,
+      cvId: cvId,
+      reason: reason,
+    }
+
+    ACV.denyCV(approveData, (result) => {
+      console.log(result);
+      setIsApproved(result.status);
+      navigation?.navigate(ScreenName.SHOW_CV, {cv_id :cv.id});
+    }, (loading) => {
+      console.log(loading);
+
+    })
+      
+  }, [cv, newCv])
+
   //effect ------------------------------------------------------------------------
   useEffect(() => {
     console.log(cvId);
-
     if (cvId) {
       ACV.getTempCV(cvId, (cvs) => {
         // console.log(JSON.stringify(cvs, null, 2));
@@ -148,7 +197,7 @@ export default function CVApproval() {
 
         }
         const newCV = cvs.find(cv => cv.id === `${cvId}`);
-        if(newCV){
+        if (newCV) {
           setNewCv(newCV);
 
           // Set New educations, experiences, certificates
@@ -233,10 +282,28 @@ export default function CVApproval() {
           );
           setNewCertificates(newCertificates);
         }
-      });
+      }, setLoading);
     }
   }, [cvId]);
 
+  //lay firebase
+  useEffect(()=> {
+    const id = cvId.split('_')[0];
+    SFirebase.track(FirebaseNode.CVs, [{
+      key: FirebaseNode.Id,
+      value: id
+    }], ()=> {
+      setIsChange(true)
+    })
+  },[])
+  useEffect(()=>{
+    const id = cvId.split('_')[0];
+    console.log(id);
+    
+    if(isChange){
+      // navigation?.navigate(ScreenName.SHOW_CV, {id});
+    }
+  }, [isChange])
   // Đặt lại title của header khi màn hình được hiển thị
   useEffect(() => {
     if (navigation) {
@@ -257,11 +324,11 @@ export default function CVApproval() {
         ),
         headerRight: () => (
           <View style={[styles.headerRight]}>
-            <View style={[styles.oldBadge]}>
-              <Text style={[styles.bagdeText]}>CV cũ</Text>
+            <View style={[styles.oldBadge, styles.oldBorder, styles.oldBackground]}>
+              <Text style={[styles.bagdeText,]}>CV cũ</Text>
             </View>
-            <View style={[styles.newBadge]}>
-              <Text style={[styles.bagdeText]}>CV mới</Text>
+            <View style={[styles.newBadge, styles.newBorder, styles.newBackground]}>
+              <Text style={[styles.bagdeText,]}>CV mới</Text>
             </View>
           </View>
         ),
@@ -272,147 +339,155 @@ export default function CVApproval() {
   // Test -------------------------------
   // useEffect(()=> {
   //   console.log("newCV", JSON.stringify(newCv, null, 2));
-    
+
   // }, [newCv])
 
   // ------------------------------------
 
   return (
     <View style={styles.container}>
-      <ScrollView showsVerticalScrollIndicator={false}>
-        {/* header */}
-        <View style={styles.header}>
-          <Image
-            style={styles.avatar}
-            source={{ uri: ReactAppUrl.PUBLIC_URL + userInfo?.avatar }}
-          />
-          <Text style={styles.badge}> {userInfo?.point} </Text>
-          <Text style={styles.name}>{userInfo?.full_name}</Text>
-          {/* TITLE */}
-          <View style={styles.approveTitleBox}>
-            <Text style={[styles.title, styles.oldBorder, styles.oldBackground]}> {cv?.title} </Text>
-            <Text style={[styles.title, styles.newBorder, styles.newBackground]}> {newCv?.title} </Text>
-          </View>
-        </View>
-        {/* main - view */}
-        <View style={styles.main}>
-          {/* informations */}
-          <View style={styles.infor}>
-            <View style={styles.inforItem}>
-              {/* day of birth */}
-              <View style={styles.inforItemChild}>
-                <AntDesign name="calendar" size={20} color="black" />
-                <Text style={styles.inforItemText}> {birthday} </Text>
-              </View>
-              {/* phone number */}
-              <View style={styles.inforItemChild}>
-                <Feather name="phone-call" size={20} color="black" />
-                <Text style={styles.inforItemText}>
-                  {" "}
-                  {userInfo?.phone_number}{" "}
-                </Text>
-              </View>
-            </View>
-            <View style={styles.inforItem}>
-              {/* interested major */}
-              <View style={styles.inforItemChild}>
-                <Feather name="bookmark" size={24} color="black" />
-                <Text style={styles.inforItemText}>
-                  {(userInfo && userInfo.interested_majors.length > 0) && userInfo.interested_majors[0].vn_name}
-                </Text>
-              </View>
-            </View>
-            <View style={styles.inforItem}>
-              {/* location */}
-              <View style={styles.inforItemChild}>
-                <Ionicons name="location-outline" size={20} color="black" />
-                <Text style={styles.inforItemText}>
-                  {" "}
-                  {`${address?.detail}, ${address?.ward}, ${address?.district}, ${address?.province}`}
-                </Text>
-              </View>
+      {loading ? <CVApprovalSkeleton /> :
+        <ScrollView showsVerticalScrollIndicator={false}>
+          {/* header */}
+          <View style={styles.header}>
+            <Image
+              style={styles.avatar}
+              source={{ uri: ReactAppUrl.PUBLIC_URL + userInfo?.avatar }}
+            />
+            <Text style={styles.badge}> {userInfo?.point} </Text>
+            <Text style={styles.name}>{userInfo?.full_name}</Text>
+            {/* TITLE */}
+            <View style={styles.approveTitleBox}>
+              {!isApproved && <Text style={[styles.title, styles.oldBorder, styles.oldBackground]}> {cv?.title} </Text>}
+              <Text style={[styles.title, styles.newBorder, styles.newBackground]}> {newCv?.title} </Text>
             </View>
           </View>
-          <HLine type={HLineType.LIGHT} />
-          {/* about me */}
-          <View style={styles.aboutView}>
-            <Text style={styles.titleText}>{"Biography"}</Text>
-            <View style={[styles.approveBioBox]}>
-              <Text style={[styles.aboutText, styles.oldBorder]}>{cv?.biography}</Text>
-              <Text style={[styles.aboutText, styles.newBorder]}>{newCv?.biography}</Text>
+          {/* main - view */}
+          <View style={styles.main}>
+            {/* informations */}
+            <View style={styles.infor}>
+              <View style={styles.inforItem}>
+                {/* day of birth */}
+                <View style={styles.inforItemChild}>
+                  <AntDesign name="calendar" size={20} color="black" />
+                  <Text style={styles.inforItemText}> {birthday} </Text>
+                </View>
+                {/* phone number */}
+                <View style={styles.inforItemChild}>
+                  <Feather name="phone-call" size={20} color="black" />
+                  <Text style={styles.inforItemText}>
+                    {" "}
+                    {userInfo?.phone_number}{" "}
+                  </Text>
+                </View>
+              </View>
+              <View style={styles.inforItem}>
+                {/* interested major */}
+                <View style={styles.inforItemChild}>
+                  <Feather name="bookmark" size={24} color="black" />
+                  <Text style={styles.inforItemText}>
+                    {(userInfo && userInfo.interested_majors.length > 0) && userInfo.interested_majors[0].vn_name}
+                  </Text>
+                </View>
+              </View>
+              <View style={styles.inforItem}>
+                {/* location */}
+                <View style={styles.inforItemChild}>
+                  <Ionicons name="location-outline" size={20} color="black" />
+                  <Text style={styles.inforItemText}>
+                    {" "}
+                    {`${address?.detail}, ${address?.ward}, ${address?.district}, ${address?.province}`}
+                  </Text>
+                </View>
+              </View>
             </View>
-          </View>
+            <HLine type={HLineType.LIGHT} />
+            {/* about me */}
+            <View style={styles.aboutView}>
+              <Text style={styles.titleText}>{"Biography"}</Text>
+              <View style={[styles.approveBioBox]}>
+                {!isApproved && <Text style={[styles.aboutText, styles.oldBorder]}>{cv?.biography}</Text>}
+                <Text style={[styles.aboutText, styles.newBorder]}>{newCv?.biography}</Text>
+              </View>
+            </View>
 
-          {/* education */}
-          <View>
-            <Text style={styles.approveCVText}>{"Educations"}</Text>
-            <View style={styles.approveCVBox}>
-              <CvBox isOld={true} title="Old Education">
-                <FlatList
-                  scrollEnabled={false}
-                  data={oldEducations}
-                  renderItem={({ item }) => <EducationItem education={item} onDelete={() => { }} />}
-                />
-              </CvBox>
-              <CvBox title="New Education">
-                <FlatList
-                  scrollEnabled={false}
-                  data={newEducations}
-                  renderItem={({ item }) => <EducationItem education={item} onDelete={() => { }} />}
-                />
-              </CvBox>
+            {/* education */}
+            <View>
+              <Text style={styles.approveCVText}>{"Educations"}</Text>
+              <View style={styles.approveCVBox}>
+                {!isApproved && <CvBox isOld={true} title="Old Education">
+                  <FlatList
+                    scrollEnabled={false}
+                    data={oldEducations}
+                    renderItem={({ item }) => <EducationItem education={item} onDelete={() => { }} />}
+                  />
+                </CvBox>}
+                <CvBox title="New Education">
+                  <FlatList
+                    scrollEnabled={false}
+                    data={newEducations}
+                    renderItem={({ item }) => <EducationItem education={item} onDelete={() => { }} />}
+                  />
+                </CvBox>
+              </View>
+            </View>
+            {/* work experience */}
+            <View >
+              <Text style={styles.approveCVText}>{"Word Experiences"}</Text>
+              <View style={styles.approveCVBox}>
+                {!isApproved && <CvBox isOld={true} title="Old Work Experience">
+                  <FlatList
+                    scrollEnabled={false}
+                    data={oldExperiences}
+                    renderItem={({ item }) => <ExperienceItem experience={item} onDelete={() => { }} />}
+                  />
+                </CvBox>}
+                <CvBox title="New Work Experiences">
+                  <FlatList
+                    scrollEnabled={false}
+                    data={newExperiences}
+                    renderItem={({ item }) => <ExperienceItem experience={item} onDelete={() => { }} />}
+                  />
+                </CvBox>
+              </View>
+            </View>
+            {/* Certificate */}
+            <View>
+              <Text style={styles.approveCVText}>{"Certificate"}</Text>
+              <View style={styles.approveCVBox}>
+                {!isApproved && <CvBox isOld={true} title="Old Certificate">
+                  <FlatList
+                    scrollEnabled={false}
+                    data={oldCertificates}
+                    renderItem={({ item }) => <CertificateItem certificate={item} onDelete={() => { }} />}
+                  />
+                </CvBox>}
+                <CvBox title="New Certificate">
+                  <FlatList
+                    scrollEnabled={false}
+                    data={newCertificates}
+                    renderItem={({ item }) => <CertificateItem certificate={item} onDelete={() => { }} />}
+                  />
+                </CvBox>
+              </View>
             </View>
           </View>
-          {/* work experience */}
-          <View >
-            <Text style={styles.approveCVText}>{"Word Experiences"}</Text>
-            <View style={styles.approveCVBox}>
-              <CvBox isOld={true} title="Old Work Experience">
-                <FlatList
-                  scrollEnabled={false}
-                  data={oldExperiences}
-                  renderItem={({ item }) => <ExperienceItem experience={item} onDelete={() => { }} />}
-                />
-              </CvBox>
-              <CvBox title="New Work Experiences">
-                <FlatList
-                  scrollEnabled={false}
-                  data={newExperiences}
-                  renderItem={({ item }) => <ExperienceItem experience={item} onDelete={() => { }} />}
-                />
-              </CvBox>
-            </View>
-          </View>
-          {/* Certificate */}
-          <View>
-            <Text style={styles.approveCVText}>{"Certificate"}</Text>
-            <View style={styles.approveCVBox}>
-              <CvBox isOld={true} title="Old Certificate">
-                <FlatList
-                  scrollEnabled={false}
-                  data={oldCertificates}
-                  renderItem={({ item }) => <CertificateItem certificate={item} onDelete={() => { }} />}
-                />
-              </CvBox>
-              <CvBox title="New Certificate">
-                <FlatList
-                  scrollEnabled={false}
-                  data={newCertificates}
-                  renderItem={({ item }) => <CertificateItem certificate={item} onDelete={() => { }} />}
-                />
-              </CvBox>
-            </View>
-          </View>
-        </View>
-      </ScrollView>
+        </ScrollView>
+      }
       <View style={styles.btnCotainer}>
-        <TouchableOpacity style={[styles.btn, styles.btnDeny]}>
+        <TouchableOpacity onPress={() => { setShowModal(true) }} style={[styles.btn, styles.btnDeny]}>
           <Text style={styles.btnDenyText}>Từ Chối</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.btn, styles.btnAccept]}>
+        <TouchableOpacity onPress={() => { handleConfirm() }} style={[styles.btn, styles.btnAccept]}>
           <Text style={styles.btnAcceptText}>Chấp nhận</Text>
         </TouchableOpacity>
       </View>
+      <ModalApproveCVReason
+        confirmTitle="Tu Choi CV"
+        visiable={showModal}
+        onRequestCloseDialog={()=>{setShowModal(false)}}
+        onConfirm={handleCancel}
+      />
     </View>
   );
 }
@@ -531,10 +606,10 @@ const styles = StyleSheet.create({
     backgroundColor: BackgroundColor.warning,
   },
   newBorder: {
-    borderColor: BackgroundColor.success,
+    borderColor: BackgroundColor.sub_primary,
   },
   newBackground: {
-    backgroundColor: BackgroundColor.success,
+    backgroundColor: BackgroundColor.sub_primary,
   },
   titleText: {
     fontSize: 20,
@@ -583,7 +658,7 @@ const styles = StyleSheet.create({
   },
   oldBadge: {
     borderWidth: 1,
-    borderRadius: 5, 
+    borderRadius: 5,
     backgroundColor: BackgroundColor.warning,
     borderColor: BackgroundColor.warning,
     paddingHorizontal: 10,
@@ -591,9 +666,7 @@ const styles = StyleSheet.create({
   },
   newBadge: {
     borderWidth: 1,
-    borderRadius: 5, 
-    backgroundColor: BackgroundColor.success,
-    borderColor: BackgroundColor.success,
+    borderRadius: 5,
     paddingHorizontal: 10,
     paddingVertical: 5,
   },
