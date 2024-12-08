@@ -48,7 +48,6 @@ export default function PersonalScheduleScreen() {
    */
   const [selectedDate, setSelectedDate] = useState(new Date());
   // Người được chọn từ dropdown
-  const [selectedUserId, setSelectedUserId] = useState(account?.id);
   const [users, setUsers] = useState<User[]>([]);
   const [selectedUser, setSelectedUser] = useState<User>(new User());
 
@@ -180,7 +179,7 @@ export default function PersonalScheduleScreen() {
           }>
           <WeekCalendar today={currentDay} currentDay={currentDay} currentDate={currentDate} currentWeek={currentWeek} activeDate={activeDate} setActiveDate={handlerSetActiveDate} setCurrentWeek={handlerSetWeek} setSelectedDate={setSelectedDate} />
           {/* <TimeLine lessons={lessons}/> */}
-          <TimeLine selectedUser={account} lessons={todayLessons} selectedDate={selectedDate} type={type} onChangeType={setType} />
+          <TimeLine selectedUser={selectedUser} lessons={todayLessons} selectedDate={selectedDate} type={type} onChangeType={setType} />
         </ScrollView>
         {/* <RatingScreen/> */}
 

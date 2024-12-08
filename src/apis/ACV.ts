@@ -104,16 +104,18 @@ export default class ACV {
       })
   }
 
-  public static getTempCV(cv_id: string, onNext: (cv: any[])=> void){
+  public static getTempCV(cv_id: string, onNext: (cv: any[])=> void, onLoading: (loading: boolean)=> void){
+    onLoading(true);
     axios.get<any>(baseURL + '/temp/' + cv_id)
       .then((response) => {
         const data = response.data.data
         // console.log("data in ACV", JSON.stringify(data, null, 2));
         onNext(data)
+        onLoading(false)
       })
       .catch((err) => {
         console.log(err);
-
+        onLoading(true)
         onNext([])
       })
   }
@@ -138,11 +140,47 @@ export default class ACV {
       .catch((err) => {
         console.log(">>> send request CV: ", err);
         onNext(err.message);
-        onLoading(false)
+        onLoading(true)
       })
       .finally(() => {
         onLoading(false); // Kết thúc loading
       });
 
+  }
+
+  public static approveCV(approveData : any, onNext: (data: any)=> void, onLoading: (loading: boolean)=> void){
+    onLoading(true)
+    axios.post(`${baseURL}/approve`, approveData,{
+      headers: {
+        "Content-Type": 'application/json',
+      }
+    }).then((result)=> {
+      console.log(result.data.data);
+      onNext(result.data.data);
+      onLoading(false)
+    }).catch((error)=> {
+      console.log(error.message);
+      onLoading(true)
+    })
+
+    //end function
+  }
+
+  public static denyCV(approveData: any, onNext: (data: any)=> void, onLoading: (loading: boolean)=> void){
+    onLoading(true)
+    axios.post(`${baseURL}/deny`, approveData,{
+      headers: {
+        "Content-Type": 'application/json',
+      }
+    }).then((result)=> {
+      console.log(result.data.data);
+      onNext(result.data.data);
+      onLoading(false)
+    }).catch((error)=> {
+      console.log(error.message);
+      onLoading(true)
+    })
+
+    //end function
   }
 }
