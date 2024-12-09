@@ -99,7 +99,7 @@ export default function ClassDetail() {
   }
 
   const goToUpdateClass = () => {
-    navigation?.navigate(ScreenName.UPDATE_CLASS, { classData: classDetail })
+    navigation?.navigate(ScreenName.UPDATE_CLASS, { classData: classDetail, members: membersInClass  })
   }
 
   // effect -------------------------------------------------------------------------

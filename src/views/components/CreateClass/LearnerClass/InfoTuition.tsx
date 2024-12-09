@@ -14,6 +14,7 @@ import AStudent from "../../../../apis/AStudent";
 import User from "../../../../models/User";
 import DropDownLocation from "../../dropdown/DropDownLocation";
 import { LanguageContext } from "../../../../configs/LanguageConfig";
+import { child } from "firebase/database";
 
 type Props = {
   onNext: (
@@ -24,13 +25,13 @@ type Props = {
     province?: string,
     district?: string,
     ward?: string,
-    detail?: string
+    detail?: string,
+    childIds? : string[]
   ) => void;
   userId: string;
 };
 
 const InfoTuition = ({ onNext, userId }: Props) => {
-
   // context
   const languageContext = useContext(LanguageContext).language;
 
@@ -43,6 +44,7 @@ const InfoTuition = ({ onNext, userId }: Props) => {
   const [datePickerType, setDatePickerType] = useState<"start" | "end">();
   const [childData, setChildData] = useState<User[]>([]);
   const [loading, setLoading] = useState(false); // loading trong thoi gian cho
+  
   // State lưu trạng thái tham gia cho từng con
   const [joinedState, setJoinedState] = useState<{ [key: string]: boolean }>(
     {}
@@ -50,27 +52,38 @@ const InfoTuition = ({ onNext, userId }: Props) => {
   // lưu id các thằng con tham gia
   const [childJoineds, setChildJoineds] = useState<string[]>([]);
 
-   // state address
-   const [selectedProvince, setSelectedProvince] = useState("");
-   const [selectedDistrict, setSelectedDistrict] = useState("");
-   const [selectedWard, setSelectedWard] = useState("");
-   const [detail, setDetail] = useState("");
-   const [zalo, setZalo] = useState("");
-
+  // state address
+  const [selectedProvince, setSelectedProvince] = useState("");
+  const [selectedDistrict, setSelectedDistrict] = useState("");
+  const [selectedWard, setSelectedWard] = useState("");
+  const [detail, setDetail] = useState("");
+  const [zalo, setZalo] = useState("");
 
   // Kiểm tra logic ngày bắt đầu và ngày kết thúc
   const validateDates = (start: string, end: string) => {
-    const startDate = new Date(start).getTime();
-    const endDate = new Date(end).getTime();
-
-    if (startDate > endDate) {
-      setError(languageContext.ERROR_DATE);
-      setDateEnd("");
+    // Chuyển đổi dd/mm/yyyy thành Date object
+    const parseDate = (dateStr: string) => {
+      const [day, month, year] = dateStr.split("/").map(Number);
+      return new Date(year, month - 1, day); // Chú ý month - 1 vì tháng trong JavaScript bắt đầu từ 0
+    };
+  
+    const startDate = parseDate(start).getTime();
+    const endDate = parseDate(end).getTime();
+  
+    if (isNaN(startDate) || isNaN(endDate)) {
+      setError(languageContext.ERROR_DATE); // Ngày không hợp lệ
       return false;
     }
-    setError("");
+  
+    if (startDate >= endDate) {
+      setError(languageContext.ERROR_DATE); // Ngày bắt đầu >= ngày kết thúc
+      setDateEnd(""); // Reset ngày kết thúc
+      return false;
+    }
+  
+    setError(""); // Không có lỗi
     return true;
-  };
+  };  
 
   // Hiển thị lịch
   const showDatePicker = (type: "start" | "end") => {
@@ -84,12 +97,20 @@ const InfoTuition = ({ onNext, userId }: Props) => {
 
   // Xử lý khi chọn ngày
   const handleConfirm = (date: Date) => {
-    const formattedDate = date.toLocaleDateString("vi-VN");
+    // Chuyển đổi ngày thành định dạng dd/mm/yyyy
+    const formattedDate = date
+      .toLocaleDateString("vi-VN", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      })
+      .split("/")
+      .join("/"); // Đảm bảo định dạng dd/mm/yyyy
 
     if (datePickerType === "start") {
       setDateStart(formattedDate);
       if (dateEnd) {
-        validateDates(formattedDate, dateEnd);
+        validateDates(formattedDate, dateEnd); // Kiểm tra ngày
       }
     } else if (datePickerType === "end") {
       if (dateStart && !validateDates(dateStart, formattedDate)) {
@@ -107,7 +128,8 @@ const InfoTuition = ({ onNext, userId }: Props) => {
       selectedProvince,
       selectedDistrict,
       selectedWard,
-      detail
+      detail,
+      childJoineds
     );
     hideDatePicker();
   };
@@ -126,7 +148,8 @@ const InfoTuition = ({ onNext, userId }: Props) => {
         selectedProvince,
         selectedDistrict,
         selectedWard,
-        detail
+        detail,
+        childJoineds
       );
       return;
     }
@@ -158,7 +181,8 @@ const InfoTuition = ({ onNext, userId }: Props) => {
         selectedProvince,
         selectedDistrict,
         selectedWard,
-        detail
+        detail,
+        childJoineds
       );
     } else {
       setError(languageContext.ERROR_TUITION_2);
@@ -186,7 +210,6 @@ const InfoTuition = ({ onNext, userId }: Props) => {
     });
   };
 
-
   // DANH SÁCH CON
 
   // Khi có dữ liệu mới, tạo trạng thái ban đầu cho tất cả item
@@ -198,19 +221,20 @@ const InfoTuition = ({ onNext, userId }: Props) => {
     setJoinedState(initialJoinedState);
   }, [childData]);
 
-  
   // xử lý đồng bộ cho childJoineds
   useEffect(() => {
     console.log("Danh sách các con tham gia:", childJoineds);
     onNext(
-    tuition?.toString(),
-    dateStart,
-    dateEnd,
-    childJoineds.length,
-    selectedProvince,
-    selectedDistrict,
-    selectedWard,
-    detail)
+      tuition?.toString(),
+      dateStart,
+      dateEnd,
+      childJoineds.length,
+      selectedProvince,
+      selectedDistrict,
+      selectedWard,
+      detail,
+      childJoineds
+    );
   }, [childJoineds]);
 
   useEffect(() => {
@@ -266,7 +290,9 @@ const InfoTuition = ({ onNext, userId }: Props) => {
                 isJoined ? styles.textCancel : styles.textJoin, // Thay đổi màu chữ
               ]}
             >
-              {isJoined ? languageContext.BTN_HUY : languageContext.BTN_THAM_GIA}
+              {isJoined
+                ? languageContext.BTN_HUY
+                : languageContext.BTN_THAM_GIA}
             </Text>
           </TouchableOpacity>
         </View>
@@ -279,7 +305,7 @@ const InfoTuition = ({ onNext, userId }: Props) => {
       {/* Học phí */}
       <View style={styles.marginInput}>
         <Text style={styles.label}>
-        {languageContext.TUITION} <Text style={styles.required}>*</Text>
+          {languageContext.TUITION} <Text style={styles.required}>*</Text>
         </Text>
         <TextInput
           style={styles.input}
@@ -293,7 +319,8 @@ const InfoTuition = ({ onNext, userId }: Props) => {
       {/* Ngày bắt đầu */}
       <View style={styles.marginInput}>
         <Text style={styles.label}>
-          {languageContext.DATE_START_PLACEHOLDER} <Text style={styles.required}>*</Text>
+          {languageContext.DATE_START_PLACEHOLDER}{" "}
+          <Text style={styles.required}>*</Text>
         </Text>
         <TouchableOpacity
           style={styles.input}
@@ -343,7 +370,8 @@ const InfoTuition = ({ onNext, userId }: Props) => {
 
       <View>
         <Text style={styles.label}>
-        {languageContext.DETAIL_ADDRESS} <Text style={styles.required}>*</Text>
+          {languageContext.DETAIL_ADDRESS}{" "}
+          <Text style={styles.required}>*</Text>
         </Text>
         <TextInput
           style={styles.input}
@@ -389,7 +417,7 @@ const InfoTuition = ({ onNext, userId }: Props) => {
       </View>
 
       <View>
-        <Text style={[styles.label, {marginTop: 25}]}>Danh sách con</Text>
+        <Text style={[styles.label, { marginTop: 25 }]}>Danh sách con</Text>
         <FlatList
           data={childData}
           renderItem={({ item }) => ChildItem(item)}

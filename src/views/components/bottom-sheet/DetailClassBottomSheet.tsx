@@ -45,6 +45,7 @@ import Report from "../../../models/Report";
 import {ReportNavigationType} from "../../../configs/NavigationRouteTypeConfig";
 import {AppInfoContext} from "../../../configs/AppInfoContext";
 import AUserAdmin from "../../../apis/admin/AUserAdmin";
+import Toast from "react-native-simple-toast";
 
 type DetailHistoryBottonSheetProps = {
   isVisible: boolean;
@@ -156,6 +157,7 @@ export default function ({
   }, []);
 
   const handleDeleteClass = useCallback(() => {
+    setLoading(true);
     Alert.alert("Xac nhan xoa", "lop hoc se bi khoa vinh vien va khong the khoi phuc", [
       {
         text: "Cancel",
@@ -164,16 +166,19 @@ export default function ({
       {
         text: "Confirm",
         onPress: () => {
-          // AClassAdmin.deleteClass(classData.id, (data) => {
-          //   if (data.result) {
-          //     onCloseButtonSheet();
-          //     navigation?.navigate(ScreenName.ADMIN_CLASS);
-          //   }
-          // }, setLoading);
+          AClassAdmin.deleteClass(classData?.id ?? -1, (result) => {
+            if (result) {
+              bottomSheetRef?.current?.close();
+              onCloseButtonSheet();
+              Toast.show("da xoa lop hoc", 1000);
+            } else {
+              Alert.alert("Xoa lop hoc","Xoa lop hoc that bai");
+            }
+          });
         },
       },
     ])
-  }, [classData]);
+  }, [classData, bottomSheetRef?.current]);
 
   // effect ----------------------------------------------------------------
   useEffect(() => {

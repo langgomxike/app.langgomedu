@@ -12,6 +12,7 @@ import ScreenName from "../../../constants/ScreenName";
 import { AccountContext } from "../../../configs/AccountConfig";
 import { RoleList } from "../../../models/Role";
 import { LanguageContext } from "../../../configs/LanguageConfig";
+import { child } from "firebase/database";
 
 const LearnerClass = () => {
   // context
@@ -34,6 +35,7 @@ const LearnerClass = () => {
   const [dataDesc, setDataDesc] = useState<string>("");
   const [dataMajorId, setDataMajorId] = useState<number>(-1);
   const [dataClassLevel, setDataClassLevel] = useState<number>(-1);
+  const [dataChilds, setDataChilds] = useState<string[]>([]);
 
   // address state
   const [dataProvinces, setDataProvinces] = useState("");
@@ -86,7 +88,8 @@ const LearnerClass = () => {
     provice?: string,
     district?: string,
     ward?: string,
-    detail?: string
+    detail?: string,
+    childs?: string[]
   ) => {
     if (price) setDataPrice(parseFloat(price));
     if (dateStart) setDataDateStart(dateStart);
@@ -96,6 +99,9 @@ const LearnerClass = () => {
     if (ward) setDataWard(ward);
     if (detail) setDataDetail(detail);
     if (maxLearner !== undefined) setMaxLearners(maxLearner);
+    if (childs) {
+      setDataChilds(childs);
+    }
   };
 
   const convertStringToTimestamp = (dateString: string) => {
@@ -160,6 +166,7 @@ const LearnerClass = () => {
         tutorId, // Pass tutorId from context
         authorId, // Pass authorId from context
         lessons,
+        dataChilds,
         (isSuccess, insertId) => {
           if (isSuccess && insertId) {
             setCreateClassId(insertId);
@@ -184,6 +191,7 @@ const LearnerClass = () => {
     tutorId, // Ensure tutorId is available here
     authorId, // Ensure authorId is available here
     lessons,
+    dataChilds,
   ]);
 
   return (

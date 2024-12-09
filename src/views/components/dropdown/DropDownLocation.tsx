@@ -59,7 +59,7 @@ export default function DropDownLocation(
 
 
     setDistrict(updatedDistricts);
-    onSetSelectedDistrict("");
+    // onSetSelectedDistrict("");
   }, [selectedCity]);
 
   // Lấy danh sách xã phường theo quận, huyện
@@ -76,8 +76,8 @@ export default function DropDownLocation(
     });
     
     setWard(updatedWards);
-    onSetSelectedWard("");
-    onSetSelectedWard("");
+    // onSetSelectedWard("");
+    // onSetSelectedWard("");
   }, [selectedDistrict]);
 
   const renderItem = (item: any, selected: any) => {
