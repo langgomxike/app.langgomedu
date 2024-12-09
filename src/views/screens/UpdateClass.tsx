@@ -15,13 +15,10 @@ import { UpdateClassRoute } from "../../configs/NavigationRouteTypeConfig";
 import Class from "../../models/Class";
 import { LanguageContext } from "../../configs/LanguageConfig";
 import { BackgroundColor } from "../../configs/ColorConfig";
-import UpdateInfoClass from "../components/UpdateClass/UpdateInfoClass";
-import UpdateInfoLesson from "../components/UpdateClass/UpdateInfoLesson";
-import UpdateInfoTuition from "../components/UpdateClass/UpdateTurtorClass/UpdateInfoTuition";
-import UpdateInfoTuitionLearner from "../components/UpdateClass/UpdateLearnerClass/UpdateInfoTuitionLearner";
 import { AccountContext } from "../../configs/AccountConfig";
 import { RoleList } from "../../models/Role";
 import UpdateLearnerClass from "../components/UpdateClass/UpdateLearnerClass";
+import UpdateTutorClass from "../components/UpdateClass/UpdateTurtorClass";
 
 export default function UpdateClass() {
   // route, context
@@ -38,6 +35,7 @@ export default function UpdateClass() {
   const [classData, setClassData] = useState<Class>(new Class());
 
   // handle
+  console.log("member in class: ", param.members);
 
   // effect
   useEffect(() => {
@@ -75,11 +73,8 @@ export default function UpdateClass() {
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
-      {/* <UpdateInfoClass classData={param.classData} />
-      {classData.lessons && <UpdateInfoLesson lessonData={classData.lessons} />}
-      {roleIds?.includes(RoleList.TUTOR) && <UpdateInfoTuition />}
-      {roleIds?.includes(RoleList.PARENT) && <UpdateInfoTuitionLearner />} */}
-      <UpdateLearnerClass/>
+      {roleIds?.includes(RoleList.TUTOR) && <UpdateTutorClass/> }
+      {roleIds?.includes(RoleList.PARENT) && <UpdateLearnerClass/>}
     </ScrollView>
   );
 }

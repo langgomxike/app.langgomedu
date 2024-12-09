@@ -8,39 +8,35 @@ import { RoleList } from "../../models/Role";
 import { LanguageContext } from "../../configs/LanguageConfig";
 
 export default function CreateClassScreen() {
-  // lấy vai trò (role)
-  const accountContext = useContext(AccountContext); // lay duoc acount
+  const accountContext = useContext(AccountContext);
   const languageContext = useContext(LanguageContext).language;
 
-  // State quản lý tab đang được chọn
   const [activeTab, setActiveTab] = useState<number | null>(null);
 
-  // Xử lý nhấn tab
   const handleTabPress = (tabIndex: number) => {
     const roleIds = accountContext.account?.roles?.map((role) => role.id);
 
-    // kiểm tra nếu user chỉ có quyền user
-    if ( roleIds?.includes(RoleList.BANNED_USER) || roleIds?.includes(RoleList.CHILD)) {
-      Alert.alert(languageContext.NOTIFICATION.toUpperCase(), languageContext.MESSAGE);
-      return;
-    }
-
-    // Kiểm tra quyền truy cập tab
     if (tabIndex === 0) {
       // Tab "Tạo lớp cho phụ huynh"
-      if (!roleIds?.includes(RoleList.USER) && !roleIds?.includes(RoleList.PARENT)) {
-        Alert.alert(languageContext.NOTIFICATION.toUpperCase(), languageContext.MESSAGE);
+      if (!roleIds?.includes(RoleList.PARENT)) {
+        Alert.alert(
+          languageContext.NOTIFICATION.toUpperCase(),
+          languageContext.NO_ACCESS_PARENT
+        );
         return;
       }
     } else if (tabIndex === 1) {
       // Tab "Tạo lớp cho gia sư"
-      if (!roleIds?.includes(RoleList.TUTOR)) {
-        Alert.alert(languageContext.NOTIFICATION.toUpperCase(), languageContext.MESSAGE);
+      if (!(roleIds?.includes(RoleList.TUTOR) && !roleIds?.includes(RoleList.BANNED_USER))) {
+        Alert.alert(
+          languageContext.NOTIFICATION.toUpperCase(),
+          languageContext.NO_ACCESS_TUTOR
+        );
         return;
       }
     }
-    
-    setActiveTab(tabIndex); // Đặt tab đang được chọn
+
+    setActiveTab(tabIndex); // Chỉ set activeTab nếu qua tất cả các điều kiện trên
   };
 
   return (
@@ -49,13 +45,13 @@ export default function CreateClassScreen() {
       <View style={styles.tabContainer}>
         {/* Tab Phụ huynh tạo lớp */}
         <TouchableOpacity
-          style={[styles.tab, activeTab === 0 && styles.activeTab]} // Tab đang được chọn
-          onPress={() => handleTabPress(0)} // Xử lý nhấn tab
+          style={[styles.tab, activeTab === 0 && styles.activeTab]}
+          onPress={() => handleTabPress(0)}
         >
           <Text
             style={[
               styles.tabText,
-              activeTab === 0 && styles.activeTabText, // Text tab đang được chọn
+              activeTab === 0 && styles.activeTabText,
             ]}
           >
             {languageContext.CREATE_CLASS_FOR_PARENT}
@@ -64,13 +60,13 @@ export default function CreateClassScreen() {
 
         {/* Tab Gia sư tạo lớp */}
         <TouchableOpacity
-          style={[styles.tab, activeTab === 1 && styles.activeTab]} // Tab đang được chọn
-          onPress={() => handleTabPress(1)} // Xử lý nhấn tab
+          style={[styles.tab, activeTab === 1 && styles.activeTab]}
+          onPress={() => handleTabPress(1)}
         >
           <Text
             style={[
               styles.tabText,
-              activeTab === 1 && styles.activeTabText, // Text tab đang được chọn
+              activeTab === 1 && styles.activeTabText,
             ]}
           >
             {languageContext.CREATE_CLASS_FOR_TUTOR}

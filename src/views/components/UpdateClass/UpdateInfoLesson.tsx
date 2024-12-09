@@ -113,7 +113,7 @@ const UpdateInfoLesson = ({lessonData} : props) => {
                 keyboardType="numeric"
                 style={styles.input}
                 placeholder={langguageContext.SELECTED_TIME_LESSON}
-                value={lesson.duration ? lesson.duration.toString() : ""}
+                value={lesson.duration ?(lesson.duration / (60 * 1000)).toString() : ""}
                 onChangeText={(text) => {
                   const parsed = parseInt(text);
                   setLessons((prevLessons) =>
@@ -160,7 +160,7 @@ const UpdateInfoLesson = ({lessonData} : props) => {
                 value={
                   lesson.started_at && lesson.duration
                     ? new Date(
-                        lesson.started_at + lesson.duration * 60 * 1000
+                        lesson.started_at + lesson.duration
                       ).toLocaleTimeString([], {
                         hour: "2-digit",
                         minute: "2-digit",

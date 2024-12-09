@@ -7,7 +7,10 @@ import { useCallback, useContext, useEffect, useState } from "react";
 import AClass from "../../../apis/AClass";
 import Lesson from "../../../models/Lesson";
 import Dialog from "react-native-dialog";
-import { NavigationContext, NavigationRouteContext } from "@react-navigation/native";
+import {
+  NavigationContext,
+  NavigationRouteContext,
+} from "@react-navigation/native";
 import ScreenName from "../../../constants/ScreenName";
 import { AccountContext } from "../../../configs/AccountConfig";
 import { RoleList } from "../../../models/Role";
@@ -21,9 +24,9 @@ const UpdateLearnerClass = () => {
   const navigation = useContext(NavigationContext);
   const user = useContext(AccountContext); // get account info
   const languageContext = useContext(LanguageContext).language;
-   // route, context
-   const route = useContext(NavigationRouteContext);
-   const param = (route?.params as UpdateClassRoute) || new Class();
+  // route, context
+  const route = useContext(NavigationRouteContext);
+  const param = (route?.params as UpdateClassRoute) || new Class();
 
   if (!user || !user.account) {
     return <Text>Error: User not found</Text>; // handle case where user data is not available
@@ -59,57 +62,13 @@ const UpdateLearnerClass = () => {
   const [createClassId, setCreateClassId] = useState<number>(-1);
   // dialog visibility state
   const [isDialogVisible, setIsDialogVisible] = useState(false);
-   const [classData, setClassData] = useState<Class>(new Class());
-
-  // Data change handlers
-  const handleDataChangeClass = (
-    title?: string,
-    desc?: string,
-    monHoc?: string,
-    capHoc?: number
-  ) => {
-    if (title) setDataTitle(title);
-    if (desc) setDataDesc(desc);
-    if (monHoc) setDataMajorId(parseInt(monHoc));
-    if (capHoc) setDataClassLevel(capHoc);
-  };
-
-  const handleDataChangeLesson = (lessons: Lesson[]) => {
-    setLessons(lessons);
-  };
-
-  const handleDataChangeTuition = (
-    price?: string,
-    dateStart?: string,
-    dateEnd?: string,
-    maxLearner?: number,
-    provice?: string,
-    district?: string,
-    ward?: string,
-    detail?: string
-  ) => {
-    if (price) setDataPrice(parseFloat(price));
-    if (dateStart) setDataDateStart(dateStart);
-    if (dateEnd) setDataDateEnd(dateEnd);
-    if (provice) setDataProvinces(provice);
-    if (district) setDataDistrict(district);
-    if (ward) setDataWard(ward);
-    if (detail) setDataDetail(detail);
-    if (maxLearner !== undefined) setMaxLearners(maxLearner);
-  };
+  const [classData, setClassData] = useState<Class>(new Class());
 
   const convertStringToTimestamp = (dateString: string) => {
     const [day, month, year] = dateString.split("/").map(Number);
     const dateObj = new Date(year, month - 1, day);
     return !isNaN(dateObj.getTime()) ? dateObj.getTime() : null;
   };
-
-  const handleNavigateToDetail = useCallback(
-    (classId: number) => {
-      navigation?.navigate(ScreenName.DETAIL_CLASS, { classId });
-    },
-    [navigation]
-  );
 
   const handleSaveClass = useCallback(() => {
     if (!dataTitle.trim()) {
@@ -144,29 +103,29 @@ const UpdateLearnerClass = () => {
     setErrorMessage(null);
 
     if (dataDateStart && dataDateEnd) {
-      AClass.createClassForLearner(
-        dataTitle,
-        dataDesc,
-        dataMajorId,
-        dataClassLevel,
-        dataPrice,
-        convertStringToTimestamp(dataDateStart),
-        convertStringToTimestamp(dataDateEnd),
-        maxLearners,
-        dataProvinces,
-        dataDistrict,
-        dataWard,
-        dataDetail,
-        tutorId, // Pass tutorId from context
-        authorId, // Pass authorId from context
-        lessons,
-        (isSuccess, insertId) => {
-          if (isSuccess && insertId) {
-            setCreateClassId(insertId);
-            setIsDialogVisible(true); // Show dialog on success
-          }
-        }
-      );
+      // AClass.createClassForLearner(
+      //   dataTitle,
+      //   dataDesc,
+      //   dataMajorId,
+      //   dataClassLevel,
+      //   dataPrice,
+      //   convertStringToTimestamp(dataDateStart),
+      //   convertStringToTimestamp(dataDateEnd),
+      //   maxLearners,
+      //   dataProvinces,
+      //   dataDistrict,
+      //   dataWard,
+      //   dataDetail,
+      //   tutorId, // Pass tutorId from context
+      //   authorId, // Pass authorId from context
+      //   lessons,
+      //   (isSuccess, insertId) => {
+      //     if (isSuccess && insertId) {
+      //       setCreateClassId(insertId);
+      //       setIsDialogVisible(true); // Show dialog on success
+      //     }
+      //   }
+      // );
     }
   }, [
     dataTitle,
@@ -201,8 +160,9 @@ const UpdateLearnerClass = () => {
       <UpdateInfoClass classData={param.classData} />
       {classData.lessons && <UpdateInfoLesson lessonData={classData.lessons} />}
       <UpdateInfoTuitionLearner
-        // onNext={handleDataChangeTuition}
-        // userId={user.account?.id ?? ""}
+      tuitionData={param.classData}
+      userId={user.account?.id ?? ""}
+      childs={param.members}
       />
 
       <TouchableOpacity style={styles.btnNext} onPress={handleSaveClass}>
@@ -220,7 +180,6 @@ const UpdateLearnerClass = () => {
           label="OK"
           onPress={() => {
             setIsDialogVisible(false);
-            handleNavigateToDetail(createClassId);
           }}
         />
       </Dialog.Container>

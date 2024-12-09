@@ -87,19 +87,18 @@ export default class ACV {
   }
 
 
-  public static getPersonalCV(user_id: string, onNext: (cv: any[]) => void) {
+  public static getPersonalCV(user_id: string, onNext: (cv: any[]) => void, onLoading: (loading: boolean)=> void) {
     // console.log(baseURL+ '/cvs/'+ user_id);
-
+    onLoading(true);
     axios.get<any>(baseURL + '/' + user_id)
       .then((response) => {
         const data = response.data.data
         // console.log("data in ACV", JSON.stringify(data, null, 2));
-
         onNext(data)
+        onLoading(false)
       })
       .catch((err) => {
         console.log(err);
-
         onNext([])
       })
   }
