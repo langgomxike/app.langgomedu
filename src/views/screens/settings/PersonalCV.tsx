@@ -26,6 +26,7 @@ import { AccountContext } from '../../../configs/AccountConfig'
 import { NavigationContext } from '@react-navigation/native'
 import ScreenName from '../../../constants/ScreenName'
 import { LanguageContext } from '../../../configs/LanguageConfig'
+import CVApprovalSkeleton from '../../components/skeleton/CVApprovalSkeleton'
 
 export default function PersonalCV() {
   //CONTEXT >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -38,25 +39,23 @@ export default function PersonalCV() {
   const [userInfo, setUserInfo] = useState<User>();
   const [birthday, setBirthday] = useState<string>('');
   const [address, setAddress] = useState<Address>();
+
+  const [isProcessing, setIsProcessing] = useState(false);
   //effect
-  useEffect(()=>{
+  useEffect(() => {
     // console.log(navigation);
-    
-    if(account){
-      ACV.getPersonalCV(account.id, (cvs)=>{
-        console.log(account.id);
+    if (account) {
+      ACV.getPersonalCV(account.id, (cvs) => {
+        console.log("Personal CV: ", account.id);
         // console.log(JSON.stringify(cvs, null, 2));
-        
         const viewCV = cvs.find(cv => cv.id === `${account.id}_t`) || cvs[0];
-        // console.log(JSON.stringify(viewCV, null, 2));
-        if(viewCV){
-          // console.log(JSON.stringify(cv, null, 2));
-          
+        if (viewCV) {
+
           setCV(viewCV);
           setUserInfo(viewCV.user);
           setAddress(viewCV.user?.address);
-          
-          if(viewCV.user){
+
+          if (viewCV.user) {
             const birthday = new Date(viewCV.user?.birthday);
             // const birthdayData = birthday.getDate() + '/' + (birthday.getMonth() +1) + '/' + birthday.getFullYear()
             const birthdayData = moment(birthday)
@@ -64,113 +63,117 @@ export default function PersonalCV() {
             // setBirthday(birthdayData);
           }
         }
-        else{
+        else {
           navigation?.navigate(ScreenName.INPUT_CV);
         }
-        
-      })
-    }else{
+      }, setIsProcessing)
+    } else {
       navigation?.navigate(ScreenName.INPUT_CV);
     }
-  },[])
+  }, [])
 
   // useEffect(()=>{
   //   // console.log(interestedMajor);
-    
+
   // },[cv])
-  
+
   return (
-    <ScrollView showsVerticalScrollIndicator={false}
-      style={styles.container}>
-      {/* header */}
-      <View style={styles.header}>
-        <Image style={styles.avatar} source={{uri: ReactAppUrl.PUBLIC_URL + userInfo?.avatar}} />
-        <Text style={styles.badge}> {userInfo?.point} </Text>
-        <Text style={styles.name}>{userInfo?.full_name}</Text>
-        <Text style={styles.title}> {cv?.title}</Text>
-      </View>
-      {/* main - view */}
-      <View style={styles.main}>
-        {/* informations */}
-        <View style={styles.infor}>
-          <View style={styles.inforItem}>
-            {/* day of birth */}
-            <View style={styles.inforItemChild}>
-              <AntDesign name="calendar" size={20} color="black" />
-              <Text style={styles.inforItemText}> {birthday} </Text>
+    <View style={styles.container}>
+      { isProcessing ? <CVApprovalSkeleton/> :
+        <ScrollView showsVerticalScrollIndicator={false}
+        // style={styles.container} 
+        >
+          {/* header */}
+          <View style={styles.header}>
+            <Image style={styles.avatar} source={{ uri: ReactAppUrl.PUBLIC_URL + userInfo?.avatar }} />
+            <Text style={styles.badge}> {userInfo?.point} </Text>
+            <Text style={styles.name}>{userInfo?.full_name}</Text>
+            <Text style={styles.title}> {cv?.title}</Text>
+          </View>
+          {/* main - view */}
+          <View style={styles.main}>
+            {/* informations */}
+            <View style={styles.infor}>
+              <View style={styles.inforItem}>
+                {/* day of birth */}
+                <View style={styles.inforItemChild}>
+                  <AntDesign name="calendar" size={20} color="black" />
+                  <Text style={styles.inforItemText}> {birthday} </Text>
+                </View>
+                {/* phone number */}
+                <View style={styles.inforItemChild}>
+                  <Feather name="phone-call" size={20} color="black" />
+                  <Text style={styles.inforItemText}> {userInfo?.phone_number} </Text>
+                </View>
+
+              </View>
+              {/* mail */}
+              {/* <View style={styles.inforItem}>
+              <View style={styles.inforItemChild}>
+                <Feather name="mail" size={20} color="black" />
+                <Text style={styles.inforItemText}> {userInfo?.email} </Text>
+              </View>
+            </View> */}
+              <View style={styles.inforItem}>
+                {/* interested major */}
+                <View style={styles.inforItemChild}>
+                  <Feather name="bookmark" size={24} color="black" />
+                  <Text style={styles.inforItemText}> {(userInfo && userInfo.interested_majors.length > 0) && userInfo.interested_majors[0].vn_name} </Text>
+                </View>
+              </View>
+              <View style={styles.inforItem}>
+                {/* location */}
+                <View style={styles.inforItemChild}>
+                  <Ionicons name="location-outline" size={20} color="black" />
+                  <Text style={styles.inforItemText}> {`${address?.detail}, ${address?.ward}, ${address?.district}, ${address?.province}`}</Text>
+                </View>
+              </View>
+
             </View>
-            {/* phone number */}
-            <View style={styles.inforItemChild}>
-              <Feather name="phone-call" size={20} color="black" />
-              <Text style={styles.inforItemText}> {userInfo?.phone_number} </Text>
+            <HLine type={HLineType.LIGHT} />
+            {/* about me */}
+            <View style={styles.aboutView}>
+              <Text style={styles.aboutText}>
+                {cv?.biography}
+              </Text>
+            </View>
+
+            {/* education */}
+            <View >
+              <CvBox title={languageContext.language.EDUCATION}>
+                <FlatList
+                  scrollEnabled={false}
+                  data={cv?.educations}
+                  renderItem={({ item }) => <EducationItem education={item} onDelete={() => { }} />}
+                />
+
+              </CvBox>
+            </View>
+            {/* work experience */}
+            <View >
+              <CvBox title={languageContext.language.WORK_EXPERIENCE}>
+                <FlatList
+                  scrollEnabled={false}
+                  data={cv?.experiences}
+                  renderItem={({ item }) => <ExperienceItem experience={item} onDelete={() => { }} />}
+                />
+              </CvBox>
+            </View>
+            {/* Certificate */}
+            <View >
+              <CvBox title={languageContext.language.CERTIFICATE}>
+                <FlatList
+                  scrollEnabled={false}
+                  data={cv?.certificates}
+                  renderItem={({ item }) => <CertificateItem certificate={item} onDelete={() => { }} />}
+                />
+              </CvBox>
             </View>
 
           </View>
-            {/* mail */}
-          {/* <View style={styles.inforItem}>
-            <View style={styles.inforItemChild}>
-              <Feather name="mail" size={20} color="black" />
-              <Text style={styles.inforItemText}> {userInfo?.email} </Text>
-            </View>
-          </View> */}
-          <View style={styles.inforItem}>
-            {/* interested major */}
-            <View style={styles.inforItemChild}>
-            <Feather name="bookmark" size={24} color="black" />
-              <Text style={styles.inforItemText}> {(userInfo && userInfo.interested_majors.length>0) && userInfo.interested_majors[0].vn_name} </Text>
-            </View>
-          </View>
-          <View style={styles.inforItem}>
-            {/* location */}
-            <View style={styles.inforItemChild}>
-              <Ionicons name="location-outline" size={20} color="black" />
-              <Text style={styles.inforItemText}> {`${address?.detail}, ${address?.ward}, ${address?.district}, ${address?.province}`}</Text>
-            </View>
-          </View>
-
-        </View>
-        <HLine type={HLineType.LIGHT} />
-        {/* about me */}
-        <View style={styles.aboutView}>
-          <Text style={styles.aboutText}>
-            {cv?.biography}
-          </Text>
-        </View>
-
-        {/* education */}
-        <View >
-          <CvBox title={languageContext.language.EDUCATION}>
-            <FlatList 
-              scrollEnabled = {false}
-              data={cv?.educations}
-              renderItem={({ item }) => <EducationItem education={item} onDelete={()=>{}} />}
-            />
-            
-          </CvBox>
-        </View>
-        {/* work experience */}
-        <View >
-          <CvBox title={languageContext.language.WORK_EXPERIENCE}>
-          <FlatList 
-              scrollEnabled = {false}
-              data={cv?.experiences}
-              renderItem={({ item }) => <ExperienceItem experience={item} onDelete={()=>{}} />}
-            />
-          </CvBox>
-        </View>
-        {/* Certificate */}
-        <View >
-          <CvBox title={languageContext.language.CERTIFICATE}>
-            <FlatList
-              scrollEnabled= {false}
-              data={cv?.certificates}
-              renderItem={({ item }) => <CertificateItem certificate={item} onDelete={()=>{}}/>}
-            />
-          </CvBox>
-        </View>
-
-      </View>
-    </ScrollView>
+        </ScrollView>
+      }
+    </View>
   )
 }
 
