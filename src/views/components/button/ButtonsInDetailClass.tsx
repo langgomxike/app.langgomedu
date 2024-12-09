@@ -18,8 +18,8 @@ import {NavigationContext} from "@react-navigation/native";
 import ScreenName from "../../../constants/ScreenName";
 import {
   CreateReportNavigationType,
-  MessageNavigationType, RatingNavigationType,
-  ReportNavigationType
+  MessageNavigationType,
+  RatingNavigationType,
 } from "../../../configs/NavigationRouteTypeConfig";
 import ModalDialogForClass from "../modal/ModalDialogForClass";
 import ButtonDisableInClassDetail from "./ButtonDisableInClassDetail";
@@ -27,28 +27,24 @@ import {LanguageContext} from "../../../configs/LanguageConfig";
 import {AppInfoContext} from "../../../configs/AppInfoContext";
 
 type ButtonsInDetailClassProps = {
+  classFee: number,
   classDetail: Class;
   handleJoinClass: () => void;
   handleAcceptClass: () => void;
 };
 
 export default function ButtonsInDetailClass({
-                                               classDetail,
-                                               handleJoinClass,
-                                               handleAcceptClass,
-                                             }: ButtonsInDetailClassProps) {
+  classFee,
+  classDetail,
+  handleJoinClass,
+  handleAcceptClass,
+}: ButtonsInDetailClassProps) {
   // contexts ----------------------------------------------------------------
   const user = useContext(UserContext).user;
   const account = useContext(AccountContext).account;
   const navigation = useContext(NavigationContext);
   const language = useContext(LanguageContext).language;
-  const appInfoContext = useContext(AppInfoContext).infos;
 
-  const classFee = classDetail ? (classDetail.total_lessons * classDetail.price) *
-    (classDetail.author?.id === classDetail.tutor?.id
-      ? appInfoContext.creation_fee_for_tutors
-      : appInfoContext.creation_fee_for_parents)
-    : 0;
   const isAuthor = classDetail?.user_status === "author";
   const isMember = classDetail?.user_status === "member";
   const isAuthorTutor = classDetail?.user_status === "author_and_tutor";
@@ -58,11 +54,14 @@ export default function ButtonsInDetailClass({
     classDetail?.user_status === "tutor" && classDetail.author_accepted;
   const isTutorNotAccept =
     classDetail?.user_status === "tutor" && !classDetail.author_accepted;
+  const isClassEnded = classDetail.ended_at <= new Date().getTime();
+  const isRating = classDetail.is_rating
+  
 
   const isLeaner = user.TYPE === UserType.LEANER;
 
   const isDisabled = isLeaner
-    ? isMember || isTutor || isAuthor
+    ? (isMember || isTutor || isAuthor) && !isClassEnded || isRating
     : isTutor || isAuthor || isMember;
 
   // states ----------------------------------------------------------------
@@ -77,6 +76,8 @@ export default function ButtonsInDetailClass({
   const [waitResponse, setWaitResponse] = useState(false);
 
   // handlers ----------------------------------------------------------------
+
+  // Xử lý thanh toán phí tạo lớp
   const handlePayClassFee = useCallback(() => {
     const formData = new FormData();
     formData.append("class_id", String(classDetail.id));
@@ -96,15 +97,10 @@ export default function ButtonsInDetailClass({
       message: language.PAYMENT_RECORDED,
     });
     setModalVisible("modalDialogForClass");
-    AClass.payFeeForClass(
-      formData,
-      (data) => {
-
-      },
-      setWaitResponse
-    );
+    AClass.payFeeForClass(formData, (data) => {}, setWaitResponse);
   }, [selectedImage]);
 
+   // Xử lý chuyển hướng đến chat với người tạo lớp
   const goToChatWithAuthor = () => {
     if (classDetail.author) {
       const data: MessageNavigationType = {user: classDetail.author};
@@ -112,13 +108,28 @@ export default function ButtonsInDetailClass({
     }
   };
 
+  // Chuyển hướng đến báo cáo lớp học
   const goToCReport = () => {
     if (classDetail.author) {
-      const data: CreateReportNavigationType = {reportee: classDetail.author, class: classDetail};
+      const data: CreateReportNavigationType = {
+        reportee: classDetail.author,
+        class: classDetail,
+      };
       navigation?.navigate(ScreenName.CREATE_REPORT, data);
     }
   };
 
+  // Chuyển hướng đến đánh giá lớp học
+  const goToRatingForClass = () => {
+    const data: RatingNavigationType = {
+      id: classDetail.author?.id ?? "-1",
+      class: classDetail
+    };
+
+    navigation?.navigate(ScreenName.RATING, data);
+  }
+
+  // Xử lý chấp nhận gia sư cho lớp học (đối với learner)
   const handleAcceptTutorForClass = (authorAccepted: boolean) => {
     setModalVisible("modalDialogForClass");
     if (authorAccepted) {
@@ -136,53 +147,49 @@ export default function ButtonsInDetailClass({
     AClass.acceptTutorForClass(
       classDetail.id,
       authorAccepted,
-      () => {
-      },
+      () => {},
       setWaitResponse
     );
   };
 
+  // Hàm lấy text cho button
   const getButtonText = () => {
     if (isLeaner) {
-      if (isMember) return language.JOINED_CLASS;
+      if (isMember && !isClassEnded  && !isRating) return language.JOINED_CLASS;
       if (isTutor) return language.TAUGHT_CLASS;
       if (isAuthor) return language.CREATED_CLASS_D;
       if (notJoin) return language.JOIN_CLASS;
+      if (isMember && isClassEnded && !isRating) return language.CLASS_RATING;
+      if (isRating) return language.RATED_TUTOR
     }
 
     if (isTutor && !classDetail.author_accepted) {
       return language.PLEASE_WAIT_ACCEPTANCE;
     }
 
-    if (isAuthorTutor && classDetail.admin_accepted && classDetail.paid)
+    if (isAuthorTutor && classDetail.admin_accepted && classDetail.paid) {
       return language.CREATED_CLASS_D;
-    if (isMember) return language.JOINED_CLASS;
+    }
 
     if (notJoin && !isLeaner) return language.TAKE_CLASS;
   };
-
-  const goToRating = useCallback(() => {
-    const data: RatingNavigationType = {
-      id: classDetail.author?.id ?? "-1",
-      class: classDetail
-    };
-
-    navigation?.navigate(ScreenName.RATING, data);
-  }, [classDetail]);
 
   // effects ----------------------------------------------------------------
 
   return (
     <View>
-
       {/* Không phải lớp của mình */}
       {!isAuthor && !isAuthorTutor && !isTutorAccept && !isTutorNotAccept && (
         <View style={[styles.buttonContainer, styles.boxShadow]}>
           <TouchableOpacity
             onPress={() => {
-              if (isLeaner) {
+              if (isLeaner && !isClassEnded) {
                 handleJoinClass();
-              } else {
+              } 
+              if (isLeaner && isClassEnded) {
+                goToRatingForClass();
+              } 
+              if(!isLeaner && !isClassEnded) {
                 handleAcceptClass();
               }
             }}
@@ -197,30 +204,12 @@ export default function ButtonsInDetailClass({
           </TouchableOpacity>
 
           {isMember && (
-            classDetail.ended_at > new Date().getTime() ? (
-              <TouchableOpacity
-                onPress={goToCReport}
-                style={[styles.btn, styles.btnChat, styles.boxShadowBlue]}
-              >
-                <Ionicons
-                  name="alert"
-                  size={20}
-                  color="black"
-                />
-              </TouchableOpacity>
-
-            ) : (
-              <TouchableOpacity
-                onPress={goToRating}
-                style={[styles.btn, styles.btnChat, styles.boxShadowBlue]}
-              >
-                <Ionicons
-                  name="star"
-                  size={20}
-                  color="gold"
-                />
-              </TouchableOpacity>
-            )
+            <TouchableOpacity
+              onPress={goToCReport}
+              style={[styles.btn, styles.btnChat, styles.boxShadowBlue]}
+            >
+              <Ionicons name="alert" size={20} color="black" />
+            </TouchableOpacity>
           )}
 
           <TouchableOpacity
@@ -239,7 +228,9 @@ export default function ButtonsInDetailClass({
       {/* Lớp mình tham gia để dạy và chờ người tạo chấp nhận */}
       {!isAuthor && isTutorNotAccept && (
         <View style={[styles.buttonContainer, styles.boxShadow]}>
-          <ButtonDisableInClassDetail content={language.PLEASE_WAIT_CONFIRMATION}/>
+          <ButtonDisableInClassDetail
+            content={language.PLEASE_WAIT_CONFIRMATION}
+          />
         </View>
       )}
 
@@ -250,7 +241,9 @@ export default function ButtonsInDetailClass({
             onPress={() => setModalVisible("modalPayClassFee")}
             style={[styles.btn, styles.btnAccept, styles.boxShadowBlue]}
           >
-            <Text style={styles.btnAcceptText}>{language.PAY_CLASS_CREATION_FEE}</Text>
+            <Text style={styles.btnAcceptText}>
+              {language.PAY_CLASS_CREATION_FEE}
+            </Text>
           </TouchableOpacity>
         </View>
       )}
@@ -276,7 +269,9 @@ export default function ButtonsInDetailClass({
       {/* Chờ admin duyệt lớp mà mình tạo ra */}
       {isAuthorTutor && !classDetail.admin_accepted && (
         <View style={[styles.buttonContainer, styles.boxShadow]}>
-          <ButtonDisableInClassDetail content={language.PLEASE_WAIT_CLASS_APPROVAL}/>
+          <ButtonDisableInClassDetail
+            content={language.PLEASE_WAIT_CLASS_APPROVAL}
+          />
         </View>
       )}
 
@@ -285,21 +280,27 @@ export default function ButtonsInDetailClass({
         !classDetail.paid &&
         classDetail.paid_path && (
           <View style={[styles.buttonContainer, styles.boxShadow]}>
-            <ButtonDisableInClassDetail content={language.PLEASE_WAIT_PAYMENT_CONFIRMATION}/>
+            <ButtonDisableInClassDetail
+              content={language.PLEASE_WAIT_PAYMENT_CONFIRMATION}
+            />
           </View>
         )}
 
       {/* Thanh toán phí tạo lớp cho admin */}
-      {isAuthorTutor && classDetail.admin_accepted && !classDetail.paid_path && (
-        <View style={[styles.buttonContainer, styles.boxShadow]}>
-          <TouchableOpacity
-            onPress={() => setModalVisible("modalPayClassFee")}
-            style={[styles.btn, styles.btnAccept, styles.boxShadowBlue]}
-          >
-            <Text style={styles.btnAcceptText}>{language.PAY_CLASS_CREATION_FEE}</Text>
-          </TouchableOpacity>
-        </View>
-      )}
+      {isAuthorTutor &&
+        classDetail.admin_accepted &&
+        !classDetail.paid_path && (
+          <View style={[styles.buttonContainer, styles.boxShadow]}>
+            <TouchableOpacity
+              onPress={() => setModalVisible("modalPayClassFee")}
+              style={[styles.btn, styles.btnAccept, styles.boxShadowBlue]}
+            >
+              <Text style={styles.btnAcceptText}>
+                {language.PAY_CLASS_CREATION_FEE}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
 
       <ModalPayClassFee
         confirmTitle={language.PAYMENT}
@@ -317,7 +318,7 @@ export default function ButtonsInDetailClass({
         visiable={modalVisible}
         onRequestCloseDialog={() => {
           setModalVisible(null);
-          setWaitResponse(false)
+          setWaitResponse(false);
         }}
         loading={waitResponse}
       />

@@ -182,8 +182,27 @@
   "NO_PENDING_APPROVAL_ADMIN": "管理者の承認待ちのクラスがありません",
   "NO_PENDING_APPROVAL_TUTOR": "作成者の承認待ちのクラスがありません",
   "NO_PENDING_PAY": "支払い待ちのクラスがありません",
+  "NO_RATING_CLASS": "評価待ちのクラスはありません",
   "NO_CREATED_CLASS": "作成したクラスがありません",
   "NO_DATA": "データがありません",
+
+  "NO_SUGGESTED_CLASSES": "提案されたクラスはありません",
+  "NO_SUGGESTED_TUTORS": "提案された家庭教師はありません",
+  "CLASS_RATING": "家庭教師を評価する",
+  "RATED_TUTOR": "家庭教師が評価されました",
+  "CLASS_COMPLETED": "完了したクラス",
+  "CLASS_TAUGHT": "教えたクラス",
+  "NO_CLASS_LEARNED": "学んだクラスがありません",
+  "NO_CLASS_TAUGHT": "教えたクラスがありません",
+
+  "OVER_CAPACITY": "定員オーバー",
+  "CLASS_AVAILABLE": "クラスが空いています",
+  "EXCEEDED_SELECTION": "空席あり、選択数が制限を超えています。",
+  "SELECT_FEWER_OR_CONTACT_TUTOR": "少ない人数を選択するか、情報については講師にお問い合わせください!",
+
+  "WANT_TO_JOIN_CLASS": "このクラスに参加しますか？",
+  "WANT_TO_TEACH_CLASS": "このクラスを教えますか？",
+  "CLASS_FULL_CONTACT_TEACHER": "クラスは定員に達しました.\nクラスに参加したい場合は、クラスの教師に連絡してください！",
 
   "CLASS_SUGGESTIONS": "クラスの提案",
   "TUTOR_SUGGESTIONS": "家庭教師の提案",
@@ -296,8 +315,10 @@
   "PLEASE_WAIT_ACCEPTANCE": "承認をお待ちください",
   "TAKE_CLASS": "クラスを受ける",
 
-   "CLASS_CHILDREN_LIST": "クラス内の子供リスト",
+  "CLASS_CHILDREN_LIST": "クラス内の子供リスト",
   "CHILD_ALREADY_ENROLLED": "この子はすでにこのクラスに参加しています",
+
+  "WAITING_FOR_REVIEW": "評価待ち",
 
   "NHI": "Nhi",
   "CREATE_CLASS": "入学クラスを作成",
@@ -408,7 +429,7 @@
   "PICKED_IMAGE": "アップロード済みの画像",
   "NO_IMAGE_PICKED": "報告画像がありません",
   "REPORT": "報告する",
-   "CHOOSE_CLASS_LEVEL": "クラスレベルを選択",
+  "CHOOSE_CLASS_LEVEL": "クラスレベルを選択",
   "CHOOSE_MAJORS": "専攻を選択",
   "SCREEN_NAME_OF_REPORT": "レポート詳細",
   "REPORTER": "報告者",
