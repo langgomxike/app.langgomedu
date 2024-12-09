@@ -23,8 +23,8 @@ export default class AClass {
       .get(`${this.API_URL}/classes/detail/${classId}?user_id=${userId}`)
       .then((response) => {
         const data = response.data.data;
-        const classData: Class =  data.class;
-        const membersInClass: User[] =  data.members_in_class;
+        const classData: Class = data.class;
+        const membersInClass: User[] = data.members_in_class;
 
         onNext(classData, membersInClass);
         onLoading(false);
@@ -311,10 +311,9 @@ export default class AClass {
     userIds: string[],
     onNext: (result: boolean, insertId?: number) => void
   ) {
-    
     // Kiểm tra và gán userIds nếu nó rỗng
     const finalUserIds = userIds.length > 0 ? userIds : [authorId];
-    
+
     console.log(
       "create class data: ",
       JSON.stringify(
@@ -368,6 +367,55 @@ export default class AClass {
         console.error("Error:", err);
         console.log(">>> title", "Tạo lớp không thành công");
         onNext(false);
+      });
+  }
+
+  // update class
+  public static updateClass(
+    class_id: number,
+    title: string,
+    description: string,
+    major_id: number,
+    class_level_id: number,
+    max_learners: number,
+    price: number,
+    started_at: number,
+    ended_at: number,
+    updated_at = new Date().getTime(),
+    province: string,
+    district: string,
+    ward: string,
+    detail: string,
+    lessons: Lesson[],
+    onNext: (result: boolean, errorMessage?: string) => void
+  ) {
+    axios
+      .put(`${this.API_URL}/classes/update`, {
+        class_id: class_id,
+        title,
+        description,
+        major_id: major_id,
+        class_level_id: class_level_id,
+        max_learners: max_learners,
+        price,
+        started_at: started_at,
+        ended_at: ended_at,
+        updated_at: updated_at,
+        province,
+        district,
+        ward,
+        detail,
+        lessons,
+      })
+      .then((response) => {
+        console.log("Class updated successfully:", response.data);
+        onNext(true);
+      })
+      .catch((err) => {
+        const errorMessage =
+          err.response?.data?.message || "Cập nhật lớp học thất bại.";
+        console.error("Error updating class:", errorMessage);
+        onNext(false, errorMessage);
       });
   }
 
@@ -493,31 +541,29 @@ export default class AClass {
   ) {
     // Bắt đầu trạng thái tải
     onLoading(true);
-  
+
     // Sửa lại URL API với :id làm tham số trong URL
     axios
       .get(`${this.API_URL}/classes/get_class_by_id/${classId}`) // Chú ý đường dẫn đã thay đổi
       .then((response) => {
         // Xử lý phản hồi từ API
         const classDetails = response.data.data; // Lấy dữ liệu lớp học từ phản hồi
-  
+
         // Trả về dữ liệu lớp học qua onNext
         onNext(classDetails);
-  
+
         // Kết thúc trạng thái tải
         onLoading(false);
       })
       .catch((error) => {
         // Log lỗi nếu xảy ra
         console.error("Error fetching class by ID: ", error);
-  
+
         // Trả về undefined nếu có lỗi
         onNext(undefined);
-  
+
         // Kết thúc trạng thái tải
         onLoading(false);
       });
   }
-  
-  
 }

@@ -162,6 +162,7 @@ const UpdateLearnerClass = () => {
       <UpdateInfoTuitionLearner
       tuitionData={param.classData}
       userId={user.account?.id ?? ""}
+      childs={param.members}
       />
 
       <TouchableOpacity style={styles.btnNext} onPress={handleSaveClass}>

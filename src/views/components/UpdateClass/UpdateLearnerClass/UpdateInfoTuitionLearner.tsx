@@ -16,67 +16,39 @@ import User from "../../../../models/User";
 import DropDownLocation from "../../dropdown/DropDownLocation";
 import { LanguageContext } from "../../../../configs/LanguageConfig";
 import Class from "../../../../models/Class";
+import ReactAppUrl from "../../../../configs/ConfigUrl";
+import { child } from "firebase/database";
 
 type Props = {
   tuitionData: Class;
   userId: string;
-  // childs: string[];
+  childs: User[];
 };
 
-const UpdateInfoTuitionLearner = ({ tuitionData, userId }: Props) => {
+const URL = ReactAppUrl.PUBLIC_URL
+
+const UpdateInfoTuitionLearner = ({ tuitionData, userId, childs }: Props) => {
   // context
   const languageContext = useContext(LanguageContext).language;
 
-  // Tuition state
-  const [tuition, setTuition] = useState<number | null>(
-    tuitionData.price || null
-  );
-  const [formattedTuition, setFormattedTuition] = useState<string>(
-    tuition?.toLocaleString("en-US") || ""
-  );
-
-  // con
-  const [joinedState, setJoinedState] = useState<{ [key: string]: boolean }>(
-    {}
-  );
-
+  // state ---------------------------------------------------------
+  const [tuition, setTuition] = useState<number | null>(tuitionData.price || null);
+  const [formattedTuition, setFormattedTuition] = useState<string>(tuition?.toLocaleString("en-US") || "");
+  const [error, setError] = useState("");
+  const [dateStart, setDateStart] = useState<Date | null>(tuitionData.started_at ? new Date(tuitionData.started_at) : null);
+  const [dateEnd, setDateEnd] = useState<Date | null>(tuitionData.ended_at ? new Date(tuitionData.ended_at) : null);
+  const [isDatePickerVisible, setDatePickerVisibility] = useState({start: false,end: false,});
+  // Address
+  const [selectedProvince, setSelectedProvince] = useState(tuitionData.address?.province || "");
+  const [selectedDistrict, setSelectedDistrict] = useState(tuitionData.address?.district || "");
+  const [selectedWard, setSelectedWard] = useState(tuitionData.address?.ward || "");
+  const [detail, setDetail] = useState(tuitionData.address?.detail || "");
   // lưu id các thằng con tham gia
   const [childJoineds, setChildJoineds] = useState<string[]>([]);
-
-  // err
-  const [error, setError] = useState("");
-
-  // Dates state
-  const [dateStart, setDateStart] = useState<Date | null>(
-    tuitionData.started_at ? new Date(tuitionData.started_at) : null
-  );
-  const [dateEnd, setDateEnd] = useState<Date | null>(
-    tuitionData.ended_at ? new Date(tuitionData.ended_at) : null
-  );
-  const [isDatePickerVisible, setDatePickerVisibility] = useState({
-    start: false,
-    end: false,
-  });
-
-  // Address state
-  const [selectedProvince, setSelectedProvince] = useState(
-    tuitionData.address?.province || ""
-  );
-  const [selectedDistrict, setSelectedDistrict] = useState(
-    tuitionData.address?.district || ""
-  );
-  const [selectedWard, setSelectedWard] = useState(
-    tuitionData.address?.ward || ""
-  );
-  const [detail, setDetail] = useState(tuitionData.address?.detail || "");
-
-  // Child data
   const [childData, setChildData] = useState<User[]>([]);
+  const [joinedState, setJoinedState] = useState<{ [key: string]: boolean }>({});
   const [loading, setLoading] = useState(true);
-
-  console.log("city-: ", selectedProvince);
-  console.log("district-: ", selectedDistrict);
-  console.log("ward-: ", selectedWard);
+  
 
   // Fetch child data
   useEffect(() => {
@@ -143,7 +115,7 @@ const UpdateInfoTuitionLearner = ({ tuitionData, userId }: Props) => {
         <View style={styles.userInfo}>
           <Image
             source={{
-              uri: "https://cdn.vectorstock.com/i/1000v/51/87/student-avatar-user-profile-icon-vector-47025187.jpg",
+              uri: `${URL}${user.avatar}`,
             }}
             style={styles.avatar}
           />

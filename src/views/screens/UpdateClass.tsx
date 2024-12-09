@@ -15,10 +15,6 @@ import { UpdateClassRoute } from "../../configs/NavigationRouteTypeConfig";
 import Class from "../../models/Class";
 import { LanguageContext } from "../../configs/LanguageConfig";
 import { BackgroundColor } from "../../configs/ColorConfig";
-import UpdateInfoClass from "../components/UpdateClass/UpdateInfoClass";
-import UpdateInfoLesson from "../components/UpdateClass/UpdateInfoLesson";
-import UpdateInfoTuition from "../components/UpdateClass/UpdateTurtorClass/UpdateInfoTuition";
-import UpdateInfoTuitionLearner from "../components/UpdateClass/UpdateLearnerClass/UpdateInfoTuitionLearner";
 import { AccountContext } from "../../configs/AccountConfig";
 import { RoleList } from "../../models/Role";
 import UpdateLearnerClass from "../components/UpdateClass/UpdateLearnerClass";
@@ -39,6 +35,7 @@ export default function UpdateClass() {
   const [classData, setClassData] = useState<Class>(new Class());
 
   // handle
+  console.log("member in class: ", param.members);
 
   // effect
   useEffect(() => {
