@@ -24,21 +24,23 @@ import ScreenName from "../../../constants/ScreenName";
 import { USER_TAB } from "../../../constants/TabListAdmin";
 import {IdNavigationType, UserManagerNavigationType} from "../../../configs/NavigationRouteTypeConfig";
 import SLog, {LogType} from "../../../services/SLog";
+import { LanguageContext } from "../../../configs/LanguageConfig";
 
-const tabList = [
-  { label: "Tất cả", value: USER_TAB.ALL },
-  { label: "CV Chờ duyệt", value: USER_TAB.PENDING_APPROVAL },
-  { label: "Bị báo cáo", value: USER_TAB.REPORTED },
-  { label: "Bị cấm", value: USER_TAB.BANNED },
-];
+
 
 const PERPAGE = 5
 export default function UserManager () {
   // context ----------------------------------------------------------------
   const navigation = useContext(NavigationContext);
   const route = useContext(NavigationRouteContext);
+  const languageContext = useContext(LanguageContext).language;
 
-
+  const tabList = [
+    { label: languageContext.ALL, value: USER_TAB.ALL },
+    { label:  languageContext.CV_WAITTING_APROVE, value: USER_TAB.PENDING_APPROVAL },
+    { label:  languageContext.REPORTED, value: USER_TAB.REPORTED },
+    { label:  languageContext.BANNED, value: USER_TAB.BANNED },
+  ];
   //state ----------------------------------------------------------------------
   const [isVisible, setIsVisible] = useState(false);
   const [activeTab, setActiveTab] = useState("Tất cả");

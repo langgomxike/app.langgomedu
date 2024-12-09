@@ -52,19 +52,22 @@ export default function ProfileScreen() {
   const randomColor =
     pastelColors[Math.floor(Math.random() * pastelColors.length)];
 
-  const userId = accountContext.account?.id;
+  // const userId = accountContext.account?.id;
 
   //laasy thoong tin porfile
+
   useEffect(() => {
     const data: IdNavigationType = (route?.params as IdNavigationType) ?? {
       id: accountContext.account?.id,
     };
-    const userId: string = data?.id + "";
-
+    const userId: string = data?.id + ""; 
+    console.log("da goi den profile");
+   
     SFirebase.track(
       FirebaseNode.Users,
       [{ key: FirebaseNode.Id, value: userId }],
       () => {
+        console.log("user track");
         AUser.getUserProfileById(
           userId,
           (data: User) => {
@@ -77,7 +80,7 @@ export default function ProfileScreen() {
         );
       }
     );
-  }, [userId]);
+  }, []);
 
   //chuyển đổi thời gian
   const timestamp = userProfile?.birthday ?? 0; // Timestamp (milliseconds)
@@ -172,7 +175,7 @@ export default function ProfileScreen() {
               <Image
                 source={
                   userProfile?.avatar
-                    ? { uri: `${URL}${userProfile.avatar}` } // Nếu userAvatar tồn tại, sử dụng URI
+                    ? { uri: `${URL}/${userProfile.avatar}` } // Nếu userAvatar tồn tại, sử dụng URI
                     : require("../../../assets/avatar/img_avatar_cat.png") // Nếu không, sử dụng ảnh mặc định
                 }
                 style={styles.avatar}

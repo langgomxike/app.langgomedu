@@ -164,13 +164,6 @@ const handleReportSubmit = async () => {
   const currentReportCount = await AsyncStorage.getItem(reportKey); // Sử dụng AsyncStorage
   const reportCount = currentReportCount ? parseInt(currentReportCount, 10) : 0;
 
-  console.log("-----------------------------");
-  console.log("reporter", acountContext.account?.id + "");
-  console.log("reportee", reportee?.id ?? "-1");
-  console.log("reportKey", reportKey);
-  console.log("currentReportCount", currentReportCount);
-  console.log("reportCount", reportCount);
-
   // Kiểm tra xem người dùng đã báo cáo 3 lần chưa
   if (reportCount >= 3) {
     Alert.alert("Lỗi", "Bạn đã báo cáo người này 3 lần. Bạn không thể báo cáo thêm.");
@@ -227,7 +220,7 @@ const handleReportSubmit = async () => {
   useEffect(() => {
     if (navigation) {
       navigation.setOptions({
-        title: language.CREATE_CLASS,
+        title: "Tạo báo cáo",
         headerShown: true,
         contentStyle: {
           padding: 0,

@@ -26,13 +26,10 @@ import {CLASS_TAB} from "../../../constants/TabListAdmin";
 import {UserContext} from "../../../configs/UserContext";
 import {ScrollView} from "react-native-gesture-handler";
 import {IdNavigationType} from "../../../configs/NavigationRouteTypeConfig";
+import { LanguageContext } from "../../../configs/LanguageConfig";
 
-const tabList = [
-  {label: "Tất cả", value: CLASS_TAB.ALL},
-  {label: "Lớp chờ duyệt", value: CLASS_TAB.PENDING_APPROVAL},
-  {label: "Lớp chờ thanh toán", value: CLASS_TAB.PENDING_PAY},
-  {label: "Bị báo cáo", value: CLASS_TAB.REPORTED},
-];
+
+
 
 const {width: SCREEN_WIDTH, height: SCREEN_HEIGHT} = Dimensions.get("screen");
 const PERPAGE = 10;
@@ -40,6 +37,14 @@ export default function ClassManager() {
   // context ----------------------------------------------------------------
   const navigation = useContext(NavigationContext);
   const route = useContext(NavigationRouteContext);
+  const languageContext = useContext(LanguageContext).language;
+  const tabList = [
+    {label: languageContext.ALL, value: CLASS_TAB.ALL},
+    {label: languageContext.CLASS_WAIT_APPROVE, value: CLASS_TAB.PENDING_APPROVAL},
+    {label: languageContext.CLASS_WAIT_PEDING_PAY, value: CLASS_TAB.PENDING_PAY},
+    {label: languageContext.REPORTED, value: CLASS_TAB.REPORTED},
+  ];
+
 
   //states ---------------------------------------------------------------------------------
   const [isVisible, setIsVisible] = useState(false);
@@ -67,13 +72,13 @@ export default function ClassManager() {
     setPage(1);
     switch (tab) {
       case CLASS_TAB.PENDING_APPROVAL:
-        setEmptyMessage("Không có lớp học chờ duyệt");
+        setEmptyMessage(languageContext.NO_CLASS_WAITTING_APPROVAL);
         break;
       case CLASS_TAB.PENDING_PAY:
-        setEmptyMessage("Không có lớp học chờ thanh toán");
+        setEmptyMessage(languageContext.NO_CLASS_WAITTING_PAY);
         break;
       default:
-        setEmptyMessage("Không có dữ liệu");
+        setEmptyMessage(languageContext.NO_DATA);
     }
   };
 
@@ -115,7 +120,7 @@ export default function ClassManager() {
     // Đặt lại title của header khi màn hình được hiển thị
     if (navigation) {
       navigation.setOptions({
-        title: "Quản lý lớp học",
+        title: languageContext.CLASS_MANAGEMENT,
         headerShown: true,
         contentStyle: {
           padding: 0,
@@ -153,11 +158,11 @@ export default function ClassManager() {
         <TabHeader tabList={tabList} onTabChange={handleTabChange}/>
         <View style={styles.colorStatusContainer}>
           <View style={styles.colorStatus}>
-            <Text style={styles.colorStatusName}>Người tạo</Text>
+            <Text style={styles.colorStatusName}>{languageContext.AUTHOR}</Text>
             <View style={styles.colorAuthor}></View>
           </View>
           <View style={styles.colorStatus}>
-            <Text style={styles.colorStatusName}>Gia sư</Text>
+            <Text style={styles.colorStatusName}>{languageContext.TUTOR}</Text>
             <View style={styles.colorTutor}></View>
           </View>
         </View>
