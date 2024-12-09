@@ -102,4 +102,17 @@ export default class AClassAdmin {
       });
   }
 
+  public static deleteClass(id: number, onNext: (result: boolean) => void) {
+    axios
+     .delete(`${this.BASE_URL}/classes/${id}`)
+     .then((response) => {
+        console.log("Delete class success");
+        onNext(true);
+      })
+     .catch((error) => {
+        console.error("Delete class error: ", error);
+        onNext(false);
+      });
+  }
+
 }

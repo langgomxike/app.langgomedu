@@ -5,7 +5,7 @@ import {
   CameraView,
   useCameraPermissions,
 } from "expo-camera";
-import {Alert, Pressable, StyleSheet, useWindowDimensions, View} from "react-native";
+import {Alert, Pressable, StyleSheet, TouchableOpacity, useWindowDimensions, View} from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import {BackgroundColor, TextColor} from "../../configs/ColorConfig";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -15,7 +15,7 @@ import QRItemType, {QRItems} from "../../configs/QRConfig";
 import ScreenName from "../../constants/ScreenName";
 import {LanguageContext} from "../../configs/LanguageConfig";
 import Toast from "react-native-simple-toast";
-import RNQRGenerator from "rn-qr-generator";
+import {ClassDetailRoute, IdNavigationType} from "../../configs/NavigationRouteTypeConfig";
 
 export default function ScannerScreen() {
   //refs, contexts
@@ -37,6 +37,30 @@ export default function ScannerScreen() {
     [permission]
   );
 
+  const pickImage = useCallback(() => {
+    ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      quality: 1,
+    })
+      .then((result) => {
+        SLog.log(LogType.Info, "ImagePicker", "process result", result);
+        if (!result.canceled) {
+          return Camera.scanFromURLAsync(result.assets[0].uri);
+        }
+        return [];
+      })
+      .then((value: BarcodeScanningResult[]) => {
+        SLog.log(
+          LogType.Info,
+          "BarcodeScanningResult",
+          "process result",
+          value
+        );
+        processResult(value.length > 0 ? value[0].data : "");
+      });
+  }, [permission]);
+
   const processResult = useCallback(
     (result: string) => {
       SLog.log(LogType.Info, "ScannerScreen", "process result", result);
@@ -57,15 +81,24 @@ export default function ScannerScreen() {
       } else {
         switch (qrItem.type) {
           case QRItems.CLASS:
-            navigation?.navigate(ScreenName.DETAIL_CLASS, {id: qrItem.id});
+            let data: ClassDetailRoute = {
+              classId: +qrItem.id,
+            }
+            navigation?.navigate(ScreenName.DETAIL_CLASS, data);
             break;
 
           case QRItems.CV:
-            navigation?.navigate(ScreenName.CV, {id: qrItem.id});
+            const data2: IdNavigationType = {
+              id: qrItem.id,
+            }
+            navigation?.navigate(ScreenName.CV, data2);
             break;
 
           case QRItems.USER:
-            navigation?.navigate(ScreenName.PROFILE, {id: qrItem.id});
+            const data3: IdNavigationType = {
+              id: qrItem.id,
+            }
+            navigation?.navigate(ScreenName.PROFILE, data3);
             break;
         }
       }
@@ -79,6 +112,27 @@ export default function ScannerScreen() {
       requestPermission();
     }
   }, [permission]);
+
+  useEffect(() => {
+    if (navigation) {
+      navigation.setOptions({
+        title: language.QR_INFO,
+        headerShown: true,
+        contentStyle: {
+          padding: 0,
+        },
+        headerStyle: {
+          backgroundColor: BackgroundColor.primary,
+        },
+        headerTintColor: "#fff",
+        headerLeft: () => (
+          <TouchableOpacity onPress={() => navigation.goBack()} style={{ paddingRight: 10 }}>
+            <Ionicons name="chevron-back" size={24} color="white" />
+          </TouchableOpacity>
+        )
+      });
+    }
+  }, [navigation]);
 
   return (
     <View style={styles.container}>
@@ -95,12 +149,14 @@ export default function ScannerScreen() {
         />
         {/* pick up qr image */}
 
-        <Pressable
-          style={[styles.button, styles.backButton]}
-          onPress={navigation?.goBack}
-        >
-          <Ionicons name="close" size={45} color={TextColor.sub_primary}/>
-        </Pressable>
+        <View style={{flexDirection: "row", alignSelf: "center", gap: 40}}>
+          <Pressable
+            style={[styles.button, styles.backButton]}
+            onPress={pickImage}
+          >
+            <Ionicons name="image" size={45} color={TextColor.sub_primary}/>
+          </Pressable>
+        </View>
       </View>
     </View>
   );

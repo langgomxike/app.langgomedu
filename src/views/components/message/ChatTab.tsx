@@ -22,7 +22,6 @@ for (let i = 0; i < 10; i++) {
 }
 
 const messageTab: TabItem = {
-  title: "Chat",
   view: () => {
     //contexts
     const searchContext = useContext(SearchContext);

@@ -1,5 +1,5 @@
 import React, {useCallback, useContext, useEffect, useState} from "react";
-import {View, StyleSheet, Text, ScrollView, Alert} from "react-native";
+import {View, StyleSheet, Text, ScrollView, Alert, TouchableOpacity} from "react-native";
 import BackWithDetailLayout from "../layouts/BackWithDetail";
 import {BackgroundColor, BorderColor, TextColor} from "../../configs/ColorConfig";
 import RatingC from "../components/Rating";
@@ -53,7 +53,21 @@ const RatingScreen = () => {
 
   const sendReview = useCallback(() => {
     setLoading(true);
-    const content = [...language.RATING?.filter((v, i) => selectedReviews.includes(i)), text.trim()].join(", ");
+    let ratingContents: string[] = [];
+
+    switch (language.TYPE) {
+      case "vi":
+        ratingContents = appInfos.suggested_rating_contents.vn;
+        break;
+      case "en":
+        ratingContents = appInfos.suggested_rating_contents.en;
+        break;
+      case "ja":
+        ratingContents = appInfos.suggested_rating_contents.ja;
+        break;
+    }
+
+    const content = [...ratingContents?.filter((v, i) => selectedReviews.includes(i)), text.trim()].join(", ");
 
     const newRating = new Rating();
     newRating.content = content;
@@ -86,7 +100,7 @@ const RatingScreen = () => {
         clearTimeout(timeId);
       }
     );
-  }, [selectedReviews, text, language, rating, accountContext.account, ratee, _class]);
+  }, [selectedReviews, text, appInfos.suggested_rating_contents, rating, accountContext.account, ratee, _class]);
 
   //effects
   useEffect(() => {
@@ -120,8 +134,29 @@ const RatingScreen = () => {
     }
   }, []);
 
+  useEffect(() => {
+    if (navigation) {
+      navigation.setOptions({
+        title: language.RATING_TITLE,
+        headerShown: true,
+        contentStyle: {
+          padding: 0,
+        },
+        headerStyle: {
+          backgroundColor: BackgroundColor.primary,
+        },
+        headerTintColor: "#fff",
+        headerLeft: () => (
+          <TouchableOpacity onPress={() => navigation.goBack()} style={{ paddingRight: 10 }}>
+            <Ionicons name="chevron-back" size={24} color="white" />
+          </TouchableOpacity>
+        )
+      });
+    }
+  }, [navigation]);
+
   return (
-    <BackWithDetailLayout icName={""} user={ratee} canGoBack={true}>
+    <BackWithDetailLayout icName={""} user={ratee} canGoBack={false}>
 
       <Spinner visible={loading}/>
 

@@ -10,12 +10,12 @@ import {
 import {BackgroundColor, TextColor} from "../../configs/ColorConfig";
 
 export type TabItem = {
-  title: string;
   view: FunctionComponent;
 };
 
 type TabProp = {
   tabs: Array<TabItem>;
+  tabTitles: Array<string>;
   defaultActiveTab: number;
   quantities?: number[];
 };
@@ -28,7 +28,7 @@ const titleStyle = StyleSheet.create({
 
 const TAB_HEIGHT = 50;
 
-export default function Tab({tabs = [], defaultActiveTab = 0, quantities}: TabProp) {
+export default function Tab({tabs = [], defaultActiveTab = 0, quantities, tabTitles}: TabProp) {
   //refs, contexts
 
   //states
@@ -85,7 +85,7 @@ export default function Tab({tabs = [], defaultActiveTab = 0, quantities}: TabPr
                   index === active && styles.activeTitle,
                 ]}
               >
-                {(tab.title || "Tab " + (index + 1))+ (quantities && quantities?.length > index && quantities[index] > 0 ? `(${quantities[index]})` : "")}
+                {(tabTitles.length > index && tabTitles[index] || "Tab " + (index + 1))+ (quantities && quantities?.length > index && quantities[index] > 0 ? `(${quantities[index]})` : "")}
               </Text>
             </Pressable>
           ))}

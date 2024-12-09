@@ -38,7 +38,7 @@ const BackWithDetailLayout = ({
             canEdit={true}
             userName={user ? user.full_name?.toUpperCase(): accountContext.account?.full_name?.toUpperCase() || ""}
             orientation={Orientation.vertically}
-            avatar={accountContext.account?.avatar ?? ""}
+            avatar={user ? user.avatar : accountContext.account?.avatar ?? ""}
             onPress={handleUploadAvatar}
           />
         </View>

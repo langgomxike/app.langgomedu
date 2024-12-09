@@ -18,7 +18,7 @@ import {NavigationContext} from "@react-navigation/native";
 import ScreenName from "../../../constants/ScreenName";
 import {
   CreateReportNavigationType,
-  MessageNavigationType,
+  MessageNavigationType, RatingNavigationType,
   ReportNavigationType
 } from "../../../configs/NavigationRouteTypeConfig";
 import ModalDialogForClass from "../modal/ModalDialogForClass";
@@ -161,6 +161,15 @@ export default function ButtonsInDetailClass({
     if (notJoin && !isLeaner) return language.TAKE_CLASS;
   };
 
+  const goToRating = useCallback(() => {
+    const data: RatingNavigationType = {
+      id: classDetail.author?.id ?? "-1",
+      class: classDetail
+    };
+
+    navigation?.navigate(ScreenName.RATING, data);
+  }, [classDetail]);
+
   // effects ----------------------------------------------------------------
 
   return (
@@ -188,16 +197,30 @@ export default function ButtonsInDetailClass({
           </TouchableOpacity>
 
           {isMember && (
-            <TouchableOpacity
-              onPress={goToCReport}
-              style={[styles.btn, styles.btnChat, styles.boxShadowBlue]}
-            >
-              <Ionicons
-                name="alert"
-                size={20}
-                color="black"
-              />
-            </TouchableOpacity>
+            classDetail.ended_at > new Date().getTime() ? (
+              <TouchableOpacity
+                onPress={goToCReport}
+                style={[styles.btn, styles.btnChat, styles.boxShadowBlue]}
+              >
+                <Ionicons
+                  name="alert"
+                  size={20}
+                  color="black"
+                />
+              </TouchableOpacity>
+
+            ) : (
+              <TouchableOpacity
+                onPress={goToRating}
+                style={[styles.btn, styles.btnChat, styles.boxShadowBlue]}
+              >
+                <Ionicons
+                  name="star"
+                  size={20}
+                  color="gold"
+                />
+              </TouchableOpacity>
+            )
           )}
 
           <TouchableOpacity

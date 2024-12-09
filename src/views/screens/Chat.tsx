@@ -8,6 +8,7 @@ import contactTab from "../components/message/ContactTab";
 import messageTab from "../components/message/ChatTab";
 import classChatTab from "../components/message/ClassChatTab";
 import {ChatTabContext, SearchContext} from "../../configs/AppContext";
+import {LanguageContext} from "../../configs/LanguageConfig";
 
 const APP_NAME = "Langgom";
 const HEADER_IMAGE = require("../../../assets/icons/ic_chatbox.png");
@@ -25,6 +26,7 @@ tabs.push(contactTab);
 export default function ChatScreen() {
   //contexts
   const chatTabContext = useContext(ChatTabContext);
+  const language = useContext(LanguageContext).language;
 
   //states
   const [keyword, setKeyword] = useState("");
@@ -50,7 +52,12 @@ export default function ChatScreen() {
         />
 
         {/* tabs */}
-        <Tab defaultActiveTab={0} tabs={tabs} quantities={chatTabContext}/>
+        <Tab defaultActiveTab={0} tabs={tabs} quantities={chatTabContext} tabTitles={[
+          language.NOTIFICATION_TAB,
+          language.GROUP_CHAT_TAB,
+          language.CHAT_TAB,
+          language.CONTACT_TAB,
+        ]}/>
       </View>
     </SearchContext.Provider>
   );

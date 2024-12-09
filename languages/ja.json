@@ -419,5 +419,12 @@
   "ALLOW": "許可",
   "DENNY": "拒否",
   "MANAGEMENT_ROLES": "権限管理",
-  "INPUT_REASON_DENY": "拒否理由を入力"
+  "INPUT_REASON_DENY": "拒否理由を入力",
+
+  "NOTIFICATION_TAB": "Notifications",
+  "GROUP_CHAT_TAB": "Group chat",
+  "CHAT_TAB": "Chat",
+  "CONTACT_TAB": "Contact",
+  "NOTIFICATION_NOT_SUPPORTED": "This notification does not support for your language"
+
 }

@@ -416,12 +416,12 @@
   "ALLOW":"Chấp nhận",
   "DENNY":"Từ chối",
   "MANAGEMENT_ROLES":"Quản lý quyền",
-  "INPUT_REASON_DENY":"Nhập lý do từ chối"
+  "INPUT_REASON_DENY":"Nhập lý do từ chối",
 
 
-
-
-
-
-
+  "NOTIFICATION_TAB": "Notifications",
+  "GROUP_CHAT_TAB": "Group chat",
+  "CHAT_TAB": "Chat",
+  "CONTACT_TAB": "Contact",
+  "NOTIFICATION_NOT_SUPPORTED": "This notification does not support for your language"
 }
