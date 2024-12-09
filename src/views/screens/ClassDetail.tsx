@@ -25,7 +25,6 @@ import ScreenName from "../../constants/ScreenName";
 import QRInfo from "../components/QRInfo";
 import {QRItems} from "../../configs/QRConfig";
 import {RoleList} from "../../models/Role";
-import MembersInClass from "../components/MembersInClass";
 
 const URL = ReactAppUrl.PUBLIC_URL;
 export default function ClassDetail() {
@@ -46,7 +45,6 @@ export default function ClassDetail() {
   const [modalVisible, setModalVisible] = useState<string | null>("");
   const [classLearners, setclassLearners] = useState<User[]>([]);
   const [userChildren, setUserChildren] = useState<User[]>([]);
-  const [membersInClass, setMembersInClass] = useState<User[]>([]);
   const [resultResponse, setResultResponse] = useState(false);
   const [realTimeStatus, setRealTimeStatus] = useState<number>(0);
   const [ refresh, setRefresh ] = useState(false);
@@ -142,11 +140,8 @@ export default function ClassDetail() {
       AClass.getClassDetailWithUser(
         param.classId,
         userId,
-        (_class, membersInClass) => {
+        (_class) => {
           setClassDetail(_class);
-          console.log("User class: ", membersInClass);
-          
-          setMembersInClass(membersInClass);
           if (user.TYPE === UserType.LEANER && _class) {
             AClass.getconflictingLessonsWithClassUsers(_class.id, userId, (data) => {
               setUserChildren(data);
@@ -180,7 +175,7 @@ export default function ClassDetail() {
     if(classDetail) {
       SFirebase.track(FirebaseNode.Classes,  [{key: FirebaseNode.Id, value: classDetail.id}], () => {
         const number = Math.floor(10 + Math.random() * 90);
-        console.log(">>> class detail realTimeStatus number: ", number);
+        // console.log("realTimeStatus number: ", number);
          
           setRealTimeStatus(number);
         })
@@ -372,18 +367,7 @@ export default function ClassDetail() {
                 <Text>{classDetail.description}</Text>
               </View>
 
-            {/* Child in class */}
-            {membersInClass.length > 0 && 
-              <View style={styles.childContainer}>
-                <Text style={[styles.containerTitle, { paddingHorizontal: 20, paddingTop: 20, paddingBottom: 10 }]}>
-                  {languageContext.language.CLASS_CHILDREN_LIST}
-                </Text>
-              <MembersInClass members={membersInClass}/>
-               
-              </View>
-            }
-
-              {/* Các buổi học*/}
+              {/* Các lớp học liên quan */}
               <View style={styles.lessonContainer}>
                 <Text style={[styles.containerTitle, { padding: 20 }]}>
                   {languageContext.language.LESSONS}
@@ -614,9 +598,4 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
   },
-
-  childContainer: {
-    marginBottom: 10,
-    backgroundColor: BackgroundColor.white,
-  }
 });
