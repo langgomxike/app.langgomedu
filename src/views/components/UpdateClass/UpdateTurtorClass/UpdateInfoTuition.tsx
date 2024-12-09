@@ -3,181 +3,80 @@ import {
   Text,
   TextInput,
   View,
-  Image,
   TouchableOpacity,
 } from "react-native";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { useContext, useState, useEffect } from "react";
 import DropDownLocation from "../../dropdown/DropDownLocation";
-import { AppInfoContext } from "../../../../configs/AppInfoContext";
 import { LanguageContext } from "../../../../configs/LanguageConfig";
+import Class from "../../../../models/Class";
 
-type props = {
-  onNext: (
-    tuition?: string,
-    dateStart?: string,
-    dateEnd?: string,
-    province?: string,
-    district?: string,
-    ward?: string,
-    detail?: string
-  ) => void;
+type Props = {
+  tuitionData: Class;
 };
 // { onNext }: props
-const UpdateInfoTuition = () => {
+const UpdateInfoTuition = ({ tuitionData }: Props) => {
   // context
-  const appInfos = useContext(AppInfoContext);
   const languageContext = useContext(LanguageContext).language;
-  // console.log("code: ", appInfos.infos.banking_code);
-  // console.log("number: ", appInfos.infos.banking_number);
 
-  // state
-  const [tuition, setTuition] = useState<number | null>(null); // Giá trị gốc dạng số
-  const [formattedTuition, setFormattedTuition] = useState<string>(""); // Giá trị hiển thị
-  const [dateStart, setDateStart] = useState("");
-  const [dateEnd, setDateEnd] = useState("");
+  // Tuition state
+  const [tuition, setTuition] = useState<number | null>(
+    tuitionData.price || null
+  );
+  const [formattedTuition, setFormattedTuition] = useState<string>(
+    tuition?.toLocaleString("en-US") || ""
+  );
+  // err
   const [error, setError] = useState("");
-  const [isDatePickerVisible, setDatePickerVisible] = useState(false);
-  const [datePickerType, setDatePickerType] = useState<"start" | "end">();
 
-  // state address
-  const [selectedProvince, setSelectedProvince] = useState("");
-  const [selectedDistrict, setSelectedDistrict] = useState("");
-  const [selectedWard, setSelectedWard] = useState("");
-  const [detail, setDetail] = useState("");
-  const [zalo, setZalo] = useState("");
+  // Dates state
+  const [dateStart, setDateStart] = useState<Date | null>(
+    tuitionData.started_at ? new Date(tuitionData.started_at) : null
+  );
+  const [dateEnd, setDateEnd] = useState<Date | null>(
+    tuitionData.ended_at ? new Date(tuitionData.ended_at) : null
+  );
+  const [isDatePickerVisible, setDatePickerVisibility] = useState({
+    start: false,
+    end: false,
+  });
 
-  // Kiểm tra logic ngày bắt đầu và ngày kết thúc
-  const validateDates = (start: string, end: string) => {
-    const startDate = new Date(start).getTime();
-    const endDate = new Date(end).getTime();
+  // Address state
+  const [selectedProvince, setSelectedProvince] = useState(
+    tuitionData.address?.province || ""
+  );
+  const [selectedDistrict, setSelectedDistrict] = useState(
+    tuitionData.address?.district || ""
+  );
+  const [selectedWard, setSelectedWard] = useState(
+    tuitionData.address?.ward || ""
+  );
+  const [detail, setDetail] = useState(tuitionData.address?.detail || "");
 
-    if (startDate > endDate) {
-      setError(languageContext.ERROR_DATE);
-      setDateEnd("");
-      return false;
-    }
-    setError("");
-    return true;
+  console.log("city-: ", selectedProvince);
+  console.log("district-: ", selectedDistrict);
+  console.log("ward-: ", selectedWard);
+
+  // Format tuition on input change
+  const handleTuitionChange = (value: any) => {
+    const numericValue = value.replace(/[^0-9]/g, "");
+    setTuition(Number(numericValue));
+    setFormattedTuition(Number(numericValue).toLocaleString("en-US"));
   };
 
-  // Hiển thị lịch
-  const showDatePicker = (type: "start" | "end") => {
-    setDatePickerType(type);
-    setDatePickerVisible(true);
+  // Handle date picker visibility
+  const showDatePicker = (type: any) =>
+    setDatePickerVisibility({ ...isDatePickerVisible, [type]: true });
+  const hideDatePicker = (type: any) =>
+    setDatePickerVisibility({ ...isDatePickerVisible, [type]: false });
+
+  // Handle date selection
+  const handleDateConfirm = (type: any, date: any) => {
+    if (type === "start") setDateStart(date);
+    if (type === "end") setDateEnd(date);
+    hideDatePicker(type);
   };
 
-  const hideDatePicker = () => {
-    setDatePickerVisible(false);
-  };
-
-  // Xử lý khi chọn ngày
-  const handleConfirm = (date: Date) => {
-    const formattedDate = date.toLocaleDateString("vi-VN");
-
-    if (datePickerType === "start") {
-      setDateStart(formattedDate);
-      if (dateEnd) {
-        validateDates(formattedDate, dateEnd);
-      }
-    } else if (datePickerType === "end") {
-      if (dateStart && !validateDates(dateStart, formattedDate)) {
-        setDateEnd(""); // Reset ngày kết thúc nếu không hợp lệ
-      } else {
-        setDateEnd(formattedDate);
-      }
-    }
-
-    // onNext(
-    //   tuition?.toString(),
-    //   dateStart,
-    //   dateEnd,
-    //   selectedProvince,
-    //   selectedDistrict,
-    //   selectedWard,
-    //   detail
-    // );
-    hideDatePicker();
-  };
-
-  const handleChangeTuition = (value: string) => {
-    if (value === "") {
-      setTuition(null);
-      setFormattedTuition("");
-      setError("");
-      // onNext(
-      //   undefined,
-      //   dateStart,
-      //   dateEnd,
-      //   selectedProvince,
-      //   selectedDistrict,
-      //   selectedWard,
-      //   detail
-      // );
-      return;
-    }
-
-    // Loại bỏ dấu phẩy khỏi giá trị nhập vào
-    const numericValue = Number(value.replace(/,/g, ""));
-
-    // Kiểm tra nếu giá trị là số hợp lệ
-    if (!isNaN(numericValue)) {
-      if (numericValue < 0) {
-        setError(languageContext.ERROR_TUITION);
-      } else if (numericValue < 10000) {
-        setError(languageContext.ERROR_TUITION_1);
-      } else {
-        setError(""); // Reset lỗi nếu hợp lệ
-      }
-
-      // Lưu giá trị không có dấu phẩy vào state (để dùng cho tính toán)
-      setTuition(numericValue);
-
-      setFormattedTuition(numericValue.toLocaleString("en-US")); // định dạng hiển thị ra gia diện
-
-      // Gửi giá trị không dấu phẩy qua onNext
-      // onNext(
-      //   numericValue.toString(),
-      //   dateStart,
-      //   dateEnd,
-      //   selectedProvince,
-      //   selectedDistrict,
-      //   selectedWard,
-      //   detail
-      // );
-    } else {
-      setError(languageContext.ERROR_TUITION_2);
-    }
-  };
-
-  useEffect(() => {
-    // Gửi dữ liệu địa chỉ khi có sự thay đổi
-    console.log("tuition: ", tuition);
-    console.log("dateStart: ", dateStart);
-    console.log("dateEnd", dateEnd);
-    console.log("selectedProvince: ", selectedProvince);
-    console.log("selectedDistrict: ", selectedDistrict);
-    console.log("selectedWard: ", selectedWard);
-    console.log("detail: ", detail);
-
-    // onNext(
-    //   tuition?.toString(),
-    //   dateStart,
-    //   dateEnd,
-    //   selectedProvince,
-    //   selectedDistrict,
-    //   selectedWard,
-    //   detail
-    // );
-  }, [
-    tuition,
-    dateStart,
-    dateEnd,
-    selectedProvince,
-    selectedDistrict,
-    selectedWard,
-    detail,
-  ]);
 
   return (
     <View style={styles.container}>
@@ -191,48 +90,59 @@ const UpdateInfoTuition = () => {
           placeholder={languageContext.TUITION_PLACEHOLDER}
           keyboardType="numeric"
           value={formattedTuition}
-          onChangeText={handleChangeTuition}
+          onChangeText={handleTuitionChange}
         />
       </View>
 
-      {/* Ngày bắt đầu */}
+      {/* Date Inputs */}
       <View style={styles.marginInput}>
         <Text style={styles.label}>
-          {languageContext.DATE_START_PLACEHOLDER} <Text style={styles.required}>*</Text>
+          {languageContext.DATE_START_PLACEHOLDER}{" "}
+          <Text style={styles.required}>*</Text>
         </Text>
         <TouchableOpacity
           style={styles.input}
           onPress={() => showDatePicker("start")}
         >
-          <Text>{dateStart || languageContext.DATE_START_PLACEHOLDER}</Text>
+          <Text>
+            {dateStart
+              ? dateStart.toLocaleDateString()
+              : languageContext.DATE_START_PLACEHOLDER}
+          </Text>
         </TouchableOpacity>
       </View>
 
-      {/* Ngày kết thúc */}
-      <View style={styles.marginInput}>
-        <Text style={styles.label}>
-          {languageContext.DATE_END} <Text style={styles.required}>*</Text>
+      <Text style={styles.label}>
+        {languageContext.DATE_END} <Text style={styles.required}>*</Text>
+      </Text>
+      <TouchableOpacity
+        onPress={() => showDatePicker("end")}
+        style={styles.input}
+      >
+        <Text>
+          {dateEnd
+            ? dateEnd.toLocaleDateString()
+            : languageContext.DATE_END_PLACEHOLDER}
         </Text>
-        <TouchableOpacity
-          style={styles.input}
-          onPress={() => showDatePicker("end")}
-        >
-          <Text>{dateEnd || languageContext.DATE_END_PLACEHOLDER}</Text>
-        </TouchableOpacity>
-      </View>
+      </TouchableOpacity>
 
       {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
-      {/* Modal lịch */}
       <DateTimePickerModal
-        isVisible={isDatePickerVisible}
+        isVisible={isDatePickerVisible.start}
         mode="date"
-        onConfirm={handleConfirm}
-        onCancel={hideDatePicker}
+        onConfirm={(date) => handleDateConfirm("start", date)}
+        onCancel={() => hideDatePicker("start")}
+      />
+      <DateTimePickerModal
+        isVisible={isDatePickerVisible.end}
+        mode="date"
+        onConfirm={(date) => handleDateConfirm("end", date)}
+        onCancel={() => hideDatePicker("end")}
       />
 
-      {/* Địa chỉ */}
-      <View style={styles.marginInput}>
+      {/* Address Inputs */}
+      <View style={{ marginTop: 25 }}>
         <Text style={styles.label}>
           {languageContext.ADDRESS} <Text style={styles.required}>*</Text>
         </Text>
@@ -245,48 +155,17 @@ const UpdateInfoTuition = () => {
           onSetSelectedWard={setSelectedWard}
         />
       </View>
-      <View>
+
+      <View style={{ marginTop: 25 }}>
         <Text style={styles.label}>
-          {languageContext.DETAIL_ADDRESS} <Text style={styles.required}>*</Text>
+          {languageContext.DETAIL_ADDRESS}{" "}
+          <Text style={styles.required}>*</Text>
         </Text>
         <TextInput
           style={styles.input}
           placeholder={languageContext.DETAIL_ADDRESS_PLACEHOLDER}
           value={detail}
-          onChangeText={(text) => {
-            setDetail(text);
-            // onNext(
-            //   tuition?.toString(),
-            //   dateStart,
-            //   dateEnd,
-            //   selectedProvince,
-            //   selectedDistrict,
-            //   selectedWard,
-            //   text
-            // );
-          }}
-        />
-      </View>
-
-      {/* LINK ZALO */}
-      <View style={{ marginTop: 25 }}>
-        <Text style={styles.label}>{languageContext.ZALO}</Text>
-        <TextInput
-          style={styles.input}
-          placeholder={languageContext.ZALO_PLACEHOLDER}
-          value={zalo}
-          onChangeText={(text) => {
-            setZalo(text);
-            // onNext(
-            //   tuition?.toString(),
-            //   dateStart,
-            //   dateEnd,
-            //   selectedProvince,
-            //   selectedDistrict,
-            //   selectedWard,
-            //   text
-            // );
-          }}
+          onChangeText={setDetail}
         />
       </View>
     </View>

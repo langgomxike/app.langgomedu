@@ -36,6 +36,7 @@ export type ClassDetailRoute = {
 
 export type UpdateClassRoute = {
   classData: Class;
+  members: User[];
 }
 
 

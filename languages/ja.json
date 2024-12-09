@@ -375,6 +375,10 @@
   "USERNAME_INVALID_FORMAT": "ユーザー名は6〜20文字で、特殊文字を含まない必要があります。",
   "PASSWORD_INVALID_FORMAT": "パスワードは6〜20文字である必要があります。",
   "NEW_PASSWORD_MUST_BE_DIFFERENT": "新しいパスワードは古いパスワードと異なる必要があります。",
+  "NO_ACCESS_USER": "Không thể truy cập. Vai trò của bạn không đủ quyền.",
+  "NO_ACCESS_PARENT": "Bạn không có quyền tạo lớp cho phụ huynh.",
+  "NO_ACCESS_TUTOR": "Bạn không có quyền tạo lớp cho gia sư.",
+
   "KHANG": "KHANG",
   "CHOOSE": "選択 ...",
   "LEARNING_CLASS": "クラス",
