@@ -49,6 +49,7 @@ export default function ClassDetail() {
   const [modalVisible, setModalVisible] = useState<string | null>("");
   const [classLearners, setclassLearners] = useState<User[]>([]);
   const [userChildren, setUserChildren] = useState<User[]>([]);
+  const [membersInClass, setMembersInClass] = useState<User[]>([]);
   const [resultResponse, setResultResponse] = useState(false);
   const [realTimeStatus, setRealTimeStatus] = useState<number>(0);
   const [ refresh, setRefresh ] = useState(false);
@@ -149,8 +150,11 @@ export default function ClassDetail() {
       AClass.getClassDetailWithUser(
         param.classId,
         userId,
-        (_class) => {
+        (_class, membersInClass) => {
           setClassDetail(_class);
+          console.log("User class: ", membersInClass);
+          
+          setMembersInClass(membersInClass);
           if (user.TYPE === UserType.LEANER && _class) {
             AClass.getconflictingLessonsWithClassUsers(_class.id, userId, (data) => {
               setUserChildren(data);
@@ -183,7 +187,7 @@ export default function ClassDetail() {
     if(classDetail) {
       SFirebase.track(FirebaseNode.Classes,  [{key: FirebaseNode.Id, value: classDetail.id}], () => {
         const number = Math.floor(10 + Math.random() * 90);
-        // console.log("realTimeStatus number: ", number);
+        console.log(">>> class detail realTimeStatus number: ", number);
          
           setRealTimeStatus(number);
         })
@@ -649,4 +653,9 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
   },
+
+  childContainer: {
+    marginBottom: 10,
+    backgroundColor: BackgroundColor.white,
+  }
 });

@@ -425,10 +425,27 @@
   "MANAGEMENT_ROLES": "権限管理",
   "INPUT_REASON_DENY": "拒否理由を入力",
 
-  "NOTIFICATION_TAB": "Notifications",
-  "GROUP_CHAT_TAB": "Group chat",
-  "CHAT_TAB": "Chat",
-  "CONTACT_TAB": "Contact",
-  "NOTIFICATION_NOT_SUPPORTED": "This notification does not support for your language"
+"NOTIFICATION_TAB": "通知",
+"GROUP_CHAT_TAB": "グループチャット",
+"CHAT_TAB": "チャット",
+"CONTACT_TAB": "連絡先",
+"NOTIFICATION_NOT_SUPPORTED": "この通知はお使いの言語ではサポートされていません",
+"ALL": "すべて",
+"CLASS_WAIT_APPROVE": "承認待ちのクラス",
+"CLASS_WAIT_PEDING_PAY": "支払い待ちのクラス",
+"REPORTED": "報告された",
+"CV_WAITTING_APROVE": "承認待ちの履歴書",
+"BANNED": "禁止されたアカウント",
+
+"NO_CLASS_WAITTING_APPROVAL": "承認待ちのクラスはありません",
+"NO_CLASS_WAITTING_PAY": "支払い待ちのクラスはありません",
+"AUTHOR": "作成者"
+
+
+
+
+
+
+
 
 }

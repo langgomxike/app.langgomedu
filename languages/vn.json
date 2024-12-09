@@ -7,7 +7,7 @@
   "LOGIN": "Đăng nhập",
   "REGISTER": "Đăng ký",
   "REGISTER_FOR_CHILD": "Đăng ký cho con bạn",
-  "REGISTER_STEP_1": "Tiến tới",
+  "REGISTER_STEP_1": "Tiếp tục",
   "LOGIN_HINT": "Nhập thông tin của bạn để đăng nhập",
   "REGISTER_HINT": "Nhập thông tin của bạn để đăng ký",
   "REGISTER_FOR_CHILD_HINT": "Nhập thông tin của con bạn để đăng ký",
@@ -443,9 +443,24 @@
   "INPUT_REASON_DENY":"Nhập lý do từ chối",
 
 
-  "NOTIFICATION_TAB": "Notifications",
-  "GROUP_CHAT_TAB": "Group chat",
-  "CHAT_TAB": "Chat",
-  "CONTACT_TAB": "Contact",
-  "NOTIFICATION_NOT_SUPPORTED": "This notification does not support for your language"
+  "NOTIFICATION_TAB": "Thông báo",
+  "GROUP_CHAT_TAB": "Trò chuyện nhóm",
+  "CHAT_TAB": "Trò chuyện",
+  "CONTACT_TAB": "Danh bạ",
+  "NOTIFICATION_NOT_SUPPORTED": "Thông báo này không được hỗ trợ cho ngôn ngữ của bạn",
+  "REPORT_CLASS": "Lớp học bị báo cáo",
+
+  "ALL":"Tất cả",
+  "CLASS_WAIT_APPROVE":"Lớp chờ duyệt",
+  "CLASS_WAIT_PEDING_PAY":"Lớp chờ thanh toán",
+  "REPORTED":"Bị báo cáo",
+  "CV_WAITTING_APROVE":"CV chờ duyệt",
+  "BANNED":"Tài khoản bị cấm",
+
+  "NO_CLASS_WAITTING_APPROVAL":"không có lớp học chờ duyệt",
+  "NO_CLASS_WAITTING_PAY":"Không có lớp chờ thanh toán",
+  "AUTHOR":"Người tạo",
+  "IS_ONLINE":"Hình thức học",
+  "GO_TO_CV":"CV"
+
 }

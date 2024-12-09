@@ -14,6 +14,7 @@ import {
 import {NavigationContext} from "@react-navigation/native";
 import ScreenName from "../../../constants/ScreenName";
 import SLog, {LogType} from "../../../services/SLog";
+import { LanguageContext } from "../../../configs/LanguageConfig";
 
 const ICON_SIZE = 20;
 const URL = ReactAppUrl.PUBLIC_URL;
@@ -24,7 +25,7 @@ type ClassComponentProps = {
 
 export default function ClassComponent({ classData }: ClassComponentProps) {
   const naviagation = useContext(NavigationContext);
-
+  const l =useContext(LanguageContext).language;
   function formatCurrency(amount: number, locale = "vi-VN", currency = "VND") {
     // Kiểm tra nếu không phải số, trả về chuỗi lỗi
     if (typeof amount !== "number") return "Invalid input";
@@ -81,7 +82,7 @@ export default function ClassComponent({ classData }: ClassComponentProps) {
                   size={ICON_SIZE}
                   color="black"
                 />
-                <Text>Bắt đầu</Text>
+                <Text>{l.START}</Text>
               </View>
               <Text>{moment(classData.started_at).format("DD/MM/YYYY")}</Text>
             </View>
@@ -93,7 +94,7 @@ export default function ClassComponent({ classData }: ClassComponentProps) {
                   size={ICON_SIZE}
                   color="black"
                 />
-                <Text>Kết thúc</Text>
+                <Text>{l.END}</Text>
               </View>
               <Text>{moment(classData.ended_at).format("DD/MM/YYYY")}</Text>
             </View>
@@ -105,7 +106,7 @@ export default function ClassComponent({ classData }: ClassComponentProps) {
                   size={ICON_SIZE}
                   color="black"
                 />
-                <Text>Hình thức</Text>
+                <Text>{l.IS_ONLINE}</Text>
               </View>
               <Text>Offline</Text>
             </View>

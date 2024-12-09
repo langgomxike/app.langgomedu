@@ -15,7 +15,7 @@ export const ListItemVietnamese: Array<AccountItemProps> = [
         iconName: require("../../assets/settings/cv.png")
     },
     {
-        title: 'Attendance History', // Tutor CV
+        title: 'Lịch sử điểm danh', // Tutor CV
         iconName: require("../../assets/settings/attendance.png")
     },
     {
@@ -101,7 +101,7 @@ export const ListItemJapanese: Array<AccountItemProps> = [
         iconName: require("../../assets/settings/cv.png")
     },
     {
-        title: 'Attendance History', // Tutor CV
+        title: '履歴', // Tutor CV
         iconName: require("../../assets/settings/attendance.png")
     },
     {
