@@ -7,6 +7,7 @@ import {
   FlatList,
   Image,
   Dimensions,
+  Alert,
 } from "react-native";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -27,6 +28,8 @@ import { LanguageContext } from "../../../configs/LanguageConfig";
 type ModalJoinClassProps = {
   classId: number;
   studentList: User[];
+  classLearners: number;
+  maxLearners: number;
   visiable: string | null;
   onRequestClose: () => void;
   onResultValue: (result: boolean) => void;
@@ -41,6 +44,8 @@ const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get("screen");
 const URL = ReactAppUrl.PUBLIC_URL;
 export default function ModalJoinClass({
   classId,
+  classLearners,
+  maxLearners,
   studentList,
   visiable,
   onRequestClose,
@@ -74,7 +79,14 @@ export default function ModalJoinClass({
 
   const handleConfirmJoinClass = () => {
     if(selectedStudents.length > 0) {
-      setModalText(language.CONFIRM_JOIN_CLASS_WITH_SELECTED_LEARNERS)
+      const totalLearners = classLearners + selectedStudents.length;
+      if (totalLearners > maxLearners) {
+        Alert.alert(language.OVER_CAPACITY, `${language.CLASS_AVAILABLE} ${maxLearners - classLearners} ${language.EXCEEDED_SELECTION} ${language.SELECT_FEWER_OR_CONTACT_TUTOR}`)
+        return
+      }
+      else{
+        setModalText(language.CONFIRM_JOIN_CLASS_WITH_SELECTED_LEARNERS)
+      }
     }
     else {
       setModalText(language.CONFIRM_JOIN_CLASS)

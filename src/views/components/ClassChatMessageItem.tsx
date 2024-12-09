@@ -48,7 +48,7 @@ export default function ClassChatMessageItem(
         <Text style={styles.name}>{chat.in_class?.title}</Text>
 
         {/* new message */}
-        <Text style={styles.message}>{content}</Text>
+        <Text style={styles.message}>{content?.substring(0,20)}...</Text>
       </View>
 
       {/* time */}

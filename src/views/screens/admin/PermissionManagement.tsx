@@ -163,7 +163,7 @@ export default function PermissionManagementScreen() {
         {roles?.map(role => (
           <AppInfoContainer key={role.id} title={role.name?.replaceAll("_", " ")}
                             onLongPress={() => deleteRole(role)}>
-            <PermissionList role={role} allPers={permissions}/>
+            <PermissionList role={role} allPers={permissions} isSuper={role.id === RoleList.SUPER_ADMIN}/>
           </AppInfoContainer>
         ))}
       </View>
@@ -175,9 +175,10 @@ export default function PermissionManagementScreen() {
 type PermissionListProp = {
   role: Role;
   allPers: Permission[];
+  isSuper?: boolean;
 }
 
-function PermissionList({allPers, role}: PermissionListProp) {
+function PermissionList({allPers, role, isSuper}: PermissionListProp) {
 //contexts
   const language = useContext(LanguageContext).language;
 
@@ -252,7 +253,7 @@ function PermissionList({allPers, role}: PermissionListProp) {
         style={{flex: 1}}
       />
 
-      <TouchableOpacity style={[styles.submitButton, styles.boxshadow]} onPress={onSubmit}>
+      <TouchableOpacity style={[styles.submitButton, styles.boxshadow, isSuper && {backgroundColor: BackgroundColor.gray_c6}]} onPress={isSuper ? () => {} : onSubmit}>
         <Ionicons name="push-outline" size={20} color={TextColor.white}/>
         <Text style={{
           color: TextColor.white,
@@ -263,10 +264,10 @@ function PermissionList({allPers, role}: PermissionListProp) {
     </View>
 
     {!firstLoading && allPers?.filter(p => p.name.includes(searchKey.toUpperCase())).slice(5 * (page - 1), 5 * page).map(permission => (
-      <View key={permission.id} style={PItemStyles.container}>
+      <View key={permission.id} style={[PItemStyles.container, isSuper && {backgroundColor: BackgroundColor.gray_c6}]}>
         <Text style={{flex: 1, fontSize: 12}}>{permission.name?.replaceAll("_", " ")}</Text>
 
-        <Ionicons onPress={() => select(permission.id)}
+        <Ionicons onPress={isSuper ? () => {}: () => select(permission.id)}
                   name={selectedPers?.includes(permission.id) ? "checkbox-outline" : "stop-outline"}
                   size={20}/>
       </View>

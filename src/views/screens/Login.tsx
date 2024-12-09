@@ -1,7 +1,7 @@
 import {
   Alert,
   Image,
-  Linking,
+  Linking, Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -9,18 +9,21 @@ import {
 } from "react-native";
 import InputRegister from "../components/Inputs/InputRegister";
 import Button from "../components/Button";
-import { useCallback, useContext, useState } from "react";
-import { NavigationContext } from "@react-navigation/native";
+import {useCallback, useContext, useState} from "react";
+import {NavigationContext} from "@react-navigation/native";
 import ScreenName from "../../constants/ScreenName";
 import AUser from "../../apis/AUser";
-import { AccountContext } from "../../configs/AccountConfig";
-import { BackgroundColor, TextColor } from "../../configs/ColorConfig";
-import SAsyncStorage, { AsyncStorageKeys } from "../../services/SAsyncStorage";
+import {AccountContext} from "../../configs/AccountConfig";
+import {BackgroundColor, TextColor} from "../../configs/ColorConfig";
+import SAsyncStorage, {AsyncStorageKeys} from "../../services/SAsyncStorage";
 import Toast from "react-native-simple-toast";
-import { RoleList } from "../../models/Role";
-import { LanguageContext } from "../../configs/LanguageConfig";
+import {RoleList} from "../../models/Role";
+import {LanguageContext} from "../../configs/LanguageConfig";
 import Spinner from "react-native-loading-spinner-overlay";
-import SLog, { LogType } from "../../services/SLog";
+import SLog, {LogType} from "../../services/SLog";
+import vn from "../../../languages/vn.json";
+import en from "../../../languages/en.json";
+import ja from "../../../languages/ja.json";
 
 const REGEX_PHONE_NUMBER =
   /^\s*(?:\+?(\d{1,3}))?[-. (]*(\d{3})[-. )]*(\d{3})[-. ]*(\d{4})(?: *x(\d+))?\s*$/;
@@ -34,8 +37,8 @@ export default function LoginScreen() {
   const accountContext = useContext(AccountContext);
   const languageContext = useContext(LanguageContext);
 
-    // Đường dẫn tạm đếm admin
-    // navigation?.navigate(ScreenName.PROFILE);
+  // Đường dẫn tạm đếm admin
+  // navigation?.navigate(ScreenName.PROFILE);
 
   //states
   const [usernameOrPhoneNumber, setUsernameOrPhoneNumber] = useState("");
@@ -64,7 +67,8 @@ export default function LoginScreen() {
         [
           {
             text: "OK",
-            onPress: () => {},
+            onPress: () => {
+            },
           },
         ]
       );
@@ -81,7 +85,8 @@ export default function LoginScreen() {
         [
           {
             text: "OK",
-            onPress: () => {},
+            onPress: () => {
+            },
           },
         ]
       );
@@ -95,7 +100,8 @@ export default function LoginScreen() {
         [
           {
             text: "OK",
-            onPress: () => {},
+            onPress: () => {
+            },
           },
         ]
       );
@@ -110,7 +116,8 @@ export default function LoginScreen() {
         [
           {
             text: "OK",
-            onPress: () => {},
+            onPress: () => {
+            },
           },
         ]
       );
@@ -138,7 +145,8 @@ export default function LoginScreen() {
         [
           {
             text: "OK",
-            onPress: () => {},
+            onPress: () => {
+            },
           },
         ]
       );
@@ -156,7 +164,8 @@ export default function LoginScreen() {
             [
               {
                 text: "OK",
-                onPress: () => {},
+                onPress: () => {
+                },
               },
             ]
           );
@@ -182,13 +191,13 @@ export default function LoginScreen() {
               ) {
                 navigation?.reset({
                   index: 0,
-                  routes: [{ name: ScreenName.HOME_ADMIN }],
+                  routes: [{name: ScreenName.HOME_ADMIN}],
                 });
                 navigation?.navigate(ScreenName.HOME_ADMIN);
               } else {
                 navigation?.reset({
                   index: 0,
-                  routes: [{ name: ScreenName.NAV_BAR }],
+                  routes: [{name: ScreenName.NAV_BAR}],
                 });
                 navigation?.navigate(ScreenName.HOME);
               }
@@ -205,7 +214,8 @@ export default function LoginScreen() {
                 [
                   {
                     text: "OK",
-                    onPress: () => {},
+                    onPress: () => {
+                    },
                   },
                 ]
               );
@@ -229,7 +239,7 @@ export default function LoginScreen() {
   return (
     <ScrollView>
       <View style={styles.container}>
-        <Spinner visible={loading} />
+        <Spinner visible={loading}/>
 
         {/* illustration image */}
         <Image
@@ -292,6 +302,31 @@ export default function LoginScreen() {
           {languageContext.language.ALREADY_HAVE_ACCOUNT}
         </Text>
       </View>
+
+      <View
+        style={{
+          flexDirection: "row",
+          flex: 1,
+          gap: 25,
+          justifyContent: "center",
+          marginVertical: 30,
+          alignItems: "center"
+        }}>
+        <Pressable style={styles.languageItemContainer} onPress={() => languageContext.setLanguage(en)}>
+          <Image style={[styles.languageItem, languageContext.language.TYPE === "en" && styles.languageItemActive]}
+                 source={require("../../../assets/languages/en.png")}/>
+        </Pressable>
+
+        <Pressable style={styles.languageItemContainer} onPress={() => languageContext.setLanguage(vn)}>
+          <Image style={[styles.languageItem, languageContext.language.TYPE === "vi" && styles.languageItemActive]}
+                 source={require("../../../assets/languages/vn.png")}/>
+        </Pressable>
+
+        <Pressable style={styles.languageItemContainer} onPress={() => languageContext.setLanguage(ja)}>
+          <Image style={[styles.languageItem, languageContext.language.TYPE === "ja" && styles.languageItemActive]}
+                 source={require("../../../assets/languages/ja.png")}/>
+        </Pressable>
+      </View>
     </ScrollView>
   );
 }
@@ -300,6 +335,28 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: "center",
+  },
+
+  languageItem: {
+    width: 20,
+    height: 20,
+  },
+
+  languageItemContainer: {
+    borderRadius: 1000,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.23,
+    shadowRadius: 2.62,
+    elevation: 4,
+  },
+
+  languageItemActive: {
+    width: 35,
+    height: 35,
   },
 
   input: {

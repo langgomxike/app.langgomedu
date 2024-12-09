@@ -49,6 +49,7 @@ import UpdateClass from "./src/views/screens/UpdateClass";
 import ResetPasswordScreen from "./src/views/screens/ResetPassword";
 import UpdateReportedUser from "./src/views/screens/admin/UpdateReportedUser";
 import PersionalProfileScreen from "./src/views/screens/PersionalProfile";
+import ViewCV from "./src/views/screens/CV";
 PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS);
 
 const Stack = createNativeStackNavigator();
@@ -277,6 +278,10 @@ export default function App() {
                   title: "",
                   headerStyle: {backgroundColor: BackgroundColor.primary}
                 }}
+              />
+              <Stack.Screen
+                name={ScreenName.SHOW_CV}
+                component={ViewCV}
               />
               {/* END ADMIN SCREENS */}
             </Stack.Navigator>

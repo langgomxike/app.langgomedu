@@ -181,8 +181,29 @@
   "NO_PENDING_APPROVAL_ADMIN": "Không có lớp học chờ Admin duyệt",
   "NO_PENDING_APPROVAL_TUTOR": "Không có lớp học chờ người tạo lớp chấp nhận",
   "NO_PENDING_PAY": "Không có lớp học chờ thanh toán",
+  "NO_RATING_CLASS": "Không có lớp học chờ đánh giá",
   "NO_CREATED_CLASS": "Không có lớp học đã tạo",
   "NO_DATA": "Không có dữ liệu",
+
+  "NO_SUGGESTED_CLASSES": "Không có lớp học gợi ý",
+  "NO_SUGGESTED_TUTORS": "Không có gia sư gợi ý",
+  "CLASS_RATING": "Đánh giá gia sư",
+  "RATED_TUTOR": "Đã đánh giá gia sư",
+  "CLASS_COMPLETED": "Lớp đã học",
+  "CLASS_TAUGHT": "Lớp đã dạy",
+  "NO_CLASS_LEARNED": "Không có lớp đã học",
+  "NO_CLASS_TAUGHT": "Không có lớp đã dạy",
+
+  "OVER_CAPACITY": "Quá số lượng",
+  "CLASS_AVAILABLE": "Lớp còn",
+  "EXCEEDED_SELECTION": "chỗ trống, bạn đã chọn quá số lượng.",
+  "SELECT_FEWER_OR_CONTACT_TUTOR": "Vui lòng chọn ít hơn hoặc liên hệ với gia sư để có thông tin!",
+
+
+  "WANT_TO_JOIN_CLASS": "Bạn muốn tham gia lớp học này?",
+  "WANT_TO_TEACH_CLASS": "Bạn muốn nhận dạy lớp học này?",
+  "CLASS_FULL_CONTACT_TEACHER": "Lớp đã đủ số lượng.\nNếu bạn muốn tham gia lớp vui lòng liên hệ với giáo viên của lớp!",
+
 
   "CLASS_SUGGESTIONS": "Gợi ý lớp học",
   "TUTOR_SUGGESTIONS": "Gợi ý gia sư",
@@ -295,8 +316,10 @@
   "PLEASE_WAIT_ACCEPTANCE": "Vui lòng chờ chấp nhận",
   "TAKE_CLASS": "Nhận dạy lớp",
 
-    "CLASS_CHILDREN_LIST": "Danh sách con trong lớp",
+  "CLASS_CHILDREN_LIST": "Danh sách con trong lớp",
   "CHILD_ALREADY_ENROLLED": "Bạn này đã và đang học lớp này",
+
+  "WAITING_FOR_REVIEW": "Chờ đánh giá",
 
   "NHI": "Nhi",
   "CREATE_CLASS": "Tạo lớp học tuyển sinh",
@@ -384,6 +407,7 @@
   "PLACEHOLDER_BIO": "Nhập mô tả bản thân của bạn tại đây",
   "ANNOUNCE": "Thông báo",
   "INPUT_CV_ALERT": "CV của bạn đã được gửi đi và đang chờ quản trị viên duyệt",
+  "DENY_CV_CHILD_ALERT" : "Bạn không thể dùng chức năng CV!",
   "OK": "OK",
   "POINT":"Điểm uy tín",
   "DATE_JOIN":"Ngày tham gia",
@@ -416,12 +440,12 @@
   "ALLOW":"Chấp nhận",
   "DENNY":"Từ chối",
   "MANAGEMENT_ROLES":"Quản lý quyền",
-  "INPUT_REASON_DENY":"Nhập lý do từ chối"
+  "INPUT_REASON_DENY":"Nhập lý do từ chối",
 
 
-
-
-
-
-
+  "NOTIFICATION_TAB": "Notifications",
+  "GROUP_CHAT_TAB": "Group chat",
+  "CHAT_TAB": "Chat",
+  "CONTACT_TAB": "Contact",
+  "NOTIFICATION_NOT_SUPPORTED": "This notification does not support for your language"
 }

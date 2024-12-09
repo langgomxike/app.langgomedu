@@ -62,12 +62,27 @@ export default function NotificationItem(
       })
   }, []);
 
+  const values: string[] = content.split("{$$}");
+  let newContent: string = language.NOTIFICATION_NOT_SUPPORTED;
+
+  switch (language.TYPE) {
+    case "vi":
+      newContent = values.length >= 1 && values[0] ? values[0] : newContent;
+      break;
+    case "en":
+      newContent = values.length >= 2 && values[1] ? values[1] : newContent;
+      break;
+    case "ja":
+      newContent = values.length >= 3 && values[2] ? values[2] : newContent;
+      break;
+  }
+
   return (
     <TouchableOpacity onLongPress={refRBSheet.current?.open} style={styles.container}>
       <Spinner visible={loading}/>
 
       <Text style={styles.time}>{DateTimeConfig.getDateFormat(createdAt, true, true)}</Text>
-      <Text>{content}</Text>
+      <Text>{newContent}</Text>
 
       <RBSheet ref={refRBSheet} useNativeDriver={false} height={100}>
         <TouchableOpacity

@@ -1,4 +1,4 @@
-import { ScrollView, Text, View, StyleSheet, Image, Alert } from "react-native";
+import {ScrollView, Text, View, StyleSheet, Image, Alert, Pressable} from "react-native";
 import MyIcon, { AppIcon } from "../components/MyIcon";
 import InputRegister from "../components/Inputs/InputRegister";
 import MyText from "../components/MyText";
@@ -20,6 +20,9 @@ import { BackgroundColor, TextColor } from "../../configs/ColorConfig";
 import { AuthContext } from "../../configs/AuthContext";
 import { AccountContext } from "../../configs/AccountConfig";
 import Toast from "react-native-simple-toast";
+import en from "../../../languages/en.json";
+import vn from "../../../languages/vn.json";
+import ja from "../../../languages/ja.json";
 
 export default function ResetPasswordScreen() {
   //contexts
@@ -169,6 +172,31 @@ export default function ResetPasswordScreen() {
           onPress={handleAuth}
         />
       </View>
+
+      <View
+        style={{
+          flexDirection: "row",
+          flex: 1,
+          gap: 25,
+          justifyContent: "center",
+          marginVertical: 30,
+          alignItems: "center"
+        }}>
+        <Pressable style={styles.languageItemContainer} onPress={() => languageContext.setLanguage(en)}>
+          <Image style={[styles.languageItem, languageContext.language.TYPE === "en" && styles.languageItemActive]}
+                 source={require("../../../assets/languages/en.png")}/>
+        </Pressable>
+
+        <Pressable style={styles.languageItemContainer} onPress={() => languageContext.setLanguage(vn)}>
+          <Image style={[styles.languageItem, languageContext.language.TYPE === "vi" && styles.languageItemActive]}
+                 source={require("../../../assets/languages/vn.png")}/>
+        </Pressable>
+
+        <Pressable style={styles.languageItemContainer} onPress={() => languageContext.setLanguage(ja)}>
+          <Image style={[styles.languageItem, languageContext.language.TYPE === "ja" && styles.languageItemActive]}
+                 source={require("../../../assets/languages/ja.png")}/>
+        </Pressable>
+      </View>
     </View>
   );
 }
@@ -176,6 +204,28 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: "center",
+  },
+
+  languageItem: {
+    width: 20,
+    height: 20,
+  },
+
+  languageItemContainer: {
+    borderRadius: 1000,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.23,
+    shadowRadius: 2.62,
+    elevation: 4,
+  },
+
+  languageItemActive: {
+    width: 35,
+    height: 35,
   },
 
   backButton: {
@@ -241,7 +291,7 @@ const styles = StyleSheet.create({
   },
 
   btn: {
-    marginTop: "40%",
+    marginTop: 20,
     width: "100%",
   },
 });
