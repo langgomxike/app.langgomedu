@@ -12,17 +12,17 @@ import {
   StyleSheet,
   TouchableOpacity,
   Image,
-  Dimensions, Pressable,
+  Dimensions, Pressable, Alert,
 } from "react-native";
 import BottomSheet, {
   BottomSheetBackdrop,
   BottomSheetView,
   BottomSheetFlatList,
 } from "@gorhom/bottom-sheet";
-import { FlatList, ScrollView } from "react-native-gesture-handler";
+import {FlatList, ScrollView} from "react-native-gesture-handler";
 import CourseItem from "../CourseItem";
 import {BackgroundColor, TextColor} from "../../../configs/ColorConfig";
-import { Ionicons, AntDesign } from "@expo/vector-icons";
+import {Ionicons, AntDesign} from "@expo/vector-icons";
 import ClassComponent from "../admin/ClassComponent";
 import Class from "../../../models/Class";
 import AClassAdmin from "../../../apis/admin/AClassAdmin";
@@ -34,10 +34,10 @@ import {
   useRoute,
 } from "@react-navigation/native";
 import ScreenName from "../../../constants/ScreenName";
-import { LanguageContext } from "../../../configs/LanguageConfig";
+import {LanguageContext} from "../../../configs/LanguageConfig";
 import moment from "moment";
 import ReactAppUrl from "../../../configs/ConfigUrl";
-import { CLASS_TAB } from "../../../constants/TabListAdmin";
+import {CLASS_TAB} from "../../../constants/TabListAdmin";
 import ModalDialogForClass from "../modal/ModalDialogForClass";
 import ModalInputReason from "../modal/ModalInputReason";
 import DateTimeConfig from "../../../configs/DateTimeConfig";
@@ -54,14 +54,14 @@ type DetailHistoryBottonSheetProps = {
 };
 
 const ICON_SIZE = 20;
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("screen");
+const {width: SCREEN_WIDTH, height: SCREEN_HEIGHT} = Dimensions.get("screen");
 const URL = ReactAppUrl.PUBLIC_URL;
 export default function ({
-  isVisible,
-  onCloseButtonSheet,
-  classData,
-  activeTab,
-}: DetailHistoryBottonSheetProps) {
+                           isVisible,
+                           onCloseButtonSheet,
+                           classData,
+                           activeTab,
+                         }: DetailHistoryBottonSheetProps) {
   // contexts ----------------------------------------------------------------
   const navigation = useContext(NavigationContext);
   const languageContext = useContext(LanguageContext);
@@ -82,7 +82,7 @@ export default function ({
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [userList, setUserList] = useState<User[]>([]);
   const [modalResult, setModalResult] = useState<string | null>(null);
-  const [modalContent, setModalContent] = useState<{title: string, content: string}>({title:"", content:""})
+  const [modalContent, setModalContent] = useState<{ title: string, content: string }>({title: "", content: ""})
   const [approveResult, setApproveResult] = useState(false);
   const [approvePayResult, setApprovePayResult] = useState(false);
   const [reportList, setReportList] = useState<Report[]>([]);
@@ -119,12 +119,6 @@ export default function ({
     [isVisible]
   );
 
-  const goToReportClass = () => {
-    if (classData) {
-      navigation?.navigate(ScreenName.REPORT_CLASS, { classId: classData.id });
-    }
-  };
-
   const handleApproveClass = useCallback(() => {
     setModalContent({title: "Xác nhận", content: "Xác thực lớp thành công!"})
     setModalResult("modalDialogForClass");
@@ -150,7 +144,7 @@ export default function ({
   }, [classData]);
 
   const handleDenyClass = () => {
-      setModalResult("modalInputReason")
+    setModalResult("modalInputReason")
   }
 
   const goToViewReport = useCallback((report: Report) => {
@@ -159,7 +153,27 @@ export default function ({
       reporter: report.reporter ?? new User(),
     }
     navigation?.navigate(ScreenName.UPDATE_REPORT_USER, data);
-  }, [])
+  }, []);
+
+  const handleDeleteClass = useCallback(() => {
+    Alert.alert("Xac nhan xoa", "lop hoc se bi khoa vinh vien va khong the khoi phuc", [
+      {
+        text: "Cancel",
+        style: "cancel",
+      },
+      {
+        text: "Confirm",
+        onPress: () => {
+          // AClassAdmin.deleteClass(classData.id, (data) => {
+          //   if (data.result) {
+          //     onCloseButtonSheet();
+          //     navigation?.navigate(ScreenName.ADMIN_CLASS);
+          //   }
+          // }, setLoading);
+        },
+      },
+    ])
+  }, [classData]);
 
   // effect ----------------------------------------------------------------
   useEffect(() => {
@@ -235,7 +249,7 @@ export default function ({
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.contentContainer}>
           <View style={styles.headerContainer}>
-            {classData && <ClassComponent classData={classData} />}
+            {classData && <ClassComponent classData={classData}/>}
           </View>
 
           {classData?.is_reported && (
@@ -267,20 +281,26 @@ export default function ({
                   </Pressable>
                 ))}
               </ScrollView>
+
+              <Pressable style={[styles.btnReport, styles.btnShowdow, {alignSelf: "center"}]}
+                         onPress={handleDeleteClass}>
+                <Text style={styles.btnReportText}>{"Xoa lop hoc vinh vien"}</Text>
+              </Pressable>
+
             </View>
           )}
 
           <View style={styles.bodyContainer}>
             {/* Danh sách các buổi học */}
             <View style={styles.titleContainer}>
-              <Ionicons name="book-outline" size={24} color="black" />
+              <Ionicons name="book-outline" size={24} color="black"/>
               <Text style={styles.title}>Các buổi học</Text>
             </View>
             <View style={styles.lessonListContainer}>
               <FlatList
                 horizontal={true}
                 data={lessons}
-                renderItem={({ item: lesson }) => (
+                renderItem={({item: lesson}) => (
                   <View style={[styles.lessonItem, styles.boxshadow]}>
                     <View style={styles.contentLessonContainer}>
                       <View style={styles.contenLessonTitle}>
@@ -355,7 +375,7 @@ export default function ({
 
                     <View>
                       <View
-                        style={[styles.contenLessonTitle, { marginBottom: 10 }]}
+                        style={[styles.contenLessonTitle, {marginBottom: 10}]}
                       >
                         <Ionicons
                           name="chatbox-ellipses-outline"
@@ -368,14 +388,14 @@ export default function ({
                     </View>
                   </View>
                 )}
-                contentContainerStyle={{ padding: 10 }}
+                contentContainerStyle={{padding: 10}}
               />
             </View>
           </View>
 
           {/* Danh sách học sinh của lớp */}
-          <View style={[styles.titleContainer, { marginTop: 15 }]}>
-            <Ionicons name="people-outline" size={24} color="black" />
+          <View style={[styles.titleContainer, {marginTop: 15}]}>
+            <Ionicons name="people-outline" size={24} color="black"/>
             <Text style={styles.title}>Danh sách học sinh</Text>
           </View>
           <View style={styles.studentListContainer}>
@@ -386,7 +406,7 @@ export default function ({
                   style={[styles.studentItem, styles.boxshadow]}
                 >
                   <Image
-                    source={{ uri: `${URL}${user.avatar}` }}
+                    source={{uri: `${URL}${user.avatar}`}}
                     style={styles.studentAvatar}
                   />
                   <Text style={styles.studentText}>{user.full_name}</Text>
@@ -426,26 +446,26 @@ export default function ({
       {activeTab === CLASS_TAB.PENDING_PAY && (
         <View>
           {!approvePayResult ? (
-          <View style={styles.btnCotainer}>
-            <TouchableOpacity style={[styles.btn, styles.btnDeny]}>
-              <Text style={styles.btnDenyText}>Nhắc nhở</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={handleApprovePaymentByAdmin}
-              style={[styles.btn, styles.btnAccept]}
-            >
-              <Text style={styles.btnAcceptText}>Xác nhận trả</Text>
-            </TouchableOpacity>
-          </View>
+            <View style={styles.btnCotainer}>
+              <TouchableOpacity style={[styles.btn, styles.btnDeny]}>
+                <Text style={styles.btnDenyText}>Nhắc nhở</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={handleApprovePaymentByAdmin}
+                style={[styles.btn, styles.btnAccept]}
+              >
+                <Text style={styles.btnAcceptText}>Xác nhận trả</Text>
+              </TouchableOpacity>
+            </View>
           ) : (
             <View style={styles.btnCotainer}>
-            <TouchableOpacity
-              onPress={handleApprovePaymentByAdmin}
-              style={[styles.btn, styles.btnAcceptDisable]}
-            >
-              <Text style={styles.btnAcceptText}>Đã xác nhận thanh toán</Text>
-            </TouchableOpacity>
-          </View>
+              <TouchableOpacity
+                onPress={handleApprovePaymentByAdmin}
+                style={[styles.btn, styles.btnAcceptDisable]}
+              >
+                <Text style={styles.btnAcceptText}>Đã xác nhận thanh toán</Text>
+              </TouchableOpacity>
+            </View>
           )}
         </View>
       )}
@@ -459,7 +479,7 @@ export default function ({
         loading={loading}
       />
       <ModalInputReason
-       confirmTitle="Từ chối"
+        confirmTitle="Từ chối"
         confirmContent=""
         imageStatus="confirm"
         visiable={modalResult}

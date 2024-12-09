@@ -112,8 +112,7 @@ export default class AClass {
       })
       .catch((err) => {
         console.log("Error: ", err);
-        onNext([], new Pagination());
-        onLoading(true);
+        onNext([], new Pagination);
       });
   }
 

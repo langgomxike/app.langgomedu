@@ -16,38 +16,27 @@ import { Image } from "react-native";
 import CustomInput from "../Inputs/CustomInput";
 import { LanguageContext } from "../../../configs/LanguageConfig";
 
-type ModalInputReasonProps = {
+type ModalApproveCVReasonProps = {
   confirmTitle: string;
-  confirmContent?: string;
-  imageStatus: "success" | "failure" | "confirm";
-  visiable: string | null;
+  visiable: boolean;
   onRequestCloseDialog: () => void;
+  onConfirm: (reason: string) => void;
   loading?: boolean;
 };
 
-const images = [
-  {
-    name: "success",
-    source: require("../../../../assets/images/ic_success.png"),
-  },
-  {
-    name: "failure",
-    source: require("../../../../assets/images/ic_failure.png"),
-  },
-  {
-    name: "confirm",
-    source: require("../../../../assets/images/ic_info.png"),
-  },
-];
+const images = [{
+  name: "confirm",
+  source: require("../../../../assets/images/ic_info.png"),
+}];
 
-export default function ModalInputReason({
+export default function ModalApproveCVReason({
   confirmTitle,
-  confirmContent,
-  imageStatus,
   visiable,
   onRequestCloseDialog,
+  onConfirm,
   loading = false,
-}: ModalInputReasonProps) {
+
+}: ModalApproveCVReasonProps) {
   const language = useContext(LanguageContext).language;
 
   const getImageSource = (iconName: string) => {
@@ -55,13 +44,23 @@ export default function ModalInputReason({
     return image ? image.source : null;
   };
 
-  const source = getImageSource(imageStatus);
-
+  const source = getImageSource("confirm");
+  // state
   const [reason, setReason] = useState("");
+  const [isDisable, setIsDisable] = useState(true);
+  // handler
+  const handleConfirm = useCallback(()=> {
+    onRequestCloseDialog();
+    onConfirm(reason);
+  },[reason])
 
+  // effects
+  useEffect(()=> {
+    setIsDisable(reason.trim() === "");
+  }, [reason])
   return (
     <Modal
-      isVisible={visiable === "modalInputReason"}
+      isVisible={visiable}
       animationIn={"slideInUp"}
       animationOut={"slideOutDown"}
       onBackdropPress={() => onRequestCloseDialog()}
@@ -73,21 +72,21 @@ export default function ModalInputReason({
         </View>
       ) : (
         <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'position' : 'height'} // Thử dùng 'position' trên iOS
-        style={{ flex: 1, justifyContent: 'center' }}
-      >
-        <View style={styles.container}>
-          <View style={styles.modalHeader}>
-            <Text style={styles.headerTitle}>{confirmTitle}</Text>
-            <TouchableOpacity
-              onPress={onRequestCloseDialog}
-              style={styles.btnClose}
-            >
-              <Ionicons name="close" size={24} color="black" />
-            </TouchableOpacity>
-          </View>
+          behavior={Platform.OS === 'ios' ? 'position' : 'height'} // Thử dùng 'position' trên iOS
+          style={{ flex: 1, justifyContent: 'center' }}
+        >
+          <View style={styles.container}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.headerTitle}>{confirmTitle}</Text>
+              <TouchableOpacity
+                onPress={onRequestCloseDialog}
+                style={styles.btnClose}
+              >
+                <Ionicons name="close" size={24} color="black" />
+              </TouchableOpacity>
+            </View>
 
-          <View style={styles.modalBody}>
+            <View style={styles.modalBody}>
               <ScrollView
                 keyboardShouldPersistTaps="handled"
                 showsVerticalScrollIndicator={false}
@@ -116,15 +115,16 @@ export default function ModalInputReason({
 
               <View style={[styles.btnContainer]}>
                 <TouchableOpacity
-                  onPress={onRequestCloseDialog}
-                  style={[styles.btn, styles.btnSave, styles.boxShadow]}
+                  disabled={isDisable}
+                  onPress={(handleConfirm)}
+                  style={[styles.btn, isDisable ? styles.btnDisable : styles.btnSave, styles.boxShadow]}
                 >
                   <Text style={styles.btnSaveText}>Ok</Text>
                 </TouchableOpacity>
               </View>
+            </View>
           </View>
-        </View>
-            </KeyboardAvoidingView>
+        </KeyboardAvoidingView>
       )}
     </Modal>
   );
@@ -220,6 +220,10 @@ const styles = StyleSheet.create({
   btnSave: {
     flex: 1,
     backgroundColor: BackgroundColor.primary,
+  },
+  btnDisable: {
+    flex: 1,
+    backgroundColor: BackgroundColor.gray_50,
   },
 
   btnSaveText: {

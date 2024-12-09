@@ -12,7 +12,7 @@ const CvBox = ({isOld = false, title, children }: ApprovedCvBoxProps) => {
     return (
         <View style={[styles.box, isOld ? styles.old: styles.new ]}>
             <Text style={styles.title}>{title}</Text>
-            <HLine type={HLineType.LIGHT} color={isOld ? BackgroundColor.warning : BackgroundColor.success} />
+            <HLine type={HLineType.LIGHT} color={isOld ? BackgroundColor.warning : BackgroundColor.sub_primary} />
             <View style={styles.children}>
                 {children}
             </View>
@@ -36,7 +36,7 @@ const styles = StyleSheet.create({
         borderColor: BackgroundColor.warning,
     },
     new: {
-        borderColor: BackgroundColor.success,
+        borderColor: BackgroundColor.sub_primary,
     },
     title: {
         marginLeft: 10,

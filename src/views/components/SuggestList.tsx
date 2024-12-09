@@ -9,7 +9,7 @@ import {
   ActivityIndicator,
   Image,
 } from "react-native";
-import React, {useCallback, useContext, useEffect, useState} from "react";
+import React, {useCallback, useContext, useEffect, useRef, useState} from "react";
 import {BackgroundColor} from "../../configs/ColorConfig";
 import ClassListSkeleton from "./skeleton/ClassListSkeleten";
 import ScreenName from "../../constants/ScreenName";
@@ -17,7 +17,7 @@ import {NavigationContext} from "@react-navigation/native";
 import CourseItem from "./CourseItem";
 import SFirebase, {FirebaseNode} from "../../services/SFirebase";
 import AClass from "../../apis/AClass";
-import {UserContext} from "../../configs/UserContext";
+import {UserContext, UserType} from "../../configs/UserContext";
 import Class from "../../models/Class";
 import ReactAppUrl from "../../configs/ConfigUrl";
 import CvItem from "./CvItem";
@@ -62,7 +62,9 @@ export default function SuggestList() {
   const [paginations, setPaginations] = useState(new Pagination());
   const [filterCVs, setFilterCVs] = useState<Filters | null>(null);
   const [filterClasses, setFilterClasses] = useState<Filters | null>(null);
-  const [isEmpty, setIsEmpty] = useState(false);
+  const [isClassEmpty, setIsClassEmpty] = useState(false);
+  const [isCVEmpty, setIsCVEmpty] = useState(false);
+  const firstRender = useRef(true);
 
   // handle ----------------------------------------------------------------
   //  Hàm xử lý để navigate sang detail class
@@ -84,7 +86,6 @@ export default function SuggestList() {
     onLoading: (loading: boolean) => void
   ) => {
     if (userData) {
-      console.log("fetchSuggestsClasses", userData.id);
       const filterValues: Filters = {
         // province: "Hồ Chí Minh",
         major: [6],
@@ -95,7 +96,7 @@ export default function SuggestList() {
         currentPage,
         filterValues,
         (newClasses, pagination) => {
-          setIsEmpty(newClasses.length === 0);
+          setIsClassEmpty(newClasses.length === 0);
           setSuggestingClasses((prevClasses) => [
             ...prevClasses,
             ...newClasses,
@@ -121,7 +122,7 @@ export default function SuggestList() {
         currentPage,
         filterValues,
         (data, pagination) => {
-          setIsEmpty(data.length === 0);
+          setIsClassEmpty(data.length === 0);
           setSuggestingClasses((prevClasses) => [...prevClasses, ...data]);
           setPaginations(pagination);
           onLoading(false);
@@ -144,7 +145,7 @@ export default function SuggestList() {
         currentPage,
         address,
         (data, pagination) => {
-          setIsEmpty(data.length === 0);
+          setIsCVEmpty(data.length === 0);
           setSuggestingTutors((prevTutors) => [...prevTutors, ...data]);
           setPaginations(pagination);
           onLoading(false);
@@ -166,7 +167,7 @@ export default function SuggestList() {
         currentPage,
         filterValues,
         (data, pagination) => {
-          setIsEmpty(data.length === 0);
+          setIsCVEmpty(data.length === 0);
           setSuggestingTutors((prevTutors) => [...prevTutors, ...data]);
           setPaginations(pagination);
           onLoading(false);
@@ -184,7 +185,6 @@ export default function SuggestList() {
   ) => {
     if (!account) return;
     if (!filterClasses) {
-      console.log("GỌi 1 cái ở đây");
       fetchSuggestsClasses(page, account, onLoaing);
     } else {
       fetchClassesFilter(page, filterClasses, onLoaing);
@@ -256,6 +256,36 @@ export default function SuggestList() {
     fetchDataByTabCV(1, setLoadingCV, true);
     setRefresh(false);
   }, [refresh]);
+
+  useEffect(() => {
+    if (firstRender.current) {
+      firstRender.current = false; 
+      return;
+    }
+    setSuggestingClasses([]);
+    fetchDataByTabClass(1, setLoadingClass, true);
+  }, [user.TYPE]);
+
+  useEffect(() => {
+    console.log("-------------Class-------------------");
+    
+    console.log(`Class: ${suggestingClasses.length}, class loading: ${loadingClass}`);
+    suggestingClasses.forEach((suggestingClass) => {
+      console.log("id: ", suggestingClass.id, "title:", suggestingClass.title);
+    })
+    
+    console.log("--------------------------------");
+  }, [suggestingClasses, loadingClass])
+
+  useEffect(() => {
+    console.log("--------------CV------------------");
+    console.log(`CV: ${suggestingTutors.length}, class loading: ${loadingCV}`);
+    console.log("--------------------------------");
+
+  }, [suggestingTutors, loadingCV])
+  
+
+
   // render ----------------------------------------------------------------
 
   return (
@@ -274,7 +304,7 @@ export default function SuggestList() {
             </Text>
           </TouchableOpacity>
         </View>
-
+        {user.TYPE === UserType.LEANER && 
         <View style={[styles.headerItem]}>
           <TouchableOpacity onPress={() => handleTabChange(TAB.SUGGEST_CV)}>
             <Text
@@ -287,6 +317,7 @@ export default function SuggestList() {
             </Text>
           </TouchableOpacity>
         </View>
+        } 
       </View>
 
       <View style={styles.btnFilterContainer}>
@@ -336,7 +367,7 @@ export default function SuggestList() {
                 onEndReached={handleEndReached}
                 onEndReachedThreshold={0.8}
                 ListFooterComponent={
-                  !isFetchingMore && paginations.total_pages !== page ? (
+                  !isFetchingMore && paginations.total_pages && paginations.total_pages !== page ? (
                     <View style={[styles.loadingMore]}>
                       <ActivityIndicator size="large" />
                     </View>
@@ -366,19 +397,38 @@ export default function SuggestList() {
                 keyExtractor={(item, inex) => inex.toString()}
                 horizontal={true}
                 showsHorizontalScrollIndicator={false}
+                onEndReached={handleEndReached}
+                onEndReachedThreshold={0.8}
+                ListFooterComponent={
+                  !isFetchingMore && paginations.total_pages > 0 && paginations.total_pages !== page ? (
+                    <View style={[styles.loadingMore]}>
+                      <ActivityIndicator size="large" />
+                    </View>
+                  ) : null
+                }
                 contentContainerStyle={styles.classList}
               />
             )}
           </View>
         )}
 
-        {(!loadingClass || !loadingCV) && isEmpty && (
+      { !loadingClass && isClassEmpty && (
           <View style={[styles.emptyContainer]}>
             <Image
               source={require("../../../assets/images/ic_empty.png")}
               style={[styles.emptyImage]}
             />
-            <Text style={styles.emptyText}>{"Không có dữ liệu"}</Text>
+            <Text style={styles.emptyText}>{language.NO_SUGGESTED_CLASSES}</Text>
+          </View>
+        )}
+
+        { !loadingCV && isCVEmpty && (
+          <View style={[styles.emptyContainer]}>
+            <Image
+              source={require("../../../assets/images/ic_empty.png")}
+              style={[styles.emptyImage]}
+            />
+            <Text style={styles.emptyText}>{language.NO_SUGGESTED_TUTORS}</Text>
           </View>
         )}
       </View>

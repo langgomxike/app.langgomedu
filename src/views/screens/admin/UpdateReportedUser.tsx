@@ -15,7 +15,7 @@ import React, {useCallback, useContext, useEffect, useState} from "react";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import ImageViewer from "react-native-image-zoom-viewer";
 import AUserReport from "../../../apis/AUserReport";
-import {BackgroundColor} from "../../../configs/ColorConfig";
+import {BackgroundColor, TextColor} from "../../../configs/ColorConfig";
 import ReactAppUrl from "../../../configs/ConfigUrl";
 import {MaterialIcons} from "@expo/vector-icons";
 import {NavigationContext, NavigationRouteContext} from "@react-navigation/native";
@@ -28,6 +28,8 @@ import ScreenName from "../../../constants/ScreenName";
 import {IImageInfo} from "react-native-image-zoom-viewer/built/image-viewer.type";
 import Spinner from "react-native-loading-spinner-overlay";
 import SFirebase, {FirebaseNode} from "../../../services/SFirebase";
+import AMessage from "../../../apis/AMessage";
+import Toast from "react-native-simple-toast";
 
 enum ReportMode {
   NOT_PERFORMED = 0,
@@ -52,6 +54,7 @@ export default function UpdateReportedUser() {
   const [report, setReport] = useState<Report | undefined>(undefined);
   const [evidences, setEvidences] = useState<string[]>([]);
   const [isPerformed, setIsPerformed] = useState(ReportMode.NOT_PERFORMED);
+  const [noti, setNoti] = useState("");
 
   //handlers
   const handleSelectLevel = useCallback((levelId: number) => {
@@ -124,6 +127,31 @@ export default function UpdateReportedUser() {
 
   }, [report, reason, selectedLevel]);
 
+  const handleSendNotification = useCallback(() => {
+    if (!noti || !report?.reportee) return;
+
+    setLoading(true);
+
+    const timeId = setTimeout(() => {
+      setLoading(false);
+      Toast.show("Khong the nhac nho. da co loi xay ra, vui long thu lai", 1000);
+    }, 10000);
+
+    const index = languageContext.TYPE === "vi" ? 1 : languageContext.TYPE === "en" ? 2 : 3;
+    AMessage.sendNotification(noti, index, report.reportee.id,
+      (result) => {
+      if (result) {
+        Toast.show("Da gui nhac nho", 1000);
+      } else {
+        Toast.show("Khong the nhac nho. da co loi xay ra, vui long thu lai", 1000);
+      }
+      },
+      () => {
+        setLoading(false);
+        clearTimeout(timeId);
+      });
+  }, [noti, report?.reportee]);
+
 //effects
   useEffect(() => {
     const reportLevelList: { id: number, label: string, points: number }[] = [];
@@ -193,6 +221,26 @@ export default function UpdateReportedUser() {
 
   }, []);
 
+  useEffect(() => {
+    if (report?.content) {
+      const vnNoti = `Bạn nhận được một báo cáo từ một tài khoản khác với nội dung '${report.content}'. Đây là thông báo nhắc nhở từ hệ thống, mong bạn sẽ có những cải thiện để phù hợp với môi trường của ứng dụng hơn. Xin cảm ơn!`;
+      const enNoti = `You have received a report from another account with the content '${report.content}'. This is a reminder notification from the system, and we hope you can make improvements to better align with the application's environment. Thank you!`;
+      const jaNoti = `他のアカウントから内容「${report.content}」のレポートを受け取りました。これはシステムからのリマインダー通知です。アプリケーション環境により適応するための改善をお願いいたします。ありがとうございます！`;
+
+      switch (languageContext.TYPE) {
+        case "vi":
+          setNoti(vnNoti);
+          break;
+        case "en":
+          setNoti(enNoti);
+          break;
+        case "ja":
+          setNoti(jaNoti);
+          break;
+      }
+    }
+  }, [report?.content]);
+
   return (
     <ScrollView showsVerticalScrollIndicator={false} style={styles.container}>
       <Spinner visible={loading}/>
@@ -246,7 +294,7 @@ export default function UpdateReportedUser() {
         />
 
         {/* lớp học bị báo cáo */}
-        {report?.class && (
+        {report?.class && report?.class?.id && (
           <>
             <View style={styles.infor}>
               <Text style={styles.smallTitle2}>Lop hoc bi báo cáo </Text>
@@ -267,6 +315,32 @@ export default function UpdateReportedUser() {
       <View style={styles.component1}>
         <Text style={styles.smallTitle3}>{languageContext.CONTENT_REPORT}</Text>
         <Text style={[styles.reportContent, {minHeight: 100}]}>{report?.content ?? "Noi dung trong"}</Text>
+      </View>
+
+      {/* gui thong bao */}
+      <View style={styles.component1}>
+        <View style={{flexDirection: "row"}}>
+          <Text style={[styles.smallTitle3, {flex: 1}]}>{"Gui thong bao nhac nho"}</Text>
+
+          <TouchableOpacity
+            style={{
+              backgroundColor: BackgroundColor.sub_primary,
+              alignSelf: "flex-end",
+              paddingHorizontal: 5,
+              paddingVertical: 3,
+              borderRadius: 10,
+              margin: 5,
+            }}
+            onPress={handleSendNotification}
+          >
+            <Text style={{color: TextColor.white}}>Gui</Text>
+          </TouchableOpacity>
+        </View>
+
+        <TextInput value={noti} onChangeText={setNoti}
+                   multiline={true}
+                   style={[styles.reportContent, {minHeight: 100, textAlignVertical: "top", fontStyle: "italic"}]}
+                   placeholder={"Gui thong bao nhac nho (neu can)"}/>
       </View>
 
       {isPerformed === ReportMode.DENIED && (

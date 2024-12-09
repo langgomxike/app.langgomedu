@@ -83,10 +83,6 @@ export default function QRInfo({ id, type }: QRInfoProps) {
     }
   }, [status]);
 
-  useEffect(() => {
-    SLog.log(LogType.Info, "Preparing data", "", JSON.stringify(data));
-  }, []);
-
   return (
     <View style={styles.container}>
       <TouchableOpacity style={styles.icon} onPress={() => setShowing(true)}>
@@ -109,7 +105,7 @@ export default function QRInfo({ id, type }: QRInfoProps) {
               logoSize={100}
               quietZone={20}
               size={300}
-              logo={require("../../../assets/logo.png")}
+              // logo={require("../../../assets/logo.png")}
               logoMargin={10}
             />
           </TouchableOpacity>

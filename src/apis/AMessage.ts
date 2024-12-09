@@ -237,6 +237,39 @@ export default class AMessage {
       });
   }
 
+  public static sendNotification(content: string, index: number, userId: string, onNext: (result: boolean) => void, onComplete?: () => void) {
+    const url = this.BASE_URL + "/notifications";
+
+    const data = {
+      content: content,
+      index: index,
+      user_id: userId,
+    }
+
+    SAsyncStorage.getData(AsyncStorageKeys.TOKEN,
+      (token) => {
+        axios.post<Response>(url, data, {
+          headers: {
+            Accept: "application/json",
+            Authorization: token
+          }
+        })
+          .then(response => {
+            SLog.log(LogType.Info, "sendNotification", response.data.message, response.data.status);
+            onNext(response.data.status_code === 200);
+          })
+          .catch(error => {
+            SLog.log(LogType.Error, "sendNotification", "cannot send notification", error);
+            onNext(false);
+          })
+          .finally(onComplete);
+      }, (error) => {
+        SLog.log(LogType.Error, "sendNotification", "cannot send notification", error);
+        onNext(false);
+        onComplete && onComplete();
+      });
+  }
+
   public static sendImageMessage(uri: string, onNext: (path: string) => void, onComplete?: () => void) {
     const url = this.BASE_URL + "/image";
 
