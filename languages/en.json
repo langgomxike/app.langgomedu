@@ -47,7 +47,6 @@
   "INVALID_CHANGE_PASSWORD": "Cannot change password. Please try again",
   "OTP": "OTP Authentication",
   "OTP_HINT": "Enter the otp that sent to your phone number. Please wait for the process",
-
   "CLASS_DETAILS": "Class Details",
   "SUNDAY": "Sunday",
   "MONDAY": "Monday",
@@ -56,7 +55,6 @@
   "THURSDAY": "Thursday",
   "FRIDAY": "Friday",
   "SATURDAY": "Saturday",
-
   "SUNDAY_1": "Sun",
   "MONDAY_1": "Mon",
   "TUESDAY_1": "Tue",
@@ -64,7 +62,6 @@
   "THURSDAY_1": "Thu",
   "FRIDAY_1": "Fri",
   "SATURDAY_1": "Sat",
-
   "QUANTITY": "Quantity",
   "FORM": "Form",
   "TIME": "Time",
@@ -73,7 +70,6 @@
   "CLASS_FEE": "Class Fee",
   "DESCRIPTION": "Description",
   "LESSONS": "Lessons in the week",
-
   "LESSON_DAY": "Lesson Day",
   "LESSON_DURATION": "Duration",
   "START_TIME": "Start Time",
@@ -83,12 +79,10 @@
   "ONLINE": "Online",
   "OFFLINE": "Offline",
   "MINUTES": "minutes",
-
   "SCHEDULE": "Schedule",
   "MONTH": "Month",
   "LAST_WEEK": "Last Week",
   "NEXT_WEEK": "Next Week",
-
   "LOGOUT": "Log out",
   "LOGOUT_HINT": "Confirm logout",
   "CANCEL": "Cancel",
@@ -100,7 +94,6 @@
   "USER_MANAGEMENT": "User management",
   "CLASS_MANAGEMENT": "Class management",
   "GENERAL_MANAGEMENT": "App info management",
-
   "APP_NAME": "App name",
   "WEBSITE_LINK": "Website link",
   "BANKING_CODE": "Banking code",
@@ -136,7 +129,6 @@
   "RATING_SUCCESS": "Rating successfully",
   "RATING_FAILURE": "Rating failed",
   "INVALID_RATING_TUTOR": "Invalid rating tutor",
-
   "LONG_PRESS_TO_DELETE": "Long press to delete",
   "EMPTY_LIST": "Empty list",
   "DELETE_NOTIFICATION": "Delete notification",
@@ -162,7 +154,6 @@
   "CHILDREN_CANNOT_CREATE_CHILDREN": "Children cannot create children",
   "APP_STORE_APP_ID": "Application id in app store",
   "PLAY_STORE_APP_ID": "Application id in google play store",
-
   "HOANG": "Hoang",
   "ATTENDING_CLASS": "Attending Class",
   "ATTEND_CLASS": "Class",
@@ -192,8 +183,6 @@
   "OPEN_IMAGE_LIBRARY": "Open image library",
   "FEATURE_DISABLED_IN_IOS": "This feature is disabled in IOS devices",
   "CANNOT_SCAN_QR": "Can't scan QR",
-
-
   "CLASS_SUGGESTIONS": "Class Suggestions",
   "TUTOR_SUGGESTIONS": "Tutor Suggestions",
   "SUBJECT_LIST": "Subject List",
@@ -202,7 +191,6 @@
   "LEARNER": "Learner",
   "SESSION": "Session",
   "PERSON": "Person",
-
   "MIN_PRICE_LESS_THAN_MAX": "Minimum price cannot be greater than maximum price.",
   "PRICE_FILTER": "Price",
   "MINIMUM": "Minimum",
@@ -214,7 +202,6 @@
   "SELECT_DATE": "Select date...",
   "RESET": "Reset",
   "APPLY": "Apply",
-
   "SORT_BY_PRICE": "Sort by Price",
   "SELECT_SUBJECT": "Select Subject",
   "SELECT_GRADE_LEVEL": "Select Grade Level",
@@ -228,7 +215,6 @@
   "TOTAL_TUTORS": "Total Tutors",
   "SUBJECT_L": "Subject",
   "SELECT_STUDENT": "Select Student",
-
   "STUDENT_LIST": "Student List",
   "ATTENDED": "Attended",
   "ABSENT": "Absent",
@@ -252,7 +238,6 @@
   "CANCEL_A": "Cancel",
   "ATTENDANCE": "Attendance",
   "ATTENDANCE_SUCCESS": "Attendance Successful",
-
   "SELECT_IMAGE": "Select Image",
   "UPLOAD_PAYMENT_PROOF": "Upload Payment Proof",
   "UPLOAD_PAYMENT_INSTRUCTION": "Please upload a screenshot or invoice to confirm payment.",
@@ -268,7 +253,6 @@
   "SELECT_PAYMENT_METHOD": "Select Payment Method",
   "CASH_PAYMENT": "Cash Payment",
   "BANK_TRANSFER": "Bank Transfer",
-
   "JOIN": "Join",
   "SELECT_LEARNER": "Select Learner",
   "LEARN_FOR_ME": "Learn for Me",
@@ -285,7 +269,6 @@
   "DECLINE": "Decline",
   "NOTIFICATION": "Notification",
   "CONFIRM_JOIN": "Confirm participation",
-
   "PROCESSING": "Processing...",
   "REASON": "Reason",
   "ENTER_REASON": "Enter the reason...",
@@ -304,10 +287,8 @@
   "JOIN_CLASS": "Join class",
   "PLEASE_WAIT_ACCEPTANCE": "Please wait for acceptance",
   "TAKE_CLASS": "Take class",
-
-   "CLASS_CHILDREN_LIST": "List of children in the class",
+  "CLASS_CHILDREN_LIST": "List of children in the class",
   "CHILD_ALREADY_ENROLLED": "This child is already and currently attending this class",
-
   "NHI": "Nhi",
   "CREATE_CLASS": "Create an enrollment class",
   "CREATE_CLASS_FOR_TUTOR": "Tutor creates a class",
@@ -318,7 +299,6 @@
   "MAJOR": "Select a subject for the class",
   "CLASS_LEVEL": "Education level",
   "MAX_LEARNER": "Number of learners",
-
   "LESSON": "Lesson",
   "SELECTED_LESSON": "Select a lesson",
   "TIME_LESSON": "Lesson duration",
@@ -333,7 +313,6 @@
   "NOTE": "Note",
   "NOTE_PLACEHOLDER": "Enter note",
   "BTN_ADD_LESSON": "Add Lesson",
-
   "TUITION": "Tuition Fee",
   "TUITION_PLACEHOLDER": "Enter tuition fee",
   "DATE_START": "Start Date",
@@ -344,14 +323,12 @@
   "DETAIL_ADDRESS_PLACEHOLDER": "Add a specific address...",
   "ZALO": "Zalo Address",
   "ZALO_PLACEHOLDER": "Add your Zalo address...",
-
   "PROVICE": "Select province",
   "DISTRICT": "Select district",
   "WARD": "Select ward",
   "PROVICE_PLACEHOLDER": "Province",
   "DISTRICT_PLACEHOLDER": "District",
   "WARD_PLACEHOLDER": "Ward",
-
   "ERROR_DATE": "The end date must be greater than or equal to the start date.",
   "ERROR_TUITION": "Tuition must be a positive number and cannot be negative.",
   "ERROR_TUITION_1": "Tuition must be 10,000 or higher.",
@@ -360,12 +337,9 @@
   "NOT_JOINED_CLASS": "Not joined this class",
   "BTN_HUY": "Cancel selection",
   "BTN_THAM_GIA": "Join",
-
   "BTN_TAO_LOP": "Create class",
-
   "DIALOG_TITLE": "Success!",
   "DIALOG_DESC": "Your class has been successfully created with ID:",
-
   "ERR_MESSAGE_TITLE": "Please enter a title.",
   "ERR_MESSAGE_DESCRIPTION": "Please enter a description.",
   "ERR_MESSAGE_MAJOR": "Please select a subject.",
@@ -373,14 +347,11 @@
   "ERR_MESSAGE_PRICE": "Please enter a valid tuition fee.",
   "ERR_MESSAGE_DATE_START_END": "Please select a start date and an end date.",
   "ERR_MESSAGE_AUTHOR": "Not the author.",
-
   "MESSAGE": "You do not have permission to access this tab!",
   "UPDATE_CLASS": "Update Class",
-
   "USERNAME_INVALID_FORMAT": "The username must be between 6 and 20 characters long and not contain special characters.",
   "PASSWORD_INVALID_FORMAT": "The password must be between 6 and 20 characters long.",
   "NEW_PASSWORD_MUST_BE_DIFFERENT": "The new password must be different from the old password.",
-
   "KHANG": "KHANG",
   "CHOOSE": "choose ...",
   "LEARNING_CLASS": "Learning class",
@@ -396,6 +367,7 @@
   "PLACEHOLDER_BIO": "Enter your biography here",
   "ANNOUNCE": "Announcement",
   "INPUT_CV_ALERT": "Your CV has been submitted and is awaiting administrator approval",
+  "DENY_CV_CHILD_ALERT": "You cannot use the CV function!",
   "OK": "OK",
   "POINT": "Credibility Points",
   "DATE_JOIN": "Join Date",
@@ -429,5 +401,4 @@
   "DENNY": "Deny",
   "MANAGEMENT_ROLES": "Management Roles",
   "INPUT_REASON_DENY": "Enter Denial Reason"
-
 }
