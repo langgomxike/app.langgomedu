@@ -65,9 +65,6 @@ export default function InputCVScreen() {
   const [cv, setCV] = useState<any>();
   const [cvId, setCVId] = useState<string>('');
   const [userInfo, setUserInfo] = useState<User>();
-  const [address, setAddress] = useState<Address>();
-  const [birthday, setBirthday] = useState<string>(''); //chuỗi ngày tháng năm được hiển thị
-  const [interestedMajor, setInterestedMajor] = useState<Major>();
   //dữ liệu trên input
   const [title, setTitle] = useState<string>("");
   const [biography, setBiography] = useState<string>("");
@@ -83,11 +80,13 @@ export default function InputCVScreen() {
   const [loading, setLoading] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
+  const [navigateToAccount, setNavigateToAccount] = useState(false);
   const [titleError, setTilteError] = useState(false);
-  const [isNew, SetIsNew] = useState(false);
+  const [isNew, setIsNew] = useState(false);
+  const [hasChange, setHasChange] = useState(false);
+
   //END_STATES >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
-  // console.log(account?.avatar);
 
   //HANDLERS >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   const pickImage = useCallback(() => {
@@ -115,7 +114,6 @@ export default function InputCVScreen() {
   }, [permission]);
 
   const handleSetBoxItem = useCallback((data: any) => {
-    // console.log(JSON.stringify(data, null, 2));
 
     if (data instanceof Education) {
       setEducations((prev) => [...prev, data]);
@@ -211,8 +209,6 @@ export default function InputCVScreen() {
         console.log("Không có file Certificate để tải lên.");
       }
 
-      // console.log("Bước upload file hoàn tất.");
-
       const oldEducations = educations.filter((education) => education.id !== -1);
       const newEducations = educations.filter((education) => education.id === -1);
       const oldExperiences = experiences.filter((experience) => experience.id !== -1);
@@ -229,10 +225,6 @@ export default function InputCVScreen() {
       const newCerData = newCertificates.map((newCer, index) => {
         return newCer.toInsertObjectWithEvidenceId(certificateResults[index])
       })
-      // console.log(JSON.stringify(newEduData, null, 2));
-      // console.log(JSON.stringify(newExpData, null, 2));
-      // console.log(JSON.stringify(newCerData, null, 2));
-
       const insertCV = {
         userId: cv?.user?.id,
         title: cv?.title,
@@ -262,7 +254,6 @@ export default function InputCVScreen() {
 
   // VALIDATE
   const validate = useCallback(() => {
-    console.log(title);
 
     setTilteError(title.trim() === "");
     return title.trim() === "";
@@ -271,23 +262,31 @@ export default function InputCVScreen() {
   //EFFECT >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   //lấy dữ liệu CV về để hiển thị
   useEffect(() => {
-    if (account) {
+    if (account && account.roles.some(role => role.id !== 6)) {
+      // console.log(account?.roles);
       ACV.getPersonalCV(account.id, (cvs) => {
         const viewCv = cvs.find(cv => cv.id === `${account.id}_t`) ? cvs.find(cv => cv.id === `${account.id}_t`) : cvs[0];
-        // console.log(JSON.stringify(viewCv, null, 2));
-        console.log(viewCv);
 
         if (viewCv === undefined) {
           setCVId(account.id);
           setUserInfo(account);
-          SetIsNew(true);
+          setIsNew(true);
         }
         else if (viewCv) {
           setCVId(viewCv.id);
-          setCV(viewCv);
+          const cvData = new CV(
+            viewCv.id,
+            viewCv.user,
+            viewCv.biography,
+            viewCv.title,
+            viewCv.approved_at,
+            viewCv.updated_at,
+            viewCv.certificates,
+            viewCv.educations,
+            viewCv.experiences
+          )
+          setCV(cvData);
           setUserInfo(viewCv.user);
-          setAddress(viewCv.user?.address);
-          setInterestedMajor(viewCv.user?.interested_majors[0]);
           //gán giá trị vào các input fields
           setTitle(viewCv.title);
           setBiography(viewCv.biography);
@@ -373,12 +372,6 @@ export default function InputCVScreen() {
           );
           setCertificates(newCertificates);
 
-
-          if (viewCv.user) {
-            const birthday = new Date(viewCv.user?.birthday);
-            const birthdayData = moment(birthday)
-            setBirthday(birthdayData.format('DD/MM/yyyy'));
-          }
           if (viewCv.id === `${account.id}_t`) {
             setCVId(viewCv.id);
             setShowAlert(true);
@@ -387,7 +380,14 @@ export default function InputCVScreen() {
         else {
           setShowAlert(true)
         }
-      })
+        // console.log(JSON.stringify(account, null, 2));
+
+      }, ()=>{})
+      setNavigateToAccount(false)
+      setHasChange(false);
+    } else {
+      setNavigateToAccount(true);
+      setShowAlert(true);
     }
   }, [])
 
@@ -413,20 +413,17 @@ export default function InputCVScreen() {
     }
   }, [navigation, isNew]);
 
+  // kiểm tra đã thay đổi dữ liệu của các field, nếu chưa thì disable button
+  useEffect(() => {
+    if (!isProcessing && title && biography) {
+      const isDifferent = title !== cv.title ||
+        biography !== cv.biography
+      setHasChange(isDifferent)
+    }
+  }, [title, biography, educations, experiences, certificates, isProcessing])
 
   //testing >>------------------------------------<<
-  useEffect(() => {
-    console.log("isProcessing: ", isProcessing);
-
-  }, [isProcessing]);
-  // useEffect(()=> {
-  //   console.log(JSON.stringify(cv, null, 2))
-  // }, [cv])
-  // useEffect(()=> {
-  //   console.log("education: ", JSON.stringify(educations, null, 2));
-
-  // }, [educations])
-
+  
   //VIEW >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   return (
     <View style={styles.container}>
@@ -512,24 +509,25 @@ export default function InputCVScreen() {
       </ScrollView>
       <View style={[styles.buttonContainer]}>
         <TouchableOpacity
+          disabled={!hasChange}
           onPress={handleConfirm}
-          style={[styles.btn, styles.boxShadow,]}
+          style={[styles.btn, styles.boxShadow, !hasChange && styles.btnDisable]}
         >
           <Text style={styles.btnText}>
             {languageContext.language.CONFIRM}
           </Text>
         </TouchableOpacity>
-        <ModalAlertUpdateCV
-          confirmTitle={languageContext.language.ANNOUNCE}
-          confirmContent={languageContext.language.INPUT_CV_ALERT}
-          imageStatus="success"
-          onRequestCloseDialog={() => {
-            setShowAlert(false)
-            navigation?.navigate((cvId !== "") ? ScreenName.SETTING_PERSONAL_CV : ScreenName.ACCOUNT)
-          }}
-          visiable={showAlert}
-        />
       </View>
+      <ModalAlertUpdateCV
+        confirmTitle={languageContext.language.ANNOUNCE}
+        confirmContent={!navigateToAccount ? languageContext.language.INPUT_CV_ALERT : languageContext.language.DENY_CV_CHILD_ALERT }
+        imageStatus="success"
+        onRequestCloseDialog={() => {
+          setShowAlert(false)
+          navigation?.navigate(navigateToAccount ? ScreenName.ACCOUNT : ScreenName.SETTING_PERSONAL_CV)
+        }}
+        visiable={showAlert}
+      />
     </View>
   );
 }
@@ -579,6 +577,9 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 16,
     textAlign: "center",
+  },
+  btnDisable: {
+    backgroundColor: BackgroundColor.gray_e6,
   },
 
   buttonContainer: {
