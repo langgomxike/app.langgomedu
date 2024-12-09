@@ -47,68 +47,36 @@ export default function AdminHome() {
   }, []);
 
   //effects
-  // useEffect(() => {
-  //   if (!accountContext.account || !accountContext.setAccount) return;
+  useEffect(() => {
+    if (!accountContext.account || !accountContext.setAccount) return;
 
-  //   SFirebase.track(FirebaseNode.Roles, [], () => {
-  //     SFirebase.track(FirebaseNode.Permissions, [], () => {
-  //       if (!accountContext.account || !accountContext.setAccount) return;
+    SFirebase.track(FirebaseNode.Permissions, [], () => {
+      if (!accountContext.account || !accountContext.setAccount) return;
 
-  //       APermission.getPermissionsOfUser(accountContext.account, (permissions) => {
-  //         if (!accountContext.account || !accountContext.setAccount) return;
+      APermission.getPermissionsOfUser(accountContext.account, (permissions) => {
+        if (!accountContext.account || !accountContext.setAccount) return;
 
 
-  //         const user: User = {...accountContext.account};
-  //         user.permissions = permissions;
+        const user: User = {...accountContext.account};
+        user.permissions = permissions;
 
-  //         accountContext.setAccount(user);
-  //         SLog.log(LogType.Info, "update permissions", "reload", user.permissions.length);
-  //       }, () => {
-  //       });
-  //     });
-  //   });
+        accountContext.setAccount(user);
+        SLog.log(LogType.Info, "update permissions", "reload", user.permissions.length);
+      }, () => {
+      });
+    });
+  }, [accountContext.account?.permissions?.length]);
 
-  // }, [accountContext.account?.permissions?.map(p => p.id).sort((a, b) => a - b).toString()]);
+  useEffect(() => {
+    if (!accountContext.account) return;
 
-  // useEffect(() => {
-  //   SFirebase.track(FirebaseNode.Roles, [], () => {
-  //     if (!accountContext.account || !accountContext.setAccount) return;
+    const isSupperAdmin = !!accountContext.account.roles?.map(r => r.id).includes(RoleList.SUPER_ADMIN);
 
-  //     ARole.getAllRolesOfUser(accountContext.account, (roles) => {
-  //       SLog.log(LogType.Info, "getAllRolesOfUser", "check roles", roles);
-  //       let isAdmin = false;
-
-  //       //is super admin
-  //       isAdmin = isAdmin || roles?.map(role => role.id).includes(RoleList.SUPER_ADMIN);
-  //       isAdmin = isAdmin || roles?.map(role => role.id).includes(RoleList.ADMIN);
-
-  //       if (!isAdmin) {
-  //         Alert.alert(language.ADMINISTRATION, language.HAVE_NO_ADMINISTRATION, [
-  //           {
-  //             onPress: () => {
-  //               navigation?.reset({
-  //                 index: 0,
-  //                 routes: [{name: ScreenName.LOGIN}],
-  //               });
-  //             }
-  //           }
-  //         ]);
-  //       }
-  //     }, () => {
-  //     });
-  //   });
-  // }, [accountContext.account?.roles?.map(r => r.id).sort((a, b) => a - b).toString()]);
-
-  // useEffect(() => {
-  //   if (!accountContext.account) return;
-
-  //   const isSupperAdmin = !!accountContext.account.roles?.map(r => r.id).includes(RoleList.SUPER_ADMIN);
-
-  //   setCanManagePermissions(isSupperAdmin);
-  //   setCanManageAppInfo(isSupperAdmin || !!accountContext.account.permissions?.map(p => p.id).includes(PermissionList.VIEW_APP_COMMON_INFORMATION));
-  //   setCanManageUsers(isSupperAdmin || !!accountContext.account.permissions?.map(p => p.id).includes(PermissionList.VIEW_USER_INFORMATION_LIST));
-  //   setCanManageClasses(isSupperAdmin || !!accountContext.account.permissions?.map(p => p.id).includes(PermissionList.VIEW_OTHER_USER_CLASS_LIST));
-  // }, [accountContext.account, accountContext.account?.permissions]);
+    setCanManagePermissions(isSupperAdmin);
+    setCanManageAppInfo(isSupperAdmin || !!accountContext.account.permissions?.map(p => p.id).includes(PermissionList.VIEW_APP_COMMON_INFORMATION));
+    setCanManageUsers(isSupperAdmin || !!accountContext.account.permissions?.map(p => p.id).includes(PermissionList.VIEW_USER_INFORMATION_LIST));
+    setCanManageClasses(isSupperAdmin || !!accountContext.account.permissions?.map(p => p.id).includes(PermissionList.VIEW_OTHER_USER_CLASS_LIST));
+  }, [accountContext.account, accountContext.account?.permissions]);
 
   return (
     <View>

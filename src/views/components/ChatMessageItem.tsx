@@ -44,7 +44,7 @@ export default function ChatMessageItem({
         <Text style={styles.name}>{chat.other_user_info?.full_name}</Text>
 
         {/* new message */}
-        <Text style={styles.message}>{content}</Text>
+        <Text style={styles.message}>{content?.substring(0,20)}...</Text>
       </View>
 
       {/* time */}

@@ -214,6 +214,7 @@
   "FEATURE_DISABLED_IN_IOS": "This feature is disabled in IOS devices",
   "CANNOT_SCAN_QR": "Can't scan QR",
 
+
   "CLASS_SUGGESTIONS": "Class Suggestions",
   "TUTOR_SUGGESTIONS": "Tutor Suggestions",
   "SUBJECT_LIST": "Subject List",
@@ -450,5 +451,13 @@
   "ALLOW": "Allow",
   "DENNY": "Deny",
   "MANAGEMENT_ROLES": "Management Roles",
-  "INPUT_REASON_DENY": "Enter Denial Reason"
+  "INPUT_REASON_DENY": "Enter Denial Reason",
+
+  "NOTIFICATION_TAB": "Notifications",
+  "GROUP_CHAT_TAB": "Group chat",
+  "CHAT_TAB": "Chat",
+  "CONTACT_TAB": "Contact",
+  "NOTIFICATION_NOT_SUPPORTED": "This notification does not support for your language"
+
+
 }

@@ -1,4 +1,4 @@
-import {Alert, ScrollView, StyleSheet, Text, View} from "react-native";
+import {Alert, Image, Pressable, ScrollView, StyleSheet, Text, View} from "react-native";
 import MyIcon, {AppIcon} from "../components/MyIcon";
 import InputRegister from "../components/Inputs/InputRegister";
 import Button from "../components/Button";
@@ -19,6 +19,9 @@ import User from "../../models/User";
 import SAsyncStorage, {AsyncStorageKeys} from "../../services/SAsyncStorage";
 import Toast from "react-native-simple-toast";
 import {AuthContext} from "../../configs/AuthContext";
+import en from "../../../languages/en.json";
+import vn from "../../../languages/vn.json";
+import ja from "../../../languages/ja.json";
 
 export default function RegisterStep2Screen() {
   //contexts
@@ -315,13 +318,58 @@ export default function RegisterStep2Screen() {
         <Text style={styles.link} onPress={goToLogin}>{languageContext.language.NOT_HAVE_ACCOUNT_YET}</Text>
       </View>
 
-      <View style={{height: 50}}/>
+      <View
+        style={{
+          flexDirection: "row",
+          flex: 1,
+          gap: 25,
+          justifyContent: "center",
+          marginVertical: 30,
+          alignItems: "center"
+        }}>
+        <Pressable style={styles.languageItemContainer} onPress={() => languageContext.setLanguage(en)}>
+          <Image style={[styles.languageItem, languageContext.language.TYPE === "en" && styles.languageItemActive]}
+                 source={require("../../../assets/languages/en.png")}/>
+        </Pressable>
+
+        <Pressable style={styles.languageItemContainer} onPress={() => languageContext.setLanguage(vn)}>
+          <Image style={[styles.languageItem, languageContext.language.TYPE === "vi" && styles.languageItemActive]}
+                 source={require("../../../assets/languages/vn.png")}/>
+        </Pressable>
+
+        <Pressable style={styles.languageItemContainer} onPress={() => languageContext.setLanguage(ja)}>
+          <Image style={[styles.languageItem, languageContext.language.TYPE === "ja" && styles.languageItemActive]}
+                 source={require("../../../assets/languages/ja.png")}/>
+        </Pressable>
+      </View>
     </ScrollView>
   );
 }
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+
+  languageItem: {
+    width: 20,
+    height: 20,
+  },
+
+  languageItemContainer: {
+    borderRadius: 1000,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.23,
+    shadowRadius: 2.62,
+    elevation: 4,
+  },
+
+  languageItemActive: {
+    width: 35,
+    height: 35,
   },
 
   backButton: {
@@ -384,7 +432,6 @@ const styles = StyleSheet.create({
   },
 
   button: {
-    marginTop: "10%",
     alignItems: "center",
   },
 
