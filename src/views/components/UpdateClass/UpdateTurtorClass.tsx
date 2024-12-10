@@ -2,13 +2,10 @@ import { ScrollView, StyleSheet, Text } from "react-native";
 import UpdateInfoClass from "./UpdateInfoClass";
 import UpdateInfoLesson from "./UpdateInfoLesson";
 import { TouchableOpacity } from "react-native-gesture-handler";
-import { useCallback, useContext, useEffect, useState } from "react";
-import Lesson from "../../../models/Lesson";
+import { useContext, useEffect, useState } from "react";
 import Dialog from "react-native-dialog";
-import {
-  NavigationContext,
-  NavigationRouteContext,
-} from "@react-navigation/native";
+import { NavigationRouteContext } from "@react-navigation/native";
+import moment from "moment";
 import { AccountContext } from "../../../configs/AccountConfig";
 import { LanguageContext } from "../../../configs/LanguageConfig";
 import { UpdateClassRoute } from "../../../configs/NavigationRouteTypeConfig";
@@ -33,6 +30,7 @@ const UpdateTutorClass = () => {
   const [dataDesc, setDataDesc] = useState<string>("");
   const [dataMajorId, setDataMajorId] = useState<number>(-1);
   const [dataClassLevel, setDataClassLevel] = useState<number>(-1);
+  const [maxLearners, setMaxLearners] = useState<number>(0);
   // address state
   const [dataProvinces, setDataProvinces] = useState("");
   const [dataDistrict, setDataDistrict] = useState("");
@@ -40,25 +38,13 @@ const UpdateTutorClass = () => {
   const [dataDetail, setDataDetail] = useState("");
   // error state
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  // lesson state
-  const [lessons, setLessons] = useState<Lesson[]>([]);
   // tuition state
-  const [dataPrice, setDataPrice] = useState<number | null>(null);
-  const [dataDateStart, setDataDateStart] = useState("");
-  const [dataDateEnd, setDataDateEnd] = useState("");
-  // max learners state
-  const [maxLearners, setMaxLearners] = useState<number>(0);
-  // newly created class id
-  const [createClassId, setCreateClassId] = useState<number>(-1);
+  const [dataPrice, setDataPrice] = useState<number>(-1);
+  const [dataDateStart, setDataDateStart] = useState<number>(0);
+  const [dataDateEnd, setDataDateEnd] = useState<number>(0);
   // dialog visibility state
   const [isDialogVisible, setIsDialogVisible] = useState(false);
   const [classData, setClassData] = useState<Class>(new Class());
-
-  const convertStringToTimestamp = (dateString: string) => {
-    const [day, month, year] = dateString.split("/").map(Number);
-    const dateObj = new Date(year, month - 1, day);
-    return !isNaN(dateObj.getTime()) ? dateObj.getTime() : null;
-  };
 
   useEffect(() => {
     if (param.classData) {
@@ -70,23 +56,19 @@ const UpdateTutorClass = () => {
       setDataDistrict(param.classData.address?.district ?? "");
       setDataWard(param.classData.address?.ward ?? "");
       setDataDetail(param.classData.address?.detail ?? "");
-      setLessons(param.classData.lessons || []);
       setDataPrice(param.classData.price);
-      setDataDateStart(param.classData.started_at ? new Date(param.classData.started_at).toLocaleDateString() : "");
-      setDataDateEnd(param.classData.ended_at ? new Date(param.classData.ended_at).toLocaleDateString() : "");
+      setDataDateStart(param.classData.started_at);
+      setDataDateEnd(param.classData.ended_at);
       setMaxLearners(param.classData.max_learners);
-
       if (param.classData.id) {
         setClassData(param.classData);
       } else {
         console.log("khong co id lop hoc!");
-        
       }
     }
-  }, [param.classData])
+  }, [param.classData]);
 
-  const handleUpdateClass = useCallback(() => {
-
+  const handleUpdateClass = () => {
     if (!classData?.id) {
       console.error("classData.id không tồn tại.");
       return;
@@ -99,16 +81,16 @@ const UpdateTutorClass = () => {
         dataDesc,
         dataMajorId,
         dataClassLevel,
-        dataPrice ?? 0,
-        convertStringToTimestamp(dataDateStart) ?? 0,
-        convertStringToTimestamp(dataDateEnd) ?? 0,
-        new Date().getTime(),
         maxLearners,
+        dataPrice ?? 0,
+        dataDateStart,
+        dataDateEnd,
+        new Date().getTime(),
+        classData.address?.id ?? 0,
         dataProvinces,
         dataDistrict,
         dataWard,
         dataDetail,
-        lessons,
         (isSuccess, errorMessage) => {
           if (isSuccess) {
             setIsDialogVisible(true);
@@ -118,23 +100,7 @@ const UpdateTutorClass = () => {
         }
       );
     }
-  }, [
-    dataTitle,
-    dataDesc,
-    dataMajorId,
-    dataClassLevel,
-    dataPrice,
-    dataDateStart,
-    dataDateEnd,
-    new Date().getTime(),
-    maxLearners,
-    dataProvinces,
-    dataDistrict,
-    dataWard,
-    dataDetail,
-    lessons,
-    classData.id,
-  ]);
+  };  
 
   // useEffect
   useEffect(() => {
@@ -146,23 +112,54 @@ const UpdateTutorClass = () => {
     return <Text>Không có dữ liệu lớp học.</Text>;
   }
 
+  
+
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
-      <UpdateInfoClass classData={param.classData} />
+      <UpdateInfoClass
+        classData={param.classData}
+        onSetClassData={setClassData}
+        title={dataTitle}
+        onSetTitle={setDataTitle}
+        description={dataDesc}
+        onSetDescription={setDataDesc}
+        classLevel={dataClassLevel}
+        onsetClassLevel={setDataClassLevel}
+        maxLearners={maxLearners}
+        onSetMaxLearners={setMaxLearners}
+        major={dataMajorId}
+        onSetMajor={setDataMajorId}
+      />
       {classData.lessons && <UpdateInfoLesson lessonData={classData.lessons} />}
-      <UpdateInfoTuition tuitionData={param.classData} />
+
+      <UpdateInfoTuition
+        tuitionData={param.classData}
+        onSetDataTuition={setClassData}
+        tuition={dataPrice}
+        setTuiton={setDataPrice}
+        dateStart={dataDateStart}
+        setDateStart={setDataDateStart}
+        dateEnd={dataDateEnd}
+        setDateEnd={setDataDateEnd}
+        selectedProvince={dataProvinces}
+        setSelectedProvince={setDataProvinces}
+        selectedDistrict={dataDistrict}
+        setSelectedDistrict={setDataDistrict}
+        selectedWard={dataWard}
+        setSelectedWard={setDataWard}
+        detail={dataDetail}
+        setDetail={setDataDetail}
+      />
 
       <TouchableOpacity style={styles.btnNext} onPress={handleUpdateClass}>
-        <Text style={styles.txtNext}>Chỉnh Sửa</Text>
+        <Text style={styles.txtNext}>{languageContext.BTN_UPDATE_CLASS}</Text>
       </TouchableOpacity>
 
       {errorMessage && <Text style={styles.errorText}>{errorMessage}</Text>}
 
       <Dialog.Container visible={isDialogVisible}>
         <Dialog.Title>{languageContext.DIALOG_TITLE}</Dialog.Title>
-        <Dialog.Description>
-          {languageContext.DIALOG_TITLE}.
-        </Dialog.Description>
+        <Dialog.Description>{languageContext.DIALOG_TITLE}.</Dialog.Description>
         <Dialog.Button
           label="OK"
           onPress={() => {

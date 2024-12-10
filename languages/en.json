@@ -377,10 +377,13 @@
   "USERNAME_INVALID_FORMAT": "The username must be between 6 and 20 characters long and not contain special characters.",
   "PASSWORD_INVALID_FORMAT": "The password must be between 6 and 20 characters long.",
   "NEW_PASSWORD_MUST_BE_DIFFERENT": "The new password must be different from the old password.",
+  "INVALID_PHONE_FORMAT": "The phone number must contain exactly 10 digits",
 
-  "NO_ACCESS_USER": "Không thể truy cập. Vai trò của bạn không đủ quyền.",
-  "NO_ACCESS_PARENT": "Bạn không có quyền tạo lớp cho phụ huynh.",
-  "NO_ACCESS_TUTOR": "Bạn không có quyền tạo lớp cho gia sư.",
+ "NO_ACCESS_USER": "Access denied. Your role does not have sufficient permissions.",
+  "NO_ACCESS_PARENT": "You do not have permission to create a class for parents.",
+  "NO_ACCESS_TUTOR": "You do not have permission to create a class for tutors.",
+  "BTN_UPDATE_CLASS": "Edit",
+  "LIST_CHILD": "List of Children",
 
   "KHANG": "KHANG",
   "CHOOSE": "choose ...",

@@ -7,23 +7,44 @@ import ClassLevel from "../../../models/ClassLevel";
 import AMajor from "../../../apis/AMajor";
 import { LanguageContext } from "../../../configs/LanguageConfig";
 import Class from "../../../models/Class";
+import { AccountContext } from "../../../configs/AccountConfig";
+import { RoleList } from "../../../models/Role";
 
 type props = {
   classData: Class;
+  onSetClassData: (data: Class) => void;
+  title: string;
+  onSetTitle: (title: string) => void;
+  description: string;
+  onSetDescription: (description: string) => void;
+  classLevel: number;
+  onsetClassLevel: (classLevel: number) => void;
+  maxLearners: number;
+  onSetMaxLearners: (maxLearners: number) => void;
+  major: number;
+  onSetMajor: (major: number) => void;
 };
 // { onNext }: props
-const UpdateInfoClass = ({classData} : props) => {
+const UpdateInfoClass = ({
+  title,
+  onSetTitle,
+  description,
+  onSetDescription,
+  classLevel,
+  onsetClassLevel,
+  maxLearners,
+  onSetMaxLearners,
+  major,
+  onSetMajor,
+}: props) => {
   // context
   const languageContext = useContext(LanguageContext).language;
+  const accountContext = useContext(AccountContext);
+  const roleIds = accountContext.account?.roles?.map((role) => role.id);
 
   // state
-  const [title, setTitle] = useState(classData.title || "");
-  const [desc, setDesc] = useState(classData.description || "");
   const [capHocList, setCapHocList] = useState<ClassLevel[]>([]); // đặt select
-  const [selectedCapHoc, setSelectedCapHoc] = useState<number>(classData.class_level?.id ?? -1);
-  const [maxLearners, setMaxLearners] = useState<number>(classData.max_learners ?? 0);
   // useState MÔN HỌC, FETCH DATA
-  const [monHoc, setMonHoc] = useState<number>(classData.major?.id ?? -1); // đặt select
   const [isOtherSelected, setIsOtherSelected] = useState(false); // Kiểm tra khi chọn "Khác"
   const [customInput, setCustomInput] = useState(""); // Giá trị nhập khi chọn "Khác"
   const [isLoading, setIsLoading] = useState(false);
@@ -32,6 +53,7 @@ const UpdateInfoClass = ({classData} : props) => {
   >([{ label: "Khác", value: "other" }]); // Danh sách các buổi học
 
   // useEffect
+
   useEffect(() => {
     AMajor.getAllMajors((majors) => {
       const majorItems = majors.map((major) => ({
@@ -44,11 +66,10 @@ const UpdateInfoClass = ({classData} : props) => {
         value: major.id,
       }));
       setPickerItems([...majorItems, { label: "Khác", value: "other" }]);
-      
     }, setIsLoading);
   }, [languageContext.TYPE]);
 
-   // Fetch danh sách cấp học
+  // Fetch danh sách cấp học
   useEffect(() => {
     AClassLevel.getAllClassLevels((classLevels) => {
       setCapHocList(classLevels);
@@ -61,13 +82,13 @@ const UpdateInfoClass = ({classData} : props) => {
     if (itemValue === "other") {
       setIsOtherSelected(true); // Chuyển Picker thành TextInput nếu chọn "Khác"
     } else {
-      setMonHoc(itemValue); // Cập nhật giá trị đã chọn từ Picker
+      onSetMajor(itemValue); // Cập nhật giá trị đã chọn từ Picker
       setIsOtherSelected(false); // Ẩn TextInput nếu chọn lại từ các mục khác
     }
   };
 
-   // Thêm giá trị tùy chỉnh vào danh sách môn học
-   const handleAddCustomValue = () => {
+  // Thêm giá trị tùy chỉnh vào danh sách môn học
+  const handleAddCustomValue = () => {
     if (customInput.trim() !== "") {
       const newItem = {
         label: customInput,
@@ -78,21 +99,20 @@ const UpdateInfoClass = ({classData} : props) => {
         ...prevItems.filter((item) => item.value !== "other"),
         { label: "Khác", value: "other" },
       ]);
-      setMonHoc(newItem.value);
+      onSetMajor(newItem.value);
       setCustomInput("");
       setIsOtherSelected(false);
     }
   };
 
   const handleChangeCapHoc = (value: number) => {
-    setSelectedCapHoc(value);
+    onsetClassLevel(value);
     console.log("value cap hoc: ", value);
   };
 
-
   // MAX LEARNER
   const handleChangeMaxLearner = (value: string) => {
-    setMaxLearners(parseInt(value) || 1); // Cập nhật state của component con
+    onSetMaxLearners(parseInt(value) || 1); // Cập nhật state của component con
   };
 
   return (
@@ -102,7 +122,7 @@ const UpdateInfoClass = ({classData} : props) => {
           placeholder={languageContext.TITLE_PLACEHOLDER}
           type="text"
           label={languageContext.TITLE}
-          onChangeText={setTitle}
+          onChangeText={onSetTitle}
           required
           value={title}
         />
@@ -112,9 +132,9 @@ const UpdateInfoClass = ({classData} : props) => {
           placeholder={languageContext.DESCRIPTION_PLACEHOLDER}
           type="textarea"
           label={languageContext.DESCRIPTION}
-          onChangeText={setDesc}
+          onChangeText={onSetDescription}
           required
-          value={desc}
+          value={description}
         />
       </View>
       <View style={[styles.marginInput]}>
@@ -138,7 +158,7 @@ const UpdateInfoClass = ({classData} : props) => {
           ) : (
             <View style={styles.pickerContainer}>
               <Picker
-                selectedValue={monHoc}
+                selectedValue={major}
                 onValueChange={handleSelectChange}
                 style={styles.picker}
                 key={languageContext.TYPE}
@@ -162,7 +182,7 @@ const UpdateInfoClass = ({classData} : props) => {
           </Text>
           <View style={styles.pickerContainer}>
             <Picker
-              selectedValue={selectedCapHoc}
+              selectedValue={classLevel}
               onValueChange={handleChangeCapHoc}
               style={styles.picker}
             >
@@ -184,16 +204,21 @@ const UpdateInfoClass = ({classData} : props) => {
         </View>
 
         {/* MAX LEARNER */}
-        <Text style={styles.label}>
-          {languageContext.MAX_LEARNER} <Text style={styles.required}>*</Text>
-        </Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Nhập số lượng người học"
-          keyboardType="numeric"
-          value={maxLearners.toString()} // Chuyển `number` sang `string`
-          onChangeText={handleChangeMaxLearner}
-        />
+        {!roleIds?.includes(RoleList.PARENT) && (
+          <>
+            <Text style={styles.label}>
+              {languageContext.MAX_LEARNER}{" "}
+              <Text style={styles.required}>*</Text>
+            </Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Nhập số lượng người học"
+              keyboardType="numeric"
+              value={maxLearners.toString()} // Chuyển `number` sang `string`
+              onChangeText={handleChangeMaxLearner}
+            />
+          </>
+        )}
       </View>
     </View>
   );
