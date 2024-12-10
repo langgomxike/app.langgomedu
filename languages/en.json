@@ -439,7 +439,17 @@
   "GROUP_CHAT_TAB": "Group chat",
   "CHAT_TAB": "Chat",
   "CONTACT_TAB": "Contact",
-  "NOTIFICATION_NOT_SUPPORTED": "This notification does not support for your language"
+  "NOTIFICATION_NOT_SUPPORTED": "This notification does not support for your language",
+  "ALL": "All",
+"CLASS_WAIT_APPROVE": "Class waiting for approval",
+"CLASS_WAIT_PEDING_PAY": "Class pending payment",
+"REPORTED": "Reported",
+"CV_WAITTING_APROVE": "CV waiting for approval",
+"BANNED": "Account banned",
+
+"NO_CLASS_WAITTING_APPROVAL": "No classes waiting for approval",
+"NO_CLASS_WAITTING_PAY": "No classes pending payment",
+"AUTHOR": "Author"
 
 
 }

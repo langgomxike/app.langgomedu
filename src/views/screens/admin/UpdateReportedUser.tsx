@@ -297,7 +297,7 @@ export default function UpdateReportedUser() {
         {report?.class && report?.class?.id && (
           <>
             <View style={styles.infor}>
-              <Text style={styles.smallTitle2}>Lop hoc bi báo cáo </Text>
+              <Text style={styles.smallTitle2}>{ languageContext.REPORT_CLASS} </Text>
               <Text style={styles.smallTitle2}>Class</Text>
             </View>
 

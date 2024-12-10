@@ -65,6 +65,8 @@ export default function PersionalProfileScreen() {
   const [selectedDistrict, setSelectedDistrict] = useState<string>("");
   const [selectedWard, setSelectedWard] = useState<string>("");
   const [selectedDetail, setSelectedDetail] = useState<string>("");
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [selectBirthday, setSelectBirthday] = useState<number>(0);
   const [selectedMajors, setSelectedMajors] = useState<string[]>([]);
   const [selectedClassLevels, setSelectedClassLevels] = useState<string[]>([]);
   const [showModal, setShowModal] = useState(false);
@@ -73,6 +75,42 @@ export default function PersionalProfileScreen() {
   const [gender, setGender] = useState(GENDER.MALE); // Default to MALE
 
   // Lấy thông tin profile
+  // useEffect(() => {
+  //   AUser.getUserProfileById(
+  //     userId,
+  //     (data: User) => {
+  //       setUserProfile(data);
+  //       setImage(data?.avatar ? `${URL}/${data.avatar}` : null);
+  //       setProvince(data?.address?.province || "");
+  //       setDistrict(data?.address?.district || "");
+  //       setWard(data?.address?.ward || "");
+  //       setSelectedDetail(data?.address?.detail || "");
+
+  //       const classLevelIds =
+  //         data?.interested_class_levels?.map((item: any) => item.id) || [];
+  //       setSelectedClassLevels(classLevelIds);
+
+  //       const MajorIds =
+  //         data?.interested_majors?.map((item: any) => item.id) || [];
+  //       setSelectedMajors(MajorIds);
+
+  //       switch (data.gender?.id) {
+  //         case 0:
+  //           setGender(GENDER.MALE);
+  //           break;
+  //         case 1:
+  //           setGender(GENDER.FEMALE);
+  //           break;
+  //         case 2:
+  //           setGender(GENDER.OTHER);
+  //           break;
+  //       }
+  //     },
+  //     (isLoading: boolean) => {
+  //       setLoading(isLoading);
+  //     }
+  //   );
+  // }, [userId]);
   useEffect(() => {
     AUser.getUserProfileById(
       userId,
@@ -92,23 +130,33 @@ export default function PersionalProfileScreen() {
           data?.interested_majors?.map((item: any) => item.id) || [];
         setSelectedMajors(MajorIds);
 
-        switch (data.gender?.id) {
-          case 0:
-            setGender(GENDER.MALE);
-            break;
-          case 1:
-            setGender(GENDER.FEMALE);
-            break;
-          case 2:
-            setGender(GENDER.OTHER);
-            break;
-        }
+        setSelectBirthday(data.birthday || 0); // Cập nhật ngày sinh
+        setGender(data.gender?.id || GENDER.MALE); // Cập nhật giới tính
       },
       (isLoading: boolean) => {
         setLoading(isLoading);
       }
     );
   }, [userId]);
+
+   // Hàm chuyển đổi ngày tháng
+   const formatDate = (timestamp: number) => {
+    if (!timestamp) return "Chọn ngày sinh";
+    const date = new Date(timestamp);
+    const day = date.getDate().toString().padStart(2, "0");
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
+
+   // Hàm xử lý khi chọn ngày
+   const onDateChange = (event: any, selectedDate?: Date) => {
+    setShowDatePicker(false);
+    if (selectedDate) {
+      const timestamp = selectedDate.getTime();
+      setSelectBirthday(timestamp);
+    }
+  };
 
   useEffect(() => {
     if (province) setSelectedCity(province);
@@ -201,6 +249,8 @@ export default function PersionalProfileScreen() {
     }
   };
 
+  
+
   const handleUpdateProfile = async () => {
     // Kiểm tra các trường bắt buộc
     if (!selectedCity || !selectedDistrict || !selectedWard) {
@@ -209,6 +259,16 @@ export default function PersionalProfileScreen() {
     }
 
     const formData = new FormData();
+    const currentDate = new Date();
+  const sixYearsAgo = new Date();
+  sixYearsAgo.setFullYear(currentDate.getFullYear() - 6); // Cộng thêm 6 năm vào ngày hiện tại để có ngày 6 năm trước
+
+  const birthDate = new Date(selectBirthday); // Ngày sinh từ state
+
+  if (birthDate > sixYearsAgo) {
+    Alert.alert("Thông báo", "Ngày sinh phải là quá khứ 6 năm trước.");
+    return;
+  }
 
     // Thêm thông tin vào formData
     formData.append("gender", gender + "");
@@ -216,6 +276,7 @@ export default function PersionalProfileScreen() {
     if (selectedDistrict) formData.append("district", selectedDistrict);
     if (selectedWard) formData.append("ward", selectedWard);
     if (selectedDetail) formData.append("detail", selectedDetail);
+    if (selectBirthday) formData.append("birthday", selectBirthday.toString());
     if (selectedClassLevels.length > 0) {
       formData.append("classes", JSON.stringify(selectedClassLevels));
     }
@@ -271,6 +332,9 @@ export default function PersionalProfileScreen() {
     // Hiển thị modal chứa ImageViewer
     setShowImageModal(true);
   };
+
+
+  
   return (
     <View style={{ flex: 1, backgroundColor: "#FFF" }}>
       <ScrollView>
@@ -311,10 +375,28 @@ export default function PersionalProfileScreen() {
             </View>
 
             {/* Date of Birth */}
-            <Text style={styles.label}>{languageContext.BIRTHDAY}</Text>
+            {/* <Text style={styles.label}>{languageContext.BIRTHDAY}</Text>
             <View style={styles.textInput}>
               <Text>{brithday}</Text>
-            </View>
+            </View> */}
+        
+          {/* Ngày Sinh */}
+          <Text style={styles.label}>{languageContext.BIRTHDAY}</Text>
+          <TouchableOpacity
+            style={styles.textInput}
+            onPress={() => setShowDatePicker(true)}
+          >
+            <Text>{formatDate(selectBirthday)}</Text>
+          </TouchableOpacity>
+          {showDatePicker && (
+            <DateTimePicker
+              value={new Date(selectBirthday || Date.now())}
+              mode="date"
+              display="default"
+              onChange={onDateChange}
+            />
+          )}
+    
 
             {/* Gender */}
             <Text style={styles.label}>{languageContext.GENDER}</Text>
