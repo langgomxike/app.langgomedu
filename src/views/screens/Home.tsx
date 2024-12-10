@@ -1,45 +1,19 @@
-import {useCallback, useContext, useEffect, useRef, useState} from "react";
-import {
-  Animated,
-  Dimensions,
-  FlatList,
-  Image,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import {useCallback, useContext, useEffect, useState} from "react";
+import {Dimensions, FlatList, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View,} from "react-native";
 import {NavigationContext} from "@react-navigation/native";
 import {BackgroundColor} from "../../configs/ColorConfig";
-import Search from "../components/Inputs/SearchBar";
-import Filter from "../components/Filter";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import ScreenName from "../../constants/ScreenName";
-import AMajor from "../../apis/AMajor";
-import Major from "../../models/Major";
-import User from "../../models/User";
 import {UserContext, UserType} from "../../configs/UserContext";
-import AClass from "../../apis/AClass";
-import Class from "../../models/Class";
 import ListMajorSkeleton from "../components/skeleton/ListMajorSkeleton";
-import AUser from "../../apis/AUser";
 import {AccountContext} from "../../configs/AccountConfig";
-import Toast from "react-native-simple-toast";
-import SAsyncStorage, {AsyncStorageKeys} from "../../services/SAsyncStorage";
 import {LanguageContext} from "../../configs/LanguageConfig";
-import vn from "../../../languages/vn.json";
-import en from "../../../languages/en.json";
-import ja from "../../../languages/ja.json";
 import ReactAppUrl from "../../configs/ConfigUrl";
 import {AppInfoContext} from "../../configs/AppInfoContext";
 import SFirebase, {FirebaseNode} from "../../services/SFirebase";
 import SuggestList from "../components/SuggestList";
 import UserClassManager from "../components/UserClassManager";
-import {RoleList} from "../../models/Role";
 import {MajorsLevelsContext} from "../../configs/MajorsLevelsContext";
-import AClassLevel from "../../apis/AClassLevel";
 import {RefreshControl} from "react-native-gesture-handler";
 import TypingEffect from "../components/TypingEffect";
 

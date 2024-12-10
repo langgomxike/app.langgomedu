@@ -1,17 +1,17 @@
-import { View, StyleSheet, Text, ScrollView, Image } from "react-native";
+import {ScrollView, StyleSheet, Text, View} from "react-native";
 import WeekCalendar from "../components/schedule/WeekCalendar";
 import TimeLine from "../components/schedule/TimeLine";
-import { BackgroundColor, TextColor } from "../../configs/ColorConfig";
-import { useCallback, useContext, useEffect, useMemo, useState } from "react";
+import {BackgroundColor, TextColor} from "../../configs/ColorConfig";
+import {useCallback, useContext, useEffect, useMemo, useState} from "react";
 import ASchedule from "../../apis/ASchedule";
 import Lesson from "../../models/Lesson";
-import { UserContext, UserType } from "../../configs/UserContext";
-import { LanguageContext } from "../../configs/LanguageConfig";
+import {LanguageContext} from "../../configs/LanguageConfig";
 import DropdownChildren from "../components/dropdown/DropDownChildren";
-import SLog, { LogType } from "../../services/SLog";
 import User from "../../models/User";
-import { RoleList } from "../../models/Role";
-import { AccountContext } from "../../configs/AccountConfig";
+import {RoleList} from "../../models/Role";
+import {AccountContext} from "../../configs/AccountConfig";
+import SFirebase, {FirebaseNode} from "../../services/SFirebase";
+import SLog, {LogType} from "../../services/SLog";
 // import RatingScreen from "./Rating";
 
 export type Day = {
@@ -31,7 +31,7 @@ export default function PersonalScheduleScreen() {
   //day
   //schedule
   const day: Date = useMemo(() => new Date(), []);
-  const { account, setAccount} = useContext(AccountContext);
+  const {account, setAccount} = useContext(AccountContext);
 
   //STATE >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   const [type, setType] = useState<number>(0);
@@ -92,8 +92,7 @@ export default function PersonalScheduleScreen() {
 
     if (type === 1) {
       ASchedule.getTutorSchedule(selectedUser.id, handleCallAPI)
-    }
-    else {
+    } else {
       ASchedule.getLearnerSchedule(selectedUser.id, handleCallAPI)
     }
   }, [selectedUser, type]);
@@ -128,21 +127,23 @@ export default function PersonalScheduleScreen() {
   //lay danh sach cac nguoi dung trong thoi khoa bieu
   useEffect(() => {
     // console.log(account?.id);
-    if(account){
-      ASchedule.getUserParentAndChild(account.id, (users) => {
-        //lấy người dùng mặc định trên dropdown
-        users.forEach(item => {
-          if (item.id === account.id) {
-            setSelectedUser(item);
-            if (item.roles.some((role) => role.id === RoleList.TUTOR)) {
-              setType(1);
+    SFirebase.track(FirebaseNode.Users, [], () => {
+      SLog.log(LogType.Info, "new children");
+      if (account) {
+        ASchedule.getUserParentAndChild(account.id, (users) => {
+          //lấy người dùng mặc định trên dropdown
+          users.forEach(item => {
+            if (item.id === account.id) {
+              setSelectedUser(item);
+              if (item.roles.some((role) => role.id === RoleList.TUTOR)) {
+                setType(1);
+              }
             }
-          }
-          setUsers(users)
-        });
-      })
-    }
-    
+            setUsers(users)
+          });
+        })
+      }
+    });
   }, [account])
 
 
@@ -150,7 +151,7 @@ export default function PersonalScheduleScreen() {
     <View style={styles.container}>
       <View style={styles.infoBox}>
         <Text style={styles.infoText}>{language.SCHEDULE}</Text>
-        <View style={{ flex: 1 }}>
+        <View style={{flex: 1}}>
           <DropdownChildren user_default={selectedUser} learners={users} onSelectedLearner={(account) => {
             setSelectedUser(account);
             // Đặt lại type mỗi khi chọn người dùng
@@ -159,20 +160,23 @@ export default function PersonalScheduleScreen() {
             } else {
               setType(0);
             }
-          }} onChangeType={setType} />
+          }} onChangeType={setType}/>
         </View>
       </View>
       <View style={styles.mainview}>
         <ScrollView showsVerticalScrollIndicator={false}
-          contentContainerStyle={
-            {
-              // paddingHorizontal: 10,
-              paddingTop: 5,
-            }
-          }>
-          <WeekCalendar today={currentDay} currentDay={currentDay} currentDate={currentDate} currentWeek={currentWeek} activeDate={activeDate} setActiveDate={handlerSetActiveDate} setCurrentWeek={handlerSetWeek} setSelectedDate={setSelectedDate} />
+                    contentContainerStyle={
+                      {
+                        // paddingHorizontal: 10,
+                        paddingTop: 5,
+                      }
+                    }>
+          <WeekCalendar today={currentDay} currentDay={currentDay} currentDate={currentDate} currentWeek={currentWeek}
+                        activeDate={activeDate} setActiveDate={handlerSetActiveDate} setCurrentWeek={handlerSetWeek}
+                        setSelectedDate={setSelectedDate}/>
           {/* <TimeLine lessons={lessons}/> */}
-          <TimeLine selectedUser={selectedUser} lessons={todayLessons} selectedDate={selectedDate} type={type} onChangeType={setType} />
+          <TimeLine selectedUser={selectedUser} lessons={todayLessons} selectedDate={selectedDate} type={type}
+                    onChangeType={setType}/>
         </ScrollView>
         {/* <RatingScreen/> */}
 
@@ -186,8 +190,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: BackgroundColor.white,
   },
-  mainview: {
-  },
+  mainview: {},
   infoBox: {
     flexDirection: 'row',
     paddingHorizontal: 20,

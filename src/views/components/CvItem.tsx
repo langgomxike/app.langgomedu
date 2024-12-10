@@ -1,11 +1,14 @@
-import React, { useContext } from "react";
-import { Image, StyleSheet, Text, View } from "react-native";
+import React, {useCallback, useContext} from "react";
+import {Image, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import { BackgroundColor } from "../../configs/ColorConfig";
 import CV from "../../models/CV";
 import ReactAppUrl from "../../configs/ConfigUrl";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import moment from "moment";
 import { LanguageContext } from "../../configs/LanguageConfig";
+import {NavigationContext} from "@react-navigation/native";
+import ScreenName from "../../constants/ScreenName";
+import {CVApprovalRoute} from "../../configs/NavigationRouteTypeConfig";
 
 type TutorItemProps = {
   tutorData: CV;
@@ -14,17 +17,28 @@ const URL = ReactAppUrl.PUBLIC_URL;
 
 const colorItem = "#666"
 export default function CvItem({ tutorData }: TutorItemProps) {
-  const language = useContext(LanguageContext).language
+  const language = useContext(LanguageContext).language;
+  const navigation = useContext(NavigationContext);
+
+  //handlers
+  const goToCV = useCallback(() => {
+    const data: CVApprovalRoute = {
+      cv_id: tutorData.id,
+    }
+    navigation?.navigate(ScreenName.CV, data);
+  }, [tutorData]);
+
+
   // Render
   return (
-    <View style={[styles.container, styles.boxShadow]}>
+    <TouchableOpacity style={[styles.container, styles.boxShadow]} onPress={goToCV}>
       <View style={styles.headerContainer}>
         <View style={styles.boxShadow}>
           <Image
             source={{ uri: `${URL}${tutorData.user?.avatar}` }}
             style={[styles.avatar]}
           />
-          <Text style={styles.point}>100</Text>
+          <Text style={styles.point}>{tutorData.user?.point ?? 0}</Text>
         </View>
         <Text style={styles.tutorName}>{tutorData.user?.full_name}</Text>
       </View>
@@ -96,7 +110,7 @@ export default function CvItem({ tutorData }: TutorItemProps) {
           </ScrollView>
         </View> */}
       </View>
-    </View>
+    </TouchableOpacity>
   );
 }
 

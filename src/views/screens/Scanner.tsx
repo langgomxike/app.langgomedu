@@ -15,7 +15,7 @@ import QRItemType, {QRItems} from "../../configs/QRConfig";
 import ScreenName from "../../constants/ScreenName";
 import {LanguageContext} from "../../configs/LanguageConfig";
 import Toast from "react-native-simple-toast";
-import {ClassDetailRoute, IdNavigationType} from "../../configs/NavigationRouteTypeConfig";
+import {ClassDetailRoute, CVApprovalRoute, IdNavigationType} from "../../configs/NavigationRouteTypeConfig";
 
 export default function ScannerScreen() {
   //refs, contexts
@@ -88,8 +88,8 @@ export default function ScannerScreen() {
             break;
 
           case QRItems.CV:
-            const data2: IdNavigationType = {
-              id: qrItem.id,
+            const data2: CVApprovalRoute = {
+              cv_id: qrItem.id + "",
             }
             navigation?.navigate(ScreenName.CV, data2);
             break;
