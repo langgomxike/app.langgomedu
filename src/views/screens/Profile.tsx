@@ -1,6 +1,6 @@
 import DateTimePicker from "@react-native-community/datetimepicker";
-import {Picker} from "@react-native-picker/picker";
-import React, {useCallback, useState, useEffect, useContext} from "react";
+import { Picker } from "@react-native-picker/picker";
+import React, { useCallback, useState, useEffect, useContext } from "react";
 import {
   Image,
   ScrollView,
@@ -16,7 +16,7 @@ import User from "../../models/User";
 import DateTimeConfig from "../../configs/DateTimeConfig";
 import Avatar from "../components/Avatar";
 import ReactAppUrl from "../../configs/ConfigUrl";
-import {AccountContext} from "../../configs/AccountConfig";
+import { AccountContext } from "../../configs/AccountConfig";
 import {
   NavigationContext,
   NavigationRouteContext,
@@ -27,9 +27,9 @@ import {
   MessageNavigationType,
 } from "../../configs/NavigationRouteTypeConfig";
 import ScreenName from "../../constants/ScreenName";
-import {LanguageContext} from "../../configs/LanguageConfig";
-import {RoleList} from "../../models/Role";
-import {BackgroundColor} from "../../configs/ColorConfig";
+import { LanguageContext } from "../../configs/LanguageConfig";
+import { RoleList } from "../../models/Role";
+import { BackgroundColor } from "../../configs/ColorConfig";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import MyIcon, {AppIcon} from "../components/MyIcon";
 import SFirebase, {FirebaseNode} from "../../services/SFirebase";
@@ -66,7 +66,7 @@ export default function ProfileScreen() {
 
     SFirebase.track(
       FirebaseNode.Users,
-      [{key: FirebaseNode.Id, value: userId}],
+      [{ key: FirebaseNode.Id, value: userId }],
       () => {
         AUser.getUserProfileById(
           userId,
@@ -153,9 +153,9 @@ export default function ProfileScreen() {
         headerLeft: () => (
           <TouchableOpacity
             onPress={() => navigation.goBack()}
-            style={{paddingRight: 10}}
+            style={{ paddingRight: 10 }}
           >
-            <Ionicons name="chevron-back" size={24} color="white"/>
+            <Ionicons name="chevron-back" size={24} color="white" />
           </TouchableOpacity>
         ),
         headerRight: () => (
@@ -180,7 +180,7 @@ export default function ProfileScreen() {
   }, [accountContext.account]);
 
   return (
-    <View style={{flex: 1, backgroundColor: BackgroundColor.white}}>
+    <View style={{ flex: 1, backgroundColor: BackgroundColor.white }}>
       <ScrollView>
         <View style={styles.container}>
           {/* screen title */}
@@ -190,7 +190,7 @@ export default function ProfileScreen() {
               <Image
                 source={
                   userProfile?.avatar
-                    ? {uri: `${URL}${userProfile.avatar}`} // Nếu userAvatar tồn tại, sử dụng URI
+                    ? { uri: `${URL}${userProfile.avatar}` } // Nếu userAvatar tồn tại, sử dụng URI
                     : require("../../../assets/avatar/img_avatar_cat.png") // Nếu không, sử dụng ảnh mặc định
                 }
                 style={styles.avatar}
@@ -202,23 +202,23 @@ export default function ProfileScreen() {
             </View>
             <View style={styles.inf}>
               <Text style={styles.name}>{userProfile?.full_name}</Text>
-              <View style={{flexDirection: "row", gap: 10}}>
+              <View style={{ flexDirection: "row", gap: 10 }}>
                 <Text style={styles.birthday}>{brithday}</Text>
                 <View>
                   {/* {userProfile?.gender_id==1?"nam":"nữ"} */}
                   {userProfile?.gender?.id === 0 ? (
                     <Image
-                      style={{width: 20, height: 20}}
+                      style={{ width: 20, height: 20 }}
                       source={require("../../../assets/icons/ic_boy.png")}
                     />
                   ) : userProfile?.gender?.id === 1 ? (
                     <Image
-                      style={{width: 20, height: 20}}
+                      style={{ width: 20, height: 20 }}
                       source={require("../../../assets/icons/girl.png")}
                     />
                   ) : (
                     <Image
-                      style={{width: 20, height: 20}}
+                      style={{ width: 20, height: 20 }}
                       source={require("../../../assets/icons/ic_heart.png")}
                     />
                   )}
@@ -265,11 +265,11 @@ export default function ProfileScreen() {
                   pastelColors[Math.floor(Math.random() * pastelColors.length)];
                 return (
                   <View
-                    style={[styles.majorItem, {backgroundColor: randomColor}]}
+                    style={[styles.majorItem, { backgroundColor: randomColor }]}
                     key={index}
                   >
                     <Image
-                      source={{uri: `${URL}${major.icon}`}}
+                      source={{ uri: `${URL}${major.icon}` }}
                       style={styles.majorIcon}
                     />
                     <Text style={styles.majorName}>
@@ -301,12 +301,12 @@ export default function ProfileScreen() {
                   const randomColor =
                     pastelColors[
                       Math.floor(Math.random() * pastelColors.length)
-                      ];
+                    ];
                   return (
                     <View
                       style={[
                         styles.majorItem,
-                        {backgroundColor: randomColor},
+                        { backgroundColor: randomColor },
                       ]}
                       key={index}
                     >
@@ -347,7 +347,7 @@ export default function ProfileScreen() {
 
           <View style={styles.contacts}>
             <Text>
-              <Text style={{fontWeight: "bold"}}>
+              <Text style={{ fontWeight: "bold" }}>
                 {languageContext.PHONE_NUMBER}{" "}
               </Text>
               {userProfile?.phone_number.slice(0, -7) + "*******"}
@@ -381,7 +381,7 @@ export default function ProfileScreen() {
                 onPress={goToReport}
               >
                 <Image
-                  style={{width: 20, height: 20}}
+                  style={{ width: 20, height: 20 }}
                   source={require("../../../assets/icons/ic_report_account.png")}
                 />
               </TouchableOpacity>
@@ -549,7 +549,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 8,
     shadowColor: "#000",
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 5,
