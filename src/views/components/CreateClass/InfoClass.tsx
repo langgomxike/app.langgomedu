@@ -6,6 +6,8 @@ import AClassLevel from "../../../apis/AClassLevel";
 import ClassLevel from "../../../models/ClassLevel";
 import AMajor from "../../../apis/AMajor";
 import { LanguageContext } from "../../../configs/LanguageConfig";
+import { AccountContext } from "../../../configs/AccountConfig";
+import { RoleList } from "../../../models/Role";
 
 type props = {
   onNext: (
@@ -20,6 +22,8 @@ type props = {
 const InfoClass = ({ onNext }: props) => {
   // context
   const languageContext = useContext(LanguageContext).language;
+  const accountContext = useContext(AccountContext);
+  const roleIds = accountContext.account?.roles?.map((role) => role.id);
 
   // state
   const [title, setTitle] = useState("");
@@ -48,15 +52,7 @@ const InfoClass = ({ onNext }: props) => {
             : major.ja_name,
         value: major.id,
       }));
-      // setPickerItems((prevItems) => {
-      //   const existingIds = new Set(prevItems.map((item) => item.value));
-      //   const uniqueMajorItems = majorItems.filter(
-      //     (item) => !existingIds.has(item.value)
-      //   );
-      //   return [...uniqueMajorItems, ...prevItems];
-      // });
       setPickerItems([...majorItems, { label: "Khác", value: "other" }]);
-      
     }, setIsLoading);
   }, [languageContext.TYPE]);
 
@@ -212,16 +208,21 @@ const InfoClass = ({ onNext }: props) => {
         </View>
 
         {/* MAX LEARNER */}
-        <Text style={styles.label}>
-          {languageContext.MAX_LEARNER} <Text style={styles.required}>*</Text>
-        </Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Nhập số lượng người học"
-          keyboardType="numeric"
-          value={maxLearners.toString()} // Chuyển `number` sang `string`
-          onChangeText={handleChangeMaxLearner}
-        />
+        {!roleIds?.includes(RoleList.PARENT) && (
+          <>
+            <Text style={styles.label}>
+              {languageContext.MAX_LEARNER}{" "}
+              <Text style={styles.required}>*</Text>
+            </Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Nhập số lượng người học"
+              keyboardType="numeric"
+              value={maxLearners.toString()} // Chuyển `number` sang `string`
+              onChangeText={handleChangeMaxLearner}
+            />
+          </>
+        )}
       </View>
     </View>
   );

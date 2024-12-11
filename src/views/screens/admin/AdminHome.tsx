@@ -61,7 +61,7 @@ export default function AdminHome() {
         user.permissions = permissions;
 
         accountContext.setAccount(user);
-        SLog.log(LogType.Info, "update permissions", "reload", user.permissions.length);
+        SLog.log(LogType.Info, `${language.UPDATE_PERMISSION}`, `${language.RELOAD}`, user.permissions.length);
       }, () => {
       });
     });

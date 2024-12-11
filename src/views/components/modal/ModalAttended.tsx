@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import {
   StyleSheet,
   View,
@@ -13,6 +13,7 @@ import {
 import { Ionicons, FontAwesome } from "@expo/vector-icons";
 
 import { BackgroundColor } from "../../../configs/ColorConfig";
+import { LanguageContext } from "../../../configs/LanguageConfig";
 
 type Student = {
   id: number;
@@ -32,6 +33,7 @@ export default function StudentCheckbox({
 }: StudentCheckboxProps) {
   // State
   const [selectedStudents, setSelectedStudents] = useState<number[]>([]);
+  const language = useContext(LanguageContext).language;
 
   // Handle
   // Hàm xử lý khi nhấn vào checkbox
@@ -50,7 +52,7 @@ export default function StudentCheckbox({
         {/* Show the popup */}
         <View style={styles.container}>
           <View style={styles.modalTitleContainer}>
-            <Text style={styles.modalTitle}>Lịch sử điểm danh</Text>
+            <Text style={styles.modalTitle}>{language.ATTENDANCE_HISTORY}</Text>
             <TouchableOpacity onPress={onRequestClose}>
               <Ionicons name="close" size={24} color="black" />
             </TouchableOpacity>
@@ -81,11 +83,11 @@ export default function StudentCheckbox({
                             }}
                             style={styles.subjectImage}
                           />
-                          <Text style={styles.subjecTitle}>Lập trình di động</Text>
+                          <Text style={styles.subjecTitle}>{language.ANDROID_PROGRAM}</Text>
                         </View>
                         <View style={styles.badgeContainer}>
-                          <Text style={[styles.badge, styles.payText]}>Thanh toán</Text>
-                          <Text style={[styles.badge, styles.attendedText]}>Điểm danh</Text>
+                          <Text style={[styles.badge, styles.payText]}>{language.PAYMENT}</Text>
+                          <Text style={[styles.badge, styles.attendedText]}>{language.ATTEND}</Text>
                         </View>
                       </TouchableOpacity>
                     </View>

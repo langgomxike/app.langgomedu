@@ -177,7 +177,7 @@ export default function HistoryAttendance() {
           <View style={[styles.queryDateBlock, styles.marginBottom]}>
             <View style={{flex: 1}}>
               <CustomInput
-                label="Từ ngày"
+                label={language.FORM_DAY}
                 placeholder=""
                 required={false}
                 value={DateTimeConfig.getDateFormatFullYear(fromDate)}
@@ -188,7 +188,7 @@ export default function HistoryAttendance() {
 
             <View style={{flex: 1}}>
               <CustomInput
-                label="Đến ngày"
+                 label={language.TO_DAY}
                 placeholder=""
                 required={false}
                 value={DateTimeConfig.getDateFormatFullYear(toDate)}

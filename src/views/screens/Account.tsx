@@ -119,10 +119,10 @@ function FlatListItem({item, index}: FlatListItemProps) {
         accountContext.setAccount && accountContext.setAccount(undefined);
 
         navigation?.navigate(ScreenName.LOGIN);
-        Toast.show("Đăng xuất thành công", 2000);
+        Toast.show(`${languageContext.language.LOGOUT_SUSCCESS}`, 2000);
       },
       (error) => {
-        alert("Không thể đăng xuất");
+        alert(`${languageContext.language.LOGOUT_UNSUSCCESS}`);
       }
     )
   }, []);

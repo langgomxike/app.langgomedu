@@ -29,11 +29,26 @@ export default function RegisterStep1Screen() {
     // regex username và password
     const usernameRegex = /^[a-zA-Z0-9_]{6,20}$/;
     const passwordRegex = /^.{6,20}$/;
+    const phoneRegex = /^\d{10}$/;
 
     if (!phone) {
       Alert.alert(
         languageContext.language.PHONE_NUMBER,
         languageContext.language.INVALID_PHONE_NUMBER,
+        [
+          {
+            text: "OK",
+            onPress: () => {},
+          },
+        ]
+      );
+      return false;
+    }
+
+    if (!phoneRegex.test(phone)) {
+      Alert.alert(
+        languageContext.language.PHONE_NUMBER,
+        languageContext.language.INVALID_PHONE_FORMAT, // Hiển thị lỗi định dạng
         [
           {
             text: "OK",

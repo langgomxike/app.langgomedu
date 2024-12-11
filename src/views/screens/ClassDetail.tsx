@@ -126,7 +126,7 @@ export default function ClassDetail() {
     }
   }
 
-  const goToUpdateClass = () => {
+  const goToUpdateClass = (membersInClass: User[]) => {
     navigation?.navigate(ScreenName.UPDATE_CLASS, { classData: classDetail, members: membersInClass  })
   }
 
@@ -161,7 +161,7 @@ export default function ClassDetail() {
         headerRight: () => {
           if(classDetail?.author?.id === account?.id) {
             return (
-            <TouchableOpacity onPress={goToUpdateClass} style={{ paddingRight: 10 }}>
+            <TouchableOpacity onPress={() => goToUpdateClass(membersInClass)} style={{ paddingRight: 10 }}>
               <Feather name="edit" size={24} color="white" />
             </TouchableOpacity>
             )
@@ -169,7 +169,7 @@ export default function ClassDetail() {
         }
       })
     }
-  }, [account, classDetail])
+  }, [account, classDetail, membersInClass])
 
   //Get detail class
   useEffect(() => {

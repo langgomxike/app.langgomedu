@@ -10,6 +10,7 @@ import DateTimeConfig from "../../../configs/DateTimeConfig";
 import {IdNavigationType} from "../../../configs/NavigationRouteTypeConfig";
 import {NavigationContext} from "@react-navigation/native";
 import ScreenName from "../../../constants/ScreenName";
+import { LanguageContext } from "../../../configs/LanguageConfig";
 
 type DetailHistoryBottonSheetProps = {
   isVisible: boolean;
@@ -25,6 +26,7 @@ export default function ({
   // ref
   const bottomSheetRef = useRef<BottomSheet>(null);
   const navigation = useContext(NavigationContext);
+  const language = useContext(LanguageContext).language;
 
   //states
   const [viewEvidence, setViewEvidence] = useState(false);
@@ -103,32 +105,27 @@ export default function ({
 
         <Text
           style={[styles.itemContainer, {borderColor: attendance?.attended_at ? BackgroundColor.sub_primary : BackgroundColor.sub_danger}]}>
-          Diem
-          danh: {attendance?.attended_at ? DateTimeConfig.getDateFormat(attendance.attended_at, true, true) : "Chua diem danh"}</Text>
+          {language.ATTEND}: {attendance?.attended_at ? DateTimeConfig.getDateFormat(attendance.attended_at, true, true) : `${language.NOT_ATTENDED}`}</Text>
 
         <Text
           style={[styles.itemContainer, {borderColor: attendance?.deferred ? BackgroundColor.sub_primary : BackgroundColor.sub_danger}]}>
-          Ghi no: {attendance?.deferred ? "Da thuc hien ghi no" : "Khong ghi no"}</Text>
+         {language.DEBIT}: {attendance?.deferred ? `${language.DEBIT}` : `${language.NOT_DEBIT}`}</Text>
 
         <Text
           style={[styles.itemContainer, {borderColor: attendance?.confirm_deferred_at ? BackgroundColor.sub_primary : BackgroundColor.sub_danger}]}>
-          Xac nhan ghi
-          no: {attendance?.confirm_deferred_at ? DateTimeConfig.getDateFormat(attendance.confirm_deferred_at, true, true) : "Chua duoc xac nhan"}</Text>
+          {language.CONFIRM_DEBIT}: {attendance?.confirm_deferred_at ? DateTimeConfig.getDateFormat(attendance.confirm_deferred_at, true, true) : `${language.NOT_CONFIRM}`}</Text>
 
         <Text
           style={[styles.itemContainer, {borderColor: attendance?.paid_at ? BackgroundColor.sub_primary : BackgroundColor.sub_danger}]}>
-          Thanh
-          toan: {attendance?.paid_at ? DateTimeConfig.getDateFormat(attendance.paid_at, true, true) : "Chua thanh toan"}</Text>
+          {language.PAY}: {attendance?.paid_at ? DateTimeConfig.getDateFormat(attendance.paid_at, true, true) :`${language.NOT_PAY}`}</Text>
 
         <Text
           style={[styles.itemContainer, {borderColor: attendance?.type ? BackgroundColor.sub_primary : BackgroundColor.sub_danger}]}>Hinh
-          thuc thanh
-          toan: {attendance?.type ?? "Khong the xac minh"}</Text>
+         {language.DO_PAY}: {attendance?.type ??`${language.CANT_CONFIRM}`}</Text>
 
         <Text
           style={[styles.itemContainer, {borderColor: attendance?.confirm_paid_at ? BackgroundColor.sub_primary : BackgroundColor.sub_danger}]}>
-          Xac nhan thanh
-          toan: {attendance?.confirm_paid_at ? DateTimeConfig.getDateFormat(attendance.confirm_paid_at, true, true) : "Chua duoc xac nhan"}</Text>
+          {language.CONFIRM_PAYMENT}: {attendance?.confirm_paid_at ? DateTimeConfig.getDateFormat(attendance.confirm_paid_at, true, true) : `${language.NOT_CONFIRM}`}</Text>
 
         <Pressable style={{flex: 1,}} onPress={() => setViewEvidence(true)}>
           <Image src={ReactAppUrl.PUBLIC_URL + attendance?.payment_path}
