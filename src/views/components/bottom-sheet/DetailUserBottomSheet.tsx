@@ -100,7 +100,7 @@ export default function DetailUserBottomSheet({
   const goToUserPermission = useCallback(() => {
 
     if (!accountContext.account || !accountContext.account.roles.map(r => r.id).includes(RoleList.SUPER_ADMIN)) {
-      Toast.show("Bạn không có quyền truy cập vào trang quản lý quyền", 1000);
+      Toast.show(`${languageContext.U_ARE_NOT_ROLE}`, 1000);
       return;
     }
 

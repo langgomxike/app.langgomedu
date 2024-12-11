@@ -66,6 +66,7 @@ export default function ({
   // contexts ----------------------------------------------------------------
   const navigation = useContext(NavigationContext);
   const languageContext = useContext(LanguageContext);
+  const language = languageContext.language;
   // Hàm lấy tên ngày từ số thứ tự
   const days = [
     languageContext.language.SUNDAY,
@@ -121,7 +122,7 @@ export default function ({
   );
 
   const handleApproveClass = useCallback(() => {
-    setModalContent({title: "Xác nhận", content: "Xác thực lớp thành công!"})
+    setModalContent({title:   `${language.CONFIRM}`, content:  `${language.CONFIRM_CLASS_SUCCESS}`})
     setModalResult("modalDialogForClass");
     if (classData) {
       AClassAdmin.approveClass(classData.id, (data) => {
@@ -132,7 +133,7 @@ export default function ({
 
   const handleApprovePaymentByAdmin = useCallback(() => {
     if (classData) {
-      setModalContent({title: "Xác nhận", content: "Xác nhận thanh toán thành công!"})
+      setModalContent({title:  `${language.CONFIRM}`, content:  `${language.CONFIRM_PAYMENT_SUCCESS}`})
       setModalResult("modalDialogForClass");
       AClassAdmin.approvePaymentByAdmin(
         classData.id,
@@ -158,7 +159,7 @@ export default function ({
 
   const handleDeleteClass = useCallback(() => {
     setLoading(true);
-    Alert.alert("Xac nhan xoa", "lop hoc se bi khoa vinh vien va khong the khoi phuc", [
+    Alert.alert( `${language.CONFIRM}`,  `${language.CLASS_WILL_BE_LOCK}`, [
       {
         text: "Cancel",
         style: "cancel",
@@ -170,9 +171,9 @@ export default function ({
             if (result) {
               bottomSheetRef?.current?.close();
               onCloseButtonSheet();
-              Toast.show("da xoa lop hoc", 1000);
+              Toast.show( `${language.DELETED_SUCCESS}`, 1000);
             } else {
-              Alert.alert("Xoa lop hoc","Xoa lop hoc that bai");
+              Alert.alert( `${language.DELETED_CLASS}`, `${language.DELETED_UNSUCCESS}`);
             }
           });
         },
@@ -260,7 +261,7 @@ export default function ({
           {classData?.is_reported && (
             <View style={{flex: 1, margin: 20,}}>
               <Text style={[styles.btnReportText, {color: TextColor.danger}]}>
-                Danh sach bao cao
+              {language.REPORT_LIST}
               </Text>
 
               <ScrollView showsHorizontalScrollIndicator={false} horizontal={true} style={{flex: 1}}>
@@ -299,7 +300,7 @@ export default function ({
             {/* Danh sách các buổi học */}
             <View style={styles.titleContainer}>
               <Ionicons name="book-outline" size={24} color="black"/>
-              <Text style={styles.title}>Các buổi học</Text>
+              <Text style={styles.title}>{language.CAC_BUOI_HOC}</Text>
             </View>
             <View style={styles.lessonListContainer}>
               <FlatList
@@ -387,7 +388,7 @@ export default function ({
                           size={ICON_SIZE}
                           color="black"
                         />
-                        <Text>Ghi chú</Text>
+                        <Text>{language.NOTE}</Text>
                       </View>
                       {lesson.note && <Text>{lesson.note}</Text>}
                     </View>
@@ -401,7 +402,7 @@ export default function ({
           {/* Danh sách học sinh của lớp */}
           <View style={[styles.titleContainer, {marginTop: 15}]}>
             <Ionicons name="people-outline" size={24} color="black"/>
-            <Text style={styles.title}>Danh sách học sinh</Text>
+            <Text style={styles.title}>{language.STUDENT_LIST}</Text>
           </View>
           <View style={styles.studentListContainer}>
             {userList &&
@@ -417,7 +418,7 @@ export default function ({
                   <Text style={styles.studentText}>{user.full_name}</Text>
                 </View>
               ))}
-            {!userList && <Text>Chưa có người học trong lớp này</Text>}
+            {!userList && <Text>{language.NO_PEOPLE_IN_CLASS}</Text>}
           </View>
         </View>
       </ScrollView>
@@ -426,13 +427,13 @@ export default function ({
           {!approveResult ? (
             <View style={styles.btnCotainer}>
               <TouchableOpacity onPress={handleDenyClass} style={[styles.btn, styles.btnDeny]}>
-                <Text style={styles.btnDenyText}>Từ Chối</Text>
+                <Text style={styles.btnDenyText}>{language.DENNY}</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={handleApproveClass}
                 style={[styles.btn, styles.btnAccept]}
               >
-                <Text style={styles.btnAcceptText}>Chấp nhận</Text>
+                <Text style={styles.btnAcceptText}>{language.ACCEPT}</Text>
               </TouchableOpacity>
             </View>
           ) : (
@@ -441,7 +442,7 @@ export default function ({
                 disabled={true}
                 style={[styles.btn, styles.btnAcceptDisable]}
               >
-                <Text style={styles.btnAcceptText}>Chờ thanh toán</Text>
+                <Text style={styles.btnAcceptText}>{language.WAITING_FOR_PAY}</Text>
               </TouchableOpacity>
             </View>
           )}
@@ -453,13 +454,13 @@ export default function ({
           {!approvePayResult ? (
             <View style={styles.btnCotainer}>
               <TouchableOpacity style={[styles.btn, styles.btnDeny]}>
-                <Text style={styles.btnDenyText}>Nhắc nhở</Text>
+                <Text style={styles.btnDenyText}>{language.REMIND}</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={handleApprovePaymentByAdmin}
                 style={[styles.btn, styles.btnAccept]}
               >
-                <Text style={styles.btnAcceptText}>Xác nhận trả</Text>
+                <Text style={styles.btnAcceptText}>{language.CONFIRM_PAYMENT}</Text>
               </TouchableOpacity>
             </View>
           ) : (
@@ -468,7 +469,7 @@ export default function ({
                 onPress={handleApprovePaymentByAdmin}
                 style={[styles.btn, styles.btnAcceptDisable]}
               >
-                <Text style={styles.btnAcceptText}>Đã xác nhận thanh toán</Text>
+                <Text style={styles.btnAcceptText}>{language.CONFIRM_PAYMENT_SUCCESS}</Text>
               </TouchableOpacity>
             </View>
           )}
