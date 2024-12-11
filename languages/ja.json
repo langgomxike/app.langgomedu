@@ -445,8 +445,26 @@
 "BANNED": "禁止されたアカウント",
 
 "NO_CLASS_WAITTING_APPROVAL": "承認待ちのクラスはありません",
-"NO_CLASS_WAITTING_PAY": "支払い待ちのクラスはありません",
-"AUTHOR": "作成者"
+  "NO_CLASS_WAITTING_PAY": "支払い待ちのクラスはありません",
+  "AUTHOR": "作成者",
+  "IS_ONLINE": "学習モード",
+  "GO_TO_CV": "CV",
+  "TO_DAY": "日付まで",
+  "FORM_DAY": "日付から",
+  "UPDATE_PERMISSION": "権限を更新",
+  "RELOAD": "再読み込み",
+  "LOGOUT_SUSCCESS": "正常にログアウトしました！さようなら、また会いましょう！",
+  "LOGOUT_UNSUSCCESS": "ログアウトに失敗しました",
+  "CHOSSEN_BIRTHDAY": "誕生日を選択",
+  "CAP_QUYEN_TRUY_CAP_ANH": "画像ライブラリアクセスの権限をリクエスト",
+  "VUI_LONG_CAP_QUYEN": "画像アクセス権限を付与してください",
+  "SUSCCES": "成功",
+  "UPDATED_AVATAR_SUCCESS": "情報が正常に更新されました",
+  "UPDATED_AVATAR_UNSUCCESS": "情報の更新に失敗しました",
+  "PLEASE_UPLOAD_ENOUGH_INFOR": "必要な情報をすべて更新してください",
+  "WORN_BIRTHDAY": "誕生日に問題があります",
+  "UPLOAD_SUCSSES": "アップロード成功",
+  "UPLOAD_UNSUCSSES": "アップロードに失敗しました"
 
 
 
