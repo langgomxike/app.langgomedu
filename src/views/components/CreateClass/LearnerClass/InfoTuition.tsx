@@ -16,6 +16,7 @@ import DropDownLocation from "../../dropdown/DropDownLocation";
 import { LanguageContext } from "../../../../configs/LanguageConfig";
 import { child } from "firebase/database";
 import DateTimeConfig from "../../../../configs/DateTimeConfig";
+import ReactAppUrl from "../../../../configs/ConfigUrl";
 
 type Props = {
   onNext: (
@@ -31,6 +32,8 @@ type Props = {
   ) => void;
   userId: string;
 };
+
+const URL = ReactAppUrl.PUBLIC_URL;
 
 const InfoTuition = ({ onNext, userId }: Props) => {
   // context
@@ -58,7 +61,6 @@ const InfoTuition = ({ onNext, userId }: Props) => {
   const [selectedDistrict, setSelectedDistrict] = useState("");
   const [selectedWard, setSelectedWard] = useState("");
   const [detail, setDetail] = useState("");
-  const [zalo, setZalo] = useState("");
 
   // Kiểm tra logic ngày bắt đầu và ngày kết thúc
   const validateDates = (start: string, end: string) => {
@@ -212,7 +214,6 @@ const InfoTuition = ({ onNext, userId }: Props) => {
     });
   };
 
-  // DANH SÁCH CON
 
   // Khi có dữ liệu mới, tạo trạng thái ban đầu cho tất cả item
   useEffect(() => {
@@ -262,7 +263,7 @@ const InfoTuition = ({ onNext, userId }: Props) => {
         <View style={styles.userInfo}>
           <Image
             source={{
-              uri: "https://cdn.vectorstock.com/i/1000v/51/87/student-avatar-user-profile-icon-vector-47025187.jpg",
+              uri: `${URL}${user.avatar}`,
             }}
             style={styles.avatar}
           />
@@ -271,7 +272,7 @@ const InfoTuition = ({ onNext, userId }: Props) => {
         <View style={styles.details}>
           <Text>
             <Ionicons
-              name={isJoined ? "checkmark" : "checkmark"} // Icon tùy trạng thái
+              name={isJoined ? "checkmark-circle-outline" : "checkmark-circle-outline"} // Icon tùy trạng thái
               size={35}
               color={isJoined ? "#44bd32" : "black"} // Màu sắc tùy trạng thái
             />
@@ -396,7 +397,7 @@ const InfoTuition = ({ onNext, userId }: Props) => {
       </View>
 
       <View>
-        <Text style={[styles.label, { marginTop: 25 }]}>Danh sách con</Text>
+        <Text style={[styles.label, { marginTop: 25 }]}>{languageContext.LIST_CHILD}</Text>
         <FlatList
           data={childData}
           renderItem={({ item }) => ChildItem(item)}
@@ -446,23 +447,24 @@ const styles = StyleSheet.create({
   },
   boxWhite: {
     width: 300,
-    marginRight: 15,
+    margin: 10,
     padding: 15,
-    backgroundColor: "#fff",
+    backgroundColor: '#ffffff',
     borderRadius: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
+    alignItems: "center",
+    shadowColor: "#333",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    elevation: 2,
-    alignItems: "center",
-    borderWidth: 2,
-    borderColor: "gray",
+    elevation: 5,
   },
   userInfo: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 15,
+    marginBottom: 30,
   },
   avatar: {
     width: 50,
@@ -485,6 +487,7 @@ const styles = StyleSheet.create({
   },
   description: {
     fontSize: 14,
+    marginTop: 15,
     color: "#555",
     marginBottom: 15,
     textAlign: "center",

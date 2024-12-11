@@ -253,7 +253,7 @@ const styles = StyleSheet.create({
   },
   txtAdd: { fontSize: 16, color: "#FFFFFF", fontWeight: "bold" },
   txtDelete: { fontSize: 16, color: "#FFFFFF", fontWeight: "bold" },
-  text: { fontSize: 20, fontWeight: "bold" },
+  text: { fontSize: 16, fontWeight: "bold" },
   marginInput: { marginBottom: 25 },
   label: { fontWeight: "bold", fontSize: 16, marginBottom: 8 },
   required: { color: "red" },
