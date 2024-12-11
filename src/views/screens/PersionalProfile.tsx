@@ -74,43 +74,6 @@ export default function PersionalProfileScreen() {
   // Giới tính
   const [gender, setGender] = useState(GENDER.MALE); // Default to MALE
 
-  // Lấy thông tin profile
-  // useEffect(() => {
-  //   AUser.getUserProfileById(
-  //     userId,
-  //     (data: User) => {
-  //       setUserProfile(data);
-  //       setImage(data?.avatar ? `${URL}/${data.avatar}` : null);
-  //       setProvince(data?.address?.province || "");
-  //       setDistrict(data?.address?.district || "");
-  //       setWard(data?.address?.ward || "");
-  //       setSelectedDetail(data?.address?.detail || "");
-
-  //       const classLevelIds =
-  //         data?.interested_class_levels?.map((item: any) => item.id) || [];
-  //       setSelectedClassLevels(classLevelIds);
-
-  //       const MajorIds =
-  //         data?.interested_majors?.map((item: any) => item.id) || [];
-  //       setSelectedMajors(MajorIds);
-
-  //       switch (data.gender?.id) {
-  //         case 0:
-  //           setGender(GENDER.MALE);
-  //           break;
-  //         case 1:
-  //           setGender(GENDER.FEMALE);
-  //           break;
-  //         case 2:
-  //           setGender(GENDER.OTHER);
-  //           break;
-  //       }
-  //     },
-  //     (isLoading: boolean) => {
-  //       setLoading(isLoading);
-  //     }
-  //   );
-  // }, [userId]);
   useEffect(() => {
     AUser.getUserProfileById(
       userId,
@@ -223,7 +186,7 @@ export default function PersionalProfileScreen() {
           if (response.success) {
             Alert.alert(`${languageContext.SUSCCES}`, `${languageContext.UPDATED_AVATAR_SUCCESS}`);
           } else {
-            Alert.alert(response.message || `${languageContext.UPDATED_AVATAR_UNSUCCESS}`);
+            Alert.alert(`${languageContext.NOTIFICATION}`,response.message || `${languageContext.UPDATED_AVATAR_UNSUCCESS}`);
           }
         },
         (loading) => {
@@ -257,19 +220,19 @@ export default function PersionalProfileScreen() {
       Alert.alert(`${languageContext.NOTIFICATION}`, `${languageContext.PLEASE_UPLOAD_ENOUGH_INFOR}`);
       return;
     }
-
+  
     const formData = new FormData();
     const currentDate = new Date();
-  const sixYearsAgo = new Date();
-  sixYearsAgo.setFullYear(currentDate.getFullYear() - 6); // Cộng thêm 6 năm vào ngày hiện tại để có ngày 6 năm trước
-
-  const birthDate = new Date(selectBirthday); // Ngày sinh từ state
-
-  if (birthDate > sixYearsAgo) {
-    Alert.alert(`${languageContext.NOTIFICATION}`, `${languageContext.WORN_BIRTHDAY}`);
-    return;
-  }
-
+    const sixYearsAgo = new Date();
+    sixYearsAgo.setFullYear(currentDate.getFullYear() - 6); // Cộng thêm 6 năm vào ngày hiện tại để có ngày 6 năm trước
+  
+    const birthDate = new Date(selectBirthday); // Ngày sinh từ state
+  
+    if (birthDate > sixYearsAgo) {
+      Alert.alert(`${languageContext.NOTIFICATION}`, `${languageContext.WORN_BIRTHDAY}`);
+      return;
+    }
+  
     // Thêm thông tin vào formData
     formData.append("gender", gender + "");
     if (selectedCity) formData.append("province", selectedCity);
@@ -277,24 +240,26 @@ export default function PersionalProfileScreen() {
     if (selectedWard) formData.append("ward", selectedWard);
     if (selectedDetail) formData.append("detail", selectedDetail);
     if (selectBirthday) formData.append("birthday", selectBirthday.toString());
-    if (selectedClassLevels.length > 0) {
+    
+    // Kiểm tra nếu có selectedClassLevels hoặc là mảng rỗng, vẫn truyền vào formData
+    if (Array.isArray(selectedClassLevels)) {
       formData.append("classes", JSON.stringify(selectedClassLevels));
     }
-    if (selectedMajors.length > 0) {
+  
+    // Kiểm tra nếu có selectedMajors hoặc là mảng rỗng, vẫn truyền vào formData
+    if (Array.isArray(selectedMajors)) {
       formData.append("majors", JSON.stringify(selectedMajors));
     }
-
+  
     // Gọi API cập nhật
     AUser.updateUserProfile(
       userId,
       formData,
       (response) => {
         if (response.success) {
-          // Alert.alert("Thành công", "Thông tin cá nhân đã được cập nhật.");
-          Alert.alert(`${languageContext.UPLOAD_SUCSSES}`);
+          Alert.alert(`${languageContext.NOTIFICATION}`, `${languageContext.UPLOAD_SUCSSES}`);
         } else {
           Alert.alert(response.message || `${languageContext.UPLOAD_UNSUCSSES}`);
-          // Alert.alert("Cập nhật thất bại vui lòng thử lại");
         }
       },
       (isLoading) => {

@@ -424,40 +424,6 @@ export default class AUser {
       });
   }
 
-  // Hàm cập nhật thông tin người dùng (bao gồm cả avatar)
-  // public static updateUserProfile(
-  //   userId: string,
-  //   formData: FormData, // Dữ liệu bao gồm các trường thông tin người dùng và avatar
-  //   onNext: (response: any) => void, // Callback khi nhận được phản hồi từ server
-  //   onLoading: (loading: boolean) => void // Callback để thay đổi trạng thái loading
-  // ) {
-  //   // Bắt đầu trạng thái loading
-  //   onLoading(true);
-
-  //   // Log formData để kiểm tra (nếu cần)
-  //   console.log("Form data to update profile:", formData);
-
-  //   // Gửi yêu cầu POST đến API để cập nhật thông tin người dùng
-  //   axios
-  //     .post(`${ReactAppUrl.API_BASE_URL}/users/update_profile`, formData, {
-  //       headers: {
-  //         "Content-Type": "multipart/form-data", // Đảm bảo gửi file dưới dạng multipart
-  //       },
-  //     })
-  //     .then((response) => {
-  //       // Nếu yêu cầu thành công, gọi callback với dữ liệu phản hồi từ server
-  //       onNext(response.data);
-  //     })
-  //     .catch((error) => {
-  //       // Log lỗi nếu có
-  //       console.error("Error updating profile:", error);
-  //       onNext({ success: false, message: "Failed to update profile." });
-  //     })
-  //     .finally(() => {
-  //       // Kết thúc trạng thái loading
-  //       onLoading(false);
-  //     });
-  // }
   public static updateUserProfile(
     userId: string,
     formData: FormData,
