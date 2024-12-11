@@ -26,7 +26,7 @@ const InfoClass = ({ onNext }: props) => {
   const [desc, setDesc] = useState("");
   const [capHocList, setCapHocList] = useState<ClassLevel[]>([]); // đặt select
   const [selectedCapHoc, setSelectedCapHoc] = useState<number>(-1);
-  const [maxLearners, setMaxLearners] = useState<number>(0);
+  const [maxLearners, setMaxLearners] = useState<number>(1);
   // useState MÔN HỌC, FETCH DATA
   const [monHoc, setMonHoc] = useState<number>(-1); // đặt select
   const [isOtherSelected, setIsOtherSelected] = useState(false); // Kiểm tra khi chọn "Khác"
