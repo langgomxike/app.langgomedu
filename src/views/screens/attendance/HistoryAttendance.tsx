@@ -230,8 +230,9 @@ export default function HistoryAttendance() {
                             <Text style={[styles.title, {fontSize: 14}]}>{subItem?.user?.full_name}</Text>
                           </View>
 
-                          <Text
-                            style={styles.price}>{subItem?.class?.tutor?.id === user?.id ? "Tutor" : "Learner"}</Text>
+                          <Text style={[styles.userStatus, subItem?.class?.tutor?.id === user?.id ?styles.statusTutor :  styles.statusLeaner]}>
+                          {subItem?.class?.tutor?.id === user?.id ? "Lớp dạy" : "Lớp học"}
+                          </Text>
                         </View>
 
                         <View style={styles.itemContentContainer}>
@@ -282,7 +283,7 @@ export default function HistoryAttendance() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginVertical: 15,
+    backgroundColor: BackgroundColor.white,
   },
 
   queryContaienr: {
@@ -378,7 +379,10 @@ const styles = StyleSheet.create({
   },
 
   itemContainer: {
-    padding: 20,
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    borderBlockColor: "#CFDFF9",
+    borderBottomWidth: 1,
   },
 
   itemContentContainer: {
@@ -446,5 +450,26 @@ const styles = StyleSheet.create({
     backgroundColor: BackgroundColor.primary,
     color: BackgroundColor.white,
     fontWeight: 500,
+  },
+
+  userStatus: {
+    fontWeight: "500",
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 8,
+    fontSize: 12,
+    position: "absolute",
+    right: 0,
+    top: 0,
+  },
+
+  statusTutor: {
+    backgroundColor: "rgba(73, 253, 38, 0.15)",
+    color: "#03560A",
+  },
+
+  statusLeaner: {
+    backgroundColor: "rgba(253, 144, 17, 0.10)",
+    color: "#FD9011",
   },
 });

@@ -225,10 +225,8 @@ const styles = StyleSheet.create({
 
   chatContent: {
     padding: 10,
-    paddingTop: 20,
+    paddingTop: 30,
     backgroundColor: BackgroundColor.white,
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30,
     shadowColor: BackgroundColor.sub_primary,
     shadowOffset: {
       width: 0,

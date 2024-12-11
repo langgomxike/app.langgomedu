@@ -86,10 +86,15 @@ export default function SuggestList() {
     onLoading: (loading: boolean) => void
   ) => {
     if (userData) {
+      
       const filterValues: Filters = {
-        // province: "Hồ Chí Minh",
-        major: [6],
+        province: userData.address?.province,
+        district: userData.address?.district ?  [userData.address?.district] : [],
+        ward: userData.address?.ward ? [userData.address?.ward] : [],
+        major: userData.interested_majors ?  userData.interested_majors.map((major) => major.id) : [],
+        classLevelId:userData.interested_class_levels ? userData.interested_class_levels.map((classLevel) => classLevel.id) : []
       };
+      
       AClass.getSuggetingClasses(
         userData.id,
         user.TYPE,
@@ -140,6 +145,7 @@ export default function SuggestList() {
   ) => {
     if (userData) {
       const address = `${userData.address?.province}, ${userData.address?.district}, ${userData.address?.ward}`;
+      
       ACV.getSuggestedCVs(
         userData.id,
         currentPage,
@@ -266,23 +272,23 @@ export default function SuggestList() {
     fetchDataByTabClass(1, setLoadingClass, true);
   }, [user.TYPE]);
 
-  useEffect(() => {
-    console.log("-------------Class-------------------");
+  // useEffect(() => {
+  //   console.log("-------------Class-------------------");
     
-    console.log(`Class: ${suggestingClasses.length}, class loading: ${loadingClass}`);
-    suggestingClasses.forEach((suggestingClass) => {
-      console.log("id: ", suggestingClass.id, "title:", suggestingClass.title);
-    })
+  //   console.log(`Class: ${suggestingClasses.length}, class loading: ${loadingClass}`);
+  //   suggestingClasses.forEach((suggestingClass) => {
+  //     console.log("id: ", suggestingClass.id, "title:", suggestingClass.title);
+  //   })
     
-    console.log("--------------------------------");
-  }, [suggestingClasses, loadingClass])
+  //   console.log("--------------------------------");
+  // }, [suggestingClasses, loadingClass])
 
-  useEffect(() => {
-    console.log("--------------CV------------------");
-    console.log(`CV: ${suggestingTutors.length}, class loading: ${loadingCV}`);
-    console.log("--------------------------------");
+  // useEffect(() => {
+  //   console.log("--------------CV------------------");
+  //   console.log(`CV: ${suggestingTutors.length}, class loading: ${loadingCV}`);
+  //   console.log("--------------------------------");
 
-  }, [suggestingTutors, loadingCV])
+  // }, [suggestingTutors, loadingCV])
   
 
 

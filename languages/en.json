@@ -186,6 +186,9 @@
   "CLASS_AVAILABLE": "Class available",
   "EXCEEDED_SELECTION": "seats left, you have selected more than the limit.",
   "SELECT_FEWER_OR_CONTACT_TUTOR": "Please select fewer students or contact the tutor for more information!",
+  
+  "CANNOT_TEACH_DUE_TO_CONFLICT": "Unable to teach the class due to a schedule conflict!",
+   "CANNOT_JOIN_CLASS_DUE_TO_CONFLICT": "Unable to join this class due to a schedule conflict!",
 
   "WANT_TO_JOIN_CLASS": "Do you want to join this class?",
   "WANT_TO_TEACH_CLASS": "Do you want to teach this class?",
