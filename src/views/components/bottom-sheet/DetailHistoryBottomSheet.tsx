@@ -7,7 +7,7 @@ import ReactAppUrl from "../../../configs/ConfigUrl";
 import ImageViewer from "react-native-image-zoom-viewer";
 import {IImageInfo} from "react-native-image-zoom-viewer/built/image-viewer.type";
 import DateTimeConfig from "../../../configs/DateTimeConfig";
-import {IdNavigationType} from "../../../configs/NavigationRouteTypeConfig";
+import {ClassDetailRoute, IdNavigationType} from "../../../configs/NavigationRouteTypeConfig";
 import {NavigationContext} from "@react-navigation/native";
 import ScreenName from "../../../constants/ScreenName";
 
@@ -70,8 +70,8 @@ export default function ({
   }, []);
 
   const goToDetailClass = useCallback(() => {
-    const data: IdNavigationType = {
-      id: attendance?.class?.id ?? -1,
+    const data: ClassDetailRoute = {
+      classId: attendance?.class?.id ?? -1,
     }
 
     navigation?.navigate(ScreenName.DETAIL_CLASS, data);

@@ -154,6 +154,27 @@ export default function UpdateReportedUser() {
 
 //effects
   useEffect(() => {
+    if (navigation) {
+      navigation.setOptions({
+        title: languageContext.SCREEN_NAME_OF_REPORT,
+        headerShown: true,
+        contentStyle: {
+          padding: 0,
+        },
+        headerStyle: {
+          backgroundColor: BackgroundColor.primary,
+        },
+        headerTintColor: "#fff",
+        headerLeft: () => (
+          <TouchableOpacity onPress={() => navigation.goBack()} style={{ paddingRight: 10 }}>
+            <Ionicons name="chevron-back" size={24} color="white" />
+          </TouchableOpacity>
+        )
+      });
+    }
+  }, [navigation]);
+
+  useEffect(() => {
     const reportLevelList: { id: number, label: string, points: number }[] = [];
 
     const levelsInClass = [
@@ -242,19 +263,11 @@ export default function UpdateReportedUser() {
   }, [report?.content]);
 
   return (
-    <ScrollView showsVerticalScrollIndicator={false} style={styles.container}>
+    <ScrollView showsVerticalScrollIndicator={false} style={[styles.container]}>
       <Spinner visible={loading}/>
 
       {/* nút back và tên màn hình */}
-      <View style={styles.component}>
-        {/* header */}
-        <View style={styles.screenName}>
-          <View style={styles.backBtn}>
-            <Ionicons name={"arrow-back-outline"} size={30} onPress={navigation?.goBack}/>
-          </View>
-          <Text style={styles.screenTitle}>{languageContext.SCREEN_NAME_OF_REPORT}</Text>
-        </View>
-
+      <View style={[styles.component, {paddingTop: 10}]}>
         <Text
           style={styles.badge}>{isPerformed === ReportMode.NOT_PERFORMED ? "Chua xu ly" : isPerformed === ReportMode.APPROVED ? "Da chap nhan" : "Da tu choi"}</Text>
 

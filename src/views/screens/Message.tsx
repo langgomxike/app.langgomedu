@@ -95,12 +95,6 @@ export default function MessageScreen() {
   }, [permission, handleSendNewMessage, accountContext.account, user]);
 
   //handlers
-  const goBack = useCallback(() => {
-    AMessage.markAsRead(user?.id ?? "-1", accountContext.account?.id ?? "-1", () => {
-      navigation?.goBack();
-    });
-  }, [user, accountContext.account, messages.length]);
-
   const goToProfile = useCallback(() => {
     const data: IdNavigationType = {
       id: user?.id ?? "-1",

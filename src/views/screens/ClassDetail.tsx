@@ -1,4 +1,4 @@
-import React, {useCallback, useContext, useEffect, useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import {FlatList, Image, RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View,} from "react-native";
 import {BackgroundColor} from "../../configs/ColorConfig";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -18,7 +18,7 @@ import User from "../../models/User";
 import {LanguageContext} from "../../configs/LanguageConfig";
 import {AccountContext} from "../../configs/AccountConfig";
 import AuthorTuorInClass from "../components/AuthorTuorInClass";
-import moment, { lang } from "moment";
+import moment from "moment";
 import ButtonsInDetailClass from "../components/button/ButtonsInDetailClass";
 import SFirebase, {FirebaseNode} from "../../services/SFirebase";
 import ScreenName from "../../constants/ScreenName";
@@ -26,8 +26,9 @@ import QRInfo from "../components/QRInfo";
 import {QRItems} from "../../configs/QRConfig";
 import {RoleList} from "../../models/Role";
 import MembersInClass from "../components/MembersInClass";
-import { AppInfoContext } from "../../configs/AppInfoContext";
+import {AppInfoContext} from "../../configs/AppInfoContext";
 import ModalDialogForClass from "../components/modal/ModalDialogForClass";
+import SLog, {LogType} from "../../services/SLog";
 
 const URL = ReactAppUrl.PUBLIC_URL;
 export default function ClassDetail() {
@@ -194,7 +195,7 @@ export default function ClassDetail() {
     }
 
      // Tính phí tạo lớp
-  const fee = classDetail  ? classDetail.total_lessons * classDetail.price *  
+  const fee = classDetail  ? classDetail.total_lessons * classDetail.price *  (classDetail.max_learners ?? 1) *
     (classDetail.author?.id === classDetail.tutor?.id
       ? appInfoContext.creation_fee_for_tutors
       : appInfoContext.creation_fee_for_parents)

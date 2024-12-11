@@ -18,6 +18,7 @@ import { AppInfoContext } from "./AppInfoContext";
 import Gender from "../models/Gender";
 import { GenderContext } from "./GenderContext";
 import { AuthContext } from "./AuthContext";
+import SFirebase from "../services/SFirebase";
 
 export const ChatTabContext = createContext<number[]>([0, 0, 0]);
 export const SearchContext = createContext("");
@@ -44,6 +45,13 @@ export default function AppContext({ children }: PropsWithChildren) {
   //handlers
   const setLanguageContext = useCallback((language: typeof vn) => {
     setLanguage(language);
+  }, []);
+
+  //effects
+  useEffect(() => {
+    SFirebase.getAppInfos((infos) => {
+      setAppInfos(infos);
+    });
   }, []);
 
   return (

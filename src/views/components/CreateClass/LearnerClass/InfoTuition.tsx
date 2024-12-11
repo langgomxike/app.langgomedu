@@ -42,7 +42,7 @@ const InfoTuition = ({ onNext, userId }: Props) => {
   const [tuition, setTuition] = useState<number | null>(null); // Giá trị gốc dạng số
   const [formattedTuition, setFormattedTuition] = useState<string>(""); // Giá trị hiển thị
   const [dateStart, setDateStart] = useState(DateTimeConfig.getDateFormatFullYear(new Date().getTime() + 24*60*60*1000));
-  const [dateEnd, setDateEnd] = useState("");
+  const [dateEnd, setDateEnd] = useState(DateTimeConfig.getDateFormatFullYear(new Date().getTime() + 24*60*60*1000*30));
   const [error, setError] = useState("");
   const [isDatePickerVisible, setDatePickerVisible] = useState(false);
   const [datePickerType, setDatePickerType] = useState<"start" | "end">();
@@ -78,7 +78,7 @@ const InfoTuition = ({ onNext, userId }: Props) => {
       return false;
     }
 
-    if (startDate < new Date().getTime() + 23 * 60 * 60 * 1000 - 1) {
+    if (startDate < new Date().getTime()) {
       setError("Ngay bat dau khong hop le"); // Ngày không hợp lệ
       return false;
     }
