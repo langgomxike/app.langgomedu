@@ -391,11 +391,14 @@
   "PASSWORD_INVALID_FORMAT": "Mật khẩu phải từ 6 đến 20 ký tự.",
   "USERNAME_INVALID_FORMAT": "Username phải từ 6 đến 20 ký tự và không có ký tự đặc biệt.",
   "NEW_PASSWORD_MUST_BE_DIFFERENT": "Mật khẩu mới không được trùng với mật khẩu cũ.",
+  "INVALID_PHONE_FORMAT": "Số điện thoại phải nhập đúng 10 số",
 
   "NO_ACCESS_USER": "Không thể truy cập. Vai trò của bạn không đủ quyền.",
   "NO_ACCESS_PARENT": "Bạn không có quyền tạo lớp cho phụ huynh.",
   "NO_ACCESS_TUTOR": "Bạn không có quyền tạo lớp cho gia sư.",
   "UPDATE_CLASS": "Cập nhật lớp",
+  "BTN_UPDATE_CLASS": "Chỉnh Sửa",
+  "LIST_CHILD": "Danh sách con",
 
   "KHANG": "KHANG",
   "CHOOSE":"chọn ...",

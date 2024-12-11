@@ -10,58 +10,68 @@ import { useContext, useState, useEffect } from "react";
 import DropDownLocation from "../../dropdown/DropDownLocation";
 import { LanguageContext } from "../../../../configs/LanguageConfig";
 import Class from "../../../../models/Class";
+import moment from "moment";
 
 type Props = {
   tuitionData: Class;
+  onSetDataTuition: (data: Class) => void;
+  tuition: number;
+  setTuiton: (tuition: number) => void;
+  dateStart: number;
+  setDateStart: (dateStart: number) => void;
+  dateEnd: number;
+  setDateEnd: (dateEnd: number) => void;
+  selectedProvince: string;
+  setSelectedProvince: (tuition: string) => void;
+  selectedDistrict: string;
+  setSelectedDistrict: (tuition: string) => void;
+  selectedWard: string;
+  setSelectedWard: (tuition: string) => void;
+  detail: string;
+  setDetail: (tuition: string) => void;
 };
 // { onNext }: props
-const UpdateInfoTuition = ({ tuitionData }: Props) => {
+const UpdateInfoTuition = ({
+  tuition,
+  setTuiton,
+  dateStart,
+  setDateStart,
+  dateEnd,
+  setDateEnd,
+  selectedProvince,
+  setSelectedProvince,
+  selectedDistrict,
+  setSelectedDistrict,
+  selectedWard,
+  setSelectedWard,
+  detail,
+  setDetail,
+}: Props) => {
   // context
   const languageContext = useContext(LanguageContext).language;
-
-  // Tuition state
-  const [tuition, setTuition] = useState<number | null>(
-    tuitionData.price || null
-  );
-  const [formattedTuition, setFormattedTuition] = useState<string>(
-    tuition?.toLocaleString("en-US") || ""
-  );
   // err
   const [error, setError] = useState("");
 
   // Dates state
-  const [dateStart, setDateStart] = useState<Date | null>(
-    tuitionData.started_at ? new Date(tuitionData.started_at) : null
-  );
-  const [dateEnd, setDateEnd] = useState<Date | null>(
-    tuitionData.ended_at ? new Date(tuitionData.ended_at) : null
-  );
   const [isDatePickerVisible, setDatePickerVisibility] = useState({
     start: false,
     end: false,
   });
 
-  // Address state
-  const [selectedProvince, setSelectedProvince] = useState(
-    tuitionData.address?.province || ""
-  );
-  const [selectedDistrict, setSelectedDistrict] = useState(
-    tuitionData.address?.district || ""
-  );
-  const [selectedWard, setSelectedWard] = useState(
-    tuitionData.address?.ward || ""
-  );
-  const [detail, setDetail] = useState(tuitionData.address?.detail || "");
-
-  console.log("city-: ", selectedProvince);
-  console.log("district-: ", selectedDistrict);
-  console.log("ward-: ", selectedWard);
+  // format gia tien
+  const formatCurrency = (value: string) => {
+    if (!value) return "";
+    // Loại bỏ tất cả ký tự không phải số
+    const numericValue = value.replace(/\D/g, "");
+    // Format số tiền
+    return numericValue.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  };
 
   // Format tuition on input change
-  const handleTuitionChange = (value: any) => {
+  const handleTuitionChange = (value: string) => {
+    formatCurrency(value);
     const numericValue = value.replace(/[^0-9]/g, "");
-    setTuition(Number(numericValue));
-    setFormattedTuition(Number(numericValue).toLocaleString("en-US"));
+    setTuiton(Number(numericValue));
   };
 
   // Handle date picker visibility
@@ -71,12 +81,13 @@ const UpdateInfoTuition = ({ tuitionData }: Props) => {
     setDatePickerVisibility({ ...isDatePickerVisible, [type]: false });
 
   // Handle date selection
-  const handleDateConfirm = (type: any, date: any) => {
-    if (type === "start") setDateStart(date);
-    if (type === "end") setDateEnd(date);
+  const handleDateConfirm = (type: "start" | "end", date: Date) => {
+    // Convert Date to timestamp (number)
+    const timestamp = date.getTime();
+    if (type === "start") setDateStart(timestamp);
+    if (type === "end") setDateEnd(timestamp);
     hideDatePicker(type);
   };
-
 
   return (
     <View style={styles.container}>
@@ -89,7 +100,7 @@ const UpdateInfoTuition = ({ tuitionData }: Props) => {
           style={styles.input}
           placeholder={languageContext.TUITION_PLACEHOLDER}
           keyboardType="numeric"
-          value={formattedTuition}
+          value={formatCurrency(tuition.toString())}
           onChangeText={handleTuitionChange}
         />
       </View>
@@ -106,7 +117,7 @@ const UpdateInfoTuition = ({ tuitionData }: Props) => {
         >
           <Text>
             {dateStart
-              ? dateStart.toLocaleDateString()
+              ? moment(dateStart).format("DD/MM/YYYY")
               : languageContext.DATE_START_PLACEHOLDER}
           </Text>
         </TouchableOpacity>
@@ -121,7 +132,7 @@ const UpdateInfoTuition = ({ tuitionData }: Props) => {
       >
         <Text>
           {dateEnd
-            ? dateEnd.toLocaleDateString()
+            ? moment(dateEnd).format("DD/MM/YYYY")
             : languageContext.DATE_END_PLACEHOLDER}
         </Text>
       </TouchableOpacity>

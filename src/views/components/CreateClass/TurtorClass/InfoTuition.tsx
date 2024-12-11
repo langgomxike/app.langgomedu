@@ -45,7 +45,6 @@ const InfoTuition = ({ onNext }: props) => {
   const [selectedDistrict, setSelectedDistrict] = useState("");
   const [selectedWard, setSelectedWard] = useState("");
   const [detail, setDetail] = useState("");
-  const [zalo, setZalo] = useState("");
 
   // Kiểm tra logic ngày bắt đầu và ngày kết thúc
   const validateDates = (start: string, end: string) => {
@@ -255,28 +254,6 @@ const InfoTuition = ({ onNext }: props) => {
           value={detail}
           onChangeText={(text) => {
             setDetail(text);
-            onNext(
-              tuition?.toString(),
-              dateStart,
-              dateEnd,
-              selectedProvince,
-              selectedDistrict,
-              selectedWard,
-              text
-            );
-          }}
-        />
-      </View>
-
-      {/* LINK ZALO */}
-      <View style={{ marginTop: 25 }}>
-        <Text style={styles.label}>{languageContext.ZALO}</Text>
-        <TextInput
-          style={styles.input}
-          placeholder={languageContext.ZALO_PLACEHOLDER}
-          value={zalo}
-          onChangeText={(text) => {
-            setZalo(text);
             onNext(
               tuition?.toString(),
               dateStart,

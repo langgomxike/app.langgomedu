@@ -35,7 +35,7 @@ export default function UpdateClass() {
   const [classData, setClassData] = useState<Class>(new Class());
 
   // handle
-  console.log("member in class: ", param.members);
+  // console.log("member in class: ", param.members);
 
   // effect
   useEffect(() => {

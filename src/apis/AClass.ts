@@ -381,13 +381,33 @@ export default class AClass {
     started_at: number,
     ended_at: number,
     updated_at = new Date().getTime(),
+    address_id: number,
     province: string,
     district: string,
     ward: string,
     detail: string,
-    lessons: Lesson[],
     onNext: (result: boolean, errorMessage?: string) => void
   ) {
+
+    console.log("data update class: ", JSON.stringify({
+      class_id: class_id,
+      title,
+      description,
+      major_id: major_id,
+      class_level_id: class_level_id,
+      max_learners: max_learners,
+      price,
+      started_at: started_at,
+      ended_at: ended_at,
+      updated_at: updated_at,
+      address_id: address_id,
+      province,
+      district,
+      ward,
+      detail,
+    }, null, 2));
+    
+
     axios
       .put(`${this.API_URL}/classes/update`, {
         class_id: class_id,
@@ -400,11 +420,11 @@ export default class AClass {
         started_at: started_at,
         ended_at: ended_at,
         updated_at: updated_at,
+        address_id: address_id,
         province,
         district,
         ward,
         detail,
-        lessons,
       })
       .then((response) => {
         console.log("Class updated successfully:", response.data);
@@ -418,6 +438,77 @@ export default class AClass {
       });
   }
 
+
+  public static updateClassForLeaner(
+    class_id: number,
+    title: string,
+    description: string,
+    major_id: number,
+    class_level_id: number,
+    max_learners: number,
+    price: number,
+    started_at: number,
+    ended_at: number,
+    updated_at = new Date().getTime(),
+    users: User[],
+    address_id: number,
+    province: string,
+    district: string,
+    ward: string,
+    detail: string,
+    onNext: (result: boolean, errorMessage?: string) => void
+  ) {
+
+    console.log("data update class: ", JSON.stringify({
+      class_id: class_id,
+      title,
+      description,
+      major_id: major_id,
+      class_level_id: class_level_id,
+      max_learners: max_learners,
+      price,
+      started_at: started_at,
+      ended_at: ended_at,
+      updated_at: updated_at,
+      users: users,
+      address_id: address_id,
+      province,
+      district,
+      ward,
+      detail,
+    }, null, 2));
+    
+
+    axios
+      .put(`${this.API_URL}/classes/update-learner`, {
+        class_id: class_id,
+        title,
+        description,
+        major_id: major_id,
+        class_level_id: class_level_id,
+        max_learners: max_learners,
+        price,
+        started_at: started_at,
+        ended_at: ended_at,
+        updated_at: updated_at,
+        users: users,
+        address_id: address_id,
+        province,
+        district,
+        ward,
+        detail,
+      })
+      .then((response) => {
+        console.log("Class updated successfully:", response.data);
+        onNext(true);
+      })
+      .catch((err) => {
+        const errorMessage =
+          err.response?.data?.message || "Cập nhật lớp học thất bại.";
+        console.error("Error updating class:", errorMessage);
+        onNext(false, errorMessage);
+      });
+  }
   public static acceptClassToTeach(
     classId: number,
     tutorId: string,

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   FlatList,
   Image,
-  ActivityIndicator,
 } from "react-native";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -17,38 +16,65 @@ import DropDownLocation from "../../dropdown/DropDownLocation";
 import { LanguageContext } from "../../../../configs/LanguageConfig";
 import Class from "../../../../models/Class";
 import ReactAppUrl from "../../../../configs/ConfigUrl";
-import { child } from "firebase/database";
+import moment from "moment";
 
 type Props = {
   tuitionData: Class;
+  onSetDataTuition: (data: Class) => void;
+  tuition: number;
+  setTuiton: (tuition: number) => void;
+  dateStart: number;
+  setDateStart: (dateStart: number) => void;
+  dateEnd: number;
+  setDateEnd: (dateEnd: number) => void;
+  selectedProvince: string;
+  setSelectedProvince: (tuition: string) => void;
+  selectedDistrict: string;
+  setSelectedDistrict: (tuition: string) => void;
+  selectedWard: string;
+  setSelectedWard: (tuition: string) => void;
+  detail: string;
+  setDetail: (tuition: string) => void;
   userId: string;
-  childs: User[];
+  childJoined: User[];
+  setChildJoined: (childs: User[]) => void;
 };
 
-const URL = ReactAppUrl.PUBLIC_URL
+const URL = ReactAppUrl.PUBLIC_URL;
 
-const UpdateInfoTuitionLearner = ({ tuitionData, userId, childs }: Props) => {
+const UpdateInfoTuitionLearner = ({
+  userId,
+  tuition,
+  setTuiton,
+  dateStart,
+  setDateStart,
+  dateEnd,
+  setDateEnd,
+  selectedProvince,
+  setSelectedProvince,
+  selectedDistrict,
+  setSelectedDistrict,
+  selectedWard,
+  setSelectedWard,
+  detail,
+  setDetail,
+  childJoined,
+  setChildJoined
+}: Props) => {
   // context
   const languageContext = useContext(LanguageContext).language;
 
-  // state ---------------------------------------------------------
-  const [tuition, setTuition] = useState<number | null>(tuitionData.price || null);
-  const [formattedTuition, setFormattedTuition] = useState<string>(tuition?.toLocaleString("en-US") || "");
+  // state ----------------------------------------------------------------------------------------------
   const [error, setError] = useState("");
-  const [dateStart, setDateStart] = useState<Date | null>(tuitionData.started_at ? new Date(tuitionData.started_at) : null);
-  const [dateEnd, setDateEnd] = useState<Date | null>(tuitionData.ended_at ? new Date(tuitionData.ended_at) : null);
-  const [isDatePickerVisible, setDatePickerVisibility] = useState({start: false,end: false,});
-  // Address
-  const [selectedProvince, setSelectedProvince] = useState(tuitionData.address?.province || "");
-  const [selectedDistrict, setSelectedDistrict] = useState(tuitionData.address?.district || "");
-  const [selectedWard, setSelectedWard] = useState(tuitionData.address?.ward || "");
-  const [detail, setDetail] = useState(tuitionData.address?.detail || "");
+  const [isDatePickerVisible, setDatePickerVisibility] = useState({
+    start: false,
+    end: false,
+  });
   // lưu id các thằng con tham gia
-  const [childJoineds, setChildJoineds] = useState<string[]>([]);
+  // const [childJoined, setChildJoined] = useState<User[]>(childJoinedProp);
   const [childData, setChildData] = useState<User[]>([]);
-  const [joinedState, setJoinedState] = useState<{ [key: string]: boolean }>({});
+  // const [joinedState, setJoinedState] = useState<{ [key: string]: boolean }>({});
   const [loading, setLoading] = useState(true);
-  
 
   // Fetch child data
   useEffect(() => {
@@ -63,13 +89,23 @@ const UpdateInfoTuitionLearner = ({ tuitionData, userId, childs }: Props) => {
         }
       );
     }
+    // setChildJoined(childJoinedProp)
   }, [userId]);
 
+  // format gia tien
+  const formatCurrency = (value: string) => {
+    if (!value) return "";
+    // Loại bỏ tất cả ký tự không phải số
+    const numericValue = value.replace(/\D/g, "");
+    // Format số tiền
+    return numericValue.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  };
+
   // Format tuition on input change
-  const handleTuitionChange = (value: any) => {
+  const handleTuitionChange = (value: string) => {
+    formatCurrency(value);
     const numericValue = value.replace(/[^0-9]/g, "");
-    setTuition(Number(numericValue));
-    setFormattedTuition(Number(numericValue).toLocaleString("en-US"));
+    setTuiton(Number(numericValue));
   };
 
   // Handle date picker visibility
@@ -79,37 +115,40 @@ const UpdateInfoTuitionLearner = ({ tuitionData, userId, childs }: Props) => {
     setDatePickerVisibility({ ...isDatePickerVisible, [type]: false });
 
   // Handle date selection
-  const handleDateConfirm = (type: any, date: any) => {
-    if (type === "start") setDateStart(date);
-    if (type === "end") setDateEnd(date);
+  const handleDateConfirm = (type: "start" | "end", date: Date) => {
+    // Convert Date to timestamp (number)
+    const timestamp = date.getTime();
+    if (type === "start") setDateStart(timestamp);
+    if (type === "end") setDateEnd(timestamp);
     hideDatePicker(type);
   };
 
-  // Xử lý khi nhấn nút tham gia
-  const handlePress = (id: string) => {
-    setJoinedState((prevState) => {
-      const newState = {
-        ...prevState,
-        [id]: !prevState[id], // Đổi trạng thái cho item được nhấn
-      };
 
-      // Cập nhật danh sách childJoineds
-      if (newState[id]) {
-        // Nếu chuyển sang trạng thái tham gia, thêm id vào danh sách
-        setChildJoineds((prev) => [...prev, id]);
-      } else {
-        // Nếu chuyển sang trạng thái không tham gia, loại bỏ id khỏi danh sách
-        setChildJoineds((prev) => prev.filter((childId) => childId !== id));
+  const handlePress = useCallback((user: User) => {
+    
+    // console.log(user);
+    const isAlreadyJoined = childJoined.some((child) => child.id === user.id && child.full_name === user.full_name);
+    if (isAlreadyJoined) {
+      // Xóa khỏi danh sách tham gia
+      const updatedList = childJoined.filter((child) => child.id !== user.id || child.full_name !== user.full_name);
+      setChildJoined(updatedList);
+    } else {
+      // Thêm vào danh sách tham gia
+      const joinedChild = childData.find((child) => child.id === user.id && child.full_name === user.full_name);
+      if (joinedChild) {
+        const updatedList = [...childJoined, joinedChild];
+        setChildJoined(updatedList);
       }
-
-      return newState;
-    });
-  };
+    }
+  }, [childData, childJoined]);
+  
+  
+  // console.log("child: ", childJoinedProp);
+  
 
   // DANH SACH CON
   const ChildItem = (user: User) => {
-    const isJoined = joinedState[user.id] || false; // Trạng thái của item
-
+    const isJoined = childJoined.some((child) => child.id === user.id);
     return (
       <View style={styles.boxWhite}>
         <View style={styles.userInfo}>
@@ -124,9 +163,9 @@ const UpdateInfoTuitionLearner = ({ tuitionData, userId, childs }: Props) => {
         <View style={styles.details}>
           <Text>
             <Ionicons
-              name={isJoined ? "checkmark" : "checkmark"} // Icon tùy trạng thái
+              name={isJoined ? "checkmark-circle-outline" : "checkmark-circle-outline"}
               size={35}
-              color={isJoined ? "green" : "black"} // Màu sắc tùy trạng thái
+              color={isJoined ? "#44bd32" : "black"}
             />
           </Text>
           <Text style={styles.description}>
@@ -137,7 +176,7 @@ const UpdateInfoTuitionLearner = ({ tuitionData, userId, childs }: Props) => {
               styles.button,
               isJoined ? styles.buttonCancel : styles.buttonJoin, // Áp dụng style tùy theo trạng thái
             ]}
-            onPress={() => handlePress(user.id)}
+            onPress={() => handlePress(user)}
           >
             <Text
               style={[
@@ -166,7 +205,7 @@ const UpdateInfoTuitionLearner = ({ tuitionData, userId, childs }: Props) => {
           style={styles.input}
           placeholder={languageContext.TUITION_PLACEHOLDER}
           keyboardType="numeric"
-          value={formattedTuition}
+          value={formatCurrency(tuition.toString())}
           onChangeText={handleTuitionChange}
         />
       </View>
@@ -183,7 +222,7 @@ const UpdateInfoTuitionLearner = ({ tuitionData, userId, childs }: Props) => {
         >
           <Text>
             {dateStart
-              ? dateStart.toLocaleDateString()
+              ? moment(dateStart).format("DD/MM/YYYY")
               : languageContext.DATE_START_PLACEHOLDER}
           </Text>
         </TouchableOpacity>
@@ -198,7 +237,7 @@ const UpdateInfoTuitionLearner = ({ tuitionData, userId, childs }: Props) => {
       >
         <Text>
           {dateEnd
-            ? dateEnd.toLocaleDateString()
+            ? moment(dateEnd).format("DD/MM/YYYY")
             : languageContext.DATE_END_PLACEHOLDER}
         </Text>
       </TouchableOpacity>
@@ -248,7 +287,7 @@ const UpdateInfoTuitionLearner = ({ tuitionData, userId, childs }: Props) => {
 
       {/* Child List */}
       <View>
-        <Text style={[styles.label, { marginTop: 25 }]}>Danh sách con</Text>
+        <Text style={[styles.label, { marginTop: 25 }]}>{languageContext.LIST_CHILD}</Text>
         <FlatList
           data={childData}
           renderItem={({ item }) => ChildItem(item)}
@@ -298,7 +337,7 @@ const styles = StyleSheet.create({
   },
   boxWhite: {
     width: 300,
-    marginRight: 15,
+    margin: 10,
     padding: 15,
     backgroundColor: "#fff",
     borderRadius: 20,
@@ -308,13 +347,11 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 2,
     alignItems: "center",
-    borderWidth: 2,
-    borderColor: "gray",
   },
   userInfo: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 15,
+    marginBottom: 30,
   },
   avatar: {
     width: 50,
@@ -338,6 +375,7 @@ const styles = StyleSheet.create({
   description: {
     fontSize: 14,
     color: "#555",
+    marginTop: 15,
     marginBottom: 15,
     textAlign: "center",
   },

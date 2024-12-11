@@ -1,44 +1,31 @@
 import { ScrollView, StyleSheet, Text } from "react-native";
 import UpdateInfoClass from "./UpdateInfoClass";
 import UpdateInfoLesson from "./UpdateInfoLesson";
-import UpdateInfoTuition from "./UpdateLearnerClass/UpdateInfoTuitionLearner";
 import { TouchableOpacity } from "react-native-gesture-handler";
-import { useCallback, useContext, useEffect, useState } from "react";
-import AClass from "../../../apis/AClass";
-import Lesson from "../../../models/Lesson";
+import { useContext, useEffect, useState } from "react";
 import Dialog from "react-native-dialog";
-import {
-  NavigationContext,
-  NavigationRouteContext,
-} from "@react-navigation/native";
-import ScreenName from "../../../constants/ScreenName";
+import { NavigationRouteContext } from "@react-navigation/native";
 import { AccountContext } from "../../../configs/AccountConfig";
 import { RoleList } from "../../../models/Role";
 import { LanguageContext } from "../../../configs/LanguageConfig";
 import { UpdateClassRoute } from "../../../configs/NavigationRouteTypeConfig";
 import Class from "../../../models/Class";
 import UpdateInfoTuitionLearner from "./UpdateLearnerClass/UpdateInfoTuitionLearner";
+import AClass from "../../../apis/AClass";
+import User from "../../../models/User";
 
 const UpdateLearnerClass = () => {
   // context
-  const navigation = useContext(NavigationContext);
-  const user = useContext(AccountContext); // get account info
+  // get account info
+  const user = useContext(AccountContext);
+  if (!user || !user.account) {
+    return <Text>Error: User not found</Text>;
+  }
   const languageContext = useContext(LanguageContext).language;
-  // route, context
   const route = useContext(NavigationRouteContext);
   const param = (route?.params as UpdateClassRoute) || new Class();
 
-  if (!user || !user.account) {
-    return <Text>Error: User not found</Text>; // handle case where user data is not available
-  }
-
-  const roleIds = user.account?.roles?.map((role) => role.id); // get role ids
-  const tutorId = roleIds?.includes(RoleList.TUTOR)
-    ? user.account?.id ?? ""
-    : ""; // if not TUTOR, it's an empty string
-  const authorId = user.account?.id;
-
-  // state
+  // state ------------------------------------------------------------
   const [dataTitle, setDataTitle] = useState<string>("");
   const [dataDesc, setDataDesc] = useState<string>("");
   const [dataMajorId, setDataMajorId] = useState<number>(-1);
@@ -50,132 +37,132 @@ const UpdateLearnerClass = () => {
   const [dataDetail, setDataDetail] = useState("");
   // error state
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  // lesson state
-  const [lessons, setLessons] = useState<Lesson[]>([]);
-  // tuition state
-  const [dataPrice, setDataPrice] = useState<number | null>(null);
-  const [dataDateStart, setDataDateStart] = useState("");
-  const [dataDateEnd, setDataDateEnd] = useState("");
-  // max learners state
+  // tuition
+  const [dataPrice, setDataPrice] = useState<number>(-1);
+  const [dataDateStart, setDataDateStart] = useState<number>(-1);
+  const [dataDateEnd, setDataDateEnd] = useState<number>(-1);
+  // max learners
   const [maxLearners, setMaxLearners] = useState<number>(0);
-  // newly created class id
-  const [createClassId, setCreateClassId] = useState<number>(-1);
-  // dialog visibility state
+  // dialog visibility
   const [isDialogVisible, setIsDialogVisible] = useState(false);
   const [classData, setClassData] = useState<Class>(new Class());
+  const [childJoined, setChildJoined] = useState<User[]>([]);
 
-  const convertStringToTimestamp = (dateString: string) => {
-    const [day, month, year] = dateString.split("/").map(Number);
-    const dateObj = new Date(year, month - 1, day);
-    return !isNaN(dateObj.getTime()) ? dateObj.getTime() : null;
-  };
 
-  const handleSaveClass = useCallback(() => {
-    if (!dataTitle.trim()) {
-      setErrorMessage(languageContext.ERR_MESSAGE_TITLE);
-      return;
-    }
-    if (!dataDesc.trim()) {
-      setErrorMessage(languageContext.ERR_MESSAGE_DESCRIPTION);
-      return;
-    }
-    if (dataMajorId === -1) {
-      setErrorMessage(languageContext.ERR_MESSAGE_MAJOR);
-      return;
-    }
-    if (dataClassLevel === -1) {
-      setErrorMessage(languageContext.ERR_MESSAGE_CLASS_LEVEL);
-      return;
-    }
-    if (dataPrice === null || dataPrice === 0 || isNaN(dataPrice)) {
-      setErrorMessage(languageContext.ERR_MESSAGE_PRICE);
-      return;
-    }
-    if (!dataDateStart.trim() || !dataDateEnd.trim()) {
-      setErrorMessage(languageContext.ERR_MESSAGE_DATE_START_END);
-      return;
-    }
-    if (!authorId) {
-      setErrorMessage(languageContext.ERR_MESSAGE_AUTHOR);
-      return;
-    }
-
-    setErrorMessage(null);
-
-    if (dataDateStart && dataDateEnd) {
-      // AClass.createClassForLearner(
-      //   dataTitle,
-      //   dataDesc,
-      //   dataMajorId,
-      //   dataClassLevel,
-      //   dataPrice,
-      //   convertStringToTimestamp(dataDateStart),
-      //   convertStringToTimestamp(dataDateEnd),
-      //   maxLearners,
-      //   dataProvinces,
-      //   dataDistrict,
-      //   dataWard,
-      //   dataDetail,
-      //   tutorId, // Pass tutorId from context
-      //   authorId, // Pass authorId from context
-      //   lessons,
-      //   (isSuccess, insertId) => {
-      //     if (isSuccess && insertId) {
-      //       setCreateClassId(insertId);
-      //       setIsDialogVisible(true); // Show dialog on success
-      //     }
-      //   }
-      // );
-    }
-  }, [
-    dataTitle,
-    dataDesc,
-    dataMajorId,
-    dataClassLevel,
-    dataPrice,
-    dataDateStart,
-    dataDateEnd,
-    maxLearners,
-    dataProvinces,
-    dataDistrict,
-    dataWard,
-    dataDetail,
-    tutorId, // Ensure tutorId is available here
-    authorId, // Ensure authorId is available here
-    lessons,
-  ]);
-
-  // useEffect
+  // useEffect ---------------------------------------------------------
   useEffect(() => {
-    setClassData(param.classData);
+    if (param.classData) {
+      setDataTitle(param.classData.title);
+      setDataDesc(param.classData.description);
+      setDataMajorId(param.classData.major?.id ?? 0);
+      setDataClassLevel(param.classData.class_level?.id ?? 0);
+      setDataProvinces(param.classData.address?.province ?? "");
+      setDataDistrict(param.classData.address?.district ?? "");
+      setDataWard(param.classData.address?.ward ?? "");
+      setDataDetail(param.classData.address?.detail ?? "");
+      setDataPrice(param.classData.price);
+      setDataDateStart(param.classData.started_at);
+      setDataDateEnd(param.classData.ended_at);
+      setMaxLearners(param.classData.max_learners);
+      setChildJoined(param.members);
+      if (param.classData.id) {
+        setClassData(param.classData);
+      } else {
+        console.log("khong co id lop hoc!");
+      }
+    }
   }, [param.classData]);
 
-  // render
-  if (!param.classData) {
-    return <Text>Không có dữ liệu lớp học.</Text>;
+  useEffect(() => {
+    setClassData(param.classData);
+  }, [param.classData]);  
+
+  // handle ------------------------------------------------------------
+  const handleSaveClass = () => {
+    if (dataDateStart && dataDateEnd) {
+      if (!classData?.id) {
+        console.error("classData.id không tồn tại.");
+        return;
+      }
+      
+      AClass.updateClassForLeaner(
+        classData.id,
+        dataTitle,
+        dataDesc,
+        dataMajorId,
+        dataClassLevel,
+        maxLearners,
+        dataPrice ?? 0,
+        dataDateStart,
+        dataDateEnd,
+        new Date().getTime(),
+        childJoined,
+        classData.address?.id ?? 0,
+        dataProvinces,
+        dataDistrict,
+        dataWard,
+        dataDetail,
+        (isSuccess, errorMessage) => {
+          if (isSuccess) {
+            setIsDialogVisible(true);
+          } else {
+            setErrorMessage(errorMessage ?? null);
+          }
+        }
+      );
+    }
   }
+
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
-      <UpdateInfoClass classData={param.classData} />
+      <UpdateInfoClass
+        classData={param.classData}
+        onSetClassData={setClassData}
+        title={dataTitle}
+        onSetTitle={setDataTitle}
+        description={dataDesc}
+        onSetDescription={setDataDesc}
+        classLevel={dataClassLevel}
+        onsetClassLevel={setDataClassLevel}
+        maxLearners={maxLearners}
+        onSetMaxLearners={setMaxLearners}
+        major={dataMajorId}
+        onSetMajor={setDataMajorId}
+      />
       {classData.lessons && <UpdateInfoLesson lessonData={classData.lessons} />}
+      
       <UpdateInfoTuitionLearner
-      tuitionData={param.classData}
-      userId={user.account?.id ?? ""}
-      childs={param.members}
+        tuitionData={param.classData}
+        onSetDataTuition={setClassData}
+        tuition={dataPrice}
+        setTuiton={setDataPrice}
+        dateStart={dataDateStart}
+        setDateStart={setDataDateStart}
+        dateEnd={dataDateEnd}
+        setDateEnd={setDataDateEnd}
+        selectedProvince={dataProvinces}
+        setSelectedProvince={setDataProvinces}
+        selectedDistrict={dataDistrict}
+        setSelectedDistrict={setDataDistrict}
+        selectedWard={dataWard}
+        setSelectedWard={setDataWard}
+        detail={dataDetail}
+        setDetail={setDataDetail}
+        userId={user.account?.id ?? ""}
+        childJoined={childJoined}
+        setChildJoined = {setChildJoined}
       />
 
       <TouchableOpacity style={styles.btnNext} onPress={handleSaveClass}>
-        <Text style={styles.txtNext}>Chỉnh Sửa</Text>
+        <Text style={styles.txtNext}>{languageContext.BTN_UPDATE_CLASS}</Text>
       </TouchableOpacity>
 
       {errorMessage && <Text style={styles.errorText}>{errorMessage}</Text>}
 
       <Dialog.Container visible={isDialogVisible}>
         <Dialog.Title>{languageContext.DIALOG_TITLE}</Dialog.Title>
-        <Dialog.Description>
-          {languageContext.DIALOG_TITLE}: {createClassId}.
-        </Dialog.Description>
+        <Dialog.Description>{languageContext.DIALOG_TITLE}.</Dialog.Description>
         <Dialog.Button
           label="OK"
           onPress={() => {

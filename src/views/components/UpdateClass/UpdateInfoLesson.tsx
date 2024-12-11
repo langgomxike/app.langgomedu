@@ -180,7 +180,7 @@ const UpdateInfoLesson = ({lessonData} : props) => {
               style={[{ justifyContent: "center" }, styles.input]}
               onPress={() => toggleStatus(index)}
             >
-              <Text style={[{ color: "#0D99FF" }, styles.text]}>
+              <Text style={[ styles.text, { color: "#0D99FF"}]}>
                 {lesson.is_online ? langguageContext.LEARNING_METHOD_1 : langguageContext.LEARNING_METHOD_2}
               </Text>
             </TouchableOpacity>
@@ -251,7 +251,7 @@ const styles = StyleSheet.create({
   },
   txtAdd: { fontSize: 16, color: "#FFFFFF", fontWeight: "bold" },
   txtDelete: { fontSize: 16, color: "#FFFFFF", fontWeight: "bold" },
-  text: { fontSize: 20, fontWeight: "bold" },
+  text: { fontSize: 16, fontWeight: "bold" },
   marginInput: { marginBottom: 25 },
   label: { fontWeight: "bold", fontSize: 16, marginBottom: 8 },
   required: { color: "red" },
