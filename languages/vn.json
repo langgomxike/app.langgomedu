@@ -199,6 +199,9 @@
   "EXCEEDED_SELECTION": "chỗ trống, bạn đã chọn quá số lượng.",
   "SELECT_FEWER_OR_CONTACT_TUTOR": "Vui lòng chọn ít hơn hoặc liên hệ với gia sư để có thông tin!",
 
+  "CANNOT_TEACH_DUE_TO_CONFLICT": "Không thể tham gia dạy lớp do bạn bị trùng lịch!",
+  "CANNOT_JOIN_CLASS_DUE_TO_CONFLICT": "Không thể tham gia vào lớp học này do bạn đã bị trùng lịch!",
+
 
   "WANT_TO_JOIN_CLASS": "Bạn muốn tham gia lớp học này?",
   "WANT_TO_TEACH_CLASS": "Bạn muốn nhận dạy lớp học này?",

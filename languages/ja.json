@@ -198,6 +198,9 @@
   "EXCEEDED_SELECTION": "空席あり、選択数が制限を超えています。",
   "SELECT_FEWER_OR_CONTACT_TUTOR": "少ない人数を選択するか、情報については講師にお問い合わせください!",
 
+  "CANNOT_TEACH_DUE_TO_CONFLICT": "スケジュールが重複しているため、クラスを教えることができません！",
+  "CANNOT_JOIN_CLASS_DUE_TO_CONFLICT": "スケジュールが重複しているため、このクラスに参加することができません !",
+
   "WANT_TO_JOIN_CLASS": "このクラスに参加しますか？",
   "WANT_TO_TEACH_CLASS": "このクラスを教えますか？",
   "CLASS_FULL_CONTACT_TEACHER": "クラスは定員に達しました.\nクラスに参加したい場合は、クラスの教師に連絡してください！",

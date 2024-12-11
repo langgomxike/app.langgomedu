@@ -29,7 +29,7 @@ export default class ACV {
     onLoading: (loading: boolean) => void){
       onLoading(true);
       const perPage = Values.SUGGESTS_CV_PERPAGE;
-      // console.log("Get suggest cvs: ", `${baseURL}/cvs/suggests/${userId}?page=${page}&perPage=${perPage}&address=${address}}` );
+      console.log("Get suggest cvs: ", `${baseURL}/cvs/suggests/${userId}?page=${page}&perPage=${perPage}&address=${address}}` );
       
     axios.get(`${baseURL}/suggests/${userId}?page=${page}&perPage=${perPage}&address=${address}`)
     .then((response) => {

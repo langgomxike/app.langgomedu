@@ -69,6 +69,8 @@ const styles = StyleSheet.create({
     backgroundColor: BackgroundColor.white,
     paddingHorizontal: SCREEN_BORDER_HORIZONTAL,
     gap: SCREEN_ITEM_GAP,
+    
+    borderWidth: 1,
   },
 
   headerContainer: {

@@ -239,7 +239,7 @@ export default function DetailUserBottomSheet({
 
 
           {userData.is_reported && (
-            <View style={{flex: 1, marginTop: 20,}}>
+            <View style={{flex: 1, marginVertical: 20,}}>
               <Text style={[styles.btnReportText, {color: TextColor.danger}]}>
                 Danh sach bao cao
               </Text>

@@ -59,7 +59,7 @@ export default function RegisterChildScreen() {
               [
                 {
                   onPress: () => {
-                    navigation?.goBack();
+                    navigation?.navigate(ScreenName.ACCOUNT);
                   },
                 },
               ]
