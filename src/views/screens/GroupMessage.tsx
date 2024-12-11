@@ -299,11 +299,9 @@ const styles = StyleSheet.create({
 
   chatContent: {
     padding: 10,
-    paddingTop: 20,
+    paddingTop: 30,
     // marginTop: 10,
     backgroundColor: BackgroundColor.white,
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30,
     shadowColor: BackgroundColor.sub_primary,
     shadowOffset: {
       width: 0,
@@ -335,13 +333,14 @@ const styles = StyleSheet.create({
   },
 
   avatar: {
-    width: 50,
-    height: 50,
+    width: 45,
+    height: 45,
     marginVertical: 10,
     borderRadius: 50,
     backgroundColor: BackgroundColor.sub_primary,
     borderWidth: 1,
     borderColor: BackgroundColor.white,
+    objectFit: "cover"
   },
 
   chatContainer: {

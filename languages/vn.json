@@ -199,6 +199,9 @@
   "EXCEEDED_SELECTION": "chỗ trống, bạn đã chọn quá số lượng.",
   "SELECT_FEWER_OR_CONTACT_TUTOR": "Vui lòng chọn ít hơn hoặc liên hệ với gia sư để có thông tin!",
 
+  "CANNOT_TEACH_DUE_TO_CONFLICT": "Không thể tham gia dạy lớp do bạn bị trùng lịch!",
+  "CANNOT_JOIN_CLASS_DUE_TO_CONFLICT": "Không thể tham gia vào lớp học này do bạn đã bị trùng lịch!",
+
 
   "WANT_TO_JOIN_CLASS": "Bạn muốn tham gia lớp học này?",
   "WANT_TO_TEACH_CLASS": "Bạn muốn nhận dạy lớp học này?",
@@ -482,11 +485,38 @@
   "SUSCCES":"Thành công",
   "UPDATED_AVATAR_SUCCESS":"Cập nhật thông tin thành công",
   "UPDATED_AVATAR_UNSUCCESS":"Cập nhật thông tin không thành công",
-"PLEASE_UPLOAD_ENOUGH_INFOR":"Vui lòng cập nhật đầy đủ thông tin",
-"WORN_BIRTHDAY":"Ngày sinh đang có vấn đề",
-"UPLOAD_SUCSSES":"Cập nhật thành công",
-"UPLOAD_UNSUCSSES":"Cập nhật không thành công"
+  "PLEASE_UPLOAD_ENOUGH_INFOR":"Vui lòng cập nhật đầy đủ thông tin",
+  "WORN_BIRTHDAY":"Ngày sinh đang có vấn đề",
+  "UPLOAD_SUCSSES":"Cập nhật thành công",
+  "UPLOAD_UNSUCSSES":"Cập nhật không thành công",
+  "DETAIL_REPORT":"Chi tiết báo cáo",
+  "YOU_ARE_COMPLETED":" vừa hoàn thành buổi học",
+  "IN":" vào ",
+  "PLEASE_PAY":" Xin vui lòng thanh toán, xin cảm ơn!",
 
+  "ONLY_ONE":"Bạn chỉ có thể nhắc nhở 1 lần mỗi ngày cho buổi học này. Vui lòng thử lại sau.",
+  "DEAR_PARENT":" gửi phụ huynh, con bạn vừa hoàn thành buổi học",
+  "REMIND":"Nhắc nhở",
+  "WAITING_FOR_PAY":"Chờ thanh toán",
+  "NO_PEOPLE_IN_CLASS":"Không có người trong lớp học",
+  "CAC_BUOI_HOC":"Các lớp học",
+  "REPORT_LIST":"Danh sách báo cáo",
+  "DELETED_CLASS":"Xoá lớp",
+  "DELETED_UNSUCCESS":"Xoá lớp học không thành công",
+  "DELETED_SUCCESS":"Xoá lớp học  thành công",
+  "CLASS_WILL_BE_LOCK":"Lớp học sẽ bị khoá vĩnh viễn",
+  "CONFIRM_CLASS_SUCCESS":"Xác nhận lớp học thành công",
+  "NOT_CONFIRM":"Chưa được xác nhận",
+  "DO_PAY":"Thực hiện thanh toán",
+  "CANT_CONFIRM":"Không thể xác nhận",
+  "PAY":"Thanh toán",
+  "NOT_PAY":"Chưa thanh toán",
+  "CONFIRM_DEBIT":"Xác nhận ghi nợ",
+  "DEBIT":"Ghi nợ",
+  "NOT_DEBIT":"Không thực hiện ghi nợ",
+  "NOT_ATTENDED":"Chưa điểm danh",
+  "U_ARE_NOT_ROLE":"Bạn không có quyền truy cập trang này",
+  "ANDROID_PROGRAM":"Lập trình di động"
 
 
 }

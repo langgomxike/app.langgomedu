@@ -72,8 +72,8 @@ export default function ChildItem({
 
   const handleNotify = useCallback(async (user: User) => {
     const date: string = moment(lessonData.started_at).format("DD/MM/YYYY")
-    const learnerMessage = `${user.full_name}, bạn vừa hoàn thành buổi học của môn ${lessonData.class?.major?.vn_name} vào ${date}. Vui lòng thanh toán học phí cho buổi học ngày nhé. Xin cảm ơn!`;
-    const parentMessage = `Quý phụ huynh, con bạn ${user.full_name} vừa hoàn thành buổi học của môn ${lessonData.class?.major?.vn_name} vào ${date}. Học phí của con bạn vẫn chưa được thanh toán. Xin cảm ơn!`;
+    const learnerMessage = `${user.full_name}, ${language.YOU_ARE_COMPLETED} ${lessonData.class?.major?.vn_name} ${language.IN} ${date}. ${language.PLEASE_PAY}`;
+    const parentMessage = `${language.DEAR_PARENT} ${user.full_name} ${language.YOU_ARE_COMPLETED} ${lessonData.class?.major?.vn_name} ${language.IN} ${date}. ${language.PLEASE_PAY}`;
 
     const now = moment();
     const lessonId = lessonData.id;
@@ -81,7 +81,7 @@ export default function ChildItem({
 
     // Kiểm tra nếu đã gửi thông báo trong vòng 1 ngày
   if (notifyData[lessonId]?.[user.id] && now.diff(moment(notifyData[lessonId][user.id]), "days") < 1) {
-    alert("Bạn chỉ có thể nhắc nhở 1 lần mỗi ngày cho buổi học này. Vui lòng thử lại sau.");
+    alert(`${language.ONLY_ONE}`);
     return;
   }
 

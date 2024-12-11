@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import {
   View,
   Text,
@@ -14,6 +14,7 @@ import User from "../../../models/User";
 import ReactAppUrl from "../../../configs/ConfigUrl";
 import DateTimeConfig from "../../../configs/DateTimeConfig";
 import moment from "moment";
+import { LanguageContext } from "../../../configs/LanguageConfig";
 
 type UserComponentProps = {
   isButtonDetailReport?: boolean;
@@ -27,7 +28,7 @@ export default function UserComponent({
   userData,
 }: UserComponentProps) {
   // states -------------------------------------------------------------------
-
+  const language = useContext(LanguageContext).language;
   // handler ------------------------------------------------------------------
 
   // effect -------------------------------------------------------------------
@@ -44,7 +45,7 @@ export default function UserComponent({
           <Text style={styles.userFullName}>{userData.full_name}</Text>
 
         </View>
-        {userData.is_reported && <Text style={styles.badge}>Bị báo cáo</Text>}
+        {userData.is_reported && <Text style={styles.badge}>{language.REPORTEE}</Text>}
       </View>
 
       <View style={styles.line}></View>
@@ -52,7 +53,7 @@ export default function UserComponent({
       <View style={styles.userHeaderContent}>
         <View style={[styles.row, { marginBottom: 5 }]}>
           <Text style={[styles.title, { color: BackgroundColor.primary }]}>
-            Điểm uy tín:
+           {language.POINT}
           </Text>
           <Text style={styles.content}>{userData.point}</Text>
         </View>
@@ -88,7 +89,7 @@ export default function UserComponent({
 
       {isButtonDetailReport && (
         <TouchableOpacity style={styles.btnShowDetail}>
-          <Text style={styles.btnShowDetailText}>Chi tiết báo cáo</Text>
+          <Text style={styles.btnShowDetailText}>{language.DETAIL_REPORT}</Text>
         </TouchableOpacity>
       )}
     </View>

@@ -10,6 +10,7 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import Modal from "react-native-modal";
 import { BackgroundColor } from "../../../configs/ColorConfig";
 import { Image } from "react-native";
+import { LanguageContext } from "../../../configs/LanguageConfig";
 
 type ModalConfirmAttendClassProps = {
   modalName?: string;
@@ -47,6 +48,7 @@ export default function ModalConfirmAttendClass({
 }: ModalConfirmAttendClassProps) {
 
   // states
+  const language = useContext(LanguageContext).language;
 
   // handlers
   const getImageSource = (iconName: string) => {
@@ -67,7 +69,7 @@ export default function ModalConfirmAttendClass({
       {loading ? (
         <View style={styles.containerLoading} >
           <ActivityIndicator size={50} />
-          <Text style={styles.loadingText}>Đang xử lý...</Text>
+          <Text style={styles.loadingText}>{language.PROCESSING}</Text>
         </View>
       ) : (
         <View style={styles.container} >
