@@ -141,7 +141,7 @@ export default function PersionalProfileScreen() {
 
    // Hàm chuyển đổi ngày tháng
    const formatDate = (timestamp: number) => {
-    if (!timestamp) return "Chọn ngày sinh";
+    if (!timestamp) return `${languageContext.CHOSSEN_BIRTHDAY}`;
     const date = new Date(timestamp);
     const day = date.getDate().toString().padStart(2, "0");
     const month = (date.getMonth() + 1).toString().padStart(2, "0");
@@ -182,8 +182,8 @@ export default function PersionalProfileScreen() {
 
     if (!permissionResult.granted) {
       Alert.alert(
-        "Cần quyền truy cập",
-        "Vui lòng cấp quyền truy cập thư viện ảnh!"
+       `${languageContext.CAP_QUYEN_TRUY_CAP_ANH}`,
+        `${languageContext.VUI_LONG_CAP_QUYEN}`
       );
       return;
     }
@@ -221,9 +221,9 @@ export default function PersionalProfileScreen() {
         formData,
         (response) => {
           if (response.success) {
-            Alert.alert("Thành công", "Cập nhật ảnh đại diện thành công!");
+            Alert.alert(`${languageContext.SUSCCES}`, `${languageContext.UPDATED_AVATAR_SUCCESS}`);
           } else {
-            Alert.alert(response.message || "Cập nhật ảnh thất bại.");
+            Alert.alert(response.message || `${languageContext.UPDATED_AVATAR_UNSUCCESS}`);
           }
         },
         (loading) => {
@@ -254,7 +254,7 @@ export default function PersionalProfileScreen() {
   const handleUpdateProfile = async () => {
     // Kiểm tra các trường bắt buộc
     if (!selectedCity || !selectedDistrict || !selectedWard) {
-      Alert.alert("Thông báo", "Vui lòng chọn đầy đủ Tỉnh, Quận/Huyện và Xã.");
+      Alert.alert(`${languageContext.NOTIFICATION}`, `${languageContext.PLEASE_UPLOAD_ENOUGH_INFOR}`);
       return;
     }
 
@@ -266,7 +266,7 @@ export default function PersionalProfileScreen() {
   const birthDate = new Date(selectBirthday); // Ngày sinh từ state
 
   if (birthDate > sixYearsAgo) {
-    Alert.alert("Thông báo", "Ngày sinh phải là quá khứ 6 năm trước.");
+    Alert.alert(`${languageContext.NOTIFICATION}`, `${languageContext.WORN_BIRTHDAY}`);
     return;
   }
 
@@ -291,9 +291,9 @@ export default function PersionalProfileScreen() {
       (response) => {
         if (response.success) {
           // Alert.alert("Thành công", "Thông tin cá nhân đã được cập nhật.");
-          Alert.alert("Cập nhật thông tin thành công");
+          Alert.alert(`${languageContext.UPLOAD_SUCSSES}`);
         } else {
-          Alert.alert(response.message || "Có lỗi xảy ra, vui lòng thử lại.");
+          Alert.alert(response.message || `${languageContext.UPLOAD_UNSUCSSES}`);
           // Alert.alert("Cập nhật thất bại vui lòng thử lại");
         }
       },

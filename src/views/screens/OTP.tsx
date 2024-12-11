@@ -1,5 +1,6 @@
-import React, {useState, useRef, useCallback, useContext, useEffect} from "react";
-import {View, Text, StyleSheet, TextInput, Alert, Image} from "react-native";
+import React, {useState, useRef, useCallback, useContext, useEffect,} from "react";
+import {View, Text, StyleSheet, TextInput, Alert, Image,   NativeSyntheticEvent,
+  TextInputKeyPressEventData,} from "react-native";
 import {NavigationContext, NavigationRouteContext} from "@react-navigation/native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import Button from "../components/Button";
@@ -16,48 +17,59 @@ import Toast from "react-native-simple-toast";
 import {AuthContext} from "../../configs/AuthContext";
 
 export default function OTPScreen() {
-  //context
+  // context
   const navigation = useContext(NavigationContext);
   const route = useContext(NavigationRouteContext);
   const languageContext = useContext(LanguageContext);
   const authContext = useContext(AuthContext);
 
-  //refs
+  // refs
   const otpInputs = useRef<TextInput[]>([]);
 
-  //states
+  // states
   const [otp, setOtp] = useState<string[]>(["", "", "", "", "", ""]);
   const [loading, setLoading] = useState(false);
 
-  //handlers
+  // handlers
   const goBack = useCallback(() => {
     navigation?.goBack();
   }, []);
 
-  const handleChangeText = useCallback((text: string, index: number) => {
-    const newOtp = [...otp];
+  const handleChangeText = useCallback(
+    (text: string, index: number) => {
+      const newOtp = [...otp];
 
-    // Nếu ô đầu tiên chưa được nhập thì focus vào ô đầu tiên
-    if (otp[0] === "" && index !== 0) {
-      otpInputs.current[0]?.focus();
-      return;
-    }
+      // Cập nhật ký tự nhập vào
+      newOtp[index] = text;
+      setOtp(newOtp);
 
-    // Không cho phép nhập vào ô sau khi các ô trước đó chưa điền
-    for (let i = 1; i <= index; i++) {
-      if (newOtp[i - 1] === "") {
-        otpInputs.current[i - 1]?.focus();
-        return;
+      // Focus sang ô tiếp theo nếu nhập thành công
+      if (text && index < otp.length - 1) {
+        otpInputs.current[index + 1]?.focus();
       }
-    }
-    newOtp[index] = text;
-    setOtp(newOtp);
+    },
+    [otp]
+  );
 
-    // Tự động chuyển sang ô tiếp theo nếu có số được nhập
-    if (index < 5 && text) {
-      otpInputs.current[index + 1]?.focus();
-    }
-  }, [otp, otpInputs]);
+  const handleKeyPress = useCallback(
+    (e: NativeSyntheticEvent<TextInputKeyPressEventData>, index: number) => {
+      if (e.nativeEvent.key === "Backspace") {
+        const newOtp = [...otp];
+
+        // Xóa ký tự hiện tại
+        if (newOtp[index] !== "") {
+          newOtp[index] = ""; // Xóa ký tự hiện tại
+        } else if (index > 0) {
+          // Nếu ô hiện tại đã rỗng, focus về ô trước đó
+          otpInputs.current[index - 1]?.focus();
+          newOtp[index - 1] = ""; // Xóa ô trước đó
+        }
+
+        setOtp(newOtp);
+      }
+    },
+    [otp]
+  );
 
   const handleVerifyOtp = useCallback(() => {
     const requestCode = +otp.join("");
@@ -74,14 +86,16 @@ export default function OTPScreen() {
       Toast.show(languageContext.language.INVALID_AUTH, 1000);
     }, 10000);
 
-    authContext.onAfterAuth && authContext.onAfterAuth(requestCode, () => {
-      setLoading(false);
-      clearTimeout(timeId);
-    });
+    authContext.onAfterAuth &&
+      authContext.onAfterAuth(requestCode, () => {
+        setLoading(false);
+        clearTimeout(timeId);
+      });
   }, [otp, authContext.onAfterAuth]);
 
   const send = useCallback(() => {
-    const data: OTPNavigationType = route?.params as OTPNavigationType ?? {id: "-1", phone_number: ""};
+    const data: OTPNavigationType =
+      (route?.params as OTPNavigationType) ?? { id: "-1", phone_number: "" };
 
     setLoading(true);
     const timeId = setTimeout(() => {
@@ -101,7 +115,7 @@ export default function OTPScreen() {
 
   return (
     <View style={styles.container}>
-      <Spinner visible={loading}/>
+      <Spinner visible={loading} />
 
       {/* back button*/}
       <Ionicons
@@ -134,28 +148,31 @@ export default function OTPScreen() {
             keyboardType="numeric"
             value={value}
             onChangeText={(text) => handleChangeText(text, index)}
+            onKeyPress={(e) => handleKeyPress(e, index)} // Xử lý xóa
             maxLength={1} // Chỉ cho phép 1 ký tự
           />
         ))}
       </View>
 
-      <Text onPress={send} style={styles.resend}>{languageContext.language.RESEND_OTP}</Text>
+      <Text onPress={send} style={styles.resend}>
+        {languageContext.language.RESEND_OTP}
+      </Text>
 
       {/* submit button */}
       <Button
         title={languageContext.language.SUBMIT}
         textColor="white"
         backgroundColor={
-          otp.join("").length == 6
+          otp.join("").length === 6
             ? BackgroundColor.primary
             : BackgroundColor.sub_primary
         }
-        onPress={otp.join("").length == 6 ? handleVerifyOtp : () => {
-        }}
+        onPress={otp.join("").length === 6 ? handleVerifyOtp : undefined}
       />
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {

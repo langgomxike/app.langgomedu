@@ -469,6 +469,24 @@
   "NO_CLASS_WAITTING_PAY":"Không có lớp chờ thanh toán",
   "AUTHOR":"Người tạo",
   "IS_ONLINE":"Hình thức học",
-  "GO_TO_CV":"CV"
+  "GO_TO_CV":"CV",
+  "TO_DAY": "Đến ngày",
+  "FORM_DAY":"Từ ngày",
+  "UPDATE_PERMISSION":"Cập nhật quyền",
+  "RELOAD": "tải lại",
+  "LOGOUT_SUSCCESS":"Đăng xuất thành công! Xin chào và hẹn gặp lại!",
+  "LOGOUT_UNSUSCCESS":"Đăng xuất thất bại",
+  "CHOSSEN_BIRTHDAY":"Chọn ngày sinh",
+  "CAP_QUYEN_TRUY_CAP_ANH":"Yêu cầu quyền truy cập thư viện hình ảnh",
+  "VUI_LONG_CAP_QUYEN":"Vui lòng cấp quyền truy cập hình ảnh",
+  "SUSCCES":"Thành công",
+  "UPDATED_AVATAR_SUCCESS":"Cập nhật thông tin thành công",
+  "UPDATED_AVATAR_UNSUCCESS":"Cập nhật thông tin không thành công",
+"PLEASE_UPLOAD_ENOUGH_INFOR":"Vui lòng cập nhật đầy đủ thông tin",
+"WORN_BIRTHDAY":"Ngày sinh đang có vấn đề",
+"UPLOAD_SUCSSES":"Cập nhật thành công",
+"UPLOAD_UNSUCSSES":"Cập nhật không thành công"
+
+
 
 }
