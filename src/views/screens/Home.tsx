@@ -59,6 +59,7 @@ export default function HomeScreen() {
   //states
   const [searchKey, setSearchKey] = useState<string>("");
   const [loading, setLoading] = useState(false);
+  
 
   // handlers
   const handleChangeUserType = () => {

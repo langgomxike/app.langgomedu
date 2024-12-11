@@ -16,6 +16,7 @@ export default function AppInfoManagementScreen() {
   //contexts
   const appInfoContext = useContext(AppInfoContext).infos;
   const languageContext = useContext(LanguageContext).language;
+
   const navigation = useContext(NavigationContext);
 
   //states
