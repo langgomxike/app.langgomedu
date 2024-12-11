@@ -11,21 +11,12 @@ export default function CreateClassScreen() {
   const accountContext = useContext(AccountContext);
   const languageContext = useContext(LanguageContext).language;
 
-  const [activeTab, setActiveTab] = useState<number | null>(null);
+  const [activeTab, setActiveTab] = useState<number | null>(0);
 
   const handleTabPress = (tabIndex: number) => {
     const roleIds = accountContext.account?.roles?.map((role) => role.id);
 
-    if (tabIndex === 0) {
-      // Tab "Tạo lớp cho phụ huynh"
-      if (!roleIds?.includes(RoleList.PARENT)) {
-        Alert.alert(
-          languageContext.NOTIFICATION.toUpperCase(),
-          languageContext.NO_ACCESS_PARENT
-        );
-        return;
-      }
-    } else if (tabIndex === 1) {
+    if (tabIndex === 1) {
       // Tab "Tạo lớp cho gia sư"
       if (!(roleIds?.includes(RoleList.TUTOR) && !roleIds?.includes(RoleList.BANNED_USER))) {
         Alert.alert(

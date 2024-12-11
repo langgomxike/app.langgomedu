@@ -122,12 +122,14 @@ export default function ViewCV() {
         )
       });
     }
-  }, [navigation]);
+  }, [navigation, cv]);
 
   useEffect(() => {
     if (userInfo?.id) {
-      ARating.getAllRatingsOfUser(userInfo.id, ratings => {
-        setRatings(ratings);
+      SFirebase.track(FirebaseNode.Ratings, [], () => {
+        ARating.getAllRatingsOfUser(userInfo.id, ratings => {
+          setRatings(ratings);
+        });
       });
     }
   }, [userInfo]);

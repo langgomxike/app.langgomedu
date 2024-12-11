@@ -24,6 +24,8 @@ import SLog, {LogType} from "../../services/SLog";
 import vn from "../../../languages/vn.json";
 import en from "../../../languages/en.json";
 import ja from "../../../languages/ja.json";
+import SFirebase from "../../services/SFirebase";
+import {AppInfoContext} from "../../configs/AppInfoContext";
 
 const REGEX_PHONE_NUMBER =
   /^\s*(?:\+?(\d{1,3}))?[-. (]*(\d{3})[-. )]*(\d{3})[-. ]*(\d{4})(?: *x(\d+))?\s*$/;
@@ -36,6 +38,7 @@ export default function LoginScreen() {
   const navigation = useContext(NavigationContext);
   const accountContext = useContext(AccountContext);
   const languageContext = useContext(LanguageContext);
+  const appInfoContext = useContext(AppInfoContext);
 
   // Đường dẫn tạm đếm admin
   // navigation?.navigate(ScreenName.PROFILE);

@@ -160,7 +160,7 @@ export default function ProfileScreen() {
         ),
         headerRight: () => (
           <View style={{minHeight: 60}}>
-            <QRInfo id={userProfile?.id ?? "-1"} type={QRItems.CV} />
+            <QRInfo id={userProfile?.id ?? "-1"} type={QRItems.USER} />
           </View>
         )
       });
