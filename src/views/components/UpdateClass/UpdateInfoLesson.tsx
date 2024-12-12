@@ -93,7 +93,8 @@ const UpdateInfoLesson = ({lessonData} : props) => {
                       )
                     );
                   }}
-                  style={styles.picker}
+                  style={[styles.picker]}
+                  enabled={false}
                 >
                   <Picker.Item label={langguageContext.SUNDAY} value={0} />
                   <Picker.Item label={langguageContext.MONDAY} value={1} />
@@ -111,9 +112,9 @@ const UpdateInfoLesson = ({lessonData} : props) => {
               </Text>
               <TextInput
                 keyboardType="numeric"
-                style={styles.input}
+                style={[styles.input, {color: "#ccc"}]}
                 placeholder={langguageContext.SELECTED_TIME_LESSON}
-                value={lesson.duration ?(lesson.duration / (60 * 1000)).toString() : ""}
+                value={lesson.duration ? (lesson.duration / (60 * 1000)).toString() : ""}
                 onChangeText={(text) => {
                   const parsed = parseInt(text);
                   setLessons((prevLessons) =>
@@ -124,6 +125,7 @@ const UpdateInfoLesson = ({lessonData} : props) => {
                     )
                   );
                 }}
+                editable={false}
               />
             </View>
           </View>
@@ -135,10 +137,11 @@ const UpdateInfoLesson = ({lessonData} : props) => {
                 {langguageContext.TIME_START} <Text style={styles.required}>*</Text>
               </Text>
               <TouchableOpacity
-                style={[styles.input, { justifyContent: "center" }]}
+                style={[styles.input, {justifyContent: "center"}]}
                 onPress={() => showTimepicker(index)}
+                disabled={true}
               >
-                <Text>
+                <Text style={{color: "#ccc"}}>
                   {lesson.started_at
                     ? new Date(lesson.started_at).toLocaleTimeString([], {
                         hour: "2-digit",
@@ -155,7 +158,7 @@ const UpdateInfoLesson = ({lessonData} : props) => {
                 {langguageContext.TIME_END} <Text style={styles.required}>*</Text>
               </Text>
               <TextInput
-                style={styles.input}
+                style={[styles.input, {color: "#ccc"}]}
                 placeholder={langguageContext.TIME_END_AUTO}
                 value={
                   lesson.started_at && lesson.duration
@@ -167,7 +170,7 @@ const UpdateInfoLesson = ({lessonData} : props) => {
                       })
                     : ""
                 }
-                editable={false} // Không cho phép chỉnh sửa
+                editable={false}
               />
             </View>
           </View>
@@ -177,10 +180,10 @@ const UpdateInfoLesson = ({lessonData} : props) => {
               {langguageContext.LEARNING_METHOD} <Text style={styles.required}>*</Text>
             </Text>
             <TouchableOpacity
-              style={[{ justifyContent: "center" }, styles.input]}
+              style={[{ justifyContent: "center" }, styles.input, styles.disabledInput]}
               onPress={() => toggleStatus(index)}
             >
-              <Text style={[ styles.text, { color: "#0D99FF"}]}>
+              <Text style={[ styles.text,{ color: "#0D99FF"}]}>
                 {lesson.is_online ? langguageContext.LEARNING_METHOD_1 : langguageContext.LEARNING_METHOD_2}
               </Text>
             </TouchableOpacity>
@@ -189,7 +192,7 @@ const UpdateInfoLesson = ({lessonData} : props) => {
           <View style={{ marginTop: 25 }}>
             <Text style={styles.label}>{langguageContext.NOTE}</Text>
             <TextInput
-              style={styles.input}
+              style={[styles.input, styles.disabledInput]}
               placeholder={langguageContext.NOTE_PLACEHOLDER}
               value={lesson.note} // Hiển thị giá trị hiện tại từ lesson
               onChangeText={(text) => {
@@ -203,7 +206,7 @@ const UpdateInfoLesson = ({lessonData} : props) => {
             />
           </View>
 
-          <TouchableOpacity style={styles.btnAdd} onPress={handleAdd}>
+          <TouchableOpacity style={[styles.btnAdd, styles.disabledInput]} onPress={handleAdd} disabled={true}>
             <Text style={styles.txtAdd}>{langguageContext.BTN_ADD_LESSON}</Text>
           </TouchableOpacity>
         </View>
@@ -249,7 +252,7 @@ const styles = StyleSheet.create({
     marginTop: 25,
     marginLeft: 120,
   },
-  txtAdd: { fontSize: 16, color: "#FFFFFF", fontWeight: "bold" },
+  txtAdd: { fontSize: 16, color: "#353b48", fontWeight: "bold" },
   txtDelete: { fontSize: 16, color: "#FFFFFF", fontWeight: "bold" },
   text: { fontSize: 16, fontWeight: "bold" },
   marginInput: { marginBottom: 25 },
@@ -261,7 +264,12 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     overflow: "hidden",
   },
-  picker: { height: 50, width: "100%" },
+  picker: {
+    height: 50, 
+    width: "100%",
+    borderColor: "#ccc",
+    color: "#ccc"
+  },
   input: {
     height: 50,
     borderColor: "#ccc",
@@ -271,9 +279,12 @@ const styles = StyleSheet.create({
   },
   separator: { height: 1, backgroundColor: "#ccc", marginVertical: 15 },
   rowContainer: {
-    flexDirection: "row", // Sắp xếp theo chiều ngang
-    justifyContent: "space-between", // Giãn cách hai phần tử ra hai đầu
-    alignItems: "center", // Căn giữa theo trục dọc
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  disabledInput: {
+    backgroundColor: "#e0e0e0",
   },
 });
 

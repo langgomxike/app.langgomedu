@@ -126,7 +126,6 @@ const UpdateInfoTuitionLearner = ({
 
   const handlePress = useCallback((user: User) => {
     
-    // console.log(user);
     const isAlreadyJoined = childJoined.some((child) => child.id === user.id && child.full_name === user.full_name);
     if (isAlreadyJoined) {
       // Xóa khỏi danh sách tham gia
@@ -141,11 +140,8 @@ const UpdateInfoTuitionLearner = ({
       }
     }
   }, [childData, childJoined]);
-  
-  
-  // console.log("child: ", childJoinedProp);
-  
 
+  
   // DANH SACH CON
   const ChildItem = (user: User) => {
     const isJoined = childJoined.some((child) => child.id === user.id);
@@ -217,8 +213,12 @@ const UpdateInfoTuitionLearner = ({
           <Text style={styles.required}>*</Text>
         </Text>
         <TouchableOpacity
-          style={styles.input}
+          style={[
+            styles.input,
+            styles.disabledInput,
+          ]}
           onPress={() => showDatePicker("start")}
+          disabled={true}
         >
           <Text>
             {dateStart
@@ -233,7 +233,11 @@ const UpdateInfoTuitionLearner = ({
       </Text>
       <TouchableOpacity
         onPress={() => showDatePicker("end")}
-        style={styles.input}
+        style={[
+          styles.input,
+          styles.disabledInput,
+        ]}
+        disabled={true}
       >
         <Text>
           {dateEnd
@@ -380,31 +384,34 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   button: {
-    backgroundColor: "#007bff", // Màu primary (thay bằng màu của bạn nếu khác)
+    backgroundColor: "#007bff",
     paddingVertical: 12,
     paddingHorizontal: 24,
     borderRadius: 8,
-    alignItems: "center", // Canh giữa nội dung theo chiều ngang
+    alignItems: "center",
     width: 250,
   },
   text: {
-    color: "#fff", // Màu chữ trắng
+    color: "#fff",
     fontSize: 16,
     fontWeight: "bold",
   },
   buttonJoin: {
-    backgroundColor: "#007BFF", // Màu xanh dương cho nút Tham gia
+    backgroundColor: "#007BFF",
   },
   buttonCancel: {
     borderWidth: 1,
-    borderColor: "red", // Viền đỏ cho nút Hủy chọn
-    backgroundColor: "white", // Nền trắng
+    borderColor: "red",
+    backgroundColor: "white",
   },
   textJoin: {
-    color: "white", // Chữ trắng cho nút Tham gia
+    color: "white",
   },
   textCancel: {
-    color: "red", // Chữ đỏ cho nút Hủy chọn
+    color: "red",
+  },
+  disabledInput: {
+    backgroundColor: "#e0e0e0",
   },
 });
 
