@@ -100,7 +100,7 @@ export default function DetailUserBottomSheet({
   const goToUserPermission = useCallback(() => {
 
     if (!accountContext.account || !accountContext.account.roles.map(r => r.id).includes(RoleList.SUPER_ADMIN)) {
-      Toast.show("Bạn không có quyền truy cập vào trang quản lý quyền", 1000);
+      Toast.show(`${languageContext.U_ARE_NOT_ROLE}`, 1000);
       return;
     }
 
@@ -239,7 +239,7 @@ export default function DetailUserBottomSheet({
 
 
           {userData.is_reported && (
-            <View style={{flex: 1, marginTop: 20,}}>
+            <View style={{flex: 1, marginVertical: 20,}}>
               <Text style={[styles.btnReportText, {color: TextColor.danger}]}>
                 Danh sach bao cao
               </Text>

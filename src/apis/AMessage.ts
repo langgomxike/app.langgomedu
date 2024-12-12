@@ -279,7 +279,7 @@ export default class AMessage {
       name: "image.jpg",
       type: "image/jpg"
     } as any);
-
+    
     SAsyncStorage.getData(AsyncStorageKeys.TOKEN,
       (token) => {
         axios.post<Response>(url, formData, {

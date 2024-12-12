@@ -4,6 +4,8 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import Modal from "react-native-modal";
 import { BackgroundColor } from "../../../configs/ColorConfig";
 import { Image } from "react-native";
+import { UserContext } from "../../../configs/UserContext";
+import { LanguageContext } from "../../../configs/LanguageConfig";
 
 type ModalAlertUpdateCVProps = {
     confirmTitle: string;
@@ -37,7 +39,7 @@ export default function ModalAlertUpdateCV({
     onRequestCloseDialog,
     loading = false
 }: ModalAlertUpdateCVProps) {
-
+const language =useContext(LanguageContext).language;
     const getImageSource = (iconName: string) => {
         const image = images.find((img) => img.name === iconName);
         return image ? image.source : null;
@@ -56,7 +58,7 @@ export default function ModalAlertUpdateCV({
             {loading ? (
                 <View style={styles.containerLoading} >
                     <ActivityIndicator size={50} />
-                    <Text style={styles.loadingText}>Đang xử lý...</Text>
+                    <Text style={styles.loadingText}>{language.PROCESSING}</Text>
                 </View>
             ) : (
                 <View style={styles.container} >

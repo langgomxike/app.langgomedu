@@ -1,12 +1,4 @@
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Dimensions,
-  Pressable,
-  Image,
-} from "react-native";
+import {Dimensions, Image, Pressable, StyleSheet, Text, TouchableOpacity, View,} from "react-native";
 import React, {useCallback, useContext, useEffect, useState} from "react";
 import {BackgroundColor} from "../../configs/ColorConfig";
 import ClassListSkeleton from "./skeleton/ClassListSkeleten";
@@ -16,11 +8,10 @@ import ScreenName from "../../constants/ScreenName";
 import Class from "../../models/Class";
 import AClass from "../../apis/AClass";
 import ReactAppUrl from "../../configs/ConfigUrl";
-import {AccountContext} from "../../configs/AccountConfig";
-import {ScrollView, FlatList} from "react-native-gesture-handler";
+import {FlatList} from "react-native-gesture-handler";
 import {UserContext, UserType} from "../../configs/UserContext";
 import {LanguageContext} from "../../configs/LanguageConfig";
-import moment from "moment";
+import SFirebase, {FirebaseNode} from "../../services/SFirebase";
 
 const TAB = {
   ATTENDING_CLASS: "attendingClass",
@@ -120,7 +111,7 @@ export default function UserClassManager({userId}: UserClassManagerProps) {
         );
 
       case TAB.TEACHING_CLASS: // Các lớp đang dạy
-        return classList.filter((cls) => cls.tutor?.id === userId &&  cls.ended_at >= now);
+        return classList.filter((cls) => cls.tutor?.id === userId && cls.ended_at >= now);
 
       case TAB.PENDING_APPROVAL_ADMIN: //Các lớp đang chờ admin chấp nhận
         return classList.filter((cls) => cls.admin_accepted === false);
@@ -141,12 +132,12 @@ export default function UserClassManager({userId}: UserClassManagerProps) {
             cls.ended_at <= now
         );
 
-        case TAB.CLASS_TAUGHT: // Các lớp đã dạy
+      case TAB.CLASS_TAUGHT: // Các lớp đã dạy
         return classList.filter(
-          (cls) => cls.tutor?.id === userId &&  cls.ended_at <= now
+          (cls) => cls.tutor?.id === userId && cls.ended_at <= now
         );
 
-        case TAB.CLASS_COMPLETED: // Các lớp đã học
+      case TAB.CLASS_COMPLETED: // Các lớp đã học
         return classList.filter(
           (cls) =>
             cls.author?.id !== userId &&
@@ -197,19 +188,21 @@ export default function UserClassManager({userId}: UserClassManagerProps) {
 
   useEffect(() => {
     if (userId) {
-      AClass.getCLassesByUserId(
-        userId,
-        (data) => {
-          setclassList(data);
-          setFilteredClassList(
-            data.filter(
-              (cls) => cls.author?.id !== userId && cls.tutor?.id !== userId
-            )
-          );
-          setRefresh(false);
-        },
-        setLoading
-      );
+      SFirebase.track(FirebaseNode.Classes, [], () => {
+        AClass.getCLassesByUserId(
+          userId,
+          (data) => {
+            setclassList(data);
+            setFilteredClassList(
+              data.filter(
+                (cls) => cls.author?.id !== userId && cls.tutor?.id !== userId
+              )
+            );
+            setRefresh(false);
+          },
+          setLoading
+        );
+      });
     }
   }, [refresh, userId]);
 
@@ -244,14 +237,14 @@ export default function UserClassManager({userId}: UserClassManagerProps) {
         />
       </View>
 
-      {(loading && <ClassListSkeleton />) || (
+      {(loading && <ClassListSkeleton/>) || (
         <FlatList
           data={filteredClassList}
           renderItem={({item: classItem}) => {
             return (
               <View style={styles.classItem}>
                 <Pressable onPress={() => handleNavigateToDetail(classItem.id)}>
-                  <CourseItem classData={classItem} />
+                  <CourseItem classData={classItem}/>
                 </Pressable>
               </View>
             );

@@ -14,6 +14,8 @@ import AStudent from "../../../../apis/AStudent";
 import User from "../../../../models/User";
 import DropDownLocation from "../../dropdown/DropDownLocation";
 import { LanguageContext } from "../../../../configs/LanguageConfig";
+import { child } from "firebase/database";
+import DateTimeConfig from "../../../../configs/DateTimeConfig";
 import ReactAppUrl from "../../../../configs/ConfigUrl";
 
 type Props = {
@@ -39,8 +41,8 @@ const InfoTuition = ({ onNext, userId }: Props) => {
 
   const [tuition, setTuition] = useState<number | null>(null); // Giá trị gốc dạng số
   const [formattedTuition, setFormattedTuition] = useState<string>(""); // Giá trị hiển thị
-  const [dateStart, setDateStart] = useState("");
-  const [dateEnd, setDateEnd] = useState("");
+  const [dateStart, setDateStart] = useState(DateTimeConfig.getDateFormatFullYear(new Date().getTime() + 24*60*60*1000));
+  const [dateEnd, setDateEnd] = useState(DateTimeConfig.getDateFormatFullYear(new Date().getTime() + 24*60*60*1000*30));
   const [error, setError] = useState("");
   const [isDatePickerVisible, setDatePickerVisible] = useState(false);
   const [datePickerType, setDatePickerType] = useState<"start" | "end">();
@@ -72,13 +74,17 @@ const InfoTuition = ({ onNext, userId }: Props) => {
     const endDate = parseDate(end).getTime();
   
     if (isNaN(startDate) || isNaN(endDate)) {
-      setError(languageContext.ERROR_DATE); // Ngày không hợp lệ
+      setError("Thoi gian khong hop le"); // Ngày không hợp lệ
+      return false;
+    }
+
+    if (startDate < new Date().getTime()) {
+      setError("Ngay bat dau khong hop le"); // Ngày không hợp lệ
       return false;
     }
   
-    if (startDate >= endDate) {
-      setError(languageContext.ERROR_DATE); // Ngày bắt đầu >= ngày kết thúc
-      setDateEnd(""); // Reset ngày kết thúc
+    if (startDate + 30*24*60*60*1000 > endDate) {
+      setError("Ngay key thuc khong hop le"); // Ngày bắt đầu >= ngày kết thúc
       return false;
     }
   
@@ -109,14 +115,11 @@ const InfoTuition = ({ onNext, userId }: Props) => {
       .join("/"); // Đảm bảo định dạng dd/mm/yyyy
 
     if (datePickerType === "start") {
-      setDateStart(formattedDate);
-      if (dateEnd) {
-        validateDates(formattedDate, dateEnd); // Kiểm tra ngày
+      if (dateEnd && validateDates(formattedDate, dateEnd)) {
+        setDateStart(formattedDate);
       }
     } else if (datePickerType === "end") {
-      if (dateStart && !validateDates(dateStart, formattedDate)) {
-        setDateEnd(""); // Reset ngày kết thúc nếu không hợp lệ
-      } else {
+      if (dateStart && validateDates(dateStart, formattedDate)) {
         setDateEnd(formattedDate);
       }
     }

@@ -8,7 +8,7 @@ import {AppInfoContext} from "../../../configs/AppInfoContext";
 import Spinner from "react-native-loading-spinner-overlay";
 import Toast from "react-native-simple-toast";
 import {LanguageContext} from "../../../configs/LanguageConfig";
-import { NavigationContext } from "@react-navigation/native";
+import {NavigationContext} from "@react-navigation/native";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import SLog, {LogType} from "../../../services/SLog";
 
@@ -16,6 +16,7 @@ export default function AppInfoManagementScreen() {
   //contexts
   const appInfoContext = useContext(AppInfoContext).infos;
   const languageContext = useContext(LanguageContext).language;
+
   const navigation = useContext(NavigationContext);
 
   //states
@@ -38,6 +39,14 @@ export default function AppInfoManagementScreen() {
   const [crQuiteSerious, setCRQuiteSerious] = useState(0);
   const [crSerious, setCRSerious] = useState(0);
   const [crExtremelySerious, setCRExtremelySerious] = useState(0);
+  const [initialPoint, setInitialPoint] = useState(0);
+  const [raterReportPoint, setRaterReportPoint] = useState(0);
+  const [raterRatingPoint, setRaterRatingPoint] = useState(0);
+  const [raterRatedPoint1, setRaterRatedPoint1] = useState(0);
+  const [raterRatedPoint2, setRaterRatedPoint2] = useState(0);
+  const [raterRatedPoint3, setRaterRatedPoint3] = useState(0);
+  const [raterRatedPoint4, setRaterRatedPoint4] = useState(0);
+  const [raterRatedPoint5, setRaterRatedPoint5] = useState(0);
   const [loading, setLoading] = useState(false);
 
   //handlers
@@ -54,7 +63,7 @@ export default function AppInfoManagementScreen() {
       setLoading(false);
       Toast.show(languageContext.UPDATED, 1000);
     });
-  }, [appName, appInfoContext]);
+  }, [appInfoContext]);
 
   //effects
   useEffect(() => {
@@ -71,8 +80,8 @@ export default function AppInfoManagementScreen() {
         },
         headerTintColor: "#fff",
         headerLeft: () => (
-          <TouchableOpacity onPress={() => navigation.goBack()} style={{ paddingRight: 10 }}>
-            <Ionicons name="chevron-back" size={24} color="white" />
+          <TouchableOpacity onPress={() => navigation.goBack()} style={{paddingRight: 10}}>
+            <Ionicons name="chevron-back" size={24} color="white"/>
           </TouchableOpacity>
         )
       });
@@ -94,7 +103,7 @@ export default function AppInfoManagementScreen() {
   return (
     <ScrollView style={{backgroundColor: BackgroundColor.white}}>
       <View style={styles.bodyContainer}>
-        <Spinner visible={loading} />
+        <Spinner visible={loading}/>
 
         <Text style={styles.title}>{languageContext.GENERAL_MANAGEMENT?.toUpperCase()}</Text>
 
@@ -230,6 +239,45 @@ export default function AppInfoManagementScreen() {
           onSubmit={() => handlerChangeAppInfo("creation_fee_for_parents", creationFeeForParents / 100, setCreationFeeForParents)}
         />
 
+        {/*/!* initial point *!/*/}
+        <AppInfoContainer
+          title={"initial point"}
+          oldValue={(
+            <TextValue value={appInfoContext.initial_point + ""} isNum={true}/>
+          )}
+          newValue={(
+            <TextValueInput value={initialPoint || ""} setValue={(value) => setInitialPoint(+value)}
+                            isNum={true}/>
+          )}
+          onSubmit={() => handlerChangeAppInfo("initial_point", initialPoint, setInitialPoint)}
+        />
+
+        {/*/!* initial point *!/*/}
+        <AppInfoContainer
+          title={"rater rating point"}
+          oldValue={(
+            <TextValue value={appInfoContext.rater_rating_point + ""} isNum={true}/>
+          )}
+          newValue={(
+            <TextValueInput value={raterRatingPoint || ""} setValue={(value) => setRaterRatingPoint(+value)}
+                            isNum={true}/>
+          )}
+          onSubmit={() => handlerChangeAppInfo("rater_rating_point", raterRatingPoint, setRaterRatingPoint)}
+        />
+
+        {/*/!* initial point *!/*/}
+        <AppInfoContainer
+          title={"rater reported point"}
+          oldValue={(
+            <TextValue value={appInfoContext.rater_report_point + ""} isNum={true}/>
+          )}
+          newValue={(
+            <TextValueInput value={raterReportPoint || ""} setValue={(value) => setRaterReportPoint(+value)}
+                            isNum={true}/>
+          )}
+          onSubmit={() => handlerChangeAppInfo("rater_report_point", raterReportPoint, setRaterReportPoint)}
+        />
+
         {/*/!*   report user levels *!/*/}
         <AppInfoContainer
           title={languageContext.REPORT_USER_LEVELS}
@@ -335,6 +383,72 @@ export default function AppInfoManagementScreen() {
                                 setValue={(value) => setCRExtremelySerious(+value)} isNum={true}/>
               )}
               onSubmit={() => handlerChangeAppInfo("report_class_level_4", crExtremelySerious, setCRExtremelySerious)}
+            />
+          </>
+        </AppInfoContainer>
+
+        <AppInfoContainer
+          title={"rater rating point"}
+        >
+          <>
+            <AppInfoContainer
+              title={"vote 1 start"}
+              oldValue={(
+                <TextValue value={appInfoContext.ratee_rated_point_1 + ""} isNum={true}/>
+              )}
+              newValue={(
+                <TextValueInput value={raterRatedPoint1 || ""}
+                                setValue={(value) => setRaterRatedPoint1(+value)} isNum={true}/>
+              )}
+              onSubmit={() => handlerChangeAppInfo("ratee_rated_point_1", raterRatedPoint1, setRaterRatedPoint1)}
+            />
+
+            <AppInfoContainer
+              title={"vote 2 start"}
+              oldValue={(
+                <TextValue value={appInfoContext.ratee_rated_point_2 + ""} isNum={true}/>
+              )}
+              newValue={(
+                <TextValueInput value={raterRatedPoint2 || ""}
+                                setValue={(value) => setRaterRatedPoint2(+value)} isNum={true}/>
+              )}
+              onSubmit={() => handlerChangeAppInfo("ratee_rated_point_2", raterRatedPoint2, setRaterRatedPoint2)}
+            />
+
+            <AppInfoContainer
+              title={"vote 3 start"}
+              oldValue={(
+                <TextValue value={appInfoContext.ratee_rated_point_3 + ""} isNum={true}/>
+              )}
+              newValue={(
+                <TextValueInput value={raterRatedPoint3 || ""}
+                                setValue={(value) => setRaterRatedPoint3(+value)} isNum={true}/>
+              )}
+              onSubmit={() => handlerChangeAppInfo("ratee_rated_point_3", raterRatedPoint3, setRaterRatedPoint3)}
+            />
+
+            <AppInfoContainer
+              title={"vote 4 start"}
+              oldValue={(
+                <TextValue value={appInfoContext.ratee_rated_point_4 + ""} isNum={true}/>
+              )}
+              newValue={(
+                <TextValueInput value={raterRatedPoint4 || ""}
+                                setValue={(value) => setRaterRatedPoint4(+value)} isNum={true}/>
+              )}
+              onSubmit={() => handlerChangeAppInfo("ratee_rated_point_4", raterRatedPoint4, setRaterRatedPoint4)}
+            />
+
+            <AppInfoContainer
+              title={"vote 5 start"}
+              oldValue={(
+                <TextValue value={appInfoContext.ratee_rated_point_5 + ""} isNum={true}/>
+              )}
+              newValue={(
+                <TextValueInput value={raterRatedPoint5 || ""}
+                                setValue={(value) => setRaterRatedPoint5(+value)} isNum={true}/>
+              )}
+              onSubmit={() => handlerChangeAppInfo("ratee_rated_point_5", raterRatedPoint5, setRaterRatedPoint5)}
             />
           </>
         </AppInfoContainer>
@@ -494,7 +608,7 @@ function TextValueInput({value, setValue, isLink, isNum}: {
 
 const styles = StyleSheet.create({
   bodyContainer: {
-    flex: 1, 
+    flex: 1,
     paddingHorizontal: 15,
     paddingTop: 20,
   },

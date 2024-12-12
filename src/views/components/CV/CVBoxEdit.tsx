@@ -60,7 +60,6 @@ const CvBoxEdit = ({ title, typeItem, children, onAddItem , onAddImage}: CvBoxPr
 
   const [errors, setErrors] = useState({
     name: false,
-    note: false,
     startedAt: false,
     endedAt: false,
     address: false,
@@ -135,7 +134,6 @@ const CvBoxEdit = ({ title, typeItem, children, onAddItem , onAddImage}: CvBoxPr
   const validateInputs = () => {
     const newErrors = {
       name: name.trim() === "",
-      note: note.trim() === "",
       startedAt: startedAt.trim() === "",
       endedAt: endedAt.trim() === "",
       address: typeItem === "certificate" ? false : detail.trim() === "",
@@ -269,9 +267,8 @@ const CvBoxEdit = ({ title, typeItem, children, onAddItem , onAddImage}: CvBoxPr
               label="Ghi chú"
               onTextChange={setNote}
               value={note}
-              require={true}
               editable={true}
-              error={errors.note}
+              textArea={true}
             />
             <View style={[styles.dateInputBox]}>
               <Input
@@ -316,6 +313,7 @@ const CvBoxEdit = ({ title, typeItem, children, onAddItem , onAddImage}: CvBoxPr
                 onTextChange={setDetail}
                 value={detail}
                 editable={true}
+                require={true}
                 error={errors.address}
               />
             </View>

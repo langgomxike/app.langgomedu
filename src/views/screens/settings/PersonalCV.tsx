@@ -1,32 +1,28 @@
-import { Text, View, StyleSheet, Image, ScrollView, FlatList } from 'react-native'
-import React, { useContext, useEffect, useState } from 'react'
+import {FlatList, Image, ScrollView, StyleSheet, Text, View} from 'react-native'
+import React, {useContext, useEffect, useState} from 'react'
 //config
-import { BackgroundColor, TextColor } from '../../../configs/ColorConfig'
+import {BackgroundColor, TextColor} from '../../../configs/ColorConfig'
 //icon
 import Ionicons from '@expo/vector-icons/Ionicons'
 import Feather from '@expo/vector-icons/Feather'
 import AntDesign from '@expo/vector-icons/AntDesign'
 //orther component
-import HLine, { HLineType } from '../../components/HLine'
+import HLine, {HLineType} from '../../components/HLine'
 import CvBox from '../../components/CV/CvBox'
 import ExperienceItem from '../../components/CV/ExperienceItem'
 import EducationItem from '../../components/CV/EducationItem'
 import ACV from '../../../apis/ACV'
-import CV from '../../../models/CV'
-import { UserContext } from '../../../configs/UserContext'
 import User from '../../../models/User'
-import Education from '../../../models/Education'
-import Experience from '../../../models/Experience'
 import ReactAppUrl from '../../../configs/ConfigUrl'
 import CertificateItem from '../../components/CV/CertificateItem'
-import Major from '../../../models/Major'
 import moment from 'moment'
 import Address from '../../../models/Address'
-import { AccountContext } from '../../../configs/AccountConfig'
-import { NavigationContext } from '@react-navigation/native'
+import {AccountContext} from '../../../configs/AccountConfig'
+import {NavigationContext} from '@react-navigation/native'
 import ScreenName from '../../../constants/ScreenName'
-import { LanguageContext } from '../../../configs/LanguageConfig'
+import {LanguageContext} from '../../../configs/LanguageConfig'
 import CVApprovalSkeleton from '../../components/skeleton/CVApprovalSkeleton'
+import SFirebase, {FirebaseNode} from "../../../services/SFirebase";
 
 export default function PersonalCV() {
   //CONTEXT >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -45,28 +41,31 @@ export default function PersonalCV() {
   useEffect(() => {
     // console.log(navigation);
     if (account) {
-      ACV.getPersonalCV(account.id, (cvs) => {
-        console.log("Personal CV: ", account.id);
-        // console.log(JSON.stringify(cvs, null, 2));
-        const viewCV = cvs.find(cv => cv.id === `${account.id}_t`) || cvs[0];
-        if (viewCV) {
+      SFirebase.track(FirebaseNode.CVs, [{key: FirebaseNode.Id, value: account?.id}], ()=> {
+        ACV.getPersonalCV(account.id, (cvs) => {
+          console.log("Personal CV: ", account.id);
+          // console.log(JSON.stringify(cvs, null, 2));
+          const viewCV = cvs.find(cv => cv.id === `${account.id}_t`) || cvs[0];
+          if (viewCV) {
 
-          setCV(viewCV);
-          setUserInfo(viewCV.user);
-          setAddress(viewCV.user?.address);
+            setCV(viewCV);
+            setUserInfo(viewCV.user);
+            setAddress(viewCV.user?.address);
 
-          if (viewCV.user) {
-            const birthday = new Date(viewCV.user?.birthday);
-            // const birthdayData = birthday.getDate() + '/' + (birthday.getMonth() +1) + '/' + birthday.getFullYear()
-            const birthdayData = moment(birthday)
-            setBirthday(birthdayData.format('DD/MM/yyyy'));
-            // setBirthday(birthdayData);
+            if (viewCV.user) {
+              const birthday = new Date(viewCV.user?.birthday);
+              // const birthdayData = birthday.getDate() + '/' + (birthday.getMonth() +1) + '/' + birthday.getFullYear()
+              const birthdayData = moment(birthday)
+              setBirthday(birthdayData.format('DD/MM/yyyy'));
+              // setBirthday(birthdayData);
+            }
           }
-        }
-        else {
-          navigation?.navigate(ScreenName.INPUT_CV);
-        }
-      }, setIsProcessing)
+          else {
+            navigation?.navigate(ScreenName.INPUT_CV);
+          }
+        }, setIsProcessing)
+
+      })
     } else {
       navigation?.navigate(ScreenName.INPUT_CV);
     }
