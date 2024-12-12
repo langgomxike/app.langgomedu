@@ -72,7 +72,7 @@ export default function Notification() {
       >
         <View style={styles.modalBackground}>
           <TouchableOpacity style={styles.contentContainer} onPress={openNotification}>
-            <Text style={styles.title}>{"You have a new notification"}</Text>
+            <Text style={styles.title}>{language.NEW_NOTIFICATION}</Text>
             <Text style={styles.message}>{content.substring(0, 100)}...</Text>
           </TouchableOpacity>
         </View>

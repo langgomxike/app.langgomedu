@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { LanguageContext } from "../../../configs/LanguageConfig";
 type GenderInputProps = {
   value: number;
   onChange: (gender: number) => void;
@@ -11,6 +12,10 @@ type GenderInputProps = {
 const FONT_SIZE = 14;
 
 export default function genderInput({ value, onChange, styleInputWidth, style }: GenderInputProps) {
+
+  // context
+  const language = useContext(LanguageContext).language;
+
   const [gender, setGender] = useState<number>(value);
   const handleChangeGender = () => {
     const newGender = gender === 0 ? 1 : 0;
@@ -25,7 +30,7 @@ export default function genderInput({ value, onChange, styleInputWidth, style }:
         style={[styles.btnChange, styles.boxShadow, styleInputWidth]}
       >
         <Text style={[styles.btnChangeText]}>
-          {gender === 1 ? "Male" : "Female"}
+          {gender === 1 ? language.MALE : language.FEMALE}
         </Text>
         {gender === 1 ? (
           <Ionicons name="male" size={20} color="black" />

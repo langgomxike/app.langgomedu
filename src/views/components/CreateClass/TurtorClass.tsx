@@ -203,6 +203,7 @@ const TurtorClass = () => {
         dataPrice,
         convertStringToTimestamp(dataDateStart),
         convertStringToTimestamp(dataDateEnd),
+        new Date().getTime(),
         dataProvinces,
         dataDistrict,
         dataWard,

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import {
   StyleSheet,
   ScrollView,
@@ -27,9 +27,12 @@ import Animated, {
 import ModalPaidResult from "../../components/modal/ModalPaidResult";
 import ClassInfo from "../../components/ClassInfo";
 import MyIcon, {AppIcon} from "../../components/MyIcon";
+import { LanguageContext } from "../../../configs/LanguageConfig";
 
 export default function Attendance() {
   // Styles animated chevron
+  // context
+  const language = useContext(LanguageContext).language;
 
   return (
     <View>
@@ -38,7 +41,7 @@ export default function Attendance() {
         <View style={styles.icon}>
           <MyIcon icon={AppIcon.back_button}></MyIcon>
         </View>
-        <Text style={styles.screenName}>Quản lý chung</Text>
+        <Text style={styles.screenName}>{language.QUAN_LY_CHUNG}</Text>
       </View>
 
       <View style={styles.container}>
@@ -46,42 +49,42 @@ export default function Attendance() {
           <View style={styles.iconInGroup}>
             <MyIcon icon={AppIcon.next}></MyIcon>
           </View>
-          <Text style={styles.nameInGroup}>Quản lý phân quyền</Text>
+          <Text style={styles.nameInGroup}>{language.QUAN_LY_PHAN_QUYEN}</Text>
         </View>
 
         <View style={styles.group}>
           <View style={styles.iconInGroup}>
             <MyIcon icon={AppIcon.next}></MyIcon>
           </View>
-          <Text style={styles.nameInGroup}>Thêm quyền quản trị</Text>
+          <Text style={styles.nameInGroup}>{language.THEM_QUYEN_QUAN_TRI}</Text>
         </View>
 
         <View style={styles.group}>
           <View style={styles.iconInGroup}>
             <MyIcon icon={AppIcon.next}></MyIcon>
           </View>
-          <Text style={styles.nameInGroup}>Quản lý người dùng</Text>
+          <Text style={styles.nameInGroup}>{language.QUAN_LY_NGUOI_DUNG}</Text>
         </View>
 
         <View style={styles.group}>
           <View style={styles.iconInGroup}>
             <MyIcon icon={AppIcon.next}></MyIcon>
           </View>
-          <Text style={styles.nameInGroup}>Quản lý lớp học</Text>
+          <Text style={styles.nameInGroup}>{language.QUAN_LY_LOP_HOC}</Text>
         </View>
 
         <View style={styles.group}>
           <View style={styles.iconInGroup}>
             <MyIcon icon={AppIcon.next}></MyIcon>
           </View>
-          <Text style={styles.nameInGroup}>Quản lý chung</Text>
+          <Text style={styles.nameInGroup}>{language.QUAN_LY_CHUNG}</Text>
         </View>
 
         <View style={styles.group}>
           <View style={styles.iconInGroup}>
             <MyIcon icon={AppIcon.next}></MyIcon>
           </View>
-          <Text style={styles.nameInGroup}>Quản lý chung</Text>
+          <Text style={styles.nameInGroup}>{language.QUAN_LY_CHUNG}</Text>
         </View>
       </View>
 

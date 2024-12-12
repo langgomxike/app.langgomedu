@@ -234,7 +234,7 @@ export default function ViewCV() {
         </View>
 
         {/*   ratings history */}
-        {ratings?.length > 0 && <CvBox title={"Danh gia tu hoc vien"}>
+        {ratings?.length > 0 && <CvBox title={languageContext.language.RATING_TO_STUDENT}>
           <FlatList
             nestedScrollEnabled={false}
             horizontal={true}

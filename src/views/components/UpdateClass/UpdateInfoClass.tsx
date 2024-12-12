@@ -80,10 +80,11 @@ const UpdateInfoClass = ({
   // xử lý thay đổi chọn môn học
   const handleSelectChange = (itemValue: any | "other") => {
     if (itemValue === "other") {
-      setIsOtherSelected(true); // Chuyển Picker thành TextInput nếu chọn "Khác"
+      setIsOtherSelected(true);
     } else {
-      onSetMajor(itemValue); // Cập nhật giá trị đã chọn từ Picker
-      setIsOtherSelected(false); // Ẩn TextInput nếu chọn lại từ các mục khác
+      // Cập nhật giá trị đã chọn từ Picker
+      onSetMajor(itemValue); 
+      setIsOtherSelected(false);
     }
   };
 

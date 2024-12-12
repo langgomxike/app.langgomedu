@@ -95,7 +95,7 @@ export default function ModalInputCV({
                 onPress={onRequestCloseDialog}
                 style={[styles.btn, styles.btnSave, styles.boxShadow]}
               >
-                <Text style={styles.btnSaveText}>Ok</Text>
+                <Text style={styles.btnSaveText}>{language.OK}</Text>
               </TouchableOpacity>
             </View>
 

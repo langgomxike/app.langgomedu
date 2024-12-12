@@ -232,7 +232,7 @@ export default function DetailUserBottomSheet({
             <TouchableOpacity style={[styles.btnReport, styles.btnShowdow, {borderColor: BackgroundColor.warning}]}
                               onPress={goToUserPermission}>
               <Text style={[styles.btnReportText, {color: TextColor.warning}]}>
-                Phan quyen nguoi dung
+                {languageContext.USER_AUTHORIZATION}
               </Text>
             </TouchableOpacity>
           </View>
@@ -241,7 +241,7 @@ export default function DetailUserBottomSheet({
           {userData.is_reported && (
             <View style={{flex: 1, marginVertical: 20,}}>
               <Text style={[styles.btnReportText, {color: TextColor.danger}]}>
-                Danh sach bao cao
+                {languageContext.LIST_REPORT}
               </Text>
               <ScrollView showsHorizontalScrollIndicator={false} horizontal={true} style={{flex: 1}}>
                 {reportList.map((report, index) => (
