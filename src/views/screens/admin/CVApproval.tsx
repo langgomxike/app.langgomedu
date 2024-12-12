@@ -27,6 +27,8 @@ import CVApprovalSkeleton from "../../components/skeleton/CVApprovalSkeleton";
 import ModalApproveCVReason from "../../components/modal/ModalApproveCVReson";
 import SFirebase, { FirebaseNode } from "../../../services/SFirebase";
 import ScreenName from "../../../constants/ScreenName";
+import Toast from "react-native-simple-toast";
+
 
 
 export default function CVApproval() {
@@ -70,7 +72,7 @@ export default function CVApproval() {
       console.log(result);
       setIsApproved(result.status);
       navigation?.navigate(ScreenName.SHOW_CV, { cv_id: cv ? cv.id : newCv.id.trim().split("_")[0] });
-      
+      Toast.show("CV đã được duyệt", 3000)
     }, (loading) => {
       console.log(loading);
 
@@ -92,6 +94,7 @@ export default function CVApproval() {
       console.log(result);
       setIsApproved(result.status);
       navigation?.navigate(ScreenName.SHOW_CV, { cv_id: cv.id });
+      Toast.show("CV đã được duyệt", 3000)
     }, (loading) => {
       console.log(loading);
 
