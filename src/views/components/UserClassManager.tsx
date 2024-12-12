@@ -128,7 +128,7 @@ export default function UserClassManager({userId}: UserClassManagerProps) {
         return classList.filter(
           (cls) =>
             cls.author?.id !== userId &&
-            cls.tutor?.id !== userId && !cls.is_rating &&
+            cls.tutor?.id !== userId && cls.is_rating === false &&
             cls.ended_at <= now
         );
 
