@@ -14,6 +14,8 @@ import AStudent from "../../../../apis/AStudent";
 import User from "../../../../models/User";
 import DropDownLocation from "../../dropdown/DropDownLocation";
 import { LanguageContext } from "../../../../configs/LanguageConfig";
+import { child } from "firebase/database";
+import DateTimeConfig from "../../../../configs/DateTimeConfig";
 import ReactAppUrl from "../../../../configs/ConfigUrl";
 
 type Props = {
@@ -41,7 +43,8 @@ const InfoTuition = ({ onNext, userId }: Props) => {
   const [formattedTuition, setFormattedTuition] = useState<string>(""); // Giá trị hiển thị
   const [dateStart, setDateStart] = useState("");
   const [dateEnd, setDateEnd] = useState("");
-  const [error, setError] = useState("");
+  const [errorPrice, setErrorPrice] = useState("");
+  const [errorDate, setErrorDate] = useState("");
   const [isDatePickerVisible, setDatePickerVisible] = useState(false);
   const [datePickerType, setDatePickerType] = useState<"start" | "end">();
   const [childData, setChildData] = useState<User[]>([]);
@@ -72,17 +75,17 @@ const InfoTuition = ({ onNext, userId }: Props) => {
     const endDate = parseDate(end).getTime();
   
     if (isNaN(startDate) || isNaN(endDate)) {
-      setError(languageContext.ERROR_DATE); // Ngày không hợp lệ
+      setErrorDate(languageContext.ERROR_DATE); // Ngày không hợp lệ
       return false;
     }
   
     if (startDate >= endDate) {
-      setError(languageContext.ERROR_DATE); // Ngày bắt đầu >= ngày kết thúc
+      setErrorDate(languageContext.ERROR_DATE); // Ngày bắt đầu >= ngày kết thúc
       setDateEnd(""); // Reset ngày kết thúc
       return false;
     }
   
-    setError(""); // Không có lỗi
+    setErrorDate(""); // Không có lỗi
     return true;
   };  
 
@@ -109,14 +112,11 @@ const InfoTuition = ({ onNext, userId }: Props) => {
       .join("/"); // Đảm bảo định dạng dd/mm/yyyy
 
     if (datePickerType === "start") {
-      setDateStart(formattedDate);
-      if (dateEnd) {
-        validateDates(formattedDate, dateEnd); // Kiểm tra ngày
+      if (dateEnd && validateDates(formattedDate, dateEnd)) {
+        setDateStart(formattedDate);
       }
     } else if (datePickerType === "end") {
-      if (dateStart && !validateDates(dateStart, formattedDate)) {
-        setDateEnd(""); // Reset ngày kết thúc nếu không hợp lệ
-      } else {
+      if (dateStart && validateDates(dateStart, formattedDate)) {
         setDateEnd(formattedDate);
       }
     }
@@ -140,7 +140,7 @@ const InfoTuition = ({ onNext, userId }: Props) => {
     if (value === "") {
       setTuition(null);
       setFormattedTuition("");
-      setError("");
+      setErrorPrice("");
       onNext(
         undefined,
         dateStart,
@@ -161,11 +161,11 @@ const InfoTuition = ({ onNext, userId }: Props) => {
     // Kiểm tra nếu giá trị là số hợp lệ
     if (!isNaN(numericValue)) {
       if (numericValue < 0) {
-        setError(languageContext.ERROR_TUITION);
+        setErrorPrice(languageContext.ERROR_TUITION);
       } else if (numericValue < 10000) {
-        setError(languageContext.ERROR_TUITION_1);
+        setErrorPrice(languageContext.ERROR_TUITION_1);
       } else {
-        setError(""); // Reset lỗi nếu hợp lệ
+        setErrorPrice(""); // Reset lỗi nếu hợp lệ
       }
 
       // Lưu giá trị không có dấu phẩy vào state (để dùng cho tính toán)
@@ -186,7 +186,7 @@ const InfoTuition = ({ onNext, userId }: Props) => {
         childJoineds
       );
     } else {
-      setError(languageContext.ERROR_TUITION_2);
+      setErrorPrice(languageContext.ERROR_TUITION_2);
     }
   };
 
@@ -303,7 +303,7 @@ const InfoTuition = ({ onNext, userId }: Props) => {
   return (
     <View style={styles.container}>
       {/* Học phí */}
-      <View style={styles.marginInput}>
+      <View>
         <Text style={styles.label}>
           {languageContext.TUITION} <Text style={styles.required}>*</Text>
         </Text>
@@ -315,6 +315,7 @@ const InfoTuition = ({ onNext, userId }: Props) => {
           onChangeText={handleChangeTuition}
         />
       </View>
+      {errorPrice ? <Text style={styles.errorText}>{errorPrice}</Text> : null}
 
       {/* Ngày bắt đầu */}
       <View style={styles.marginInput}>
@@ -343,7 +344,7 @@ const InfoTuition = ({ onNext, userId }: Props) => {
         </TouchableOpacity>
       </View>
 
-      {error ? <Text style={styles.errorText}>{error}</Text> : null}
+      {errorDate ? <Text style={[styles.errorText]}>{errorDate}</Text> : null}
 
       {/* Modal lịch */}
       <DateTimePickerModal
@@ -415,7 +416,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   marginInput: {
-    marginBottom: 25,
+    marginTop: 25,
   },
   label: {
     fontWeight: "bold",

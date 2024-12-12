@@ -89,12 +89,13 @@ export default function PersonalScheduleScreen() {
   //lay du lieu tu api
   useEffect(() => {
     // console.log("personalSchedule: " + selectedUserId);
-
-    if (type === 1) {
-      ASchedule.getTutorSchedule(selectedUser.id, handleCallAPI)
-    } else {
-      ASchedule.getLearnerSchedule(selectedUser.id, handleCallAPI)
-    }
+    SFirebase.track(FirebaseNode.Classes, [], () => {
+      if (type === 1) {
+        ASchedule.getTutorSchedule(selectedUser.id, handleCallAPI)
+      } else {
+        ASchedule.getLearnerSchedule(selectedUser.id, handleCallAPI)
+      }
+    });
   }, [selectedUser, type]);
 
   //kiem tra ngay active de thay doi du lieu dau ra
@@ -112,16 +113,17 @@ export default function PersonalScheduleScreen() {
         selectedLessons.push(item);
       }
     });
-    setTodayLessons(selectedLessons);
+    setTodayLessons(selectedLessons?.filter(l => l.class?.admin_accepted && l.class?.paid));
 
-  }, [lessons, selectedDate, activeDate, currentWeek, selectedUser, type])
+  }, [lessons, selectedDate, activeDate, currentWeek, selectedUser, type, currentDate, currentDay]);
 
   //kiem tra tuan de thay doi lich
   useEffect(() => {
     const newCurrentDay: Date = new Date();
     newCurrentDay.setDate(day.getDate() + (currentWeek * 7))
     setCurrentDate(newCurrentDay.getDay());
-    setCurrentDay(newCurrentDay)
+    setCurrentDay(newCurrentDay);
+    setSelectedDate(newCurrentDay);
   }, [currentWeek])
 
   //lay danh sach cac nguoi dung trong thoi khoa bieu

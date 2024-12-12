@@ -1,14 +1,22 @@
 {
   "ai_key": "AIzaSyBe5HEYepx8fS730it_oy0nyDiqfvLAdnk",
   "app_name": "LanggomEdu",
-  "apple_store_app_id": "1234abc",
+  "apple_store_app_id": "570060127",
   "banking_code": "STB",
   "banking_number": "050137712048",
   "contact_email": "khanh.lv.iit@gmail.com",
-  "creation_fee_for_parents": 0,
-  "creation_fee_for_tutors": 0.3,
+  "creation_fee_for_parents": 0.12,
+  "creation_fee_for_tutors": 0.1,
+  "initial_point": 100,
   "otp_service_key": "dd56071151d8e50595f459b2f502f538-bd5fb397-4378-4b30-aa3c-0c41f815d9d2",
-  "play_store_app_id": "abc123",
+  "play_store_app_id": "com.google.android.youtube",
+  "ratee_rated_point_1": 1,
+  "ratee_rated_point_2": 2,
+  "ratee_rated_point_3": 3,
+  "ratee_rated_point_4": 4,
+  "ratee_rated_point_5": 5,
+  "rater_rating_point": 3,
+  "rater_report_point": 5,
   "report_class_level_1": 21,
   "report_class_level_2": 41,
   "report_class_level_3": 61,
@@ -61,5 +69,5 @@
       "Tuyt cu meo"
     ]
   },
-  "webiste_link": "http://192.168.1.4:3002/api"
+  "webiste_link": "https://langgomxike.github.io/app.langgomedu/"
 }

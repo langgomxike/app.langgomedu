@@ -12,7 +12,7 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import {BackgroundColor, TextColor} from "../../configs/ColorConfig";
 import {LanguageContext} from "../../configs/LanguageConfig";
 import DateTimeConfig from "../../configs/DateTimeConfig";
-import {AuthType, IdNavigationType, OTPNavigationType, RegisterType} from "../../configs/NavigationRouteTypeConfig";
+import {OTPNavigationType, RegisterType} from "../../configs/NavigationRouteTypeConfig";
 import Spinner from "react-native-loading-spinner-overlay";
 import AUser from "../../apis/AUser";
 import User from "../../models/User";
@@ -58,8 +58,8 @@ export default function RegisterStep2Screen() {
     user.password = password;
     user.hometown = address;
     const day = +dayOfBirth.substring(0, 2);
-    const month = +dayOfBirth.substring(2, 4);
-    const year = +dayOfBirth.substring(4, 8);
+    const month = +dayOfBirth.substring(3, 5);
+    const year = +dayOfBirth.substring(6, 10);
     const date = new Date(year, month, day);
     user.birthday = date.getTime();
     user.username = username;
@@ -327,7 +327,7 @@ export default function RegisterStep2Screen() {
           marginVertical: 30,
           alignItems: "center"
         }}>
-        <Pressable style={styles.languageItemContainer} onPress={() => languageContext.setLanguage(en)}>
+        <Pressable style={styles.languageItemContainer} onPress={() => languageContext.setLanguage(vn)}>
           <Image style={[styles.languageItem, languageContext.language.TYPE === "en" && styles.languageItemActive]}
                  source={require("../../../assets/languages/en.png")}/>
         </Pressable>
@@ -337,7 +337,7 @@ export default function RegisterStep2Screen() {
                  source={require("../../../assets/languages/vn.png")}/>
         </Pressable>
 
-        <Pressable style={styles.languageItemContainer} onPress={() => languageContext.setLanguage(ja)}>
+        <Pressable style={styles.languageItemContainer} onPress={() => languageContext.setLanguage(vn)}>
           <Image style={[styles.languageItem, languageContext.language.TYPE === "ja" && styles.languageItemActive]}
                  source={require("../../../assets/languages/ja.png")}/>
         </Pressable>

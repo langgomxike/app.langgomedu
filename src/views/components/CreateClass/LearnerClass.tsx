@@ -3,7 +3,7 @@ import InfoClass from "./InfoClass";
 import InfoLesson from "./InfoLesson";
 import InfoTuition from "./LearnerClass/InfoTuition";
 import { TouchableOpacity } from "react-native-gesture-handler";
-import { useCallback, useContext, useState } from "react";
+import {useCallback, useContext, useEffect, useState} from "react";
 import AClass from "../../../apis/AClass";
 import Lesson from "../../../models/Lesson";
 import Dialog from "react-native-dialog";
@@ -55,7 +55,7 @@ const LearnerClass = () => {
   const [dataDateEnd, setDataDateEnd] = useState("");
 
   // max learners state
-  const [maxLearners, setMaxLearners] = useState<number>(0);
+  const [maxLearners, setMaxLearners] = useState<number>(1);
 
   // newly created class id
   const [createClassId, setCreateClassId] = useState<number>(-1);
