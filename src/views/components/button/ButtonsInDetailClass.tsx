@@ -314,6 +314,7 @@ export default function ButtonsInDetailClass({
         classFee={classFee}
         onSelectedImage={setSelectedImage}
         onPay={handlePayClassFee}
+        id={classDetail.id}
       />
 
       <ModalDialogForClass

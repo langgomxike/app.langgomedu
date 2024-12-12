@@ -70,6 +70,7 @@ export default function ClassComponent({ classData }: ClassComponentProps) {
             <Text style={styles.majorName}>{classData.major?.vn_name}</Text>
           </View>
 
+          <Text style={styles.titleClass}>ID:{classData.id}</Text>
           <Text style={styles.titleClass}>{classData.title}</Text>
 
           <View style={styles.line}></View>

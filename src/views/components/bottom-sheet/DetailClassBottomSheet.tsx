@@ -191,9 +191,11 @@ export default function ({
   }
 
   const goToViewReport = useCallback((report: Report) => {
+    if(!report.reporter) return;
+
     const data: ReportNavigationType = {
       id: report.id,
-      reporter: report.reporter ?? new User(),
+      reporter: report.reporter,
     }
     navigation?.navigate(ScreenName.UPDATE_REPORT_USER, data);
   }, []);
