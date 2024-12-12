@@ -196,7 +196,7 @@ export default function ModalPay({
                   {/* Pay infomation */}
                   <View style={styles.payInfoContainer}>
                     <Text style={styles.titleContainer}>
-                      Thông tin chuyển khoản
+                      {language.TRANSFER_INFORMATION}
                     </Text>
                     <View style={styles.payInfoContent}>
                       <View

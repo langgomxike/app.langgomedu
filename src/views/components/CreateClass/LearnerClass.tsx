@@ -158,6 +158,7 @@ const LearnerClass = () => {
         dataPrice,
         convertStringToTimestamp(dataDateStart),
         convertStringToTimestamp(dataDateEnd),
+        new Date().getTime(),
         maxLearners,
         dataProvinces,
         dataDistrict,

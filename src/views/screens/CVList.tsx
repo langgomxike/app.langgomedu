@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from "react";
+import React, {useState, useEffect, useContext} from "react";
 import {
   View,
   StyleSheet,
@@ -13,9 +13,12 @@ import CvItem from "../components/CvItem";
 import Pagination from "../components/Pagination";
 import ACV from "../../apis/ACV";
 import CV from "../../models/CV";
+import { LanguageContext } from "../../configs/LanguageConfig";
 
 const PER_PAGE = 3;
 export default function CVListScreen() {
+  // context
+  const language = useContext(LanguageContext).language;
   // states
   const [searchKey, setSearchKey] = useState("");
   const [curentPage, setCurentPage] = useState(1);
@@ -37,7 +40,7 @@ export default function CVListScreen() {
         <View>
           <TouchableOpacity
             onPress={() => {
-              alert("Filter");
+              alert(language.ALERT_FILTER);
             }}
             style={[styles.btnFilter, styles.boxShadow]}
           >

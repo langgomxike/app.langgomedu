@@ -186,14 +186,13 @@
   "CLASS_AVAILABLE": "Class available",
   "EXCEEDED_SELECTION": "seats left, you have selected more than the limit.",
   "SELECT_FEWER_OR_CONTACT_TUTOR": "Please select fewer students or contact the tutor for more information!",
-  
+
   "CANNOT_TEACH_DUE_TO_CONFLICT": "Unable to teach the class due to a schedule conflict!",
-   "CANNOT_JOIN_CLASS_DUE_TO_CONFLICT": "Unable to join this class due to a schedule conflict!",
+  "CANNOT_JOIN_CLASS_DUE_TO_CONFLICT": "Unable to join this class due to a schedule conflict!",
 
   "WANT_TO_JOIN_CLASS": "Do you want to join this class?",
   "WANT_TO_TEACH_CLASS": "Do you want to teach this class?",
   "CLASS_FULL_CONTACT_TEACHER": "The class is full.\nIf you want to join, please contact the teacher of the class!",
-
 
   "HAVE_NO_PERMISSION_TO_CREATE_CHILD": "You don't have permission to create a child",
   "HAVE_NO_PERMISSION_TO_MANAGE_CV": "You don't have permission to manage cv",
@@ -382,7 +381,7 @@
   "NEW_PASSWORD_MUST_BE_DIFFERENT": "The new password must be different from the old password.",
   "INVALID_PHONE_FORMAT": "The phone number must contain exactly 10 digits",
 
- "NO_ACCESS_USER": "Access denied. Your role does not have sufficient permissions.",
+  "NO_ACCESS_USER": "Access denied. Your role does not have sufficient permissions.",
   "NO_ACCESS_PARENT": "You do not have permission to create a class for parents.",
   "NO_ACCESS_TUTOR": "You do not have permission to create a class for tutors.",
   "BTN_UPDATE_CLASS": "Edit",
@@ -497,7 +496,34 @@
   "NOT_DEBIT": "No debit",
   "NOT_ATTENDED": "Not attended",
   "U_ARE_NOT_ROLE": "You do not have access to this page",
-  "ANDROID_PROGRAM": "Mobile Programming"
+  "ANDROID_PROGRAM": "Mobile Programming",
 
-
+  "BO_SUNG": "Bo sung",
+  "DELETE_ITEM": "DELETE ITEM",
+  "ACCEPT_DELETE": "Do you want to delete this item",
+  "LIST_REPORT": "Danh sách báo cáo",
+  "USER_AUTHORIZATION": "Phân quyền người dùng",
+  "MALE": "Nam",
+  "FEMALE": "Nữ",
+  "DEFAULT": "Khác",
+  "NEW_NOTIFICATION": "You have a new notification",
+  "DESELECT": "Bỏ chọn",
+  "NO_DATA_FOR_CLASS": "Không có dữ liệu lớp học.",
+  "RATING_ALERT": "The rating content is too long. Please summarize the rating content before continuing",
+  "CONTENT_INPUT": "Nhập nội dung",
+  "UPDATE_IMAGE": "Cập nhật hình ảnh",
+  "SEE_PHOTO": "Xem ảnh",
+  "ALERT_HOME": "Bạn không thay đổi loại người dùng. Chỉ có thể thay đổi nếu bạn là gia sư",
+  "ALERT_FILTER": "Filter",
+  "RATING_TO_STUDENT": "Đánh giá từ học viên",
+  "ACCEPT_APP": "Ứng dụng cần quyền truy cập thư viện ảnh.",
+  "CONTENT_REPORT_1": "Vui lòng nhập nội dung báo cáo.",
+  "CONTENT_REPORT_2": "Vui lòng thêm ít nhất một hình ảnh.",
+  "CONTENT_REPORT_3": "Bạn đã báo cáo người này 3 lần. Bạn không thể báo cáo thêm.",
+  "REPORT_SUSCCES": "Báo cáo đã được gửi thành công!",
+  "FAILED": "Thất bại",
+  "ALERT_FAILED": "Không thể gửi báo cáo.",
+  "CHOOSE_IMAGE": "Chọn ảnh",
+  "REPORT_USER": "Người dùng bị báo cáo",
+  "USERREPORTDETAILSCREEN": "UserReportDetailScreen"
 }

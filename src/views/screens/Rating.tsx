@@ -70,7 +70,7 @@ const RatingScreen = () => {
     const content = [...ratingContents?.filter((v, i) => selectedReviews.includes(i)), text.trim()].join(", ");
 
     if (content.length > 180) {
-      Alert.alert("Rating", "The rating content is too long. Please summarize the rating content before continuing");
+      Alert.alert(language.RATING_TITLE, language.RATING_ALERT);
       return;
     }
 

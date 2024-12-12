@@ -68,7 +68,7 @@ export default function UpdateClass() {
 
   // render
   if (!param.classData) {
-    return <Text>Không có dữ liệu lớp học.</Text>;
+    return <Text>{languageContext.NO_DATA_FOR_CLASS}</Text>;
   }
 
   return (

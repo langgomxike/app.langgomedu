@@ -26,17 +26,15 @@ type props = {
 
 const InfoTuition = ({ onNext }: props) => {
   // context
-  const appInfos = useContext(AppInfoContext);
   const languageContext = useContext(LanguageContext).language;
-  // console.log("code: ", appInfos.infos.banking_code);
-  // console.log("number: ", appInfos.infos.banking_number);
 
   // state
   const [tuition, setTuition] = useState<number | null>(null); // Giá trị gốc dạng số
   const [formattedTuition, setFormattedTuition] = useState<string>(""); // Giá trị hiển thị
   const [dateStart, setDateStart] = useState("");
   const [dateEnd, setDateEnd] = useState("");
-  const [error, setError] = useState("");
+  const [errorPrice, setErrorPrice] = useState("");
+  const [errorDate, setErrorDate] = useState("");
   const [isDatePickerVisible, setDatePickerVisible] = useState(false);
   const [datePickerType, setDatePickerType] = useState<"start" | "end">();
 
@@ -45,30 +43,6 @@ const InfoTuition = ({ onNext }: props) => {
   const [selectedDistrict, setSelectedDistrict] = useState("");
   const [selectedWard, setSelectedWard] = useState("");
   const [detail, setDetail] = useState("");
-
-  // Kiểm tra logic ngày bắt đầu và ngày kết thúc
-  const validateDates = (start: string, end: string) => {
-    const startDate = new Date(start).getTime();
-    const endDate = new Date(end).getTime();
-
-    if (startDate > endDate) {
-      setError(languageContext.ERROR_DATE);
-      setDateEnd("");
-      return false;
-    }
-    setError("");
-    return true;
-  };
-
-  // Hiển thị lịch
-  const showDatePicker = (type: "start" | "end") => {
-    setDatePickerType(type);
-    setDatePickerVisible(true);
-  };
-
-  const hideDatePicker = () => {
-    setDatePickerVisible(false);
-  };
 
   // Xử lý khi chọn ngày
   const handleConfirm = (date: Date) => {
@@ -99,11 +73,47 @@ const InfoTuition = ({ onNext }: props) => {
     hideDatePicker();
   };
 
+  // Kiểm tra logic ngày bắt đầu và ngày kết thúc
+  const validateDates = (start: string, end: string) => {
+    // Chuyển đổi dd/mm/yyyy thành Date object
+    const parseDate = (dateStr: string) => {
+      const [day, month, year] = dateStr.split("/").map(Number);
+      return new Date(year, month - 1, day); // Chú ý month - 1 vì tháng trong JavaScript bắt đầu từ 0
+    };
+
+    const startDate = parseDate(start).getTime();
+    const endDate = parseDate(end).getTime();
+
+    if (isNaN(startDate) || isNaN(endDate)) {
+      setErrorDate(languageContext.ERROR_DATE); // Ngày không hợp lệ
+      return false;
+    }
+
+    if (startDate >= endDate) {
+      setErrorDate(languageContext.ERROR_DATE); // Ngày bắt đầu >= ngày kết thúc
+      setDateEnd(""); // Reset ngày kết thúc
+      return false;
+    }
+
+    setErrorDate(""); // Không có lỗi
+    return true;
+  };
+
+  // Hiển thị lịch
+  const showDatePicker = (type: "start" | "end") => {
+    setDatePickerType(type);
+    setDatePickerVisible(true);
+  };
+
+  const hideDatePicker = () => {
+    setDatePickerVisible(false);
+  };
+
   const handleChangeTuition = (value: string) => {
     if (value === "") {
       setTuition(null);
       setFormattedTuition("");
-      setError("");
+      setErrorPrice("");
       onNext(
         undefined,
         dateStart,
@@ -118,15 +128,14 @@ const InfoTuition = ({ onNext }: props) => {
 
     // Loại bỏ dấu phẩy khỏi giá trị nhập vào
     const numericValue = Number(value.replace(/,/g, ""));
-
     // Kiểm tra nếu giá trị là số hợp lệ
     if (!isNaN(numericValue)) {
       if (numericValue < 0) {
-        setError(languageContext.ERROR_TUITION);
+        setErrorPrice(languageContext.ERROR_TUITION);
       } else if (numericValue < 10000) {
-        setError(languageContext.ERROR_TUITION_1);
+        setErrorPrice(languageContext.ERROR_TUITION_1);
       } else {
-        setError(""); // Reset lỗi nếu hợp lệ
+        setErrorPrice(""); // Reset lỗi nếu hợp lệ
       }
 
       // Lưu giá trị không có dấu phẩy vào state (để dùng cho tính toán)
@@ -145,7 +154,7 @@ const InfoTuition = ({ onNext }: props) => {
         detail
       );
     } else {
-      setError(languageContext.ERROR_TUITION_2);
+      setErrorPrice(languageContext.ERROR_TUITION_2);
     }
   };
 
@@ -181,7 +190,7 @@ const InfoTuition = ({ onNext }: props) => {
   return (
     <View style={styles.container}>
       {/* Học phí */}
-      <View style={styles.marginInput}>
+      <View>
         <Text style={styles.label}>
           {languageContext.TUITION} <Text style={styles.required}>*</Text>
         </Text>
@@ -193,11 +202,13 @@ const InfoTuition = ({ onNext }: props) => {
           onChangeText={handleChangeTuition}
         />
       </View>
+      {errorPrice ? <Text style={styles.errorText}>{errorPrice}</Text> : null}
 
       {/* Ngày bắt đầu */}
-      <View style={styles.marginInput}>
+      <View style={{marginTop: 25}}>
         <Text style={styles.label}>
-          {languageContext.DATE_START_PLACEHOLDER} <Text style={styles.required}>*</Text>
+          {languageContext.DATE_START_PLACEHOLDER}{" "}
+          <Text style={styles.required}>*</Text>
         </Text>
         <TouchableOpacity
           style={styles.input}
@@ -220,7 +231,7 @@ const InfoTuition = ({ onNext }: props) => {
         </TouchableOpacity>
       </View>
 
-      {error ? <Text style={styles.errorText}>{error}</Text> : null}
+      {errorDate ? <Text style={styles.errorText}>{errorDate}</Text> : null}
 
       {/* Modal lịch */}
       <DateTimePickerModal
@@ -244,9 +255,10 @@ const InfoTuition = ({ onNext }: props) => {
           onSetSelectedWard={setSelectedWard}
         />
       </View>
-      <View>
+      <View style={styles.marginInput}>
         <Text style={styles.label}>
-          {languageContext.DETAIL_ADDRESS} <Text style={styles.required}>*</Text>
+          {languageContext.DETAIL_ADDRESS}{" "}
+          <Text style={styles.required}>*</Text>
         </Text>
         <TextInput
           style={styles.input}
@@ -277,7 +289,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   marginInput: {
-    marginBottom: 25,
+    marginTop: 25,
   },
   label: {
     fontWeight: "bold",

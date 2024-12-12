@@ -45,7 +45,7 @@ export default function CreateReport() {
       await ImagePicker.requestMediaLibraryPermissionsAsync();
 
     if (permissionResult.granted === false) {
-      Alert.alert("Lỗi", "Ứng dụng cần quyền truy cập thư viện ảnh.");
+      Alert.alert(language.ERROR_A, language.ACCEPT_APP);
       return;
     }
 
@@ -149,13 +149,13 @@ export default function CreateReport() {
 const handleReportSubmit = async () => {
   // Kiểm tra nội dung báo cáo
   if (!content.trim()) {
-    Alert.alert("Lỗi", "Vui lòng nhập nội dung báo cáo.");
+    Alert.alert(language.ERROR_A, language.CONTENT_REPORT_1);
     return;
   }
 
   // Kiểm tra danh sách hình ảnh
   if (selectedImages.length === 0) {
-    Alert.alert("Lỗi", "Vui lòng thêm ít nhất một hình ảnh.");
+    Alert.alert(language.ERROR_A, language.CONTENT_REPORT_2);
     return;
   }
 
@@ -166,7 +166,7 @@ const handleReportSubmit = async () => {
 
   // Kiểm tra xem người dùng đã báo cáo 3 lần chưa
   if (reportCount >= 3) {
-    Alert.alert("Lỗi", "Bạn đã báo cáo người này 3 lần. Bạn không thể báo cáo thêm.");
+    Alert.alert(language.ERROR_A, language.CONTENT_REPORT_3);
     return;
   }
 
@@ -194,11 +194,11 @@ const handleReportSubmit = async () => {
       if (response.success) {
         // Cập nhật số lần báo cáo thành công vào AsyncStorage
         await AsyncStorage.setItem(reportKey, (reportCount + 1).toString());
-        Alert.alert("Thành công", "Báo cáo đã được gửi thành công!");
+        Alert.alert(language.SUSCCES, language.REPORT_SUSCCES);
         setContent("");
         navigation?.goBack();
       } else {
-        Alert.alert("Thất bại", response.message || "Không thể gửi báo cáo.");
+        Alert.alert(language.FAILED, response.message || language.ALERT_FAILED);
       }
     },
     (loading: boolean) => {
@@ -220,7 +220,7 @@ const handleReportSubmit = async () => {
   useEffect(() => {
     if (navigation) {
       navigation.setOptions({
-        title: "Tạo báo cáo",
+        title: language.SCREEN_NAME_REPORT,
         headerShown: true,
         contentStyle: {
           padding: 0,
@@ -251,7 +251,7 @@ const handleReportSubmit = async () => {
     <ScrollView style={styles.container}>
       <View style={styles.component1}>
 
-        <Text style={styles.smallTitle}>Người dùng bị báo cáo</Text>
+        <Text style={styles.smallTitle}>{language.REPORT_USER}</Text>
         <View style={styles.iconReport}>
           <IconReport userName={reportee?.full_name ?? ""} credibility={reportee?.point ?? 0}
                       userAvatar={reportee?.avatar}/>
@@ -259,14 +259,14 @@ const handleReportSubmit = async () => {
 
         {_class &&
           <>
-            <Text style={styles.smallTitle}>Lop hoc bị báo cáo</Text>
+            <Text style={styles.smallTitle}>{language.CLASS_REPORT}</Text>
             <View style={styles.iconReport}>
               <IconReport userName={_class?.title ?? ""} credibility={reportee?.point ?? 0}
                           userAvatar={_class?.major?.icon} isClass={true}/>
             </View>
           </>}
 
-        <Text style={styles.smallTitle}>Nội dung báo cáo</Text>
+        <Text style={styles.smallTitle}>{language.CONTENT_REPORT}</Text>
         <TextInput
           style={styles.textInput}
           placeholder={language.INPUT_CONTENT}
@@ -279,7 +279,7 @@ const handleReportSubmit = async () => {
       <View style={styles.componentn}>
         <TouchableOpacity style={styles.uploadBtn} onPress={pickImage}>
           <Ionicons name="image-outline" size={24} color="black"/>
-          <Text style={styles.uploadText}>Chọn ảnh</Text>
+          <Text style={styles.uploadText}>{language.CHOOSE_IMAGE}</Text>
         </TouchableOpacity>
         <Text style={styles.uploadGuideText}>
           {language.PLEASE_UPLOAD_REPORT_IMAGES}

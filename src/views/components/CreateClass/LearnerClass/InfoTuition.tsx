@@ -28,7 +28,7 @@ type Props = {
     district?: string,
     ward?: string,
     detail?: string,
-    childIds? : string[]
+    childIds?: string[]
   ) => void;
   userId: string;
 };
@@ -49,7 +49,7 @@ const InfoTuition = ({ onNext, userId }: Props) => {
   const [datePickerType, setDatePickerType] = useState<"start" | "end">();
   const [childData, setChildData] = useState<User[]>([]);
   const [loading, setLoading] = useState(false); // loading trong thoi gian cho
-  
+
   // State lưu trạng thái tham gia cho từng con
   const [joinedState, setJoinedState] = useState<{ [key: string]: boolean }>(
     {}
@@ -63,60 +63,19 @@ const InfoTuition = ({ onNext, userId }: Props) => {
   const [selectedWard, setSelectedWard] = useState("");
   const [detail, setDetail] = useState("");
 
-  // Kiểm tra logic ngày bắt đầu và ngày kết thúc
-  const validateDates = (start: string, end: string) => {
-    // Chuyển đổi dd/mm/yyyy thành Date object
-    const parseDate = (dateStr: string) => {
-      const [day, month, year] = dateStr.split("/").map(Number);
-      return new Date(year, month - 1, day); // Chú ý month - 1 vì tháng trong JavaScript bắt đầu từ 0
-    };
-  
-    const startDate = parseDate(start).getTime();
-    const endDate = parseDate(end).getTime();
-  
-    if (isNaN(startDate) || isNaN(endDate)) {
-      setErrorDate(languageContext.ERROR_DATE); // Ngày không hợp lệ
-      return false;
-    }
-  
-    if (startDate >= endDate) {
-      setErrorDate(languageContext.ERROR_DATE); // Ngày bắt đầu >= ngày kết thúc
-      setDateEnd(""); // Reset ngày kết thúc
-      return false;
-    }
-  
-    setErrorDate(""); // Không có lỗi
-    return true;
-  };  
-
-  // Hiển thị lịch
-  const showDatePicker = (type: "start" | "end") => {
-    setDatePickerType(type);
-    setDatePickerVisible(true);
-  };
-
-  const hideDatePicker = () => {
-    setDatePickerVisible(false);
-  };
-
   // Xử lý khi chọn ngày
   const handleConfirm = (date: Date) => {
-    // Chuyển đổi ngày thành định dạng dd/mm/yyyy
-    const formattedDate = date
-      .toLocaleDateString("vi-VN", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-      })
-      .split("/")
-      .join("/"); // Đảm bảo định dạng dd/mm/yyyy
+    const formattedDate = date.toLocaleDateString("vi-VN");
 
     if (datePickerType === "start") {
-      if (dateEnd && validateDates(formattedDate, dateEnd)) {
-        setDateStart(formattedDate);
+      setDateStart(formattedDate);
+      if (dateEnd) {
+        validateDates(formattedDate, dateEnd);
       }
     } else if (datePickerType === "end") {
-      if (dateStart && validateDates(dateStart, formattedDate)) {
+      if (dateStart && !validateDates(dateStart, formattedDate)) {
+        setDateEnd(""); // Reset ngày kết thúc nếu không hợp lệ
+      } else {
         setDateEnd(formattedDate);
       }
     }
@@ -133,6 +92,42 @@ const InfoTuition = ({ onNext, userId }: Props) => {
       childJoineds
     );
     hideDatePicker();
+  };
+
+  // Kiểm tra logic ngày bắt đầu và ngày kết thúc
+  const validateDates = (start: string, end: string) => {
+    // Chuyển đổi dd/mm/yyyy thành Date object
+    const parseDate = (dateStr: string) => {
+      const [day, month, year] = dateStr.split("/").map(Number);
+      return new Date(year, month - 1, day); // Chú ý month - 1 vì tháng trong JavaScript bắt đầu từ 0
+    };
+
+    const startDate = parseDate(start).getTime();
+    const endDate = parseDate(end).getTime();
+
+    if (isNaN(startDate) || isNaN(endDate)) {
+      setErrorDate(languageContext.ERROR_DATE); // Ngày không hợp lệ
+      return false;
+    }
+
+    if (startDate >= endDate) {
+      setErrorDate(languageContext.ERROR_DATE); // Ngày bắt đầu >= ngày kết thúc
+      setDateEnd(""); // Reset ngày kết thúc
+      return false;
+    }
+
+    setErrorDate(""); // Không có lỗi
+    return true;
+  };
+
+  // Hiển thị lịch
+  const showDatePicker = (type: "start" | "end") => {
+    setDatePickerType(type);
+    setDatePickerVisible(true);
+  };
+
+  const hideDatePicker = () => {
+    setDatePickerVisible(false);
   };
 
   // Xử lý thay đổi học phí
@@ -211,7 +206,6 @@ const InfoTuition = ({ onNext, userId }: Props) => {
     });
   };
 
-
   // Khi có dữ liệu mới, tạo trạng thái ban đầu cho tất cả item
   useEffect(() => {
     const initialJoinedState = childData.reduce((acc, child) => {
@@ -269,7 +263,11 @@ const InfoTuition = ({ onNext, userId }: Props) => {
         <View style={styles.details}>
           <Text>
             <Ionicons
-              name={isJoined ? "checkmark-circle-outline" : "checkmark-circle-outline"} // Icon tùy trạng thái
+              name={
+                isJoined
+                  ? "checkmark-circle-outline"
+                  : "checkmark-circle-outline"
+              } // Icon tùy trạng thái
               size={35}
               color={isJoined ? "#44bd32" : "black"} // Màu sắc tùy trạng thái
             />
@@ -357,7 +355,7 @@ const InfoTuition = ({ onNext, userId }: Props) => {
       {/* Địa chỉ */}
       <View style={styles.marginInput}>
         <Text style={styles.label}>
-          Địa chỉ <Text style={styles.required}>*</Text>
+          {languageContext.ADDRESS} <Text style={styles.required}>*</Text>
         </Text>
         <DropDownLocation
           selectedCity={selectedProvince}
@@ -369,9 +367,9 @@ const InfoTuition = ({ onNext, userId }: Props) => {
         />
       </View>
 
-      <View>
+      <View style={{marginTop: 25}}>
         <Text style={styles.label}>
-          {languageContext.DETAIL_ADDRESS}{" "}
+          {languageContext.DETAIL_ADDRESS}
           <Text style={styles.required}>*</Text>
         </Text>
         <TextInput
@@ -395,7 +393,9 @@ const InfoTuition = ({ onNext, userId }: Props) => {
       </View>
 
       <View>
-        <Text style={[styles.label, { marginTop: 25 }]}>{languageContext.LIST_CHILD}</Text>
+        <Text style={[styles.label, { marginTop: 25 }]}>
+          {languageContext.LIST_CHILD}
+        </Text>
         <FlatList
           data={childData}
           renderItem={({ item }) => ChildItem(item)}
@@ -447,7 +447,7 @@ const styles = StyleSheet.create({
     width: 300,
     margin: 10,
     padding: 15,
-    backgroundColor: '#ffffff',
+    backgroundColor: "#ffffff",
     borderRadius: 20,
     alignItems: "center",
     shadowColor: "#333",
