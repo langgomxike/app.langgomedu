@@ -27,6 +27,7 @@ type ModalDialogForClassProps = {
   classFee: number
   onSelectedImage: (image: any) => void;
   onPay: () => void;
+  id: number;
 };
 
 const {height: SCREEN_HEIGHT, width: SCREEN_WIDTH} = Dimensions.get("window");
@@ -37,13 +38,14 @@ export default function ModalPayClassFee({
   classFee,
   onSelectedImage,
   onPay,
+  id
 }: ModalDialogForClassProps) {
   // context
   const language = useContext(LanguageContext).language;
   const appInfoContext = useContext(AppInfoContext).infos;
 
   // states -------------------------------------------------------------------
-  const image = `https://img.vietqr.io/image/${appInfoContext.banking_code}-${appInfoContext.banking_number}-compact2.jpg?amount=${classFee}&addInfo=${"Phí tạo lớp"}&accountName=Langgomedu`;
+  const image = `https://img.vietqr.io/image/${appInfoContext.banking_code}-${appInfoContext.banking_number}-compact2.jpg?amount=${classFee}&addInfo=${"Phi tao lop ["+id+"]"}&accountName=Langgomedu`;
 
   const [selectedImage, setSelectedImage] = useState<any>(null);
   const [loadingSaveImage, setLoadingSaveImage] = useState(false);
