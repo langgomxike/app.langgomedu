@@ -1,7 +1,7 @@
 import {
   Alert,
   Image,
-  Linking, Pressable,
+  Pressable,
   ScrollView,
   StyleSheet,
   Text,

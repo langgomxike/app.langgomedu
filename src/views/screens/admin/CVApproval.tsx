@@ -1,13 +1,13 @@
-import {FlatList, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View} from "react-native";
-import React, {useCallback, useContext, useEffect, useState} from "react";
+import { FlatList, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 //config
-import {BackgroundColor, TextColor} from "../../../configs/ColorConfig";
+import { BackgroundColor, TextColor } from "../../../configs/ColorConfig";
 //icon
 import Ionicons from "@expo/vector-icons/Ionicons";
 import Feather from "@expo/vector-icons/Feather";
 import AntDesign from "@expo/vector-icons/AntDesign";
 //orther component
-import HLine, {HLineType} from "../../components/HLine";
+import HLine, { HLineType } from "../../components/HLine";
 import CvBox from "../../components/CV/ApprovedCVBox";
 import ExperienceItem from "../../components/CV/ExperienceItem";
 import EducationItem from "../../components/CV/EducationItem";
@@ -17,16 +17,19 @@ import ReactAppUrl from "../../../configs/ConfigUrl";
 import CertificateItem from "../../components/CV/CertificateItem";
 import moment from "moment";
 import Address from "../../../models/Address";
-import {NavigationContext, NavigationRouteContext} from "@react-navigation/native";
-import {CVApprovalRoute} from "../../../configs/NavigationRouteTypeConfig";
+import { NavigationContext, NavigationRouteContext } from "@react-navigation/native";
+import { CVApprovalRoute } from "../../../configs/NavigationRouteTypeConfig";
 import Education from "../../../models/Education";
 import Experience from "../../../models/Experience";
 import Certificate from "../../../models/Certificate";
 import File from "../../../models/File";
 import CVApprovalSkeleton from "../../components/skeleton/CVApprovalSkeleton";
 import ModalApproveCVReason from "../../components/modal/ModalApproveCVReson";
-import SFirebase, {FirebaseNode} from "../../../services/SFirebase";
+import SFirebase, { FirebaseNode } from "../../../services/SFirebase";
 import ScreenName from "../../../constants/ScreenName";
+import Toast from "react-native-simple-toast";
+
+
 
 export default function CVApproval() {
   // context, route ----------------------------------------------------------------
@@ -58,16 +61,18 @@ export default function CVApproval() {
   //handler -----------------------------------------------------------------------
   const handleConfirm = useCallback(() => {
     const cvId = newCv.id;
-    const oldCvId = cv.id;
+    const oldCvId = cv ? cv.id : newCv.id.trim().split("_")[0];
     const approveData = {
       oldCvId: oldCvId,
       cvId: cvId,
     }
-
+    // console.log(approveData);
+    
     ACV.approveCV(approveData, (result) => {
       console.log(result);
       setIsApproved(result.status);
-      navigation?.navigate(ScreenName.SHOW_CV, {cv_id: cv.id});
+      navigation?.navigate(ScreenName.SHOW_CV, { cv_id: cv ? cv.id : newCv.id.trim().split("_")[0] });
+      Toast.show("CV đã được duyệt", 3000)
     }, (loading) => {
       console.log(loading);
 
@@ -76,18 +81,20 @@ export default function CVApproval() {
 
   const handleCancel = useCallback((reason: string) => {
     const cvId = newCv.id;
-    const oldCvId = cv.id;
+    const oldCvId = cv ? cv.id : newCv.id.trim().split("_")[0];
 
-    const approveData = {
+    const denyData = {
       oldCvId: oldCvId,
       cvId: cvId,
       reason: reason,
     }
-
-    ACV.denyCV(approveData, (result) => {
+    console.log(denyData);
+  
+    ACV.denyCV(denyData, (result) => {
       console.log(result);
       setIsApproved(result.status);
-      navigation?.navigate(ScreenName.SHOW_CV, {cv_id: cv.id});
+      navigation?.navigate(ScreenName.SHOW_CV, { cv_id: cv.id });
+      Toast.show("CV đã được duyệt", 3000)
     }, (loading) => {
       console.log(loading);
 
@@ -119,177 +126,208 @@ export default function CVApproval() {
             }
             // Set Old educations, experiences, certificates
             // Tạo dữ liệu cho educations
-            const newEducations = cv.educations.map((item: any) =>
-              new Education(
-                item.id,
-                item.name,
-                item.note,
-                new Address(
-                  item.address?.id,
-                  item.address?.province,
-                  item.address?.district,
-                  item.address?.ward,
-                  item.address?.detail
-                ),
-                item.started_at,
-                item.ended_at,
-                item.evidence
-                  ? new File(
-                    (item.evidence as File).id,
-                    (item.evidence as File).name,
-                    (item.evidence as File).path,
-                    (item.evidence as File).ratio,
-                    (item.evidence as File).created_at,
-                    (item.evidence as File).updated_at
-                  )
-                  : undefined
-              )
-            );
-            setOldEducations(newEducations);
-
+            if (cv.educations) {
+              const newEducations = cv.educations.map((item: any) =>
+                new Education(
+                  item.id,
+                  item.name,
+                  item.note,
+                  new Address(
+                    item.address?.id,
+                    item.address?.province,
+                    item.address?.district,
+                    item.address?.ward,
+                    item.address?.detail
+                  ),
+                  item.started_at,
+                  item.ended_at,
+                  item.evidence
+                    ? new File(
+                      (item.evidence as File).id,
+                      (item.evidence as File).name,
+                      (item.evidence as File).path,
+                      (item.evidence as File).ratio,
+                      (item.evidence as File).created_at,
+                      (item.evidence as File).updated_at
+                    )
+                    : undefined
+                )
+              );
+              setOldEducations(newEducations);
+            }
+            else {
+              setOldEducations([]);
+            }
+            
             // Tạo dữ liệu cho experiences
-            const newExperiences = cv.experiences.map((item: any) =>
-              new Experience(
-                item.id,
-                item.name,
-                item.note,
-                new Address(
-                  item.address?.id,
-                  item.address?.province,
-                  item.address?.district,
-                  item.address?.ward,
-                  item.address?.detail
-                ),
-                item.started_at,
-                item.ended_at,
-                item.evidence
-                  ? new File(
-                    (item.evidence as File).id,
-                    (item.evidence as File).name,
-                    (item.evidence as File).path,
-                    (item.evidence as File).ratio,
-                    (item.evidence as File).created_at,
-                    (item.evidence as File).updated_at
-                  )
-                  : undefined
-              )
-            );
-            setOldExperiences(newExperiences);
+            if (cv.experiences) {
+              const newExperiences = cv.experiences.map((item: any) =>
+                new Experience(
+                  item.id,
+                  item.name,
+                  item.note,
+                  new Address(
+                    item.address?.id,
+                    item.address?.province,
+                    item.address?.district,
+                    item.address?.ward,
+                    item.address?.detail
+                  ),
+                  item.started_at,
+                  item.ended_at,
+                  item.evidence
+                    ? new File(
+                      (item.evidence as File).id,
+                      (item.evidence as File).name,
+                      (item.evidence as File).path,
+                      (item.evidence as File).ratio,
+                      (item.evidence as File).created_at,
+                      (item.evidence as File).updated_at
+                    )
+                    : undefined
+                )
+              );
+              setOldExperiences(newExperiences);
+            }
+            else {
+              setOldExperiences([]);
+            }
 
-            // Tạo dữ liệu cho certificates (với score thay vì address)
-            const newCertificates = cv.certificates.map((item: any) =>
-              new Certificate(
-                item.id,
-                item.name,
-                item.note,
-                item.score, // Thay address bằng score
-                item.valid_at,
-                item.expired_at,
-                item.evidence
-                  ? new File(
-                    (item.evidence as File).id,
-                    (item.evidence as File).name,
-                    (item.evidence as File).path,
-                    (item.evidence as File).ratio,
-                    (item.evidence as File).created_at,
-                    (item.evidence as File).updated_at
-                  )
-                  : undefined
-              )
-            );
-            setOldCertificates(newCertificates);
+            // Tạo dữ liệu cho certificates 
+            if (cv.certificates) {
+              const newCertificates = cv.certificates.map((item: any) =>
+                new Certificate(
+                  item.id,
+                  item.name,
+                  item.note,
+                  item.score, // Thay address bằng score
+                  item.valid_at,
+                  item.expired_at,
+                  item.evidence
+                    ? new File(
+                      (item.evidence as File).id,
+                      (item.evidence as File).name,
+                      (item.evidence as File).path,
+                      (item.evidence as File).ratio,
+                      (item.evidence as File).created_at,
+                      (item.evidence as File).updated_at
+                    )
+                    : undefined
+                )
+              );
+              setOldCertificates(newCertificates);
+            } else {
+              setOldCertificates([]);
+            }
 
+          } else {
+            setCV(null);
+            setUserInfo(cvs[0]?.user)
           }
+
           const newCV = cvs.find(cv => cv.id === `${cvId}`);
           if (newCV) {
             setNewCv(newCV);
-
             // Set New educations, experiences, certificates
             // Tạo dữ liệu cho educations
-            const newEducations = newCV.educations.map((item: any) =>
-              new Education(
-                item.id,
-                item.name,
-                item.note,
-                new Address(
-                  item.address?.id,
-                  item.address?.province,
-                  item.address?.district,
-                  item.address?.ward,
-                  item.address?.detail
-                ),
-                item.started_at,
-                item.ended_at,
-                item.evidence
-                  ? new File(
-                    (item.evidence as File).id,
-                    (item.evidence as File).name,
-                    (item.evidence as File).path,
-                    (item.evidence as File).ratio,
-                    (item.evidence as File).created_at,
-                    (item.evidence as File).updated_at
-                  )
-                  : undefined
-              )
-            );
-            setNewEducations(newEducations);
+            if (newCV.educations) {
+              const newEducations = newCV.educations.map((item: any) =>
+                new Education(
+                  item.id,
+                  item.name,
+                  item.note,
+                  new Address(
+                    item.address?.id,
+                    item.address?.province,
+                    item.address?.district,
+                    item.address?.ward,
+                    item.address?.detail
+                  ),
+                  item.started_at,
+                  item.ended_at,
+                  item.evidence
+                    ? new File(
+                      (item.evidence as File).id,
+                      (item.evidence as File).name,
+                      (item.evidence as File).path,
+                      (item.evidence as File).ratio,
+                      (item.evidence as File).created_at,
+                      (item.evidence as File).updated_at
+                    )
+                    : undefined
+                )
+              );
+              setNewEducations(newEducations);
+            } else {
+              setNewEducations([]);
+            }
 
             // Tạo dữ liệu cho experiences
-            const newExperiences = newCV.experiences.map((item: any) =>
-              new Experience(
-                item.id,
-                item.name,
-                item.note,
-                new Address(
-                  item.address?.id,
-                  item.address?.province,
-                  item.address?.district,
-                  item.address?.ward,
-                  item.address?.detail
-                ),
-                item.started_at,
-                item.ended_at,
-                item.evidence
-                  ? new File(
-                    (item.evidence as File).id,
-                    (item.evidence as File).name,
-                    (item.evidence as File).path,
-                    (item.evidence as File).ratio,
-                    (item.evidence as File).created_at,
-                    (item.evidence as File).updated_at
-                  )
-                  : undefined
-              )
-            );
-            setNewExperiences(newExperiences);
+            if (newCV.experiences) {
+              const newExperiences = newCV.experiences.map((item: any) =>
+                new Experience(
+                  item.id,
+                  item.name,
+                  item.note,
+                  new Address(
+                    item.address?.id,
+                    item.address?.province,
+                    item.address?.district,
+                    item.address?.ward,
+                    item.address?.detail
+                  ),
+                  item.started_at,
+                  item.ended_at,
+                  item.evidence
+                    ? new File(
+                      (item.evidence as File).id,
+                      (item.evidence as File).name,
+                      (item.evidence as File).path,
+                      (item.evidence as File).ratio,
+                      (item.evidence as File).created_at,
+                      (item.evidence as File).updated_at
+                    )
+                    : undefined
+                )
+              );
+              setNewExperiences(newExperiences);
+            } else {
+              setNewExperiences([]);
+            }
 
             // Tạo dữ liệu cho certificates (với score thay vì address)
-            const newCertificates = newCV.certificates.map((item: any) =>
-              new Certificate(
-                item.id,
-                item.name,
-                item.note,
-                item.score, // Thay address bằng score
-                item.valid_at,
-                item.expired_at,
-                item.evidence
-                  ? new File(
-                    (item.evidence as File).id,
-                    (item.evidence as File).name,
-                    (item.evidence as File).path,
-                    (item.evidence as File).ratio,
-                    (item.evidence as File).created_at,
-                    (item.evidence as File).updated_at
-                  )
-                  : undefined
-              )
-            );
-            setNewCertificates(newCertificates);
+            if (newCV.certificates) {
+              const newCertificates = newCV?.certificates.map((item: any) =>
+                new Certificate(
+                  item.id,
+                  item.name,
+                  item.note,
+                  item.score, // Thay address bằng score
+                  item.valid_at,
+                  item.expired_at,
+                  item.evidence
+                    ? new File(
+                      (item.evidence as File).id,
+                      (item.evidence as File).name,
+                      (item.evidence as File).path,
+                      (item.evidence as File).ratio,
+                      (item.evidence as File).created_at,
+                      (item.evidence as File).updated_at
+                    )
+                    : undefined
+                )
+              );
+              setNewCertificates(newCertificates);
+            } else {
+              setNewCertificates([]);
+            }
+
+
           }
         }, setLoading);
       });
     }
-  }, []);
+  }, [cvId]);
 
   //lay firebase
   useEffect(() => {
@@ -316,8 +354,8 @@ export default function CVApproval() {
         },
         headerTintColor: "#fff",
         headerLeft: () => (
-          <TouchableOpacity onPress={() => navigation.goBack()} style={{paddingRight: 10}}>
-            <Ionicons name="chevron-back" size={24} color="white"/>
+          <TouchableOpacity onPress={() => navigation.goBack()} style={{ paddingRight: 10 }}>
+            <Ionicons name="chevron-back" size={24} color="white" />
           </TouchableOpacity>
         ),
         headerRight: () => (
@@ -335,8 +373,8 @@ export default function CVApproval() {
   }, [navigation]);
 
   // Test -------------------------------
-  // useEffect(()=> {
-  //   console.log("newCV", JSON.stringify(newCv, null, 2));
+  // useEffect(() => {
+  //   console.log("cv", JSON.stringify(newCv, null, 2));
 
   // }, [newCv])
 
@@ -344,19 +382,23 @@ export default function CVApproval() {
 
   return (
     <View style={styles.container}>
-      {loading ? <CVApprovalSkeleton/> :
+      {loading ? <CVApprovalSkeleton /> :
         <ScrollView showsVerticalScrollIndicator={false}>
           {/* header */}
           <View style={styles.header}>
             <Image
               style={styles.avatar}
-              source={{uri: ReactAppUrl.PUBLIC_URL + userInfo?.avatar}}
+              source={{ uri: ReactAppUrl.PUBLIC_URL + userInfo?.avatar }}
             />
             <Text style={styles.badge}> {userInfo?.point} </Text>
             <Text style={styles.name}>{userInfo?.full_name}</Text>
             {/* TITLE */}
             <View style={styles.approveTitleBox}>
-              {!isApproved && <Text style={[styles.title, styles.oldBorder, styles.oldBackground]}> {cv?.title} </Text>}
+              {(isApproved || !cv) ? null :(
+                <Text style={[styles.title, styles.oldBorder, styles.oldBackground]}>
+                  {cv?.title}
+                </Text>
+              )}
               <Text style={[styles.title, styles.newBorder, styles.newBackground]}> {newCv?.title} </Text>
             </View>
           </View>
@@ -367,12 +409,12 @@ export default function CVApproval() {
               <View style={styles.inforItem}>
                 {/* day of birth */}
                 <View style={styles.inforItemChild}>
-                  <AntDesign name="calendar" size={20} color="black"/>
+                  <AntDesign name="calendar" size={20} color="black" />
                   <Text style={styles.inforItemText}> {birthday} </Text>
                 </View>
                 {/* phone number */}
                 <View style={styles.inforItemChild}>
-                  <Feather name="phone-call" size={20} color="black"/>
+                  <Feather name="phone-call" size={20} color="black" />
                   <Text style={styles.inforItemText}>
                     {" "}
                     {userInfo?.phone_number}{" "}
@@ -382,7 +424,7 @@ export default function CVApproval() {
               <View style={styles.inforItem}>
                 {/* interested major */}
                 <View style={styles.inforItemChild}>
-                  <Feather name="bookmark" size={24} color="black"/>
+                  <Feather name="bookmark" size={24} color="black" />
                   <Text style={styles.inforItemText}>
                     {(userInfo && userInfo.interested_majors.length > 0) && userInfo.interested_majors[0].vn_name}
                   </Text>
@@ -391,7 +433,7 @@ export default function CVApproval() {
               <View style={styles.inforItem}>
                 {/* location */}
                 <View style={styles.inforItemChild}>
-                  <Ionicons name="location-outline" size={20} color="black"/>
+                  <Ionicons name="location-outline" size={20} color="black" />
                   <Text style={styles.inforItemText}>
                     {" "}
                     {`${address?.detail}, ${address?.ward}, ${address?.district}, ${address?.province}`}
@@ -399,12 +441,14 @@ export default function CVApproval() {
                 </View>
               </View>
             </View>
-            <HLine type={HLineType.LIGHT}/>
+            <HLine type={HLineType.LIGHT} />
             {/* about me */}
             <View style={styles.aboutView}>
               <Text style={styles.titleText}>{"Biography"}</Text>
               <View style={[styles.approveBioBox]}>
-                {!isApproved && <Text style={[styles.aboutText, styles.oldBorder]}>{cv?.biography}</Text>}
+                {(isApproved || !cv) ? null : 
+                <Text style={[styles.aboutText, styles.oldBorder]}>{cv?.biography}</Text>
+                }
                 <Text style={[styles.aboutText, styles.newBorder]}>{newCv?.biography}</Text>
               </View>
             </View>
@@ -413,20 +457,20 @@ export default function CVApproval() {
             <View>
               <Text style={styles.approveCVText}>{"Educations"}</Text>
               <View style={styles.approveCVBox}>
-                {!isApproved && <CvBox isOld={true} title="Old Education">
+                {(isApproved || !cv )? null : <CvBox isOld={true} title="Old Education">
                   <FlatList
                     scrollEnabled={false}
                     data={oldEducations}
-                    renderItem={({item}) => <EducationItem education={item} onDelete={() => {
-                    }}/>}
+                    renderItem={({ item }) => <EducationItem education={item} onDelete={() => {
+                    }} />}
                   />
                 </CvBox>}
                 <CvBox title="New Education">
                   <FlatList
                     scrollEnabled={false}
                     data={newEducations}
-                    renderItem={({item}) => <EducationItem education={item} onDelete={() => {
-                    }}/>}
+                    renderItem={({ item }) => <EducationItem education={item} onDelete={() => {
+                    }} />}
                   />
                 </CvBox>
               </View>
@@ -435,20 +479,20 @@ export default function CVApproval() {
             <View>
               <Text style={styles.approveCVText}>{"Word Experiences"}</Text>
               <View style={styles.approveCVBox}>
-                {!isApproved && <CvBox isOld={true} title="Old Work Experience">
+                {(isApproved || !cv )? null : <CvBox isOld={true} title="Old Work Experience">
                   <FlatList
                     scrollEnabled={false}
                     data={oldExperiences}
-                    renderItem={({item}) => <ExperienceItem experience={item} onDelete={() => {
-                    }}/>}
+                    renderItem={({ item }) => <ExperienceItem experience={item} onDelete={() => {
+                    }} />}
                   />
                 </CvBox>}
                 <CvBox title="New Work Experiences">
                   <FlatList
                     scrollEnabled={false}
                     data={newExperiences}
-                    renderItem={({item}) => <ExperienceItem experience={item} onDelete={() => {
-                    }}/>}
+                    renderItem={({ item }) => <ExperienceItem experience={item} onDelete={() => {
+                    }} />}
                   />
                 </CvBox>
               </View>
@@ -457,20 +501,20 @@ export default function CVApproval() {
             <View>
               <Text style={styles.approveCVText}>{"Certificate"}</Text>
               <View style={styles.approveCVBox}>
-                {!isApproved && <CvBox isOld={true} title="Old Certificate">
+                {(isApproved || !cv )? null : <CvBox isOld={true} title="Old Certificate">
                   <FlatList
                     scrollEnabled={false}
                     data={oldCertificates}
-                    renderItem={({item}) => <CertificateItem certificate={item} onDelete={() => {
-                    }}/>}
+                    renderItem={({ item }) => <CertificateItem certificate={item} onDelete={() => {
+                    }} />}
                   />
                 </CvBox>}
                 <CvBox title="New Certificate">
                   <FlatList
                     scrollEnabled={false}
                     data={newCertificates}
-                    renderItem={({item}) => <CertificateItem certificate={item} onDelete={() => {
-                    }}/>}
+                    renderItem={({ item }) => <CertificateItem certificate={item} onDelete={() => {
+                    }} />}
                   />
                 </CvBox>
               </View>
@@ -533,7 +577,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 25,
     paddingVertical: 3,
     borderRadius: 10,
-    transform: [{translateY: -10}],
+    transform: [{ translateY: -10 }],
   },
   name: {
     color: TextColor.white,

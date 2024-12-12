@@ -417,7 +417,9 @@ export default function InputCVScreen() {
   // kiểm tra đã thay đổi dữ liệu của các field, nếu chưa thì disable button
   useEffect(() => {
     if (!isProcessing && title && biography && cv) {
-      const isDifferent = title !== cv?.title || biography !== cv?.biography
+      const isDifferent = (title !== cv?.title || biography !== cv?.biography)
+      console.log(isDifferent);
+      
       setHasChange(isDifferent)
     }
   }, [title, biography, isProcessing, cv])
@@ -509,9 +511,9 @@ export default function InputCVScreen() {
       </ScrollView>
       <View style={[styles.buttonContainer]}>
         <TouchableOpacity
-          disabled={hasChange}
+          disabled={!hasChange}
           onPress={handleConfirm}
-          style={[styles.btn, styles.boxShadow, hasChange && styles.btnDisable]}
+          style={[styles.btn, styles.boxShadow, !hasChange && styles.btnDisable]}
         >
           <Text style={styles.btnText}>
             {languageContext.language.CONFIRM}
