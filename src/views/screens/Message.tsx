@@ -102,6 +102,12 @@ export default function MessageScreen() {
     navigation?.navigate(ScreenName.PROFILE, data);
   }, [user]);
 
+  const goBack = useCallback(() => {
+    AMessage.markAsRead(user?.id ?? "-1", accountContext.account?.id ?? "-1", () => {
+      navigation?.goBack();
+    });
+  }, [user, accountContext.account, messages.length]);
+
   //effects
   useEffect(() => {
     const data: MessageNavigationType = route?.params as MessageNavigationType;
@@ -121,7 +127,7 @@ export default function MessageScreen() {
         },
         headerTintColor: "#fff",
         headerLeft: () => (
-          <TouchableOpacity onPress={() => navigation.goBack()} style={{paddingRight: 10, flexDirection: "row", gap: 5}}>
+          <TouchableOpacity onPress={goBack} style={{paddingRight: 10, flexDirection: "row", gap: 5}}>
             <Ionicons name="chevron-back" size={24} color="white" style={{alignSelf: "center"}}/>
           </TouchableOpacity>
         ),
