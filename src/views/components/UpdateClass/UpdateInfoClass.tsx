@@ -107,7 +107,6 @@ const UpdateInfoClass = ({
 
   const handleChangeCapHoc = (value: number) => {
     onsetClassLevel(value);
-    console.log("value cap hoc: ", value);
   };
 
   // MAX LEARNER
@@ -160,8 +159,9 @@ const UpdateInfoClass = ({
               <Picker
                 selectedValue={major}
                 onValueChange={handleSelectChange}
-                style={styles.picker}
+                style={[styles.picker, styles.disabledInput]}
                 key={languageContext.TYPE}
+                enabled={false}
               >
                 {pickerItems.map((item) => (
                   <Picker.Item
@@ -184,7 +184,8 @@ const UpdateInfoClass = ({
             <Picker
               selectedValue={classLevel}
               onValueChange={handleChangeCapHoc}
-              style={styles.picker}
+              style={[styles.picker, styles.disabledInput]}
+              enabled={false}
             >
               {capHocList.map((classLevel) => (
                 <Picker.Item
@@ -287,6 +288,9 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingLeft: 10,
     justifyContent: "center",
+  },
+  disabledInput: {
+    backgroundColor: "#e0e0e0",
   },
 });
 

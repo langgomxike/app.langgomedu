@@ -112,7 +112,8 @@ const UpdateInfoTuition = ({
           <Text style={styles.required}>*</Text>
         </Text>
         <TouchableOpacity
-          style={styles.input}
+          style={[styles.input, styles.disabledInput]}
+          disabled={true}
           onPress={() => showDatePicker("start")}
         >
           <Text>
@@ -128,7 +129,8 @@ const UpdateInfoTuition = ({
       </Text>
       <TouchableOpacity
         onPress={() => showDatePicker("end")}
-        style={styles.input}
+        style={[styles.input, styles.disabledInput]}
+        disabled={true}
       >
         <Text>
           {dateEnd
@@ -212,6 +214,9 @@ const styles = StyleSheet.create({
     color: "red",
     fontSize: 14,
     marginTop: 5,
+  },
+  disabledInput: {
+    backgroundColor: "#e0e0e0",
   },
 });
 
