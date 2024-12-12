@@ -87,7 +87,7 @@ function FlatListItem({item, index}: FlatListItemProps) {
     } else {
       Toast.show(languageContext.language.HAVE_NO_PERMISSION_TO_MANAGE_CV, 1000);
     }
-  }, []);
+  }, [appInfos.contact_email]);
 
   const goToChangePasswordScreen = useCallback(() => {
     navigation?.navigate(ScreenName.CHANGE_PASSWORD);
@@ -95,7 +95,7 @@ function FlatListItem({item, index}: FlatListItemProps) {
 
   const handleOpenWebsite = useCallback(() => {
     Linking.openURL(appInfos.webiste_link);
-  }, []);
+  }, [appInfos.webiste_link]);
 
   const handleOpenInAppPackager = useCallback(() => {
     const appStoreUrl = `https://apps.apple.com/app/id${appInfos.apple_store_app_id}`;
@@ -104,7 +104,7 @@ function FlatListItem({item, index}: FlatListItemProps) {
     const url = Platform.OS === 'ios' ? appStoreUrl : playStoreUrl;
 
     Linking.openURL(url);
-  }, []);
+  }, [appInfos.apple_store_app_id, appInfos.play_store_app_id]);
 
   const handleChangeLanguage = useCallback((language: typeof vn) => {
     languageContext.setLanguage && languageContext.setLanguage(language);
@@ -119,10 +119,10 @@ function FlatListItem({item, index}: FlatListItemProps) {
         accountContext.setAccount && accountContext.setAccount(undefined);
 
         navigation?.navigate(ScreenName.LOGIN);
-        Toast.show("Đăng xuất thành công", 2000);
+        Toast.show(`${languageContext.language.LOGOUT_SUSCCESS}`, 2000);
       },
       (error) => {
-        alert("Không thể đăng xuất");
+        alert(`${languageContext.language.LOGOUT_UNSUSCCESS}`);
       }
     )
   }, []);
@@ -261,7 +261,6 @@ export default function AccountScreen() {
   //tsx
   return (
     <>
-      {!isAdmin && <QRInfo id={accountContext.account?.id ?? ""} type={QRItems.USER}/>}
       <BackWithDetailLayout icName="Back">
         <ScrollView showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false}>
           {ListItem.map((item, index) => (

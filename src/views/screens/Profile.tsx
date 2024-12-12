@@ -22,7 +22,7 @@ import {
   NavigationRouteContext,
 } from "@react-navigation/native";
 import {
-  CreateReportNavigationType,
+  CreateReportNavigationType, CVApprovalRoute,
   IdNavigationType,
   MessageNavigationType,
 } from "../../configs/NavigationRouteTypeConfig";
@@ -31,8 +31,11 @@ import { LanguageContext } from "../../configs/LanguageConfig";
 import { RoleList } from "../../models/Role";
 import { BackgroundColor } from "../../configs/ColorConfig";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import MyIcon, { AppIcon } from "../components/MyIcon";
-import SFirebase, { FirebaseNode } from "../../services/SFirebase";
+import MyIcon, {AppIcon} from "../components/MyIcon";
+import SFirebase, {FirebaseNode} from "../../services/SFirebase";
+import QRInfo from "../components/QRInfo";
+import {QRItems} from "../../configs/QRConfig";
+
 const URL = ReactAppUrl.PUBLIC_URL;
 export default function ProfileScreen() {
   //contexts
@@ -52,22 +55,19 @@ export default function ProfileScreen() {
   const randomColor =
     pastelColors[Math.floor(Math.random() * pastelColors.length)];
 
-  // const userId = accountContext.account?.id;
+  const userId = accountContext.account?.id;
 
   //laasy thoong tin porfile
-
   useEffect(() => {
     const data: IdNavigationType = (route?.params as IdNavigationType) ?? {
       id: accountContext.account?.id,
     };
-    const userId: string = data?.id + ""; 
-    console.log("da goi den profile");
-   
+    const userId: string = data?.id + "";
+
     SFirebase.track(
       FirebaseNode.Users,
       [{ key: FirebaseNode.Id, value: userId }],
       () => {
-        console.log("user track");
         AUser.getUserProfileById(
           userId,
           (data: User) => {
@@ -80,7 +80,7 @@ export default function ProfileScreen() {
         );
       }
     );
-  }, []);
+  }, [userId]);
 
   //chuyển đổi thời gian
   const timestamp = userProfile?.birthday ?? 0; // Timestamp (milliseconds)
@@ -118,6 +118,16 @@ export default function ProfileScreen() {
     navigation?.navigate(ScreenName.UPDATE_PROFILE);
   }, []);
 
+  const goToCVScreen = useCallback(() => {
+    if (!userProfile?.id) return;
+
+    const data: CVApprovalRoute = {
+      cv_id: userProfile.id
+    }
+
+    navigation?.navigate(ScreenName.CV, data);
+  }, [userProfile]);
+
   const goToReport = useCallback(() => {
     if (!userProfile) return;
 
@@ -148,6 +158,11 @@ export default function ProfileScreen() {
             <Ionicons name="chevron-back" size={24} color="white" />
           </TouchableOpacity>
         ),
+        headerRight: () => (
+          <View style={{minHeight: 60}}>
+            <QRInfo id={userProfile?.id ?? "-1"} type={QRItems.USER} />
+          </View>
+        )
       });
     }
   }, [navigation, userProfile]);
@@ -171,15 +186,19 @@ export default function ProfileScreen() {
           {/* screen title */}
           {/* <Text style={styles.title}>Thông Tin </Text> */}
           <View style={styles.infor}>
-            <View style={styles.avt}>
+            <View style={[styles.avt, {flexDirection: "row", justifyContent: "center"}]}>
               <Image
                 source={
                   userProfile?.avatar
-                    ? { uri: `${URL}/${userProfile.avatar}` } // Nếu userAvatar tồn tại, sử dụng URI
+                    ? { uri: `${URL}${userProfile.avatar}` } // Nếu userAvatar tồn tại, sử dụng URI
                     : require("../../../assets/avatar/img_avatar_cat.png") // Nếu không, sử dụng ảnh mặc định
                 }
                 style={styles.avatar}
               />
+
+              <TouchableOpacity onPress={goToCVScreen} style={{alignSelf: "center", position: "absolute", right: 10, top: 0, backgroundColor: BackgroundColor.white, borderRadius: 50, padding: 5}}>
+                <Image source={require("../../../assets/settings/cv.png")} style={{width: 30, height: 30}} />
+              </TouchableOpacity>
             </View>
             <View style={styles.inf}>
               <Text style={styles.name}>{userProfile?.full_name}</Text>
@@ -258,10 +277,10 @@ export default function ProfileScreen() {
                         languageContext.TYPE === "vi"
                           ? major.vn_name
                           : languageContext.TYPE === "en"
-                          ? major.en_name
-                          : languageContext.TYPE === "ja"
-                          ? major.ja_name
-                          : major.vn_name // Giá trị mặc định nếu không khớp
+                            ? major.en_name
+                            : languageContext.TYPE === "ja"
+                              ? major.ja_name
+                              : major.vn_name // Giá trị mặc định nếu không khớp
                       }
                     </Text>
                   </View>
@@ -296,10 +315,10 @@ export default function ProfileScreen() {
                           languageContext.TYPE === "vi"
                             ? major.vn_name
                             : languageContext.TYPE === "en"
-                            ? major.en_name
-                            : languageContext.TYPE === "ja"
-                            ? major.ja_name
-                            : major.vn_name // Giá trị mặc định nếu không khớp
+                              ? major.en_name
+                              : languageContext.TYPE === "ja"
+                                ? major.ja_name
+                                : major.vn_name // Giá trị mặc định nếu không khớp
                         }
                       </Text>
                     </View>

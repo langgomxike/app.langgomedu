@@ -1,4 +1,4 @@
-import {Image, Pressable, StyleSheet, Text, TouchableOpacity, View} from "react-native";
+import {Image, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import BackLayout from "../../layouts/Back";
 import SearchBar from "../../components/Inputs/SearchBar";
 import React, {useCallback, useContext, useEffect, useState} from "react";
@@ -43,6 +43,27 @@ export default function UserPermissionManagementScreen() {
 
   //effects
   useEffect(() => {
+    if (navigation) {
+      navigation.setOptions({
+        title: language.USER_PERMISSION_MANAGEMENT,
+        headerShown: true,
+        contentStyle: {
+          padding: 0,
+        },
+        headerStyle: {
+          backgroundColor: BackgroundColor.primary,
+        },
+        headerTintColor: "#fff",
+        headerLeft: () => (
+          <TouchableOpacity onPress={() => navigation.goBack()} style={{paddingRight: 10}}>
+            <Ionicons name="chevron-back" size={24} color="white"/>
+          </TouchableOpacity>
+        )
+      });
+    }
+  }, [navigation]);
+
+  useEffect(() => {
     SFirebase.track(FirebaseNode.Roles, [], () => {
       setLoading(true);
       const timeId = setTimeout(() => {
@@ -75,28 +96,28 @@ export default function UserPermissionManagementScreen() {
   }, []);
 
   return (
-    <BackLayout>
-      <Spinner visible={loading}/>
+    <ScrollView style={{backgroundColor: BackgroundColor.white}} showsHorizontalScrollIndicator={false} showsVerticalScrollIndicator={false}>
+      <View style={{backgroundColor: BackgroundColor.white, margin: 15}}>
+        <Spinner visible={loading}/>
 
-      <Text style={styles.title}>{language.USER_PERMISSION_MANAGEMENT?.toUpperCase()}</Text>
+        <Pressable style={styles.buttonLink} onPress={goToPermissionManager}>
+          <Text style={styles.link}>{language.PERMISSION_MANAGEMENT}</Text>
 
-      <Pressable style={styles.buttonLink} onPress={goToPermissionManager}>
-        <Text style={styles.link}>{language.PERMISSION_MANAGEMENT}</Text>
+          <Ionicons name={"chevron-forward-outline"} size={20} style={{alignSelf: "center"}}/>
+        </Pressable>
 
-        <Ionicons name={"chevron-forward-outline"} size={20} style={{alignSelf: "center"}}/>
-      </Pressable>
+        <Pressable style={{alignSelf: "center"}} onPress={goToProfile}>
+          <Image src={ReactAppUrl.PUBLIC_URL + user?.avatar} style={styles.avatar}/>
 
-      <Pressable style={{alignSelf: "center"}} onPress={goToProfile}>
-        <Image src={ReactAppUrl.PUBLIC_URL + user?.avatar} style={styles.avatar}/>
+          <Text style={styles.userName}>{user?.full_name}</Text>
+        </Pressable>
 
-        <Text style={styles.userName}>{user?.full_name}</Text>
-      </Pressable>
-
-      <View style={styles.headerContainer}>
-        {/*  body */}
-        <UserRoleList allRols={roles} myRoles={user?.roles ?? []} user={user}/>
+        <View style={styles.headerContainer}>
+          {/*  body */}
+          <UserRoleList allRols={roles} myRoles={user?.roles ?? []} user={user}/>
+        </View>
       </View>
-    </BackLayout>
+    </ScrollView>
   );
 }
 

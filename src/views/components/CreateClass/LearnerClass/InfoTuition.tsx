@@ -14,6 +14,8 @@ import AStudent from "../../../../apis/AStudent";
 import User from "../../../../models/User";
 import DropDownLocation from "../../dropdown/DropDownLocation";
 import { LanguageContext } from "../../../../configs/LanguageConfig";
+import { child } from "firebase/database";
+import DateTimeConfig from "../../../../configs/DateTimeConfig";
 import ReactAppUrl from "../../../../configs/ConfigUrl";
 
 type Props = {
@@ -110,14 +112,11 @@ const InfoTuition = ({ onNext, userId }: Props) => {
       .join("/"); // Đảm bảo định dạng dd/mm/yyyy
 
     if (datePickerType === "start") {
-      setDateStart(formattedDate);
-      if (dateEnd) {
-        validateDates(formattedDate, dateEnd); // Kiểm tra ngày
+      if (dateEnd && validateDates(formattedDate, dateEnd)) {
+        setDateStart(formattedDate);
       }
     } else if (datePickerType === "end") {
-      if (dateStart && !validateDates(dateStart, formattedDate)) {
-        setDateEnd(""); // Reset ngày kết thúc nếu không hợp lệ
-      } else {
+      if (dateStart && validateDates(dateStart, formattedDate)) {
         setDateEnd(formattedDate);
       }
     }

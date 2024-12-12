@@ -1,4 +1,4 @@
-import React, {useCallback, useContext, useEffect, useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import {FlatList, Image, RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View,} from "react-native";
 import {BackgroundColor} from "../../configs/ColorConfig";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -18,7 +18,7 @@ import User from "../../models/User";
 import {LanguageContext} from "../../configs/LanguageConfig";
 import {AccountContext} from "../../configs/AccountConfig";
 import AuthorTuorInClass from "../components/AuthorTuorInClass";
-import moment, { lang } from "moment";
+import moment from "moment";
 import ButtonsInDetailClass from "../components/button/ButtonsInDetailClass";
 import SFirebase, {FirebaseNode} from "../../services/SFirebase";
 import ScreenName from "../../constants/ScreenName";
@@ -26,8 +26,9 @@ import QRInfo from "../components/QRInfo";
 import {QRItems} from "../../configs/QRConfig";
 import {RoleList} from "../../models/Role";
 import MembersInClass from "../components/MembersInClass";
-import { AppInfoContext } from "../../configs/AppInfoContext";
+import {AppInfoContext} from "../../configs/AppInfoContext";
 import ModalDialogForClass from "../components/modal/ModalDialogForClass";
+import SLog, {LogType} from "../../services/SLog";
 
 const URL = ReactAppUrl.PUBLIC_URL;
 export default function ClassDetail() {
@@ -47,6 +48,7 @@ export default function ClassDetail() {
   const [classDetail, setClassDetail] = useState<Class>();
   const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState<string | null>("");
+  const [modalContent, setModalContent] = useState<{title: string, content: string}>({title:"", content: ""});
   const [classLearners, setclassLearners] = useState<User[]>([]);
   const [userChildren, setUserChildren] = useState<User[]>([]);
   const [membersInClass, setMembersInClass] = useState<User[]>([]);
@@ -68,21 +70,48 @@ export default function ClassDetail() {
   }
 
   const handleJoinClass =() => {
-    if(classLearners && classDetail && classLearners.length >= classDetail?.max_learners) {
+    // Kiểm tra xem có xung đột lịch không
+    const conflictClassOfUsers = userChildren.find((child) => child.id === userId && child.conflicts);
+    if (conflictClassOfUsers) {
+      setModalContent({
+        title: languageContext.language.JOIN,
+        content: languageContext.language.CANNOT_TEACH_DUE_TO_CONFLICT,
+      });
       setModalVisible("modalDialogForClass");
+      return;
     }
-    else {
-      setModalVisible(
-        userChildren.length > 0 ? "modalJoinClass" : "modalConfirmJoinClass"
-      );
+
+    // Kiểm tra số lượng học sinh đã đầy
+    if(classLearners && classDetail && classLearners.length >= classDetail?.max_learners) {
+      setModalContent({title: languageContext.language.JOIN , content:languageContext.language.CLASS_FULL_CONTACT_TEACHER})
+      setModalVisible("modalDialogForClass");
+      return;
     }
+
+     // Nếu userChildren chỉ chứa chính người dùng (tức là họ không có con cái nào khác)
+     const onlyUser = userChildren.length === 1 && userChildren[0].id === userId;
+
+     setModalVisible(onlyUser ? "modalConfirmJoinClass" : "modalJoinClass");
+
   }
 
   const handleAcceptClass = () => {
     if (classDetail?.author) {
       // SMessage.createNotification("nội dung", classDetail?.author.id, () => {});
     }
-    setModalVisible("modalConfirmJoinClass");
+    const duplicateChild = userChildren.find((child) => child.id === userId && child.conflicts);
+    if (duplicateChild) {
+      setModalContent({
+        title: languageContext.language.JOIN,
+        content: languageContext.language.CANNOT_TEACH_DUE_TO_CONFLICT,
+      });
+      setModalVisible("modalDialogForClass");
+      return;
+    }
+    else{
+      setModalVisible("modalConfirmJoinClass");
+      return;
+    }
   };
 
   const onRefresh = () => {
@@ -155,7 +184,7 @@ export default function ClassDetail() {
           console.log("User class: ", membersInClass);
           
           setMembersInClass(membersInClass);
-          if (user.TYPE === UserType.LEANER && _class) {
+          if ( _class) {
             AClass.getconflictingLessonsWithClassUsers(_class.id, userId, (data) => {
               setUserChildren(data);
               
@@ -194,7 +223,7 @@ export default function ClassDetail() {
     }
 
      // Tính phí tạo lớp
-  const fee = classDetail  ? classDetail.total_lessons * classDetail.price *  
+  const fee = classDetail  ? classDetail.total_lessons * classDetail.price *  (classDetail.max_learners ?? 1) *
     (classDetail.author?.id === classDetail.tutor?.id
       ? appInfoContext.creation_fee_for_tutors
       : appInfoContext.creation_fee_for_parents)
@@ -455,7 +484,7 @@ export default function ClassDetail() {
               onResultValue={setResultResponse}
             />
           )}
-          {classDetail && userChildren.length === 0 && (
+           {classDetail && userChildren.length === 1 && userChildren[0].id === userId && (
             <ModalConfirmJoinClass
               confirmContent={languageContext.language.WANT_TO_JOIN_CLASS}
               visiable={modalVisible}
@@ -479,8 +508,8 @@ export default function ClassDetail() {
       )}
 
       <ModalDialogForClass
-      confirmTitle={languageContext.language.JOIN}
-      confirmContent={languageContext.language.CLASS_FULL_CONTACT_TEACHER}
+      confirmTitle={modalContent?.title}
+      confirmContent={modalContent?.content}
       imageStatus="confirm"
       visiable={modalVisible}
       onRequestCloseDialog={() => setModalVisible(null)}

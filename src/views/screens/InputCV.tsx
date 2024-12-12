@@ -39,6 +39,7 @@ import ScreenName from "../../constants/ScreenName";
 import { AccountContext } from "../../configs/AccountConfig";
 import { LanguageContext } from "../../configs/LanguageConfig";
 import ReactAppUrl from "../../configs/ConfigUrl";
+import {RoleList} from "../../models/Role";
 
 const AVATAR_SIZE = 100;
 
@@ -226,9 +227,9 @@ export default function InputCVScreen() {
         return newCer.toInsertObjectWithEvidenceId(certificateResults[index])
       })
       const insertCV = {
-        userId: cv?.user?.id,
-        title: cv?.title,
-        biography: cv?.biography,
+        userId: cvId,
+        title: title,
+        biography: biography,
         oldEducations: oldEducations.length > 0 ? oldEducations.map(item => item.toInsertObject()) : [],
         newEducations: newEduData.length > 0 ? newEduData : [],
         oldExperiences: oldExperiences.length > 0 ? oldExperiences.map(item => item.toInsertObject()) : [],
@@ -262,7 +263,7 @@ export default function InputCVScreen() {
   //EFFECT >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   //lấy dữ liệu CV về để hiển thị
   useEffect(() => {
-    if (account && account.roles.some(role => role.id !== 6)) {
+    if (account && account.roles.some(role => role.id !== RoleList.CHILD)) {
       // console.log(account?.roles);
       ACV.getPersonalCV(account.id, (cvs) => {
         const viewCv = cvs.find(cv => cv.id === `${account.id}_t`) ? cvs.find(cv => cv.id === `${account.id}_t`) : cvs[0];
@@ -389,7 +390,7 @@ export default function InputCVScreen() {
       setNavigateToAccount(true);
       setShowAlert(true);
     }
-  }, [])
+  }, [account])
 
   // Đặt lại title của header khi màn hình được hiển thị
   useEffect(() => {
@@ -415,12 +416,11 @@ export default function InputCVScreen() {
 
   // kiểm tra đã thay đổi dữ liệu của các field, nếu chưa thì disable button
   useEffect(() => {
-    if (!isProcessing && title && biography) {
-      const isDifferent = title !== cv.title ||
-        biography !== cv.biography
+    if (!isProcessing && title && biography && cv) {
+      const isDifferent = title !== cv?.title || biography !== cv?.biography
       setHasChange(isDifferent)
     }
-  }, [title, biography, educations, experiences, certificates, isProcessing])
+  }, [title, biography, isProcessing, cv])
 
   //testing >>------------------------------------<<
   
@@ -481,7 +481,7 @@ export default function InputCVScreen() {
             onAddImage={handleSetBoxImages}
             title={languageContext.language.WORK_EXPERIENCE}>
             <FlatList
-              keyExtractor={(item) => item.id.toString()}
+              keyExtractor={(item) => item.name.toString()+ item.id.toString()}
               scrollEnabled={false}
               data={experiences}
               renderItem={({ item }) => <ExperienceItem
@@ -509,9 +509,9 @@ export default function InputCVScreen() {
       </ScrollView>
       <View style={[styles.buttonContainer]}>
         <TouchableOpacity
-          disabled={!hasChange}
+          disabled={hasChange}
           onPress={handleConfirm}
-          style={[styles.btn, styles.boxShadow, !hasChange && styles.btnDisable]}
+          style={[styles.btn, styles.boxShadow, hasChange && styles.btnDisable]}
         >
           <Text style={styles.btnText}>
             {languageContext.language.CONFIRM}
@@ -524,7 +524,7 @@ export default function InputCVScreen() {
         imageStatus="success"
         onRequestCloseDialog={() => {
           setShowAlert(false)
-          navigation?.navigate(navigateToAccount ? ScreenName.ACCOUNT : ScreenName.SETTING_PERSONAL_CV)
+          navigation?.navigate(ScreenName.ACCOUNT)
         }}
         visiable={showAlert}
       />

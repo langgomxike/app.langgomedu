@@ -23,7 +23,7 @@ import ClassInfo from "../../components/ClassInfo";
 import ReactAppUrl from "../../../configs/ConfigUrl";
 import ModalConfirmAttendClass from "../../components/modal/ModalConfirmAttendLesson";
 import Attendance from "../../../models/Attendance";
-import {AttendedForLearner} from "../../../configs/NavigationRouteTypeConfig";
+import {AttendanceNavigationType, AttendedForLearner} from "../../../configs/NavigationRouteTypeConfig";
 import ModalPay from "../../components/modal/ModalPay";
 import {AccountContext} from "../../../configs/AccountConfig";
 import User from "../../../models/User";
@@ -87,8 +87,15 @@ export default function LeanerAttendance() {
 
   // Xử lý chuyển đến màn hình lịch sử đăng nhập
   const handleNavigateAttendanceHistory = useCallback(() => {
-    navigation?.navigate(ScreenName.ATTENDANCE_HISTORY);
-  }, []);
+    if (!user || !user.id || !lessonDetail || !lessonDetail.class || !lessonDetail.class.id) return;
+
+    const data: AttendanceNavigationType = {
+      userId: user.id,
+      classId: lessonDetail.class.id
+    }
+
+    navigation?.navigate(ScreenName.ATTENDANCE_HISTORY, data);
+  }, [user, lessonDetail]);
 
   const handlePayment = useCallback(
     async (status: string) => {
@@ -148,6 +155,27 @@ export default function LeanerAttendance() {
   };
 
   // effects
+  useEffect(() => {
+    if (navigation) {
+      navigation.setOptions({
+        title: lessonDetail?.class?.title,
+        headerShown: true,
+        contentStyle: {
+          padding: 0,
+        },
+        headerStyle: {
+          backgroundColor: BackgroundColor.primary,
+        },
+        headerTintColor: "#fff",
+        headerLeft: () => (
+          <TouchableOpacity onPress={() => navigation.goBack()} style={{paddingRight: 10, flexDirection: "row", gap: 5}}>
+            <Ionicons name="chevron-back" size={24} color="white" style={{alignSelf: "center"}}/>
+          </TouchableOpacity>
+        ),
+      });
+    }
+  }, [navigation, lessonDetail]);
+
   useEffect(() => {
     if (user && lessonDetail.class) {
       AAttendance.getAttendanceByLearnerLesson(

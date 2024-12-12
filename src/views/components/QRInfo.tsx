@@ -124,7 +124,7 @@ export default function QRInfo({ id, type }: QRInfoProps) {
 
 const styles = StyleSheet.create({
   container: {
-    zIndex: 1,
+    zIndex: 1000000,
     alignItems: "center",
     justifyContent: "center",
   },
