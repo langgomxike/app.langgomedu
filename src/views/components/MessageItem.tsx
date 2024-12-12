@@ -48,7 +48,7 @@ export default function MessageItem(
     content =
       <Pressable onPress={() => setShowImage(true)} onLongPress={ofMine && refRBSheet.current?.open || emptyFuc}>
         <Image
-          src={ReactAppUrl.PUBLIC_URL + "/" + message.content.replace("$image:", "")}
+          src={ReactAppUrl.PUBLIC_URL + "/" + message.content.replace("$image:", "").replace("public", "")}
           style={[
             {
               width: 280,

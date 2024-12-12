@@ -131,6 +131,35 @@ export default function ClassDetail() {
     navigation?.navigate(ScreenName.UPDATE_CLASS, { classData: classDetail, members: membersInClass  })
   }
 
+  const fetchDetailClass = (userId: string) => {
+    AClass.getClassDetailWithUser(
+      param.classId,
+      userId,
+      (_class, membersInClass) => {
+        setClassDetail(_class);
+        console.log("User class: ", membersInClass);
+        
+        setMembersInClass(membersInClass);
+        if ( _class) {
+          AClass.getconflictingLessonsWithClassUsers(_class.id, userId, (data) => {
+            setUserChildren(data);
+            
+          }, setLoading)
+        }
+
+        //Get student in class
+        AStudent.getStudentsInClass(
+          param.classId,
+          (data) => {              
+            setclassLearners(data);
+          },
+          setLoading
+        );
+      },
+      () => {}
+    );
+  }
+
   // effect -------------------------------------------------------------------------
   
   // Đặt lại header khi màn hình detail
@@ -176,32 +205,7 @@ export default function ClassDetail() {
   useEffect(() => {
     if (userId) {
       // Lấy data chi tiết lớp học
-      AClass.getClassDetailWithUser(
-        param.classId,
-        userId,
-        (_class, membersInClass) => {
-          setClassDetail(_class);
-          console.log("User class: ", membersInClass);
-          
-          setMembersInClass(membersInClass);
-          if ( _class) {
-            AClass.getconflictingLessonsWithClassUsers(_class.id, userId, (data) => {
-              setUserChildren(data);
-              
-            }, setLoading)
-          }
-
-          //Get student in class
-          AStudent.getStudentsInClass(
-            param.classId,
-            (data) => {              
-              setclassLearners(data);
-            },
-            setLoading
-          );
-        },
-        () => {}
-      );
+      fetchDetailClass(userId)
     }
   }, [resultResponse, userId]);
 
@@ -213,15 +217,6 @@ export default function ClassDetail() {
   }, [account]);
 
   useEffect(() => {
-    if(classDetail) {
-      SFirebase.track(FirebaseNode.Classes,  [{key: FirebaseNode.Id, value: classDetail.id}], () => {
-        const number = Math.floor(10 + Math.random() * 90);
-        console.log(">>> class detail realTimeStatus number: ", number);
-         
-          setRealTimeStatus(number);
-        })
-    }
-
      // Tính phí tạo lớp
   const fee = classDetail  ? classDetail.total_lessons * classDetail.price *  (classDetail.max_learners ?? 1) *
     (classDetail.author?.id === classDetail.tutor?.id
@@ -233,10 +228,22 @@ export default function ClassDetail() {
     
   }, [classDetail])
 
+  // Effect lại khi realtime thay đổi
   useEffect(() => {
-    // console.log("realTimeStatus: ", realTimeStatus);
-    // if(classDetail) console.log(classDetail.id);
-    
+    if(param.classId) {
+      SFirebase.track(FirebaseNode.Classes,  [{key: FirebaseNode.Id, value: param.classId}], () => {
+        const number = Math.floor(10 + Math.random() * 90);
+          setRealTimeStatus(number);
+          // console.log("real time status FirebaseNode: ", number);
+        })
+    }
+  }, [])
+
+  useEffect(() => {
+    if(userId) {
+      fetchDetailClass(userId)
+    }
+    console.log("real time status: ", realTimeStatus);
   }, [realTimeStatus])
 
   useEffect(() => {
