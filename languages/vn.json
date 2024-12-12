@@ -206,6 +206,11 @@
   "WANT_TO_TEACH_CLASS": "Bạn muốn nhận dạy lớp học này?",
   "CLASS_FULL_CONTACT_TEACHER": "Lớp đã đủ số lượng.\nNếu bạn muốn tham gia lớp vui lòng liên hệ với giáo viên của lớp!",
 
+  "UNPAID": "Chưa thanh toán",
+  "USER_UNPAID_REMINDER": "Người dùng này chưa thanh toán! Bạn có thể nhắc nhở họ.",
+  "REJECTION_SUCCESSFUL": "Gửi từ chối thành công",
+  "REMINDER_SUCCESSFUL": "Gửi nhắc nhở thành công",
+
   "CLASS_SUGGESTIONS": "Gợi ý lớp học",
   "TUTOR_SUGGESTIONS": "Gợi ý gia sư",
   "SUBJECT_LIST": "Danh sách môn học",

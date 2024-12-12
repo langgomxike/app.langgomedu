@@ -100,7 +100,7 @@ export default function UserClassManager({userId}: UserClassManagerProps) {
   const filterClassesByTab = (selectedTab: string): Class[] => {
     if (!userId) return [];
     const now = new Date().getTime();
-
+    
     switch (selectedTab) {
       case TAB.ATTENDING_CLASS: // Các lớp đang tham gia
         return classList.filter(

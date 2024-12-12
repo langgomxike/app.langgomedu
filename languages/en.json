@@ -206,6 +206,12 @@
   "OPEN_IMAGE_LIBRARY": "Open image library",
   "FEATURE_DISABLED_IN_IOS": "This feature is disabled in IOS devices",
   "CANNOT_SCAN_QR": "Can't scan QR",
+
+  "UNPAID": "Unpaid",
+  "USER_UNPAID_REMINDER": "This user has not paid! You can remind them.",
+  "REJECTION_SUCCESSFUL": "Rejection sent successfully",
+  "REMINDER_SUCCESSFUL": "Reminder sent successfully",
+
   "CLASS_SUGGESTIONS": "Class Suggestions",
   "TUTOR_SUGGESTIONS": "Tutor Suggestions",
   "SUBJECT_LIST": "Subject List",

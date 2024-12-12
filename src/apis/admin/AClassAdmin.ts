@@ -102,6 +102,53 @@ export default class AClassAdmin {
       });
   }
 
+  public static denyPaymentByAdmin(
+    classData: Class,
+    onNext: (data: any) => void,
+    onLoading: (loading: boolean) => void
+  ) {
+    onLoading(true);
+
+    axios.post(`${this.BASE_URL}/classes/deny-paid`, {
+        class_data: classData,
+
+      })
+      .then((response) => {
+        // console.log(">>>denyPaymentByAdmin", response.data.data);
+        onNext(response.data.data);
+        onLoading(false);
+      })
+      .catch((err) => {
+        console.error("Error enrolling in class:", err);
+        console.log(">>> title", "Xác thưc thanh toán không thành công");
+        onNext(err);
+        onLoading(false);
+      });
+  }
+
+  public static remindPaymentByAdmin(
+    classData: Class,
+    onNext: (data: any) => void,
+    onLoading: (loading: boolean) => void
+  ) {
+    onLoading(true);
+
+    axios.post(`${this.BASE_URL}/classes/remind-paid`, {
+        class_data: classData,
+      })
+      .then((response) => {
+        // console.log(">>>denyPaymentByAdmin", response.data.data);
+        onNext(response.data.data);
+        onLoading(false);
+      })
+      .catch((err) => {
+        console.error("Error enrolling in class:", err);
+        console.log(">>> title", "Xác thưc thanh toán không thành công");
+        onNext(err);
+        onLoading(false);
+      });
+  }
+
   public static deleteClass(id: number, onNext: (result: boolean) => void) {
     axios
      .delete(`${this.BASE_URL}/classes/${id}`)

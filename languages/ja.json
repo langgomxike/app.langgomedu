@@ -205,6 +205,11 @@
   "WANT_TO_TEACH_CLASS": "このクラスを教えますか？",
   "CLASS_FULL_CONTACT_TEACHER": "クラスは定員に達しました.\nクラスに参加したい場合は、クラスの教師に連絡してください！",
 
+  "UNPAID": "未払い",
+  "USER_UNPAID_REMINDER": "このユーザーはまだ支払いをしていません！リマインドすることができます。",
+  "REJECTION_SUCCESSFUL": "拒否を正常に送信しました",
+  "REMINDER_SUCCESSFUL": "リマインダーが正常に送信されました",
+
   "CLASS_SUGGESTIONS": "クラスの提案",
   "TUTOR_SUGGESTIONS": "家庭教師の提案",
   "SUBJECT_LIST": "科目一覧",

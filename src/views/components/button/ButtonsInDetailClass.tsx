@@ -18,6 +18,7 @@ import {NavigationContext} from "@react-navigation/native";
 import ScreenName from "../../../constants/ScreenName";
 import {
   CreateReportNavigationType,
+  GroupMessageNavigationType,
   MessageNavigationType,
   RatingNavigationType,
 } from "../../../configs/NavigationRouteTypeConfig";
@@ -102,9 +103,13 @@ export default function ButtonsInDetailClass({
 
    // Xử lý chuyển hướng đến chat với người tạo lớp
   const goToChatWithAuthor = () => {
-    if (classDetail.author) {
+    if (classDetail.author && !isMember) {
       const data: MessageNavigationType = {user: classDetail.author};
       navigation?.navigate(ScreenName.MESSAGE, data);
+    }
+    else {
+      const data: GroupMessageNavigationType = {class: classDetail};
+      navigation?.navigate(ScreenName.GROUP_MESSAGE, data);
     }
   };
 
@@ -186,7 +191,7 @@ export default function ButtonsInDetailClass({
               if (isLeaner && !isClassEnded) {
                 handleJoinClass();
               } 
-              if (isLeaner && isClassEnded) {
+              if (isMember && isClassEnded) {
                 goToRatingForClass();
               } 
               if(!isLeaner && !isClassEnded) {
