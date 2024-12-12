@@ -129,6 +129,12 @@ export default function GroupMessageScreen() {
     navigation?.navigate(ScreenName.DETAIL_CLASS, data);
   }, [_class]);
 
+  const goBack = useCallback(() => {
+    AMessage.markAsReadInGroup(accountContext.account?.id ?? "-1", _class?.id ?? -1, () => {
+      navigation?.goBack();
+    });
+  }, [accountContext.account, messages.length, _class]);
+
   //effects
   useEffect(() => {
     const data: GroupMessageNavigationType = route?.params as GroupMessageNavigationType;
@@ -148,7 +154,7 @@ export default function GroupMessageScreen() {
         },
         headerTintColor: "#fff",
         headerLeft: () => (
-          <TouchableOpacity onPress={() => navigation.goBack()} style={{paddingRight: 10, flexDirection: "row", gap: 5}}>
+          <TouchableOpacity onPress={goBack} style={{paddingRight: 10, flexDirection: "row", gap: 5}}>
             <Ionicons name="chevron-back" size={24} color="white" style={{alignSelf: "center"}}/>
           </TouchableOpacity>
         ),
