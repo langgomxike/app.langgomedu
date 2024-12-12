@@ -18,6 +18,7 @@ import {NavigationContext} from "@react-navigation/native";
 import ScreenName from "../../../constants/ScreenName";
 import {
   CreateReportNavigationType,
+  GroupMessageNavigationType,
   MessageNavigationType,
   RatingNavigationType,
 } from "../../../configs/NavigationRouteTypeConfig";
@@ -102,9 +103,13 @@ export default function ButtonsInDetailClass({
 
    // Xử lý chuyển hướng đến chat với người tạo lớp
   const goToChatWithAuthor = () => {
-    if (classDetail.author) {
+    if (classDetail.author && !isMember) {
       const data: MessageNavigationType = {user: classDetail.author};
       navigation?.navigate(ScreenName.MESSAGE, data);
+    }
+    else {
+      const data: GroupMessageNavigationType = {class: classDetail};
+      navigation?.navigate(ScreenName.GROUP_MESSAGE, data);
     }
   };
 
@@ -155,12 +160,12 @@ export default function ButtonsInDetailClass({
   // Hàm lấy text cho button
   const getButtonText = () => {
     if (isLeaner) {
-      if (isMember && !isClassEnded  && !isRating) return language.JOINED_CLASS;
+      if (isMember && !isClassEnded  && isRating == false) return language.JOINED_CLASS;
       if (isTutor) return language.TAUGHT_CLASS;
       if (isAuthor) return language.CREATED_CLASS_D;
       if (notJoin) return language.JOIN_CLASS;
-      if (isMember && isClassEnded && !isRating) return language.CLASS_RATING;
-      if (isRating) return language.RATED_TUTOR
+      if (isMember && isClassEnded && isRating === false) return language.CLASS_RATING;
+      if (isMember && isRating) return language.RATED_TUTOR
     }
 
     if (isTutor && !classDetail.author_accepted) {
@@ -186,7 +191,7 @@ export default function ButtonsInDetailClass({
               if (isLeaner && !isClassEnded) {
                 handleJoinClass();
               } 
-              if (isLeaner && isClassEnded) {
+              if (isMember && isClassEnded) {
                 goToRatingForClass();
               } 
               if(!isLeaner && !isClassEnded) {

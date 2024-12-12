@@ -13,6 +13,7 @@ import {
   TouchableOpacity,
   Image,
   Dimensions, Pressable, Alert,
+  ActivityIndicator,
 } from "react-native";
 import BottomSheet, {
   BottomSheetBackdrop,
@@ -46,6 +47,7 @@ import {ReportNavigationType} from "../../../configs/NavigationRouteTypeConfig";
 import {AppInfoContext} from "../../../configs/AppInfoContext";
 import AUserAdmin from "../../../apis/admin/AUserAdmin";
 import Toast from "react-native-simple-toast";
+import ModalPaidClassFeeResult from "../modal/ModalPaidClassFeeResult";
 
 type DetailHistoryBottonSheetProps = {
   isVisible: boolean;
@@ -131,8 +133,17 @@ export default function ({
     }
   }, [classData]);
 
-  const handleApprovePaymentByAdmin = useCallback(() => {
+  const handleShowPaymentByAdmin = () => {
+    if(!classData?.paid_path) {
+      Alert.alert(language.UNPAID,  language.USER_UNPAID_REMINDER);
+    }
+    setModalResult("modalPaidClassFeeResult");
+  }
+
+  // Xử lý xác nhận thanh toán
+  const handleApprovePaymentByAdmin = () => {
     if (classData) {
+      setModalResult(null)
       setModalContent({title:  `${language.CONFIRM}`, content:  `${language.CONFIRM_PAYMENT_SUCCESS}`})
       setModalResult("modalDialogForClass");
       AClassAdmin.approvePaymentByAdmin(
@@ -143,7 +154,37 @@ export default function ({
         setLoading
       );
     }
-  }, [classData]);
+  };
+
+  // Xử lý nhắc nhở người dùng thanh toán
+  const handleRemindPaymentByAdmin = () => {
+    if (classData) {
+      AClassAdmin.remindPaymentByAdmin(
+        classData,
+        (data) => {
+          if(data.result){
+            Toast.show( language.REMINDER_SUCCESSFUL, 1000);
+          }
+        },
+        setLoading
+      );
+    }
+  };
+
+  // Xử lý từ chối thanh toán
+  const handleDenyPaymentByAdmin = () => {
+    if (classData) {
+      AClassAdmin.denyPaymentByAdmin(
+        classData,
+        (data) => {
+          if(data.result){
+            Toast.show( language.REJECTION_SUCCESSFUL, 1000);
+          }
+        },
+        setLoading
+      );
+    }
+  }
 
   const handleDenyClass = () => {
     setModalResult("modalInputReason")
@@ -453,19 +494,26 @@ export default function ({
         <View>
           {!approvePayResult ? (
             <View style={styles.btnCotainer}>
-              <TouchableOpacity style={[styles.btn, styles.btnDeny]}>
-                <Text style={styles.btnDenyText}>{language.REMIND}</Text>
+              {!classData?.paid_path ? (
+              <TouchableOpacity style={[styles.btn, styles.btnDeny]} onPress={handleRemindPaymentByAdmin}>
+                {loading ? ( <ActivityIndicator color={"#ff0000"}/>) : (
+                  <Text style={styles.btnDenyText}>{language.REMIND}</Text>
+                )}
+               
               </TouchableOpacity>
+              ) : (
               <TouchableOpacity
-                onPress={handleApprovePaymentByAdmin}
+                onPress={handleShowPaymentByAdmin}
                 style={[styles.btn, styles.btnAccept]}
               >
                 <Text style={styles.btnAcceptText}>{language.CONFIRM_PAYMENT}</Text>
               </TouchableOpacity>
+              ) }
             </View>
           ) : (
             <View style={styles.btnCotainer}>
               <TouchableOpacity
+                disabled={true}
                 onPress={handleApprovePaymentByAdmin}
                 style={[styles.btn, styles.btnAcceptDisable]}
               >
@@ -484,6 +532,17 @@ export default function ({
         onRequestCloseDialog={() => setModalResult(null)}
         loading={loading}
       />
+
+      {classData?.paid_path &&
+      <ModalPaidClassFeeResult
+      visiable={modalResult}
+      image_uri={`${URL}${classData?.paid_path}`}
+      onRequestClose={() => setModalResult(null)}
+      onHandleConfirm={handleApprovePaymentByAdmin}
+      onHandleDeny={handleDenyPaymentByAdmin}
+      />
+      }
+
       <ModalInputReason
         confirmTitle="Từ chối"
         confirmContent=""
