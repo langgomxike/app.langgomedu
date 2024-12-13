@@ -37,8 +37,8 @@ export default function AppInfoContainer({
   return (
     <View style={styles.container}>
       <ConfirmDialog
-        title={"DELETE ITEM"}
-        content={"Do you want to delete this item"}
+        title={language.DELETE_ITEM}
+        content={language.ACCEPT_DELETE}
         open={confirm}
         onConfirm={onConfirm}
         onCancel={() => setConfirm(false)}

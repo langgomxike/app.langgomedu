@@ -186,14 +186,13 @@
   "CLASS_AVAILABLE": "Class available",
   "EXCEEDED_SELECTION": "seats left, you have selected more than the limit.",
   "SELECT_FEWER_OR_CONTACT_TUTOR": "Please select fewer students or contact the tutor for more information!",
-  
+
   "CANNOT_TEACH_DUE_TO_CONFLICT": "Unable to teach the class due to a schedule conflict!",
-   "CANNOT_JOIN_CLASS_DUE_TO_CONFLICT": "Unable to join this class due to a schedule conflict!",
+  "CANNOT_JOIN_CLASS_DUE_TO_CONFLICT": "Unable to join this class due to a schedule conflict!",
 
   "WANT_TO_JOIN_CLASS": "Do you want to join this class?",
   "WANT_TO_TEACH_CLASS": "Do you want to teach this class?",
   "CLASS_FULL_CONTACT_TEACHER": "The class is full.\nIf you want to join, please contact the teacher of the class!",
-
 
   "HAVE_NO_PERMISSION_TO_CREATE_CHILD": "You don't have permission to create a child",
   "HAVE_NO_PERMISSION_TO_MANAGE_CV": "You don't have permission to manage cv",
@@ -388,7 +387,7 @@
   "NEW_PASSWORD_MUST_BE_DIFFERENT": "The new password must be different from the old password.",
   "INVALID_PHONE_FORMAT": "The phone number must contain exactly 10 digits",
 
- "NO_ACCESS_USER": "Access denied. Your role does not have sufficient permissions.",
+  "NO_ACCESS_USER": "Access denied. Your role does not have sufficient permissions.",
   "NO_ACCESS_PARENT": "You do not have permission to create a class for parents.",
   "NO_ACCESS_TUTOR": "You do not have permission to create a class for tutors.",
   "BTN_UPDATE_CLASS": "Edit",
@@ -503,7 +502,42 @@
   "NOT_DEBIT": "No debit",
   "NOT_ATTENDED": "Not attended",
   "U_ARE_NOT_ROLE": "You do not have access to this page",
-  "ANDROID_PROGRAM": "Mobile Programming"
+  "ANDROID_PROGRAM": "Mobile Programming",
 
-
+  "BO_SUNG": "Bo sung",
+ "DELETE_ITEM": "Delete Item",
+  "ACCEPT_DELETE": "Do you want to delete this item?",
+  "LIST_REPORT": "Report List",
+  "USER_AUTHORIZATION": "User Authorization",
+  "MALE": "Male",
+  "FEMALE": "Female",
+  "DEFAULT": "Other",
+  "NEW_NOTIFICATION": "You have a new notification",
+  "DESELECT": "Deselect",
+  "NO_DATA_FOR_CLASS": "No class data available.",
+  "RATING_ALERT": "The rating content is too long. Please summarize the content before continuing.",
+  "CONTENT_INPUT": "Enter content",
+  "UPDATE_IMAGE": "Update Image",
+  "SEE_PHOTO": "View Photo",
+  "ALERT_HOME": "You did not change the user type. Only tutors can make changes.",
+  "ALERT_FILTER": "Filter",
+  "RATING_TO_STUDENT": "Rating from Student",
+  "ACCEPT_APP": "The application requires access to the photo library.",
+  "CONTENT_REPORT_1": "Please enter the report content.",
+  "CONTENT_REPORT_2": "Please add at least one image.",
+  "CONTENT_REPORT_3": "You have reported this user 3 times. You cannot report further.",
+  "REPORT_SUSCCES": "Report submitted successfully!",
+  "FAILED": "Failed",
+  "ALERT_FAILED": "Failed to send the report.",
+  "CHOOSE_IMAGE": "Choose Image",
+  "REPORT_USER": "Reported User",
+  "INFORMATION": "Information",
+  "PERSONALCLASSES": "Personal Classes",
+  "PERSONALRATINGS": "Personal Ratings",
+  "USER_REPORT_DETAIL_SCREEN": "User Report Detail Screen",
+  "QUAN_LY_PHAN_QUYEN": "Manage Permissions",
+  "THEM_QUYEN_QUAN_TRI": "Add Admin Permissions",
+  "QUAN_LY_NGUOI_DUNG": "Manage Users",
+  "QUAN_LY_LOP_HOC": "Manage Classes",
+  "QUAN_LY_CHUNG": "General Management"
 }

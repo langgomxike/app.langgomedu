@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { StyleSheet, View, TouchableOpacity, Text } from "react-native";
 import { Dropdown, MultiSelect } from "react-native-element-dropdown";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import vietnamData from "../../../data/vietnam.json";
 import Feather from "@expo/vector-icons/Feather";
 import { BackgroundColor } from "../../../configs/ColorConfig";
+import { LanguageContext } from "../../../configs/LanguageConfig";
 
 // Định nghĩa kiểu dữ liệu cho JSON
 interface Dropdown {
@@ -36,6 +37,10 @@ export default function DropDownLocation(
     onSetSelectedWard,
     errors,
   }: DropDownAddressProps){
+
+    // context
+    const language = useContext(LanguageContext).language;
+
   // states >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   const [district, setDistrict] = useState<Dropdown[]>([]); // Quận - Huyện
   const [ward, setWard] = useState<Dropdown[]>([]); // Xã - Thị Trấn
@@ -112,8 +117,8 @@ export default function DropDownLocation(
         maxHeight={300}
         labelField="label"
         valueField="value"
-        placeholder={!isFocus ? "Chọn tỉnh" : "Tỉnh"}
-        searchPlaceholder="Search..."
+        placeholder={!isFocus ? language.PROVICE : language.PROVICE_PLACEHOLDER}
+        searchPlaceholder={language.SEARCH}
         value={selectedProvince}
         onFocus={() => setIsFocus(true)}
         onBlur={() => setIsFocus(false)}
@@ -144,8 +149,8 @@ export default function DropDownLocation(
         maxHeight={300}
         labelField="label"
         valueField="value"
-        placeholder={!isFocus ? "Chọn quận/ huyện" : "Quận/ huyện"}
-        searchPlaceholder="Search..."
+        placeholder={!isFocus ? language.DISTRICT : language.DISTRICT_PLACEHOLDER}
+        searchPlaceholder={language.SEARCH}
         value={selectedDistrict}
         onFocus={() => setIsFocus(true)}
         onBlur={() => setIsFocus(false)}
@@ -175,8 +180,8 @@ export default function DropDownLocation(
         maxHeight={300}
         labelField="label"
         valueField="value"
-        placeholder={!isFocus ? "Chọn xã" : "Xã"}
-        searchPlaceholder="Search..."
+        placeholder={!isFocus ? language.WARD : language.WARD_PLACEHOLDER}
+        searchPlaceholder={language.SEARCH}
         value={selectedWard}
         onFocus={() => setIsFocus(true)}
         onBlur={() => setIsFocus(false)}

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import {
   Alert,
   KeyboardAvoidingView,
@@ -14,6 +14,7 @@ import ReactNativeModal from "react-native-modal";
 import DropDownAddress from "../../dropdown/DropDownAddress";
 import { BackgroundColor } from "../../../../configs/ColorConfig";
 import DropdownGender from "../../dropdown/DropDownGender";
+import { LanguageContext } from "../../../../configs/LanguageConfig";
 
 
 
@@ -41,6 +42,10 @@ const customBorderBottomLeftRadius = 30;
 const customOverlayHeight = "100%";
 
 export default function FilterUser  ({ isVisible, onRequestClose, onSetFilterValues }: FilterUserProps) {
+
+  // context
+  const language = useContext(LanguageContext).language;
+
   // states ----------------------------------------------------------------
   const [sortValues, setSortValues] = useState<string>("");
   const [selectedCities, setSelectedCities] = useState<string[]>([]);
@@ -120,10 +125,10 @@ export default function FilterUser  ({ isVisible, onRequestClose, onSetFilterVal
             <View style={[styles.btnContainer]}>
               {/* BUTTON QUAY LAI */}
               <TouchableOpacity style={styles.btnReset} onPress={handleResetFilter}>
-                <Text style={styles.textReset}>Thiết lập lại</Text>
+                <Text style={styles.textReset}>{language.RESET}</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.btnApply} onPress={handleApply}>
-                <Text style={styles.textApply}>Áp dụng</Text>
+                <Text style={styles.textApply}>{language.APPLY}</Text>
               </TouchableOpacity>
             </View>
             {/* <TouchableOpacity

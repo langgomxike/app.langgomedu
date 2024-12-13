@@ -231,7 +231,7 @@ export default function HistoryAttendance() {
                           </View>
 
                           <Text style={[styles.userStatus, subItem?.class?.tutor?.id === user?.id ?styles.statusTutor :  styles.statusLeaner]}>
-                          {subItem?.class?.tutor?.id === user?.id ? "Lớp dạy" : "Lớp học"}
+                          {subItem?.class?.tutor?.id === user?.id ? language.TEACH_CLASS : language.ATTEND_CLASS}
                           </Text>
                         </View>
 

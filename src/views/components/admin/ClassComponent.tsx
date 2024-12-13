@@ -24,6 +24,10 @@ type ClassComponentProps = {
 };
 
 export default function ClassComponent({ classData }: ClassComponentProps) {
+
+  // context
+  const language = useContext(LanguageContext).language;
+
   const naviagation = useContext(NavigationContext);
   const l =useContext(LanguageContext).language;
   function formatCurrency(amount: number, locale = "vi-VN", currency = "VND") {
@@ -109,7 +113,7 @@ export default function ClassComponent({ classData }: ClassComponentProps) {
                 />
                 <Text>{l.IS_ONLINE}</Text>
               </View>
-              <Text>Offline</Text>
+              <Text>{language.OFFLINE}</Text>
             </View>
 
             <View style={styles.textWithIconContainer}>
@@ -121,13 +125,13 @@ export default function ClassComponent({ classData }: ClassComponentProps) {
                 />
                 <Text>Giá</Text>
               </View>
-              <Text>{formatCurrency(classData.price)}/buổi</Text>
+              <Text>{formatCurrency(classData.price)}/{language.SESSION}</Text>
             </View>
 
             <View style={styles.textWithIconContainer}>
               <View style={styles.textWithIcon}>
                 <Ionicons name="location-outline" size={20} color="black" />
-                <Text>Địa chỉ</Text>
+                <Text>{language.ADDRESS}</Text>
               </View>
               <Text
                 style={{ flex: 1, textAlign: "right" }}

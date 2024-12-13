@@ -371,9 +371,9 @@ export default function PersionalProfileScreen() {
                 onValueChange={handleGenderChange} // Hàm xử lý khi chọn giá trị mới
                 style={styles.picker}
               >
-                <Picker.Item label="Nam" value={GENDER.MALE} />
-                <Picker.Item label="Nữ" value={GENDER.FEMALE} />
-                <Picker.Item label="Khác" value={GENDER.OTHER} />
+                <Picker.Item label={languageContext.MALE} value={GENDER.MALE} />
+                <Picker.Item label={languageContext.FEMALE} value={GENDER.FEMALE} />
+                <Picker.Item label={languageContext.DEFAULT} value={GENDER.OTHER} />
               </Picker>
             </View>
             {/* Address */}
@@ -388,7 +388,7 @@ export default function PersionalProfileScreen() {
             />
             <TextInput
               style={styles.detailAddress}
-              placeholder="Nhập nội dung"
+              placeholder={languageContext.CONTENT_INPUT}
               placeholderTextColor="#888"
               multiline
               value={selectedDetail}
@@ -437,7 +437,7 @@ export default function PersionalProfileScreen() {
                 handleImageUpload(); // Gọi hàm cập nhật hình ảnh
               }}
             >
-              <Text style={styles.modalButtonText}>Cập nhật hình ảnh</Text>
+              <Text style={styles.modalButtonText}>{languageContext.UPDATE_IMAGE}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.modalButton}
@@ -446,7 +446,7 @@ export default function PersionalProfileScreen() {
                 handleViewImage(); // Gọi hàm xem ảnh
               }}
             >
-              <Text style={styles.modalButtonText}>Xem ảnh</Text>
+              <Text style={styles.modalButtonText}>{languageContext.SEE_PHOTO}</Text>
             </TouchableOpacity>
           </View>
         </View>

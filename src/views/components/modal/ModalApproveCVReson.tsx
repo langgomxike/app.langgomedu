@@ -119,7 +119,7 @@ export default function ModalApproveCVReason({
                   onPress={(handleConfirm)}
                   style={[styles.btn, isDisable ? styles.btnDisable : styles.btnSave, styles.boxShadow]}
                 >
-                  <Text style={styles.btnSaveText}>Ok</Text>
+                  <Text style={styles.btnSaveText}>{language.OK}</Text>
                 </TouchableOpacity>
               </View>
             </View>

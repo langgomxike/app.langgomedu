@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { StyleSheet, View, Text, TextInput } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import vietnamData from "../../../data/vietnam.json";
+import { LanguageContext } from "../../../configs/LanguageConfig";
 
 interface DropdownOption {
   label: string;
@@ -29,6 +30,10 @@ export default function DropDownLocationCustom({
   onSelectedWard,
 
 }: DropDownLocationCustomProps) {
+
+  // context
+  const language = useContext(LanguageContext).language;
+
   const [districtOptions, setDistrictOptions] = useState<DropdownOption[]>([]);
   const [wardOptions, setWardOptions] = useState<DropdownOption[]>([]);
   const [isFocus, setIsFocus] = useState(false);
@@ -99,7 +104,7 @@ export default function DropDownLocationCustom({
         maxHeight={300}
         labelField="label"
         valueField="value"
-        placeholder={!isFocus ? "Chọn tỉnh" : "Tỉnh"}
+        placeholder={!isFocus ? language.PROVICE : language.PROVICE_PLACEHOLDER}
         searchPlaceholder="Tìm kiếm..."
         value={selectedCity}
         onFocus={() => setIsFocus(true)}
@@ -131,8 +136,8 @@ export default function DropDownLocationCustom({
         maxHeight={300}
         labelField="label"
         valueField="value"
-        placeholder="Chọn quận/huyện"
-        searchPlaceholder="Tìm kiếm..."
+        placeholder={language.DISTRICT}
+        searchPlaceholder={language.SEARCH}
         value={selectedDistrict}
         onChange={(item) => onSelectedDistrict(item.value)}
         renderLeftIcon={() => (
@@ -160,8 +165,8 @@ export default function DropDownLocationCustom({
         maxHeight={300}
         labelField="label"
         valueField="value"
-        placeholder="Chọn xã/phường"
-        searchPlaceholder="Tìm kiếm..."
+        placeholder={language.WARD}
+        searchPlaceholder={language.SEARCH}
         value={selectedWard}
         onChange={(item) => onSelectedWard(item.value)}
         renderLeftIcon={() => (

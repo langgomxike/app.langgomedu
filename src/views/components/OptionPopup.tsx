@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -12,6 +12,7 @@ import {
 
 import Search from "./Inputs/Search";
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { LanguageContext } from "../../configs/LanguageConfig";
 
 //Interface
 type OptionPopupProps = {
@@ -28,6 +29,10 @@ export default function optionPopup({
   onSelect,
   onRequestClose,
 }: OptionPopupProps) {
+
+  // context
+  const language = useContext(LanguageContext).language;
+
   const [currentData, setCurrentData] = useState(
     options.slice(0, ITEMS_PER_PAGE)
   );
@@ -67,7 +72,7 @@ export default function optionPopup({
             {/* Title */}
             <View style={[styles.sectionOne, styles.header]}>
               <View style={styles.sectionOne}>
-                <Text style={styles.modalTitle}>Chọn môn học</Text>
+                <Text style={styles.modalTitle}>{language.SELECT_SUBJECT}</Text>
               </View>
               <View style={[styles.sectionOne, {alignItems:'flex-end'}]}>
                 <TouchableOpacity onPress={onRequestClose} style={styles.btnClose}>
@@ -107,7 +112,7 @@ export default function optionPopup({
             {/* Button */}
             <View style={styles.sectionThree}>
               <Pressable style={styles.btnDelete}>
-                <Text style={styles.btnDeleteText}>Bỏ chọn</Text>
+                <Text style={styles.btnDeleteText}>{language.DESELECT}</Text>
               </Pressable>
             </View>
           </View>

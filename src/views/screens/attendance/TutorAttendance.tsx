@@ -50,7 +50,9 @@ export default function TutorAttendance() {
   const account = useContext(AccountContext).account
   const navigation = useContext(NavigationContext);
   const language = useContext(LanguageContext).language;
-  
+  const classId = param.lesson.class?.id;
+  const lessonId = param.lesson.id;
+
   // state ----------------------------------------------------------------
   const [modalVisible, setModalVisible] = React.useState<string | null>("");
   const [loading, setLoading] = React.useState(false);
@@ -63,8 +65,8 @@ export default function TutorAttendance() {
   const [attendanceStatus, setAttendanceStatus] = useState(false);
   const [confirmStatus, setConfirmStatus] = useState(false);
   const [realTimeStatus, setRealTimeStatus] = useState<number>(0);
-  const classId = param.lesson.class?.id;
-  const lessonId = param.lesson.id;
+  const [unPaidLearner, setUnPaidLearner] = useState<User[]>([]);
+
 
   // handler -----------------------------------------------------------------
 
@@ -230,6 +232,7 @@ export default function TutorAttendance() {
         const unpaidLearners = learners.filter(
           (learner) => learner.attendance?.attended !== false &&  (!learner.attendance?.paid || !learner.attendance?.deferred)
         );
+        setUnPaidLearner(unPaidLearner);
   
         // Nếu tất cả học viên đã thanh toán, xóa thông tin nhắc nhở
         if (unpaidLearners.length === 0) {
@@ -302,13 +305,15 @@ export default function TutorAttendance() {
                 contentContainerStyle={[{padding: 10}, filteredLearners?.length === 1 && styles.centeredItem]}
                 keyExtractor={(item, key) => `${key}`}
                 />
-
+                {unPaidLearner.length > 0 && 
                 <View style={styles.btnNotifyAllCContainer}>
                   <TouchableOpacity style={styles.btnNotifyAll} onPress={handleNotifyAll}>
                     <Text style={styles.btnNotifyAllText} >{language.SEND_REMINDERS_TO_ALL}</Text>
                     {loadingNotify && <ActivityIndicator color={"#fff"}/>}
                   </TouchableOpacity>
                 </View>
+                }
+
               </View>
               }
 

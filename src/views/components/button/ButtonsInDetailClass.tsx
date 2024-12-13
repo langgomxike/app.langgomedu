@@ -160,12 +160,12 @@ export default function ButtonsInDetailClass({
   // Hàm lấy text cho button
   const getButtonText = () => {
     if (isLeaner) {
-      if (isMember && !isClassEnded  && isRating == false) return language.JOINED_CLASS;
+      if (isMember && !isClassEnded  && !isRating) return language.JOINED_CLASS;
       if (isTutor) return language.TAUGHT_CLASS;
       if (isAuthor) return language.CREATED_CLASS_D;
       if (notJoin) return language.JOIN_CLASS;
-      if (isMember && isClassEnded && isRating === false) return language.CLASS_RATING;
-      if (isMember && isRating) return language.RATED_TUTOR
+      if (isMember && isClassEnded && !isRating) return language.CLASS_RATING;
+      if (isRating) return language.RATED_TUTOR
     }
 
     if (isTutor && !classDetail.author_accepted) {
