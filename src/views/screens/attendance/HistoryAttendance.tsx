@@ -79,7 +79,7 @@ export default function HistoryAttendance() {
 
     const date = new Date(+values[2], +values[1] - 1, +values[0]);
 
-    if (date.getTime() < fromDate || date.getTime() > new Date().getTime()) {
+    if (date.getTime() < fromDate /*|| date.getTime() > new Date().getTime() */) {
       Toast.show("Invalid date", 1000);
       return;
     }
@@ -258,7 +258,7 @@ export default function HistoryAttendance() {
                             Thanh toán
                           </Text>)}
 
-                          {!!(subItem?.deferred ?? 0) && (<Text style={[styles.badge, styles.deferredText]}>
+                          {!!(subItem?.confirm_deferred ?? 0) && (<Text style={[styles.badge, styles.deferredText]}>
                             No hoc phi
                           </Text>)}
                         </View>
